@@ -3,22 +3,44 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #141217;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #141217;
     --foreground: #ededed;
   }
 }
 
 body {
-  color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
+
+/* ExportWalletButton.module.css */
+.button {
+  display: flex;
+  height: 65px;
+  padding: 10px 12px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  align-self: stretch;
+  border-radius: var(--4px, 4px);
+  border: 2px solid var(--text-pink, #F19ED2);
+  background: var(--input-bg, rgba(255, 255, 255, 0.02));
+  box-shadow: 0px 0px 4px 0px rgba(255, 255, 255, 0.05) inset;
+  color: var(--text-pink, #F19ED2); /* Adjust text color if needed */
+}
+
+.icon {
+  width: 24px; /* Adjust size as needed */
+  height: 24px; /* Adjust size as needed */
+}
+
 
 @layer utilities {
   .text-balance {
