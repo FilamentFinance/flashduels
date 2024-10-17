@@ -36,7 +36,7 @@ const WalletInfo: React.FC = () => {
             alt=""
             className="object-contain shrink-0 self-stretch my-auto aspect-square w-[18px]"
           />
-          <div className="self-stretch my-auto">$2,000.49</div>
+          <div className="self-stretch my-auto">--</div>
           <img
             loading="lazy"
             src="https://cdn.builder.io/api/v1/image/assets/TEMP/4a31119f3e4025713c364f993c934fcd0847a60ff8d0daa9ecfc065476e3bb4e?placeholderIfAbsent=true&apiKey=9a4d3cdfd283475dbc30e1b60dc2077d"

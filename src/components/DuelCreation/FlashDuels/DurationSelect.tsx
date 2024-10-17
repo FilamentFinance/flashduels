@@ -11,7 +11,7 @@ const DurationSelect: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col mt-2 w-full">
+    <div className="flex flex-col mt-2 w-full ">
       <div className="flex gap-1 items-center w-full">
         <div className="flex flex-1 shrink gap-1 items-center self-stretch my-auto w-full basis-0 min-w-[240px]">
           <label
@@ -20,7 +20,7 @@ const DurationSelect: React.FC = () => {
           >
             Ends in
           </label>
-          <div className="flex overflow-hidden justify-center self-stretch p-0.5 my-auto text-sm tracking-normal leading-none text-center whitespace-nowrap rounded-lg border border-solid bg-zinc-500 bg-opacity-10 border-gray-500 border-opacity-50 text-stone-200">
+          <div className="flex overflow-hidden justify-center self-stretch p-0.5 my-auto text-sm tracking-normal leading-none text-center whitespace-nowrap rounded-lg border border-solid bg-neutral-800 border-zinc-800 bg-opacity border-opacity-50 text-stone-200">
             {durations.map((duration) => (
               <button
                 key={duration}

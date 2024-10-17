@@ -10,16 +10,16 @@ const TokenInput: React.FC = () => {
         htmlFor="token-input"
         className="flex gap-1 items-center max-w-full text-base tracking-normal leading-none text-gray-400 whitespace-nowrap w-[254px]"
       >
-        <span className="gap-1 self-stretch my-auto min-w-[240px] w-[284px]">
+        <span className="gap-1 self-stretch my-auto tracking-tighter min-w-[240px] w-[284px]">
           Token*
         </span>
       </label>
-      <div className="flex flex-col mt-1 w-full">
-        <div className="flex overflow-hidden items-center w-full rounded-lg border border-solid shadow-sm bg-neutral-800 border-zinc-800">
+      <div className="flex flex-col mt-1 w-full bg-neutral-800">
+        <div className="flex overflow-hidden items-center w-full rounded-lg border border-solid shadow-sm bg-neutral-800 rounded-lg  border-zinc-800">
           <input
             id="token-input"
             type="text"
-            className="flex-1 shrink items-center self-stretch my-auto text-base font-medium tracking-normal text-gray-500 whitespace-nowrap basis-5 min-w-[240px] py-2.5 pr-2 pl-3"
+            className="flex-1 shrink items-center self-stretch my-auto text-base font-medium tracking-normal bg-neutral-800 text-gray-500 whitespace-nowrap basis-5 min-w-[240px] py-2.5 pr-2 pl-3 rounded-lg "
             placeholder="token"
           />
           <div className="flex gap-2 items-center self-stretch py-2.5 pr-3 pl-2 my-auto w-[34px]">

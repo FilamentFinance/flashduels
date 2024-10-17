@@ -15,7 +15,7 @@ const PriceInput: React.FC<PriceInputProps> = ({ label, placeholder }) => {
         htmlFor={`${label.toLowerCase().replace(/\s/g, "-")}-input`}
         className="flex flex-1 shrink gap-1 items-center self-stretch my-auto text-base tracking-normal leading-none text-gray-400 basis-0"
       >
-        <span className="gap-1 self-stretch my-auto min-w-[240px] w-[284px]">
+        <span className="gap-1 self-stretch my-auto tracking-tighter min-w-full w-full">
           {label}
         </span>
       </label>
@@ -23,7 +23,7 @@ const PriceInput: React.FC<PriceInputProps> = ({ label, placeholder }) => {
         <input
           id={`${label.toLowerCase().replace(/\s/g, "-")}-input`}
           type="text"
-          className="flex flex-1 shrink gap-2.5 items-start self-stretch px-4 py-2 my-auto w-full basis-0"
+          className="flex flex-1 shrink gap-2.5 items-start self-stretch px-4 py-2 bg-neutral-800 my-auto w-full basis-0"
           placeholder={placeholder}
         />
       </div>

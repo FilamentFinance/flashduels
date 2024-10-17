@@ -14,7 +14,7 @@ const BetInput: React.FC = () => {
       </label>
       <textarea
         id="bet"
-        className="flex overflow-hidden mt-1 w-full text-xs tracking-normal leading-loose rounded-lg border border-solid shadow-sm bg-white bg-opacity-0 border-white border-opacity-10 min-h-[69px] text-stone-500 p-4"
+        className="flex overflow-hidden mt-1 w-full text-xs tracking-normal leading-loose rounded-lg border border-solid shadow-sm  border-white border-opacity-10 bg-neutral-800 min-h-[69px] text-stone-500 p-4 pt-2"
         placeholder="Enter your Text Here"
       />
     </div>

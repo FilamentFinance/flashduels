@@ -10,7 +10,7 @@ const WinConditionSelect: React.FC = () => {
         htmlFor="win-condition-select"
         className="flex flex-1 shrink gap-1 items-center self-stretch my-auto text-base tracking-normal leading-none text-gray-400 basis-0"
       >
-        <span className="gap-1 self-stretch my-auto min-w-[240px] w-[284px]">
+        <span className=" self-stretch my-auto min-w-full w-full tracking-tighter">
           Win Condition
         </span>
       </label>

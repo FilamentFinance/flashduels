@@ -15,14 +15,14 @@ const BetIconUpload: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col mt-2 w-full">
+    <div className="flex flex-col mt-2 w-full ">
       <label
         htmlFor="betIcon"
         className="flex gap-1 items-center w-full text-base tracking-normal leading-none text-gray-400"
       >
         Bet Icon*
       </label>
-      <div className="flex overflow-hidden flex-col justify-center items-center py-6 mt-1 w-full text-xs tracking-normal leading-4 text-center text-gray-500 rounded-lg border border-dashed shadow-sm bg-white bg-opacity-0 border-white border-opacity-10">
+      <div className="flex overflow-hidden flex-col justify-center items-center pt-6 mt-1 w-full text-xs tracking-normal leading-4 text-center text-gray-500 rounded-lg border border-dashed shadow-sm bg-neutral-800 border-white border-opacity-10 ">
         <img
           loading="lazy"
           src={
@@ -32,7 +32,7 @@ const BetIconUpload: React.FC = () => {
           alt="Bet Icon Preview"
           className="object-contain w-8 aspect-square"
         />
-        <div className="flex items-center max-w-full w-[195px]">
+        <div className="flex items-center max-w-full w-[195px] ">
           <div className="flex gap-2.5 items-start self-stretch px-4 py-2 my-auto w-[195px]">
             <p className="w-full">
               Drag and drop an image here

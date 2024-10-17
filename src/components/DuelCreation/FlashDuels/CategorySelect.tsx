@@ -12,7 +12,7 @@ const CategorySelect: React.FC = () => {
       >
         Category*
       </label>
-      <div className="flex flex-col flex-1 shrink self-stretch my-auto basis-0">
+      <div className="flex flex-col flex-1 shrink self-stretch my-auto basis-0 bg-neutral-800">
         <div className="flex overflow-hidden items-center w-full rounded-lg border border-solid shadow-sm bg-white bg-opacity-0 border-white border-opacity-10">
           <select
             id="category"

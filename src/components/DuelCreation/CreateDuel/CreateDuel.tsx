@@ -31,14 +31,15 @@ const CreateDuel: React.FC = () => {
         <form className="flex flex-col mt-2 w-full max-w-[400px]">
           <TokenInput />
           <div className="flex flex-col mt-4 w-full text-base tracking-normal leading-none">
-            <div className="flex gap-1 items-center w-full">
-              <div className="flex-1 shrink gap-1 self-stretch my-auto text-gray-400">
+            <div className="flex flex-1 gap-1 items-center self-stretch my-auto text-base tracking-normal leading-none basis-0 justify-between">
+              <div className="flex-1 shrink gap-1 self-stretch tracking-tighter my-auto text-gray-400">
                 Mark Price
               </div>
-              <div className="flex-1 shrink gap-1 self-stretch my-auto text-white whitespace-nowrap">
+              <div className="flex-1 shrink gap-1 self-stretch my-auto text-white whitespace-nowrap text-right">
                 --
               </div>
             </div>
+
           </div>
           <PriceInput
             label="Trigger Price*"
