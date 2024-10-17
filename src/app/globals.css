@@ -34,7 +34,7 @@ body::before {
   background-size: cover; /* Ensure the image covers the entire area */
   background-position: center;
   background-repeat: no-repeat;
-  opacity: 0.7; /* Optional: Adjust opacity if needed */
+  opacity: 10; /* Optional: Adjust opacity if needed */
   z-index: -1; /* Keep it behind the content */
 }
 

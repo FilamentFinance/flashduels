@@ -27,8 +27,8 @@ const DuelCard: React.FC<DuelCardProps> = ({
   const bgColorClass = isPositive ? "bg-lime-300" : "bg-red-500";
 
   return (
-    <article className="flex flex-col flex-1 shrink self-stretch p-3 my-auto rounded-xl shadow basis-0 bg-zinc-900 min-w-[240px]">
-      <div className="flex flex-col self-center max-w-full min-h-[114px] w-[227px]">
+    <article className="flex flex-col flex-1 shrink self-stretch p-3 my-auto rounded-xl shadow basis-0 bg-zinc-900 min-w-[240px] md:max-w-[240px] lg:max-w-[300px] xl:max-w-[400px]">
+      <div className="flex flex-col self-center max-w-full min-h-[114px] w-full">
         <div className="flex gap-2 items-start w-full max-w-[227px]">
           <div className="flex gap-2 w-16 min-h-[64px]">
             <div className="flex flex-1 shrink basis-0 size-full">
