@@ -3,12 +3,14 @@
  */
 import { shortenAddress } from "@/utils/helper";
 import { usePrivy } from "@privy-io/react-auth";
+import { useRouter } from "next/navigation";
 import React from "react";
 
-const WalletInfo: React.FC = () => {
+const WalletInfo = ({onClose}:{onClose:()=> void}) => {
   const {user} = usePrivy();
+  const router = useRouter();
   return (
-    <section className="flex gap-4 items-center self-center mt-4 max-w-full w-[400px]">
+    <section onClick={()=> {router.push("/portfolio"); onClose()}} className="flex gap-4 items-center self-center mt-4 max-w-full w-[400px]">
       <div className="flex flex-1 shrink gap-10 justify-between items-center self-stretch px-2 py-1 my-auto w-full rounded-lg border-2 border-solid basis-0 bg-white bg-opacity-0 border-white border-opacity-10 min-w-[240px]">
         <div className="flex gap-1 items-center self-stretch my-auto w-[207px]">
           <div className="flex items-start self-stretch my-auto w-[26px]">

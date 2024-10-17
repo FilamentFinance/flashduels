@@ -17,7 +17,7 @@ const PortfolioModal: React.FC<DepositModalProps> = ({ onClose, onLogout }) => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
             <main className="flex flex-col justify-center py-2.5 px-4 rounded-lg border border-solid bg-zinc-900 border-zinc-700 max-w-[432px]">
                 <Header onClose={onClose} />
-                <WalletInfo />
+                <WalletInfo onClose={onClose} />
                 <DepositSection text={"Wallet Address"} />
                 <button onClick={onLogout}>Logout</button>
                 <MyComponent></MyComponent>
