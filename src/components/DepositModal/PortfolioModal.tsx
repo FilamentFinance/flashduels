@@ -11,7 +11,7 @@ interface DepositModalProps {
     user: User
 }
 
-const PortfolioModal: React.FC<DepositModalProps> = ({ onClose }) => {
+const PortfolioModal: React.FC<DepositModalProps> = ({ onClose, onLogout }) => {
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
@@ -19,6 +19,7 @@ const PortfolioModal: React.FC<DepositModalProps> = ({ onClose }) => {
                 <Header onClose={onClose} />
                 <WalletInfo />
                 <DepositSection text={"Wallet Address"} />
+                <button onClick={onLogout}>Logout</button>
                 <MyComponent></MyComponent>
 
             </main>

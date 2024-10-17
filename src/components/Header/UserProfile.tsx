@@ -47,7 +47,7 @@ const UserProfile: React.FC = () => {
   };
 
   return (
-    <div className="flex gap-[4px] items-center p-[4px] my-auto rounded-[8px] border-2 border-[rgba(255,255,255,0.05)] bg-[rgba(255,255,255,0.02)]">
+    <div className="flex gap-[4px] items-center p-[4px] my-auto rounded-[8px] bg-[rgba(255,255,255,0.02)]">
       {authenticated ? (
         <>
           <div 
@@ -81,7 +81,7 @@ const UserProfile: React.FC = () => {
         <button 
           onClick={login} 
           disabled={disableLogin} 
-          className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600"
+          className="gap-2.5 self-stretch px-3 py-2.5 my-auto text-base font-semibold leading-none text-gray-900 rounded shadow-sm bg-[linear-gradient(180deg,#F19ED2_0%,#C87ECA_100%)]"
         >
           Connect
         </button>
