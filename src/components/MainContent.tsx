@@ -8,7 +8,7 @@ import DuelGrid from "./DuelGrid";
 import DuelCategories from "./DuelCategories/DuelCategories";
 
 const MainContent: React.FC = () => {
-  const [activeButton, setActiveButton] = useState<string>("");
+  const [activeButton, setActiveButton] = useState<string>("liveDuels");
 
   const handleLiveDuelsClick = () => {
     console.log('Live Duels clicked!');
@@ -47,11 +47,11 @@ const MainContent: React.FC = () => {
 
           <button
             onClick={handleBootstrappingClick}
-            className={`self-stretch px-1.5 py-1 h-full tracking-normal whitespace-nowrap text-ellipsis w-[121px] bg-transparent border-none cursor-pointer text-stone-200 
+            className={`self-stretch px-2.5 py-1 h-full tracking-normal whitespace-nowrap text-ellipsis w-[141px] bg-transparent border-none cursor-pointer text-stone-200 
         ${activeButton === 'bootstrapping' ?
-                'rounded-lg border border-solid border-opacity-30 text-black bg-[linear-gradient(180deg,#EF9DD2_0%,#CB80CB_100%)] shadow-[0px_0px_4.3px_rgba(255,255,255,0.20)_inset]'
-                : 'rounded-lg hover:bg-stone-600 transition duration-200'
-              }`}
+          'rounded-lg border border-solid border-opacity-30 text-black bg-[linear-gradient(180deg,#EF9DD2_0%,#CB80CB_100%)] shadow-[0px_0px_4.3px_rgba(255,255,255,0.20)_inset]'
+          : 'rounded-lg hover:bg-stone-600 transition duration-200'
+        }`}
           >
             Bootstrapping
           </button>
