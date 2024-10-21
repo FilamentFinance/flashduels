@@ -22,6 +22,7 @@ const BetInfo: React.FC<BetInfoProps> = ({
   probability,
   createdBy,
 }) => {
+  console.log(bet, setBet)
   return (
     <section className="flex flex-col p-3 w-full rounded-xl bg-white bg-opacity-0">
       <div className="flex gap-2 items-start w-full">

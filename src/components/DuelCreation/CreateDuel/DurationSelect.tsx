@@ -6,7 +6,7 @@ interface DurationSelectProps {
   onChange: (duration: string) => void;
 }
 
-const DurationSelect: React.FC<DurationSelectProps> = ({name, value, onChange}) => {
+const DurationSelect: React.FC<DurationSelectProps> = ({onChange}) => {
   const durations = ["3H", "6H", "12H", "24H", "48H"];
   const [selectedDuration, setSelectedDuration] = useState<string>("3H"); // Set default duration
 

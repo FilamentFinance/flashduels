@@ -1,5 +1,4 @@
 import React from "react";
-import TokenInput from "./TokenInput";
 import PriceInput from "./PriceInput";
 import WinConditionSelect from "./WinConditionSelect";
 import DurationSelect from "./DurationSelect";
