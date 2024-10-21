@@ -1,49 +1,51 @@
 "use client";
 import { usePrivy, User } from "@privy-io/react-auth";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { shortenAddress } from "@/utils/helper";
 import PortfolioModal from "../DepositModal/PortfolioModal";
-
-// Modal Component
-// const Modal = ({ onClose, onLogout, user }: { onClose: () => void; onLogout: () => void; user: User }) => (
-//   <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75">
-//     <div className="bg-gray-800 text-white p-6 rounded-lg shadow-lg w-1/3">
-//       <h2 className="text-xl font-bold mb-4">User Details</h2>
-//       <div className="mb-4">
-//         <p className="text-sm">Twitter Username: {user?.twitter?.username || 'N/A'}</p>
-//         <p className="text-sm">Wallet Address: {user?.wallet?.address || 'N/A'}</p>
-//         {/* Add more user details as needed */}
-//       </div>
-//       <div className="flex justify-between">
-//         <button 
-//           onClick={onLogout} 
-//           className="px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 transition duration-200"
-//         >
-//           Logout
-//         </button>
-//         <button 
-//           onClick={onClose} 
-//           className="px-4 py-2 text-white bg-gray-600 rounded-lg hover:bg-gray-700 transition duration-200"
-//         >
-//           Close
-//         </button>
-//         {/* Export Private Key Button */}
-//         <button className="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition duration-200">
-//           <ExportWalletButton />
-//         </button>
-//       </div>
-//     </div>
-//   </div>
-// );
+import { NEXT_PUBLIC_API } from "@/utils/consts";
 
 const UserProfile: React.FC = () => {
   const { ready, authenticated, login, logout, user } = usePrivy();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const disableLogin = !ready || (ready && authenticated);
 
+  const interactWithBackend = async (twitterUsername: string | null | undefined, walletAddress: string | undefined) => {
+    if (!twitterUsername || !walletAddress) return;
+
+    try {
+      const response = await fetch(`${NEXT_PUBLIC_API}/users/auth`, { // Updated endpoint
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ twitterUsername, address: walletAddress }), // Sending both username and address
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Authentication successful:', data);
+        // Here you can save the token or user data as needed
+      } else {
+        console.error('Failed to authenticate:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error interacting with backend:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (authenticated) {
+      const walletAddress = user?.wallet?.address;
+      const twitterUsername = user?.twitter?.username;
+      interactWithBackend(twitterUsername, walletAddress);
+    }
+  }, [authenticated, user]);
+  
+
   const handleLogout = () => {
     logout();
-    setIsModalOpen(false); // Close the modal after logout
+    setIsModalOpen(false); 
   };
 
   return (

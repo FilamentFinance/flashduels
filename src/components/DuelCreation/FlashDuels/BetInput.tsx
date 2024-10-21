@@ -3,7 +3,13 @@
  */
 import React from "react";
 
-const BetInput: React.FC = () => {
+interface BetInputProps {
+  name: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+}
+
+const BetInput: React.FC<BetInputProps> = ({ name, value, onChange }) => {
   return (
     <div className="flex flex-col mt-2 w-full min-h-[93px]">
       <label
@@ -13,7 +19,10 @@ const BetInput: React.FC = () => {
         Bet*
       </label>
       <textarea
-        id="bet"
+        required
+        name={name}
+        value={value}
+        onChange={onChange}
         className="flex overflow-hidden mt-1 w-full text-xs tracking-normal leading-loose rounded-lg border border-solid shadow-sm  border-white border-opacity-10 bg-neutral-800 min-h-[69px] text-stone-500 p-4 pt-2"
         placeholder="Enter your Text Here"
       />

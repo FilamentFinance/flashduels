@@ -1,11 +1,18 @@
 import React, { useState } from "react";
 
-const DurationSelect: React.FC = () => {
+interface DurationSelectProps {
+  name: string;
+  value: string;
+  onChange: (duration: string) => void;
+}
+
+const DurationSelect: React.FC<DurationSelectProps> = ({name, value, onChange}) => {
   const durations = ["3H", "6H", "12H", "24H", "48H"];
   const [selectedDuration, setSelectedDuration] = useState<string>("3H"); // Set default duration
 
   const handleDurationClick = (duration: string) => {
     setSelectedDuration(duration); // Update the selected duration
+    onChange(duration);
   };
 
   return (

@@ -1,1 +1,2 @@
 export const NEXT_PUBLIC_PRIVY_APP_ID=process.env.NEXT_PUBLIC_PRIVY_APP_ID as string
+export const NEXT_PUBLIC_API=process.env.NEXT_PUBLIC_API as string

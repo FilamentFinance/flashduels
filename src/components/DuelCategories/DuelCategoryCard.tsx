@@ -21,7 +21,7 @@ const DuelCategoryCard: React.FC<DuelCategoryCardProps> = ({
     "border-[#29272A] bg-[var(--card-bg,linear-gradient(180deg,#101010_0%,#000_100%))] flex-shrink-0";
 
   return (
-    <section
+    <button
       className={`${baseClasses} ${isSpecial ? specialClasses : regularClasses}`}
       onClick={onClick} // Attach onClick to the card
     >
@@ -41,7 +41,7 @@ const DuelCategoryCard: React.FC<DuelCategoryCardProps> = ({
         </>
       )}
       {isSpecial && <h2 className="text-pink-300">{title}</h2>}
-    </section>
+    </button>
   );
 };
 

@@ -2,12 +2,19 @@ import React, { useState } from "react";
 
 const durations = ["3H", "6H", "12H", "24H", "48H"];
 
-const DurationSelect: React.FC = () => {
+interface DurationSelectProps {
+  name: string;
+  value: string;
+  onChange: (duration: string) => void;
+}
+
+const DurationSelect: React.FC<DurationSelectProps> = ({ name, value, onChange }) => {
   // State to keep track of the selected duration
-  const [selectedDuration, setSelectedDuration] = useState<string | null>(null);
+  const [selectedDuration, setSelectedDuration] = useState<string | null>(value);
 
   const handleDurationSelect = (duration: string) => {
     setSelectedDuration(duration); // Update selected duration
+    onChange(duration); // Call the onChange handler with selected duration
   };
 
   return (
@@ -38,6 +45,7 @@ const DurationSelect: React.FC = () => {
           </div>
         </div>
       </div>
+      <input type="hidden" name={name} value={selectedDuration || ''} />
     </div>
   );
 };

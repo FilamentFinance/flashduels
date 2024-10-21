@@ -3,7 +3,7 @@
  */
 import React from "react";
 
-interface DuelCardProps {
+export interface DuelCardProps {
   title: string;
   imageSrc: string;
   volume: string;
@@ -11,6 +11,10 @@ interface DuelCardProps {
   percentage: number;
   createdBy: string;
   creatorImageSrc?: string;
+  onClick?: () => void;
+  duelType: string;
+  duelId: string;
+
 }
 
 const DuelCard: React.FC<DuelCardProps> = ({
@@ -21,13 +25,14 @@ const DuelCard: React.FC<DuelCardProps> = ({
   percentage,
   createdBy,
   creatorImageSrc,
+  onClick
 }) => {
   const isPositive = percentage >= 50;
   const colorClass = isPositive ? "text-lime-300" : "text-red-500";
   const bgColorClass = isPositive ? "bg-lime-300" : "bg-red-500";
 
   return (
-    <article className="flex flex-col flex-1 shrink self-stretch p-3 my-auto rounded-xl shadow basis-0 bg-zinc-900 min-w-[240px] md:max-w-[240px] lg:max-w-[300px] xl:max-w-[400px]">
+    <article onClick={onClick} className="flex flex-col flex-1 shrink self-stretch p-3 my-auto rounded-xl shadow basis-0 bg-zinc-900 min-w-[240px] md:max-w-[240px] lg:max-w-[300px] xl:max-w-[400px]">
       <div className="flex flex-col self-center max-w-full min-h-[114px] w-full">
         <div className="flex gap-2 items-start w-full max-w-[227px]">
           <div className="flex gap-2 w-16 min-h-[64px]">

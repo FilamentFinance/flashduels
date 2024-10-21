@@ -43,9 +43,6 @@ const DuelCreationModal: React.FC<DuelCreationModalProps> = ({ onClose }) => {
     onClose(); // Close the modal
   };
   
-  const handleFlashDuelForm = () => {
-
-  }
 
   return (
     <>
@@ -68,7 +65,7 @@ const DuelCreationModal: React.FC<DuelCreationModalProps> = ({ onClose }) => {
             </button>
           </header>
           {isDuelSelected ? ( // Conditional rendering based on duel selection
-            selectedMarket === "Coin Duel" ? <CreateDuel /> : <CreateDuelForm onSubmit={handleFlashDuelForm} />
+            selectedMarket === "Coin Duel" ? <CreateDuel /> : <CreateDuelForm/>
           ) : (
             <div className="flex flex-col self-center mt-4 w-full">
               <ProgressBar />
