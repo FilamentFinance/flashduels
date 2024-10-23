@@ -5,6 +5,17 @@ import DurationSelect from "./DurationSelect";
 import InfoBox from "./InfoBox";
 import CreateDuelButton from "./CreateDuelButton";
 import TokenSelect from "./TokenInput";
+import { CHAIN_ID, durations, NEXT_PUBLIC_API, NEXT_PUBLIC_FLASH_DUELS, NEXT_PUBLIC_FLASH_USDC, NEXT_PUBLIC_TIMER_BOT_URL } from "@/utils/consts";
+import { mapDurationToNumber } from "@/utils/helper";
+import { FLASHUSDCABI } from "@/abi/FLASHUSDC";
+import { FLASHDUELSABI } from "@/abi/FlashDuels";
+import { useWriteContract } from "wagmi";
+import { waitForTransactionReceipt } from "wagmi/actions";
+import { config } from "@/app/config/wagmi";
+import { useWatchContractEvent } from 'wagmi'
+import axios from "axios";
+import { usePrivy } from "@privy-io/react-auth";
+import { v4 as uuidv4 } from 'uuid';
 
 interface FormData {
   tokenInput: string;
@@ -15,6 +26,22 @@ interface FormData {
 }
 
 const CreateDuel: React.FC = () => {
+
+  console.log(CHAIN_ID, NEXT_PUBLIC_FLASH_DUELS, NEXT_PUBLIC_FLASH_USDC, "hello")
+  const { user } = usePrivy()
+  useWatchContractEvent({
+    address: NEXT_PUBLIC_FLASH_DUELS as `0x${string}`,
+    abi: FLASHDUELSABI,
+    chainId: CHAIN_ID,
+    eventName: 'CryptoDuelCreated',
+    onLogs(logs) {
+      console.log('New logs!', logs)
+    },
+    onError(error) {
+      console.log('Error-new', error)
+    }
+  })
+
   const [formData, setFormData] = React.useState<FormData>({
     tokenInput: "",
     triggerPrice: "",
@@ -42,12 +69,113 @@ const CreateDuel: React.FC = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const {
+    writeContractAsync: lpTokenApproveAsyncLocal,
+  } = useWriteContract({});
+
+  const {
+    writeContractAsync: lpTokenSecondFunctionAsyncLocal,
+  } = useWriteContract({});
+
+  // Function to approve the token
+  const lpTokenApproveAsync = () =>
+    lpTokenApproveAsyncLocal({
+      abi: FLASHUSDCABI,
+      address: NEXT_PUBLIC_FLASH_USDC as `0x${string}`,
+      functionName: "increaseAllowance",
+      chainId: CHAIN_ID,
+      args: [NEXT_PUBLIC_FLASH_DUELS, 10 * 10 ** 6],
+    });
+
+  // Function to call the second contract function
+  const lpTokenSecondFunctionAsync = (symbol: string, options: string[], minWager: number, triggerValue: number, triggerType: number, triggerCondition: number, duration: number) =>
+    // console.log(symbol, options, minWager, triggerValue, triggerType, triggerCondition, duration)
+    lpTokenSecondFunctionAsyncLocal({
+      abi: FLASHDUELSABI,
+      address: NEXT_PUBLIC_FLASH_DUELS as `0x${string}`,
+      functionName: "createCryptoDuel",
+      chainId: CHAIN_ID,
+      args: [symbol, options, minWager, triggerValue, triggerType, triggerCondition, duration],
+    });
+
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log("Form Data new: ", formData);
-    //markPrice, duelId, type, createdAt
-    // Call the contract or backend with the form data
+    try {
+      const hash = await lpTokenApproveAsync();
+      const receipt = await waitForTransactionReceipt(config, { hash });
+
+      // if (lpTokenApproveIsSuccess) {
+      console.log("Approval successful: ", receipt);
+
+      // const categoryEnum = mapCategoryToEnum(formData.category);
+      const durationNumber = mapDurationToNumber(formData.durationSelect);
+      const triggerPrice = Number(formData.triggerPrice) * 10 ** 8;
+      const minWager = Number(formData.minWager) * 10 ** 6;
+      const options = ["YES", "NO"];
+      const triggerType = 0;
+      const symbol = formData.tokenInput
+      const winCondition = formData.winCondition === "ABOVE" ? 0 : 1;
+      const markPrice = "66000";
+      console.log(symbol, options, minWager, triggerPrice, triggerType, formData.winCondition, winCondition, durationNumber)
+      // const options = ["YES", "NO"];
+
+      const secondHash = await lpTokenSecondFunctionAsync(symbol, options, minWager, triggerPrice, triggerType, winCondition, durationNumber);
+      const secondReceipt = await waitForTransactionReceipt(config, { hash: secondHash });
+
+      // if (lpTokenSecondFunctionIsSuccess) {
+      console.log("Second function successful: ", secondReceipt);
+      const currentUnixTime = Math.floor(Date.now() / 1000);
+      const duelId = uuidv4()
+      // get this from reciept
+      const duelData = {
+        duelId: duelId,
+        type: "COIN_DUEL",
+        token: symbol,
+        markPrice: markPrice,
+        triggerPrice: formData.triggerPrice,
+        minimumWager: minWager,
+        winCondition: winCondition,
+        endsIn: durations[durationNumber],
+        createdAt: currentUnixTime,
+      };
+
+      // Send request to your backend
+      const response = await axios.post(
+        `${NEXT_PUBLIC_API}/duels/create`,
+        {
+          ...duelData,
+          twitterUsername: user?.twitter?.username,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        }
+      );
+
+      console.log(response)
+      // const durationHour = durationNumber === 0 ? 3 : durationNumber === 1 ? 6 : durationNumber ===2 ?12 : 0
+      // timer bot call
+      await axios.post(`${NEXT_PUBLIC_TIMER_BOT_URL}/startDuel`, {
+        duelId: duelId,
+        duelType: 'COIN_DUEL',
+        duration: durations[durationNumber],
+        startTime: currentUnixTime,
+        asset: symbol,
+        category:1
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+    } catch (error) {
+      console.error("Error: ", error);
+    }
   };
+
+
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col justify-center py-2.5 rounded-lg bg-zinc-900 max-w-[432px]">

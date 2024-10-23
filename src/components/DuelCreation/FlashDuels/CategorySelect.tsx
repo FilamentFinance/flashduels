@@ -24,9 +24,13 @@ const CategorySelect: React.FC<CategorySelectProps> = ({ name, value, onChange }
             required
             className="flex flex-1 shrink items-center self-stretch my-auto p-2 text-base font-medium tracking-normal whitespace-nowrap basis-5 text-stone-500 bg-transparent appearance-none"
           >
-            <option>Category</option>
-            <option>Category 2</option>
-            <option>Category 3</option>
+            <option>Any</option>
+            <option>Crypto</option>
+            <option>Politics</option>
+            <option>Sports</option>
+            <option>Twitter</option>
+            <option>NFTs</option>
+            <option>News</option>
           </select>
           <div className="flex gap-2 items-center self-stretch py-2.5 pr-3 pl-2 my-auto w-[34px]">
             <img

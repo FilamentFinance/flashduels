@@ -9,9 +9,9 @@ interface CategorySelectProps {
 const TokenSelect: React.FC<CategorySelectProps> = ({ name, value, onChange }) => {
   // Define the options directly within the component
   const options = [
-    { value: "token1", label: "Token 1" },
-    { value: "token2", label: "Token 2" },
-    { value: "token3", label: "Token 3" },
+    { value: "BTC", label: "BTC" },
+    { value: "ETH", label: "ETH" },
+    { value: "SOL", label: "SOL" },
   ];
 
   return (

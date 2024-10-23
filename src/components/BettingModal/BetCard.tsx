@@ -8,13 +8,15 @@ interface BetCardProps {
   betTitle: string;
   imageUrl: string;
   volume: string;
-  endTime: string;
-  probability: number;
+  endTime: number;
+  percentage: number;
   createdBy: string;
   availableAmount: number;
-  onClose:()=>void,
-  duelId:string,
-  duelType:string
+  onClose: () => void,
+  duelId: string,
+  duelType: string,
+  startAt: number,
+  createdAt: number
 }
 
 const BetCard: React.FC<BetCardProps> = ({
@@ -22,17 +24,18 @@ const BetCard: React.FC<BetCardProps> = ({
   imageUrl,
   volume,
   endTime,
-  probability,
+  percentage,
   createdBy,
   availableAmount,
   onClose,
   duelId,
-  duelType
+  duelType,
+  startAt,
+  createdAt
 }) => {
 
   const [betAmount, setBetAmount] = useState("1000");
-  const [bet, setBet] = useState<number>(-1);
-
+  const [bet, setBet] = useState<string>("YES");
   return (
     <article className="flex flex-col justify-center py-2.5 rounded-lg bg-zinc-900 max-w-[482px]">
       <header className="flex relative gap-2.5 justify-center items-start py-2 w-full text-xl font-semibold text-center text-white border-b border-zinc-700">
@@ -51,14 +54,16 @@ const BetCard: React.FC<BetCardProps> = ({
       </header>
       <div className="flex flex-col px-4 mt-4 w-full">
         <BetInfo
-        bet={bet}
-        setBet={setBet}
+          bet={bet}
+          setBet={setBet}
           betTitle={betTitle}
           imageUrl={imageUrl}
           volume={volume}
           endTime={endTime}
-          probability={probability}
+          probability={percentage}
           createdBy={createdBy}
+          startAt={startAt}
+          createdAt={createdAt}
         />
         <BetAmount availableAmount={availableAmount} betAmount={betAmount} setBetAmount={setBetAmount} />
         <TransactionOverview betAmount={betAmount} />

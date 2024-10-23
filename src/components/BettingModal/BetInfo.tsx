@@ -1,15 +1,17 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import ProbabilityBar from "./ProbabilityBar";
 
 interface BetInfoProps {
   betTitle: string;
   imageUrl: string;
   volume: string;
-  endTime: string;
+  endTime: number;
   probability: number;
   createdBy: string;
-  bet: number;
-  setBet: (bet: number) => void;
+  bet: string;
+  setBet: (bet: string) => void;
+  startAt: number;
+  createdAt: number;
 }
 
 const BetInfo: React.FC<BetInfoProps> = ({
@@ -21,8 +23,59 @@ const BetInfo: React.FC<BetInfoProps> = ({
   endTime,
   probability,
   createdBy,
+  startAt,
+  createdAt
 }) => {
-  console.log(bet, setBet)
+  console.log(bet, setBet, createdAt, startAt, "hello-new");
+  const thirtyMinutesMs = 30 * 60 * 1000;
+  const durationMs = endTime * 60 * 60 * 1000; // duration in hours converted to milliseconds
+
+  
+  // State to track the dynamic timeLeft
+  const [time, setTimeLeft] = useState("");
+  // Function to calculate the remaining time
+  const calculateRemainingTime = () => {
+    const currentTimeMs = Date.now();
+    const startTimeMs = createdAt * 1000;
+
+    let remainingTimeMs;
+
+    // Check if 30 minutes have passed since createdAt
+    const timeElapsedMs = currentTimeMs - startTimeMs;
+    if (timeElapsedMs > thirtyMinutesMs) {
+      // Use startAt if 30 minutes have passed
+      const startAtTimeMs = startAt * 1000;
+      const timeSinceStartAt = currentTimeMs - startAtTimeMs;
+      remainingTimeMs = Math.max(durationMs - timeSinceStartAt, 0); // Calculate remaining time from startAt
+    } else {
+      // Use createdAt if 30 minutes have not passed
+      remainingTimeMs = Math.max(thirtyMinutesMs - timeElapsedMs, 0); // Calculate remaining time from createdAt
+    }
+
+    return remainingTimeMs;
+  };
+
+  // Function to format time in HH:MM:SS format
+  const formatTime = (ms: number) => {
+    const totalSeconds = Math.floor(ms / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    const padTime = (time: number) => time.toString().padStart(2, '0');
+    return `${padTime(hours)}:${padTime(minutes)}:${padTime(seconds)}`;
+  };
+
+  // Update timeLeft every second
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const remainingTimeMs = calculateRemainingTime();
+      console.log(remainingTimeMs, "remainingTimeMs")
+      setTimeLeft(formatTime(remainingTimeMs)); // Update state with formatted time
+    }, 1000);
+
+    return () => clearInterval(interval); // Clear interval on component unmount
+  }, [createdAt, startAt, endTime]);
   return (
     <section className="flex flex-col p-3 w-full rounded-xl bg-white bg-opacity-0">
       <div className="flex gap-2 items-start w-full">
@@ -86,7 +139,7 @@ const BetInfo: React.FC<BetInfoProps> = ({
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M12.6667 2H3.33333V3.33333H2V12.6667H3.33333V14H12.6667V12.6667H14V3.33333H12.6667V2ZM12.6667 3.33333V12.6667H3.33333V3.33333H12.6667ZM7.33333 4.66667H8.66667V8.66667H11.3333V10H7.33333V4.66667Z" fill="white" />
               </svg>
-              <span className="self-stretch my-auto">Ends in: {endTime}</span>
+              <span className="self-stretch my-auto">Ends in: {time}</span>
             </div>
           </div>
         </div>

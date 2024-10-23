@@ -24,8 +24,8 @@ const WinConditionSelect: React.FC<CategorySelectProps> = ({name, value, onChang
             name={name} value={value} onChange={onChange} 
             className="flex flex-1 shrink items-center self-stretch my-auto text-base font-medium tracking-normal basis-5 text-stone-200 bg-transparent border-none appearance-none pr-2 pl-3 py-2.5"
           >
-            <option>Above</option>
-            <option>Below</option>
+            <option>ABOVE</option>
+            <option>BELOW</option>
           </select>
           <div className="flex gap-2 items-center self-stretch py-2.5 pr-3 pl-2 my-auto w-[34px]">
             <img

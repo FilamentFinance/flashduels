@@ -1,10 +1,19 @@
+import { useBalance } from "@/blockchain/useBalance";
 import React from "react";
+import { useAccount } from "wagmi";
+import { ethers } from "ethers";
 
 interface DepositButtonProps {
   onOpenModal: () => void;
 }
 
 const DepositButton: React.FC<DepositButtonProps> = ({ onOpenModal }) => {
+  
+  const {address} = useAccount();
+  const {balance} = useBalance(address as string);
+
+  const balanceNum = (Number(ethers.formatUnits(balance ? balance.toString() : 0, 6)));
+  
   return (
     <div className="flex gap-5 items-center self-stretch py-1 pr-1 pl-2 my-auto whitespace-nowrap rounded-lg border-2 border-[rgba(255,255,255,0.05)] bg-[rgba(255,255,255,0.02)] shadow-[0px_2px_10.3px_rgba(0,0,0,0.25)]">
       <div className="flex gap-1 items-center self-stretch my-auto text-base text-stone-200">
@@ -14,7 +23,7 @@ const DepositButton: React.FC<DepositButtonProps> = ({ onOpenModal }) => {
           alt=""
           className="object-contain shrink-0 self-stretch my-auto aspect-square w-[18px]"
         />
-        <div className="self-stretch my-auto">--</div>
+        <div className="self-stretch my-auto">{balanceNum}</div>
       </div>
       <button 
         onClick={onOpenModal} 

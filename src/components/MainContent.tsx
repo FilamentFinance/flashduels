@@ -6,10 +6,12 @@ import React, { useState } from "react";
 import DuelGrid from "./DuelGrid";
 // import DuelCategoryCard from "./DuelCategories/DuelCategoryCard";
 import DuelCategories from "./DuelCategories/DuelCategories";
+import { useAccount } from "wagmi";
 
 const MainContent: React.FC = () => {
   const [activeButton, setActiveButton] = useState<string>("liveDuels");
-
+  const {address} = useAccount();
+  console.log(address, "address")
   const handleLiveDuelsClick = () => {
     console.log('Live Duels clicked!');
     setActiveButton('liveDuels'); // Set active button
