@@ -18,7 +18,7 @@ export const copyToClipboard = (address: string) => {
 
 export enum DuelCategory {
     Any,
-    Crypto,
+    // Crypto,
     Politics,
     Sports,
     Twitter,
@@ -28,8 +28,8 @@ export enum DuelCategory {
   
 export const mapCategoryToEnum = (category: string): DuelCategory => {
     switch (category.toLowerCase()) {
-      case "crypto":
-        return DuelCategory.Crypto;
+      // case "crypto":
+      //   return DuelCategory.Crypto;
       case "politics":
         return DuelCategory.Politics;
       case "sports":

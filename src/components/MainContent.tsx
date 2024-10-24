@@ -1,17 +1,11 @@
 "use client";
 import React, { useState } from "react";
-// import Header from "./Header/Header";
-// import DuelGrid from "./DuelGrid";
-// import SearchBar from "./SearchBar";
 import DuelGrid from "./DuelGrid";
-// import DuelCategoryCard from "./DuelCategories/DuelCategoryCard";
 import DuelCategories from "./DuelCategories/DuelCategories";
-import { useAccount } from "wagmi";
+
 
 const MainContent: React.FC = () => {
   const [activeButton, setActiveButton] = useState<string>("liveDuels");
-  const {address} = useAccount();
-  console.log(address, "address")
   const handleLiveDuelsClick = () => {
     console.log('Live Duels clicked!');
     setActiveButton('liveDuels'); // Set active button
@@ -29,11 +23,12 @@ const MainContent: React.FC = () => {
     setActiveButton('completed'); // Set active button
     // Add your logic for Completed here
   };
+  const [specialCategoryIndex, setSpecialCategoryIndex] = useState<number | null>(0);
 
   return (
     <main className="flex overflow-hidden flex-col pb-56 max-md:pb-24">
       {/* <Header /> */}
-      <DuelCategories />
+      <DuelCategories specialCategoryIndex={specialCategoryIndex} setSpecialCategoryIndex={setSpecialCategoryIndex} />
       <div className="flex overflow-hidden px-[50px] justify-start font-bold p-1 my-[20px] h-full text-base text-center rounded-lg bg-white bg-opacity-0 min-w-[240px] text-stone-200">
         <div className="flex border border-solid border-white border-opacity-10 rounded-lg">
           <button
@@ -73,7 +68,7 @@ const MainContent: React.FC = () => {
 
 
       {/* <SearchBar /> */}
-      <DuelGrid />
+      <DuelGrid activeButton={activeButton} setActiveButton={setActiveButton} specialCategoryIndex={specialCategoryIndex} setSpecialCategoryIndex={setSpecialCategoryIndex} />
     </main>
   );
 };

@@ -23,6 +23,7 @@ export type NewDuelItem = {
     winCondition?: number;
     duelType: string;
     endsIn: number;
+    status: number;
     duelId: string;
     winner: number;
     betId?: string | null;
@@ -46,6 +47,8 @@ export type Duel = {
     percentage: number;
     createdBy: string;
     onClick?: () => void;
+    token?: string;
+    totalBetAmount: number;
   };
 
   export const durations = [3, 6, 12];

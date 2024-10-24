@@ -8,81 +8,7 @@ import { useAccount } from "wagmi";
 import { useBalance } from "@/blockchain/useBalance";
 import { ethers } from "ethers";
 
-// const duelsss = [
-//   {
-//     title: "Will $MOO Hit $1.00",
-//     imageSrc:
-//       "https://cdn.builder.io/api/v1/image/assets/TEMP/e3ac4032ea3429b9ee6d0ca925ce870ed2196eda711c1907b1a57f9a8ec662a0?placeholderIfAbsent=true&apiKey=4bd09ea4570a4d12834637c604f75b6a",
-//     volume: "$200K",
-//     duelId:"123423",
-//     duelType:"COIN_DUEL",
-//     timeLeft: "00:00:00:00",
-//     percentage: 60,
-//     createdBy: "KZED",
-//   },
-//   {
-//     title: "Will Trump Win US Election",
-//     duelId:"123",
-//     duelType:"COIN_DUEL",
-//     imageSrc:
-//       "https://cdn.builder.io/api/v1/image/assets/TEMP/1cfaac372977c7618b3defdf7cf28aae9ed011aed4ad383d715249b393640dd7?placeholderIfAbsent=true&apiKey=4bd09ea4570a4d12834637c604f75b6a",
-//     volume: "$2.6M",
-//     timeLeft: "48:34:12:34",
-//     percentage: 90,
-//     createdBy: "Flash Bets",
-//     creatorImageSrc:
-//       "https://cdn.builder.io/api/v1/image/assets/TEMP/c0a4d07254fa06a32fdb38bf8aa989597281af399c617799bd40943089b11929?placeholderIfAbsent=true&apiKey=4bd09ea4570a4d12834637c604f75b6a",
-//   },
-//   {
-//     title: "Will Kamala Harris Win US Election",
-//     imageSrc:
-//       "https://cdn.builder.io/api/v1/image/assets/TEMP/19068b41746d013f2a674974e7fad13301a7e14278b7c2f53c9b843e92f7cf79?placeholderIfAbsent=true&apiKey=4bd09ea4570a4d12834637c604f75b6a",
-//     volume: "$2.6M",
-//     timeLeft: "48:34:12:34",
-//     duelId:"12453",
-//     duelType:"FLASH_DUEL",
-//     percentage: 10,
-//     createdBy: "Flash Bets",
-//     creatorImageSrc:
-//       "https://cdn.builder.io/api/v1/image/assets/TEMP/b95f06706a2ad76467cb4e4c13d0d5779aace055d82bf2b897ebd25f68e3c51b?placeholderIfAbsent=true&apiKey=4bd09ea4570a4d12834637c604f75b6a",
-//   },
-//   {
-//     title: "Will GAM win Worlds 2024",
-//     imageSrc:
-//       "https://cdn.builder.io/api/v1/image/assets/TEMP/3d3daf7118a44d548c62652774658d2a279004198d6e03464b6cdbca756d1d51?placeholderIfAbsent=true&apiKey=4bd09ea4570a4d12834637c604f75b6a",
-//     volume: "$10.45K",
-//     timeLeft: "48:34:12:34",
-//     duelId:"1235",
-//     duelType:"COIN_DUEL",
-//     percentage: 60,
-//     createdBy: "0x4743..69fc",
-//   },
-//   {
-//     title: "Will GAM win Worlds 2024",
-//     imageSrc:
-//       "https://cdn.builder.io/api/v1/image/assets/TEMP/3d3daf7118a44d548c62652774658d2a279004198d6e03464b6cdbca756d1d51?placeholderIfAbsent=true&apiKey=4bd09ea4570a4d12834637c604f75b6a",
-//     volume: "$10.45K",
-//     timeLeft: "48:34:12:34",
-//     duelId:"213",
-//     duelType:"FLASH_DUEL",
-//     percentage: 60,
-//     createdBy: "0x4743..69fc",
-//   },
-//   // {
-//   //   title: "Will GAM win Worlds 2024",
-//   //   imageSrc:
-//   //     "https://cdn.builder.io/api/v1/image/assets/TEMP/3d3daf7118a44d548c62652774658d2a279004198d6e03464b6cdbca756d1d51?placeholderIfAbsent=true&apiKey=4bd09ea4570a4d12834637c604f75b6a",
-//   //   volume: "$10.45K",
-//   //   timeLeft: "48:34:12:34",
-//   //   percentage: 60,
-//   //   createdBy: "0x4743..69fc",
-//   // },
-
-
-// ];
-
-const DuelGrid: React.FC = () => {
-  const [specialCategoryIndex, setSpecialCategoryIndex] = useState<number | null>(0);
+const DuelGrid = ({activeButton, specialCategoryIndex, setSpecialCategoryIndex}: {activeButton:string, setActiveButton : (activeButton: string)=> void , specialCategoryIndex:number|null, setSpecialCategoryIndex: (specialCategoryIndex:number | null) => void}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalData, setModalData] = useState<Duel>();
   const { address } = useAccount();
@@ -91,27 +17,49 @@ const DuelGrid: React.FC = () => {
 
   const [duels, setDuels] = useState<Duel[]>()
 
+  const categoryMap = [
+    'Any',
+    'Politics',
+    'Crypto',
+  ];
+  console.log(categoryMap)
+
   const getDuels = async () => {
     const response = await axios.get(`${NEXT_PUBLIC_API}/duels/getAll`);
-    const duel = response.data.allDuels.map((item: NewDuelItem) => ({
-      title: item.betString || `Will ${item.token} be ${item.winCondition} ${item.triggerPrice}`,
-      imageSrc: item.betIcon || "empty-string",
-      volume: "$200K",  // Assuming this is a static value for now
-      category: item.category,
-      duelId: item.duelId,
-      duelType: item.duelType,
-      timeLeft: item.endsIn,
-      startAt: item.startAt || 0,
-      createdAt: item.createdAt,
-      percentage: 100,  // Assuming this is static or based on some logic
-      createdBy: item.user.twitterUsername || shortenAddress(item.user.address)
-    }));
-    setDuels(duel)
+    console.log("allduels", response.data.allDuels)
+    const duel = response.data.allDuels
+      .filter((item: NewDuelItem) => {
+        if (activeButton === "liveDuels") {
+          return item.status === 0;
+        } else if (activeButton === "bootstraping") {
+          return item.status === -1;
+        } else if (activeButton === "completed") {
+          return item.status === 1;
+        }
+        return true; // Default to include all if no activeButton is set
+      })
+      .map((item: NewDuelItem) => ({
+        title: item.betString || `Will ${item.token} be ${item.winCondition === 0 ? "ABOVE" : "BELOW"} ${item.triggerPrice}`,
+        imageSrc: item.betIcon || "empty-string",
+        volume: "$200K",  // Assuming this is a static value for now
+        category: item.category,
+        status: item.status,
+        duelId: item.duelId,
+        duelType: item.duelType,
+        timeLeft: item.endsIn,
+        startAt: item.startAt || 0,
+        createdAt: item.createdAt,
+        percentage: 100,  // Assuming this is static or based on some logic
+        createdBy: item.user.twitterUsername || shortenAddress(item.user.address),
+        token: item.token,
+      }));
+      console.log(duels,"duels")
+    setDuels(duel);
   }
 
   useEffect(() => {
     getDuels()
-  }, [])
+  }, [activeButton])
 
   const handleCategoryClick = (index: number) => {
     const selectedDuel = duels![index];
@@ -140,6 +88,8 @@ const DuelGrid: React.FC = () => {
         duelId={modalData?.duelId as string}
         startAt={modalData?.startAt as number}
         createdAt={modalData?.createdAt as number}
+        asset={modalData?.token as string}
+        totalBetAmount={modalData?.totalBetAmount as number}
       />
     </>
   );

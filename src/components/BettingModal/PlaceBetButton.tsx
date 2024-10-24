@@ -1,5 +1,5 @@
-import { FLASHDUELSABI } from "@/abi/FlashDuels";
 import { FLASHUSDCABI } from "@/abi/FLASHUSDC";
+import { FLASHDUELSABI } from "@/abi/FlashDuels";
 import { config } from "@/app/config/wagmi";
 import { CHAIN_ID, NEXT_PUBLIC_API, NEXT_PUBLIC_FLASH_DUELS, NEXT_PUBLIC_FLASH_USDC } from "@/utils/consts";
 import { usePrivy } from "@privy-io/react-auth";
@@ -13,9 +13,10 @@ interface PlaceBetButtonProps {
   bet: string
   duelId: string;
   duelType: string;
+  asset?: string;
 }
 
-const PlaceBetButton: React.FC<PlaceBetButtonProps> = ({ betAmount, bet, duelId, duelType }) => {
+const PlaceBetButton: React.FC<PlaceBetButtonProps> = ({ betAmount, bet, duelId, duelType, asset }) => {
   const { user } = usePrivy();
   const {
     writeContractAsync: lpTokenApproveAsyncLocal,
@@ -24,6 +25,7 @@ const PlaceBetButton: React.FC<PlaceBetButtonProps> = ({ betAmount, bet, duelId,
   const {
     writeContractAsync: lpTokenSecondFunctionAsyncLocal,
   } = useWriteContract({});
+
 
   const lpTokenApproveAsync = (amount: number) =>
     lpTokenApproveAsyncLocal({
@@ -34,7 +36,16 @@ const PlaceBetButton: React.FC<PlaceBetButtonProps> = ({ betAmount, bet, duelId,
       args: [NEXT_PUBLIC_FLASH_DUELS, amount],
     });
 
-  const joinFlashDuel = (duelId: string, option: string, optionIndex: number, optionPrice: number, amount: number) =>
+  const joinCryptoDuel = async (duelId: string, option: string, asset: string, optionIndex: number, optionPrice: number, amount: number) => {
+    return lpTokenSecondFunctionAsyncLocal({
+      abi: FLASHDUELSABI,
+      address: NEXT_PUBLIC_FLASH_DUELS as `0x${string}`,
+      functionName: "joinCryptoDuel",
+      chainId: CHAIN_ID,
+      args: [duelId, option, asset, optionIndex, optionPrice, amount],
+    });
+  }
+  const joinFlashDuel = async (duelId: string, option: string, optionIndex: number, optionPrice: number, amount: number) =>
     lpTokenSecondFunctionAsyncLocal({
       abi: FLASHDUELSABI,
       address: NEXT_PUBLIC_FLASH_DUELS as `0x${string}`,
@@ -52,24 +63,33 @@ const PlaceBetButton: React.FC<PlaceBetButtonProps> = ({ betAmount, bet, duelId,
     const optionIndex = bet === "YES" ? 0 : 1;
     const backendValue = 50 //ask shivam
     const optionPrice = backendValue * 10 ** 6;
+    let secondHash;
+    if (duelType === "COIN_DUEL" && asset) {
+      console.log(duelId, bet, asset, optionIndex, optionPrice, amount, "hello-duel");
+      secondHash = await joinCryptoDuel(duelId, bet, asset, optionIndex, optionPrice, amount);
+      console.log(secondHash, "second-hash")
 
-    // if (lpTokenAp
-    const secondHash = await joinFlashDuel(duelId, bet, optionIndex, optionPrice, amount);
-    const secondReceipt = await waitForTransactionReceipt(config, { hash: secondHash });
+    } else {
+      secondHash = await joinFlashDuel(duelId, bet, optionIndex, optionPrice, amount);
+      console.log(secondHash, "second-hash-flash")
+
+    }
+
+    const secondReceipt = await waitForTransactionReceipt(config, { hash: secondHash as `0x${string}` });
 
     console.log(secondReceipt, "second-hash")
 
 
-    console.log("Call BE", user?.twitter?.username, bet, duelId, duelType);
+    console.log("Call BE", user?.twitter?.username, bet, betAmount, duelId, duelType, optionIndex, backendValue);
 
     await axios.post(
-      `${NEXT_PUBLIC_API}/duels/create`,
+      `${NEXT_PUBLIC_API}/bets/create`,
       {
         twitterUsername: user?.twitter?.username,
         bet: bet,
         betAmount: betAmount,
         optionIndex: optionIndex,
-        optionPrice: optionPrice,
+        optionPrice: backendValue.toString(),
         duelId: duelId,
         duelType: duelType
       },

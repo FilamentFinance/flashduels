@@ -12,6 +12,7 @@ interface BetInfoProps {
   setBet: (bet: string) => void;
   startAt: number;
   createdAt: number;
+  totalBetAmount: number;
 }
 
 const BetInfo: React.FC<BetInfoProps> = ({
@@ -24,13 +25,13 @@ const BetInfo: React.FC<BetInfoProps> = ({
   probability,
   createdBy,
   startAt,
-  createdAt
+  createdAt,
+  totalBetAmount
 }) => {
-  console.log(bet, setBet, createdAt, startAt, "hello-new");
   const thirtyMinutesMs = 30 * 60 * 1000;
   const durationMs = endTime * 60 * 60 * 1000; // duration in hours converted to milliseconds
 
-  
+
   // State to track the dynamic timeLeft
   const [time, setTimeLeft] = useState("");
   // Function to calculate the remaining time
@@ -70,7 +71,6 @@ const BetInfo: React.FC<BetInfoProps> = ({
   useEffect(() => {
     const interval = setInterval(() => {
       const remainingTimeMs = calculateRemainingTime();
-      console.log(remainingTimeMs, "remainingTimeMs")
       setTimeLeft(formatTime(remainingTimeMs)); // Update state with formatted time
     }, 1000);
 
@@ -160,10 +160,19 @@ const BetInfo: React.FC<BetInfoProps> = ({
       </div>
       <div className="flex flex-col mt-3 w-full text-base font-semibold leading-none whitespace-nowrap min-h-[57px]">
         <div className="flex flex-1 gap-2 size-full">
-          <button className="flex-1 shrink gap-2.5 self-stretch p-2.5 h-full text-lime-300 rounded-lg border border-solid bg-neutral-500 bg-opacity-30 border-lime-400 border-opacity-60">
+          <button
+            onClick={() => setBet("YES")}
+            className={`flex-1 shrink gap-2.5 self-stretch p-2.5 h-full rounded-lg border border-solid 
+        ${bet === "YES" ? "bg-lime-500 border-lime-500 text-black" : "bg-neutral-500 bg-opacity-30 border-lime-400 border-opacity-60 text-lime-300"}`}
+          >
             YES
           </button>
-          <button className="flex-1 shrink gap-2.5 self-stretch p-2.5 h-full text-center rounded-lg bg-zinc-600 bg-opacity-30 text-gray-400 text-opacity-40 w-[29px]">
+
+          <button
+            onClick={() => setBet("NO")}
+            className={`flex-1 shrink gap-2.5 self-stretch p-2.5 h-full text-center rounded-lg 
+        ${bet === "NO" ? "bg-red-500 text-white" : "bg-zinc-600 bg-opacity-30 text-gray-400 text-opacity-40"}`}
+          >
             NO
           </button>
         </div>

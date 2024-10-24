@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from "react";
+import React from "react";
 import DuelCategoryCard from "./DuelCategoryCard";
 
 interface DuelCategory {
@@ -27,9 +27,7 @@ const duelCategories: DuelCategory[] = [
   },
 ];
 
-const DuelCategories: React.FC = () => {
-  const [specialCategoryIndex, setSpecialCategoryIndex] = useState<number | null>(0);
-
+const DuelCategories = ({specialCategoryIndex, setSpecialCategoryIndex}: {specialCategoryIndex:number|null, setSpecialCategoryIndex: (specialCategoryIndex:number | null) => void}) => {
   const handleCategoryClick = (index: number) => {
     setSpecialCategoryIndex(specialCategoryIndex === index ? null : index);
   };

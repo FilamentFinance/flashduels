@@ -1,0 +1,33 @@
+import React, { useEffect, useState } from "react";
+import { getCryptoPrices } from "@/utils/prices";
+
+const MarkPriceComponent = ({ asset }: { asset: string }) => {
+    const [markPrice, setMarkPrice] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchMarkPrice = async () => {
+
+            const price = await getCryptoPrices(asset);
+            setMarkPrice(price);
+
+        };
+
+        fetchMarkPrice();
+    }, [asset]);
+
+
+    return (
+        <div className="flex flex-col mt-4 w-full text-base tracking-normal leading-none">
+            <div className="flex flex-1 gap-1 items-center self-stretch my-auto text-base tracking-normal leading-none basis-0 justify-between">
+                <div className="flex-1 shrink gap-1 self-stretch tracking-tighter my-auto text-gray-400">
+                    Mark Price
+                </div>
+                <div className="flex-1 shrink gap-1 self-stretch my-auto text-white whitespace-nowrap text-right">
+                    {markPrice}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default MarkPriceComponent;

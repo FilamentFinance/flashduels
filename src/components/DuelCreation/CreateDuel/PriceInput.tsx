@@ -21,6 +21,7 @@ const PriceInput: React.FC<PriceInputProps> = ({ label, placeholder, onChange, n
       </label>
       <div className="flex overflow-hidden flex-1 shrink self-stretch my-auto text-xs tracking-normal leading-loose text-gray-500 rounded-lg border border-solid shadow-sm basis-0 bg-neutral-800 border-zinc-800">
         <input
+        required
           id={`${label.toLowerCase().replace(/\s/g, "-")}-input`}
           name={name} value={value} onChange={onChange} 
           type="text"

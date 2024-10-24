@@ -68,7 +68,6 @@ const DuelCard: React.FC<Duel> = ({
   useEffect(() => {
     const interval = setInterval(() => {
       const remainingTimeMs = calculateRemainingTime();
-      console.log(remainingTimeMs, "remainingTimeMs")
       setTimeLeft(formatTime(remainingTimeMs)); // Update state with formatted time
     }, 1000);
 

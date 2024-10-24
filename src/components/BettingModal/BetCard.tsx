@@ -16,7 +16,9 @@ interface BetCardProps {
   duelId: string,
   duelType: string,
   startAt: number,
-  createdAt: number
+  createdAt: number,
+  asset?: string,
+  totalBetAmount: number
 }
 
 const BetCard: React.FC<BetCardProps> = ({
@@ -31,7 +33,9 @@ const BetCard: React.FC<BetCardProps> = ({
   duelId,
   duelType,
   startAt,
-  createdAt
+  createdAt,
+  asset,
+  totalBetAmount
 }) => {
 
   const [betAmount, setBetAmount] = useState("1000");
@@ -64,10 +68,11 @@ const BetCard: React.FC<BetCardProps> = ({
           createdBy={createdBy}
           startAt={startAt}
           createdAt={createdAt}
+          totalBetAmount={totalBetAmount}
         />
         <BetAmount availableAmount={availableAmount} betAmount={betAmount} setBetAmount={setBetAmount} />
         <TransactionOverview betAmount={betAmount} />
-        <PlaceBetButton betAmount={betAmount} duelId={duelId} duelType={duelType} bet={bet} />
+        <PlaceBetButton betAmount={betAmount} duelId={duelId} duelType={duelType} bet={bet} asset={asset}/>
       </div>
     </article>
   );

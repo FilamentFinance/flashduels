@@ -26,8 +26,8 @@ const BetAmount: React.FC<BetAmountProps> = ({ availableAmount, betAmount, setBe
         >
           Amount
         </label>
-        <div className="flex items-center h-full gap-x-2 text-gray-400 w-[139px]">
-          <span className="self-stretch my-auto w-[68px]">Available:</span>
+        <div className="flex items-center h-full text-gray-400 w-[500px]">
+          <span className="self-stretch my-auto w-[68px]">Available:{" "}</span>
           <span className="self-stretch my-auto">{availableAmount}</span>
           <button
             onClick={handleMaxClick}

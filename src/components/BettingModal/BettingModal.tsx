@@ -15,6 +15,8 @@ interface BettingModalProps {
   duelId: string;
   startAt:number;
   createdAt: number;
+  asset?: string;
+  totalBetAmount: number;
 }
 
 const BettingModal: React.FC<BettingModalProps> = ({
@@ -30,7 +32,9 @@ const BettingModal: React.FC<BettingModalProps> = ({
   duelType,
   duelId,
   startAt,
-  createdAt
+  createdAt,
+  asset,
+  totalBetAmount
 }) => {
   if (!isOpen) return null;
 
@@ -50,6 +54,8 @@ const BettingModal: React.FC<BettingModalProps> = ({
           duelType={duelType}
           startAt={startAt}
           createdAt={createdAt}
+          asset={asset}
+          totalBetAmount={totalBetAmount} 
         />
       </div>
     </div>
