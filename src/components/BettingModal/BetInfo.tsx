@@ -30,7 +30,7 @@ const BetInfo: React.FC<BetInfoProps> = ({
 }) => {
   const thirtyMinutesMs = 30 * 60 * 1000;
   const durationMs = endTime * 60 * 60 * 1000; // duration in hours converted to milliseconds
-
+  console.log(totalBetAmount)
 
   // State to track the dynamic timeLeft
   const [time, setTimeLeft] = useState("");
