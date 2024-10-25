@@ -163,6 +163,7 @@ const CreateDuelForm = () => {
       );
 
       console.log(response)
+      console.log(NEXT_PUBLIC_TIMER_BOT_URL, "hello-start")
 
       await axios.post(`${NEXT_PUBLIC_TIMER_BOT_URL}/startDuel`, {
         duelId: result.duelId,
