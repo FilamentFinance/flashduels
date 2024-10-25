@@ -10,6 +10,7 @@ const UserProfile: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const disableLogin = !ready || (ready && authenticated);
 
+  console.log(user?.wallet?.address, user?.twitter?.username, "user")
   const interactWithBackend = async (twitterUsername: string | null | undefined, walletAddress: string | undefined) => {
     if (!twitterUsername || !walletAddress) return;
 
@@ -43,8 +44,8 @@ const UserProfile: React.FC = () => {
   }, [authenticated, user]);
   
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async() => {
+    await logout();
     setIsModalOpen(false); 
   };
 

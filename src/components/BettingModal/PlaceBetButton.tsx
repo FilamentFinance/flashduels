@@ -87,6 +87,7 @@ const PlaceBetButton: React.FC<PlaceBetButtonProps> = ({ betAmount, bet, duelId,
       {
         twitterUsername: user?.twitter?.username,
         bet: bet,
+        address: user?.wallet?.address,
         betAmount: betAmount,
         optionIndex: optionIndex,
         optionPrice: backendValue.toString(),

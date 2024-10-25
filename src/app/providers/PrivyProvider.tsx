@@ -23,6 +23,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         },
         defaultChain: seiTestnet, //NOTE: SEI
         supportedChains: [sei, seiTestnet],
+        loginMethods: ['twitter', 'wallet'] ,
         embeddedWallets: {
           createOnLogin: 'all-users',
           // priceDisplay: false

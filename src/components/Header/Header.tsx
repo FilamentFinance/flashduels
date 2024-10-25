@@ -1,9 +1,35 @@
 "use client"
-import React from "react";
+import React, { useEffect } from "react";
 import Logo from "./Logo";
 import Navbar from "./Navbar";
+import { useAccount, useDisconnect } from "wagmi";
+import { usePrivy } from "@privy-io/react-auth";
 
 const Header: React.FC = () => {
+  const { address, isConnected } = useAccount();
+  const { disconnect } = useDisconnect();
+  const { logout } = usePrivy();
+
+  useEffect(() => {
+    if (!isConnected) return;
+
+    const handleAccountChange = async () => {
+      // Disconnect from Privy
+      await logout();
+
+      // Disconnect from Wagmi
+      disconnect();
+    };
+
+    // Check if the account has changed
+    const currentAccount = localStorage.getItem('connectedAccount');
+    if (currentAccount && currentAccount !== address) {
+      handleAccountChange();
+    }
+
+    // Save the current account to local storage
+    localStorage.setItem('connectedAccount', address as string);
+  }, [address, isConnected, disconnect]);
   return (
     <header className="flex w-full h-[107px] px-[50px] justify-between items-center flex-shrink-0 border-b-2 border-gray-500 border-opacity-20">
       <Logo />

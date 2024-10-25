@@ -179,6 +179,7 @@ const CreateDuel: React.FC = () => {
         {
           ...duelData,
           twitterUsername: user?.twitter?.username,
+          address: user?.wallet?.address,
         },
         {
           headers: {

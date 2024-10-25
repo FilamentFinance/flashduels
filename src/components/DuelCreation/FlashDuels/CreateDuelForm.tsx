@@ -153,6 +153,7 @@ const CreateDuelForm = () => {
         {
           ...duelData,
           twitterUsername: user?.twitter?.username,
+          address: user?.wallet?.address,
         },
         {
           headers: {
