@@ -10,9 +10,9 @@ const UserProfile: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const disableLogin = !ready || (ready && authenticated);
 
-  console.log(user?.wallet?.address, user?.twitter?.username, "user")
+  // console.log(user?.wallet?.address, user?.twitter?.username, "user")
   const interactWithBackend = async (twitterUsername: string | null | undefined, walletAddress: string | undefined) => {
-    if (!twitterUsername || !walletAddress) return;
+    if (!walletAddress) return;
 
     try {
       const response = await fetch(`${NEXT_PUBLIC_API}/users/auth`, { // Updated endpoint

@@ -5,6 +5,7 @@ export const NEXT_PUBLIC_FLASH_DUELS=process.env.NEXT_PUBLIC_FLASH_DUELS as stri
 export const NEXT_PUBLIC_FLASH_DUELS_MARKETPLACE=process.env.NEXT_PUBLIC_FLASH_DUELS_MARKETPLACE as string
 export const CHAIN_ID=1328
 export const NEXT_PUBLIC_TIMER_BOT_URL = process.env.NEXT_PUBLIC_TIMER_BOT_URL as string
+export const NEXT_PUBLIC_RPC_URL = process.env.NEXT_PUBLIC_RPC_URL as string
 
 export type User = {
     id: string;

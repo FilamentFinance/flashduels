@@ -5,10 +5,10 @@ import DurationSelect from "./DurationSelect";
 import InfoBox from "./InfoBox";
 import CreateDuelButton from "./CreateDuelButton";
 import TokenSelect from "./TokenInput";
-import { CHAIN_ID, durations, NEXT_PUBLIC_API, NEXT_PUBLIC_FLASH_DUELS, NEXT_PUBLIC_FLASH_USDC, NEXT_PUBLIC_TIMER_BOT_URL } from "@/utils/consts";
+import { CHAIN_ID, durations, NEXT_PUBLIC_API, NEXT_PUBLIC_FLASH_DUELS, NEXT_PUBLIC_FLASH_USDC, NEXT_PUBLIC_RPC_URL, NEXT_PUBLIC_TIMER_BOT_URL } from "@/utils/consts";
 import { mapDurationToNumber } from "@/utils/helper";
 import { FLASHUSDCABI } from "@/abi/FLASHUSDC";
-import { FLASHDUELSABI } from "@/abi/FlashDuels";
+import { FLASHDUELSABI } from "@/abi/FlashDuelsABI";
 import { useWriteContract } from "wagmi";
 import { waitForTransactionReceipt } from "wagmi/actions";
 import { config } from "@/app/config/wagmi";
@@ -27,7 +27,7 @@ interface FormData {
 
 const CreateDuel: React.FC = () => {
 
-  const provider = new ethers.JsonRpcProvider('https://evm-rpc-testnet.sei-apis.com/');
+  const provider = new ethers.JsonRpcProvider(NEXT_PUBLIC_RPC_URL);
   async function fetchTransactionEvents(transactionHash: string) {
     try {
       const receipt = await provider!.getTransactionReceipt(transactionHash);
@@ -115,13 +115,13 @@ const CreateDuel: React.FC = () => {
 
   // Function to call the second contract function
   const lpTokenSecondFunctionAsync = (symbol: string, options: string[], minWager: number, triggerValue: number, triggerType: number, triggerCondition: number, duration: number) =>
-    // console.log(symbol, options, minWager, triggerValue, triggerType, triggerCondition, duration)
+
     lpTokenSecondFunctionAsyncLocal({
       abi: FLASHDUELSABI,
       address: NEXT_PUBLIC_FLASH_DUELS as `0x${string}`,
       functionName: "createCryptoDuel",
       chainId: CHAIN_ID,
-      args: [symbol, options, minWager, triggerValue, triggerType, triggerCondition, duration],
+      args: [symbol, options, triggerValue, triggerType, triggerCondition, duration],
     });
 
 
@@ -144,8 +144,6 @@ const CreateDuel: React.FC = () => {
       const symbol = formData.tokenInput;
       const winCondition = formData.winCondition === "ABOVE" ? 0 : 1;
       const markPrice = "66000";
-      console.log(symbol, options, minWager, triggerPrice, triggerType, formData.winCondition, winCondition, durationNumber)
-      // const options = ["YES", "NO"];
 
       const secondHash = await lpTokenSecondFunctionAsync(symbol, options, minWager, triggerPrice, triggerType, winCondition, durationNumber);
       const secondReceipt = await waitForTransactionReceipt(config, { hash: secondHash });

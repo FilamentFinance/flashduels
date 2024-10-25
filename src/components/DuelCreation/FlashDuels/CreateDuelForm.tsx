@@ -6,11 +6,11 @@ import DurationSelect from "./DurationSelect";
 import InfoBox from "./InfoBox";
 import SubmitButton from "./SubmitButton";
 import { useWriteContract } from "wagmi";
-import { CHAIN_ID, durations, NEXT_PUBLIC_API, NEXT_PUBLIC_FLASH_DUELS, NEXT_PUBLIC_FLASH_USDC, NEXT_PUBLIC_TIMER_BOT_URL } from "@/utils/consts";
+import { CHAIN_ID, durations, NEXT_PUBLIC_API, NEXT_PUBLIC_FLASH_DUELS, NEXT_PUBLIC_FLASH_USDC, NEXT_PUBLIC_RPC_URL, NEXT_PUBLIC_TIMER_BOT_URL } from "@/utils/consts";
 import { FLASHUSDCABI } from "@/abi/FLASHUSDC";
 import { waitForTransactionReceipt } from "wagmi/actions";
 import { config } from "@/app/config/wagmi";
-import { FLASHDUELSABI } from "@/abi/FlashDuels";
+import { FLASHDUELSABI } from "@/abi/FlashDuelsABI";
 import { mapCategoryToEnumIndex, mapDurationToNumber } from "@/utils/helper";
 import { getGasPrice } from '@wagmi/core'
 import axios from "axios";
@@ -18,7 +18,7 @@ import { usePrivy } from "@privy-io/react-auth";
 import { ethers } from "ethers";
 
 const CreateDuelForm = () => {
-  const provider = new ethers.JsonRpcProvider('https://evm-rpc-testnet.sei-apis.com/');
+  const provider = new ethers.JsonRpcProvider(NEXT_PUBLIC_RPC_URL);
   async function fetchTransactionEvents(transactionHash: string) {
     try {
       const receipt = await provider!.getTransactionReceipt(transactionHash);
@@ -105,7 +105,7 @@ const CreateDuelForm = () => {
       address: NEXT_PUBLIC_FLASH_DUELS as `0x${string}`,
       functionName: "createDuel",
       chainId: CHAIN_ID,
-      args: [category, topic, options, 10 ** 6, duration],
+      args: [category, topic, options, duration],
     });
 
 

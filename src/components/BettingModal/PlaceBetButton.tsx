@@ -1,5 +1,5 @@
 import { FLASHUSDCABI } from "@/abi/FLASHUSDC";
-import { FLASHDUELSABI } from "@/abi/FlashDuels";
+import { FLASHDUELSABI } from "@/abi/FlashDuelsABI";
 import { config } from "@/app/config/wagmi";
 import { CHAIN_ID, NEXT_PUBLIC_API, NEXT_PUBLIC_FLASH_DUELS, NEXT_PUBLIC_FLASH_USDC } from "@/utils/consts";
 import { usePrivy } from "@privy-io/react-auth";
@@ -61,7 +61,7 @@ const PlaceBetButton: React.FC<PlaceBetButtonProps> = ({ betAmount, bet, duelId,
     console.log(receipt, "approve-hash")
 
     const optionIndex = bet === "YES" ? 0 : 1;
-    const backendValue = 50 //ask shivam
+    const backendValue = 5 //ask shivam
     const optionPrice = backendValue * 10 ** 6;
     let secondHash;
     if (duelType === "COIN_DUEL" && asset) {
