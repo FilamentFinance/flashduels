@@ -235,13 +235,13 @@ const CreateDuel: React.FC = () => {
             label="Trigger Price*"
             placeholder="Enter Trigger Price"
           />
-          <PriceInput
+          {/* <PriceInput
             name="minWager"
             value={formData.minWager}
             onChange={handleInputChange}
             label="Minimum Wager Amount*"
             placeholder="Enter Minimum Bet Price"
-          />
+          /> */}
           <WinConditionSelect name="winCondition" value={formData.winCondition} onChange={handleInputChange} />
           <DurationSelect name="durationSelect" value={formData.durationSelect} onChange={handleInputChange} />
           <p className="self-start mt-4 text-xs font-medium tracking-normal leading-none text-center text-white">
