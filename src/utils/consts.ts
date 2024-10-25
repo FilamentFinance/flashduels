@@ -1,10 +1,11 @@
 export const NEXT_PUBLIC_PRIVY_APP_ID=process.env.NEXT_PUBLIC_PRIVY_APP_ID as string
-export const NEXT_PUBLIC_API=process.env.NEXT_PUBLIC_API as string
+export const PRODUCTION = process.env.NEXT_PUBLIC_PRODUCTION as string;
+export const NEXT_PUBLIC_API = PRODUCTION === "false" ? process.env.NEXT_PUBLIC_API as string : process.env.NEXT_PUBLIC_API_PRODUCTION as string;
 export const NEXT_PUBLIC_FLASH_USDC=process.env.NEXT_PUBLIC_FLASH_USDC as string
 export const NEXT_PUBLIC_FLASH_DUELS=process.env.NEXT_PUBLIC_FLASH_DUELS as string
 export const NEXT_PUBLIC_FLASH_DUELS_MARKETPLACE=process.env.NEXT_PUBLIC_FLASH_DUELS_MARKETPLACE as string
 export const CHAIN_ID=1328
-export const NEXT_PUBLIC_TIMER_BOT_URL = process.env.NEXT_PUBLIC_TIMER_BOT_URL as string
+export const NEXT_PUBLIC_TIMER_BOT_URL = PRODUCTION === "false" ? process.env.NEXT_PUBLIC_TIMER_BOT_URL as string : process.env.NEXT_PUBLIC_TIMER_BOT_URL_PRODUCTION as string
 export const NEXT_PUBLIC_RPC_URL = process.env.NEXT_PUBLIC_RPC_URL as string
 
 export type User = {
