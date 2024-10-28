@@ -33,7 +33,8 @@ export type NewDuelItem = {
     user: User;
     betString?: string;
     betIcon?: string;
-    startAt?: number
+    startAt?: number;
+    totalBetAmount:number
   };
 
 export type Duel = {

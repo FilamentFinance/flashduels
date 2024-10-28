@@ -41,7 +41,7 @@ const DuelGrid = ({activeButton, specialCategoryIndex, setSpecialCategoryIndex}:
       .map((item: NewDuelItem) => ({
         title: item.betString || `Will ${item.token} be ${item.winCondition === 0 ? "ABOVE" : "BELOW"} ${item.triggerPrice}`,
         imageSrc: item.betIcon || "empty-string",
-        volume: "$200K",  // Assuming this is a static value for now
+        volume: `$${item.totalBetAmount}`,  
         category: item.category,
         status: item.status,
         duelId: item.duelId,
