@@ -7,6 +7,7 @@ import UserProfile from "./UserProfile";
 import SettingsIcon from "./SettingsIcon";
 import { usePrivy } from "@privy-io/react-auth";
 import DepositModal from "../DepositModal/DepositModal";
+import IconButtonContainer from "./IconButton";
 
 const Navbar: React.FC = () => {
     const {authenticated} = usePrivy();
@@ -25,6 +26,7 @@ const Navbar: React.FC = () => {
         <Navigation />
        {authenticated && <DepositButton onOpenModal={handleOpenModal} />}
        {isModalOpen && <DepositModal onClose={handleCloseModal} />}
+       <IconButtonContainer/>
         {authenticated && <CreateDuelButton />}
         <UserProfile />
         {authenticated && <SettingsIcon />}
