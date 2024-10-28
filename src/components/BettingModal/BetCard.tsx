@@ -1,8 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import BetInfo from "./BetInfo";
 import BetAmount from "./BetAmount";
 import TransactionOverview from "./TransactionOverview";
 import PlaceBetButton from "./PlaceBetButton";
+import { postPricingData, useTotalBets } from "@/app/optionPricing";
+// import { getCryptoPrices } from "@/utils/prices";
+import { priceIds } from "@/utils/helper";
+import { usePrice } from "@/app/providers/PriceContextProvider";
+import { ethers } from "ethers";
 
 interface BetCardProps {
   betTitle: string;
@@ -18,7 +23,9 @@ interface BetCardProps {
   startAt: number,
   createdAt: number,
   asset?: string,
-  totalBetAmount: number
+  totalBetAmount: number,
+  endsIn: number
+  triggerPrice?: string,
 }
 
 const BetCard: React.FC<BetCardProps> = ({
@@ -35,11 +42,58 @@ const BetCard: React.FC<BetCardProps> = ({
   startAt,
   createdAt,
   asset,
-  totalBetAmount
+  totalBetAmount,
+  endsIn,
+  triggerPrice,
 }) => {
-
   const [betAmount, setBetAmount] = useState("1000");
   const [bet, setBet] = useState<string>("YES");
+  // const [markPrice, setMarkPrice] = useState<number | null>(null);
+  const [noPrice, setNoPrice] = useState<number>();
+  const [yesPrice, setYesPrice] = useState<number>();
+  console.log("shivams",triggerPrice, noPrice, yesPrice)
+  const { prices } = usePrice()
+
+  // Assuming useTotalBets is defined elsewhere
+  const { totalBetYes, totalBetNo } = useTotalBets(duelId);
+  const id = asset
+    ? priceIds.find((obj) => obj[asset as keyof typeof obj])?.[asset as keyof typeof priceIds[0]]
+    : undefined;
+  const formattedId = id?.startsWith("0x") ? id.slice(2) : id;
+  const price = formattedId && prices[formattedId]
+  const priceFormatted = Number(ethers.formatUnits(
+    String((price) || 0),
+    8
+))
+  console.log("id-new", priceFormatted);
+
+
+  useEffect(() => {
+    const fetchPrices = async () => {
+      if (asset) {
+        try {
+          // const price = await getCryptoPrices(asset);
+          const timePeriod = endsIn / (365 * 24);
+          console.log(timePeriod, triggerPrice, "timePeriod")
+          const pricingValue = totalBetNo && totalBetYes && await postPricingData(
+            priceFormatted as number,
+            Number(triggerPrice),
+            asset,
+            timePeriod,
+            totalBetYes,
+            totalBetNo
+          );
+          setNoPrice(pricingValue["No Price"]);
+          setYesPrice(pricingValue["Yes Price"]);
+          console.log(pricingValue,triggerPrice, "pricingValue", pricingValue["No Value"], pricingValue["Yes Value"])
+        } catch (error) {
+          console.error("Error fetching prices:", error);
+        }
+      }
+    };
+
+    fetchPrices();
+  }, [asset, endsIn, triggerPrice, totalBetYes, totalBetNo, duelId]);
   return (
     <article className="flex flex-col justify-center py-2.5 rounded-lg bg-zinc-900 max-w-[482px]">
       <header className="flex relative gap-2.5 justify-center items-start py-2 w-full text-xl font-semibold text-center text-white border-b border-zinc-700">
@@ -69,10 +123,12 @@ const BetCard: React.FC<BetCardProps> = ({
           startAt={startAt}
           createdAt={createdAt}
           totalBetAmount={totalBetAmount}
+          noPrice={noPrice}
+          yesPrice={yesPrice}
         />
         <BetAmount availableAmount={availableAmount} betAmount={betAmount} setBetAmount={setBetAmount} />
         <TransactionOverview betAmount={betAmount} />
-        <PlaceBetButton betAmount={betAmount} duelId={duelId} duelType={duelType} bet={bet} asset={asset}/>
+        <PlaceBetButton betAmount={betAmount} duelId={duelId} duelType={duelType} bet={bet} asset={asset} triggerPrice={triggerPrice} endsIn={endsIn} markPrice={priceFormatted as number}/>
       </div>
     </article>
   );

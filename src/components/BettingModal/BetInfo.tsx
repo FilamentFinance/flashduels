@@ -13,6 +13,8 @@ interface BetInfoProps {
   startAt: number;
   createdAt: number;
   totalBetAmount: number;
+  noPrice?: number;
+  yesPrice?: number;
 }
 
 const BetInfo: React.FC<BetInfoProps> = ({
@@ -26,7 +28,9 @@ const BetInfo: React.FC<BetInfoProps> = ({
   createdBy,
   startAt,
   createdAt,
-  totalBetAmount
+  totalBetAmount,
+  noPrice,
+  yesPrice
 }) => {
   const thirtyMinutesMs = 30 * 60 * 1000;
   const durationMs = endTime * 60 * 60 * 1000; // duration in hours converted to milliseconds
@@ -178,8 +182,8 @@ const BetInfo: React.FC<BetInfoProps> = ({
         </div>
       </div>
       <div className="flex gap-2 items-start mt-3 w-full text-base text-center whitespace-nowrap text-stone-500">
-        <div className="flex-1 shrink basis-0">$1/share</div>
-        <div className="flex-1 shrink basis-0">$0.3/share</div>
+        <div className="flex-1 shrink basis-0">${(yesPrice)}/share</div>
+        <div className="flex-1 shrink basis-0">${noPrice}/share</div>
       </div>
     </section>
   );

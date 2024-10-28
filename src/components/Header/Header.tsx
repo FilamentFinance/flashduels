@@ -4,11 +4,16 @@ import Logo from "./Logo";
 import Navbar from "./Navbar";
 import { useAccount, useDisconnect } from "wagmi";
 import { usePrivy } from "@privy-io/react-auth";
+import { priceIds } from "@/utils/helper";
+import { usePriceStream } from "../PriceStream";
 
 const Header: React.FC = () => {
   const { address, isConnected } = useAccount();
   const { disconnect } = useDisconnect();
   const { logout } = usePrivy();
+
+    const ids = priceIds.map(item => Object.values(item)[0]);
+    usePriceStream(ids);
 
   useEffect(() => {
     if (!isConnected) return;

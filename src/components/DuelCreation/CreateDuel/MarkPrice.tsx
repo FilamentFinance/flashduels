@@ -1,20 +1,33 @@
-import React, { useEffect, useState } from "react";
-import { getCryptoPrices } from "@/utils/prices";
+// import React, { useEffect, useState } from "react";
+// import { getCryptoPrices } from "@/utils/prices";
+import React from "react";
+import { priceIds } from "@/utils/helper";
+import { usePrice } from "@/app/providers/PriceContextProvider";
+import { ethers } from "ethers";
 
 const MarkPriceComponent = ({ asset }: { asset: string }) => {
-    const [markPrice, setMarkPrice] = useState<string | null>(null);
+    // const [markPrice, setMarkPrice] = useState<string | null>(null);
 
-    useEffect(() => {
-        const fetchMarkPrice = async () => {
+    // useEffect(() => {
+    //     const fetchMarkPrice = async () => {
 
-            const price = await getCryptoPrices(asset);
-            setMarkPrice(price);
+    //         const price = await getCryptoPrices(asset);
+    //         setMarkPrice(price);
 
-        };
+    //     };
 
-        fetchMarkPrice();
-    }, [asset]);
-
+    //     fetchMarkPrice();
+    // }, [asset]);
+    const { prices } = usePrice()
+    const id = asset
+    ? priceIds.find((obj) => obj[asset as keyof typeof obj])?.[asset as keyof typeof priceIds[0]]
+    : undefined;
+  const formattedId = id?.startsWith("0x") ? id.slice(2) : id;
+  const price = formattedId && prices[formattedId]
+  const priceFormatted = Number(ethers.formatUnits(
+    String((price) || 0),
+    8
+))
 
     return (
         <div className="flex flex-col mt-4 w-full text-base tracking-normal leading-none">
@@ -23,7 +36,7 @@ const MarkPriceComponent = ({ asset }: { asset: string }) => {
                     Mark Price
                 </div>
                 <div className="flex-1 shrink gap-1 self-stretch my-auto text-white whitespace-nowrap text-right">
-                    {markPrice}
+                    {priceFormatted}
                 </div>
             </div>
         </div>

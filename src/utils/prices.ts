@@ -28,3 +28,5 @@ export async function getCryptoPrices(asset: string) {
       console.error('Error fetching the crypto prices:', error);
     }
   }
+
+  

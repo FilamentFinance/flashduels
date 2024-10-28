@@ -3,10 +3,10 @@ import DuelCard from "./DuelCard";
 import BettingModal from "./BettingModal/BettingModal";
 import axios from "axios";
 import { Duel, NewDuelItem, NEXT_PUBLIC_API } from "@/utils/consts";
-import { shortenAddress } from "@/utils/helper";
 import { useAccount } from "wagmi";
 import { useBalance } from "@/blockchain/useBalance";
 import { ethers } from "ethers";
+import { shortenAddress } from "@/utils/helper";
 
 const DuelGrid = ({activeButton, specialCategoryIndex, setSpecialCategoryIndex}: {activeButton:string, setActiveButton : (activeButton: string)=> void , specialCategoryIndex:number|null, setSpecialCategoryIndex: (specialCategoryIndex:number | null) => void}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -14,7 +14,7 @@ const DuelGrid = ({activeButton, specialCategoryIndex, setSpecialCategoryIndex}:
   const { address } = useAccount();
   const { balance } = useBalance(address as string);
   const balanceNum = (Number(ethers.formatUnits(balance ? balance.toString() : 0, 6)));
-
+  
   const [duels, setDuels] = useState<Duel[]>()
 
   const categoryMap = [
@@ -49,9 +49,10 @@ const DuelGrid = ({activeButton, specialCategoryIndex, setSpecialCategoryIndex}:
         timeLeft: item.endsIn,
         startAt: item.startAt || 0,
         createdAt: item.createdAt,
-        percentage: 100,  // Assuming this is static or based on some logic
+        percentage: 50,  // Assuming this is static or based on some logic
         createdBy: item.user.twitterUsername || shortenAddress(item.user.address),
         token: item.token,
+        triggerPrice: item.triggerPrice
       }));
       console.log(duels,"duels")
     setDuels(duel);
@@ -90,6 +91,7 @@ const DuelGrid = ({activeButton, specialCategoryIndex, setSpecialCategoryIndex}:
         createdAt={modalData?.createdAt as number}
         asset={modalData?.token as string}
         totalBetAmount={modalData?.totalBetAmount as number}
+        triggerPrice={modalData?.triggerPrice as string}
       />
     </>
   );

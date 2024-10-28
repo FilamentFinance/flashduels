@@ -52,6 +52,7 @@ export type Duel = {
     onClick?: () => void;
     token?: string;
     totalBetAmount: number;
+    triggerPrice? : string
   };
 
   export const durations = [3, 6, 12];
