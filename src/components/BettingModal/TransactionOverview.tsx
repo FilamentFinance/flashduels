@@ -30,7 +30,7 @@ const TransactionOverview = ({betAmount}: {betAmount:string}) => {
               />
             </div>
             <span className="flex flex-col self-stretch my-auto whitespace-nowrap">
-              10 USDC
+              5 USDC
             </span>
           </div>
           <div className="flex gap-10 justify-between items-center mt-1 w-full">

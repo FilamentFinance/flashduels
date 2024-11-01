@@ -95,7 +95,7 @@ const CreateDuelForm = () => {
       address: NEXT_PUBLIC_FLASH_USDC as `0x${string}`,
       functionName: "increaseAllowance",
       chainId: CHAIN_ID,
-      args: [NEXT_PUBLIC_FLASH_DUELS, 10 * 10 ** 6],
+      args: [NEXT_PUBLIC_FLASH_DUELS, 5 * 10 ** 6],
     });
 
   // Function to call the second contract function
