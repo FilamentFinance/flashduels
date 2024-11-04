@@ -7,6 +7,7 @@ export const useBalance = (address: string) => {
     data: balance,
     isLoading,
     isError,
+    refetch,
   } = useReadContract({
     abi: FLASHUSDCABI,
     functionName: "balanceOf",
@@ -15,5 +16,5 @@ export const useBalance = (address: string) => {
     args: [address],
   });
 
-  return { balance, isLoading, isError };
+  return { balance, isLoading, isError, refetch };
 };

@@ -5,7 +5,7 @@ import BetIconUpload from "./BetIconUpload";
 import DurationSelect from "./DurationSelect";
 import InfoBox from "./InfoBox";
 import SubmitButton from "./SubmitButton";
-import { useWriteContract } from "wagmi";
+import { useAccount, useWriteContract } from "wagmi";
 import { CHAIN_ID, durations, NEXT_PUBLIC_API, NEXT_PUBLIC_FLASH_DUELS, NEXT_PUBLIC_FLASH_USDC, NEXT_PUBLIC_RPC_URL, NEXT_PUBLIC_TIMER_BOT_URL } from "@/utils/consts";
 import { FLASHUSDCABI } from "@/abi/FLASHUSDC";
 import { waitForTransactionReceipt } from "wagmi/actions";
@@ -14,7 +14,7 @@ import { FLASHDUELSABI } from "@/abi/FlashDuelsABI";
 import { mapCategoryToEnumIndex, mapDurationToNumber } from "@/utils/helper";
 import { getGasPrice } from '@wagmi/core'
 import axios from "axios";
-import { usePrivy } from "@privy-io/react-auth";
+// import { usePrivy } from "@privy-io/react-auth";
 import { ethers } from "ethers";
 
 const CreateDuelForm = () => {
@@ -56,7 +56,8 @@ const CreateDuelForm = () => {
     // Return undefined if no logs are found
     return;
   }
-  const { user } = usePrivy()
+  const {address} = useAccount();
+  // const { user } = usePrivy()
   const [formData, setFormData] = React.useState({
     category: "",
     betAmount: "",
@@ -152,8 +153,8 @@ const CreateDuelForm = () => {
         `${NEXT_PUBLIC_API}/duels/create`,
         {
           ...duelData,
-          twitterUsername: user?.twitter?.username,
-          address: user?.wallet?.address,
+          twitterUsername:"",
+          address: address,
         },
         {
           headers: {

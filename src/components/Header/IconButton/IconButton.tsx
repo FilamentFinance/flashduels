@@ -18,7 +18,7 @@ export const IconButton: React.FC<IconButtonProps> = ({
     <div>
     <button
     onClick={handleOpen}
-      className="flex gap-3 justify-center items-center px-3 w-9 h-9 rounded border shadow-sm bg-[linear-gradient(180deg,#F19ED2_0%,#C87ECA_100%)]"
+      className="flex gap-3 justify-center items-center px-3 w-9 h-9 rounded shadow-sm bg-[linear-gradient(180deg,#F19ED2_0%,#C87ECA_100%)]"
       aria-label={iconAlt || "Icon button"}
     >
       <img

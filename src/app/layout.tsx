@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import Providers from "./providers/PrivyProvider";
+// import Providers from "./providers/PrivyProvider";
 import Header from "@/components/Header/Header";
 import { PriceProvider } from "./providers/PriceContextProvider";
+import RainbowKitProviders from "./providers/RainbowKitProvider";
+// import Providers from "./providers/PrivyProvider";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -34,10 +36,12 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <PriceProvider>
-          <Providers>
+          {/* <Providers> */}
+          <RainbowKitProviders>
             <Header />
             {children}
-          </Providers>
+          </RainbowKitProviders>
+          {/* </Providers> */}
         </PriceProvider>
       </body>
 

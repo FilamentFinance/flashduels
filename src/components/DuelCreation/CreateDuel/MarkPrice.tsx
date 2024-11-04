@@ -20,14 +20,14 @@ const MarkPriceComponent = ({ asset }: { asset: string }) => {
     // }, [asset]);
     const { prices } = usePrice()
     const id = asset
-    ? priceIds.find((obj) => obj[asset as keyof typeof obj])?.[asset as keyof typeof priceIds[0]]
-    : undefined;
-  const formattedId = id?.startsWith("0x") ? id.slice(2) : id;
-  const price = formattedId && prices[formattedId]
-  const priceFormatted = Number(ethers.formatUnits(
-    String((price) || 0),
-    8
-))
+        ? priceIds.find((obj) => obj[asset as keyof typeof obj])?.[asset as keyof typeof priceIds[0]]
+        : undefined;
+    const formattedId = id?.startsWith("0x") ? id.slice(2) : id;
+    const price = formattedId && prices[formattedId]
+    const priceFormatted = Number(ethers.formatUnits(
+        String((price) || 0),
+        8
+    ))
 
     return (
         <div className="flex flex-col mt-4 w-full text-base tracking-normal leading-none">

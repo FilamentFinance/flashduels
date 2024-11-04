@@ -55,7 +55,7 @@ const useTotalBets = (duelId: string) => {
 }
 
 const postPricingData = async (markPrice: number, triggerPrice: number, asset: string, timePeriod: number, totalYesBets: number, totalNobets: number) => {
-    // Use the custom hook to get the total bets
+    console.log("hello-new")
     let data;
     console.log(triggerPrice, "triggerPrice-new")
     if (totalNobets === 0 && totalYesBets === 0) {
@@ -63,8 +63,8 @@ const postPricingData = async (markPrice: number, triggerPrice: number, asset: s
             S_t: triggerPrice,
             K: markPrice,
             T: timePeriod,
-            total_yes_bets: totalYesBets,
-            total_no_bets: totalNobets,
+            total_yes_bets: 50,
+            total_no_bets: 50,
             beta: 0.15,
             symbol: `${asset}USDT`
         };

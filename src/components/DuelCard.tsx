@@ -85,12 +85,12 @@ const DuelCard: React.FC<Duel> = ({
         <div className="flex gap-2 items-start w-full max-w-[227px]">
           <div className="flex gap-2 w-16 min-h-[64px]">
             <div className="flex flex-1 shrink basis-0 size-full">
-              <div className="flex flex-1 shrink justify-center items-center w-16 h-16 bg-gray-500 rounded-lg border border-solid basis-0 border-white border-opacity-10">
+              <div className="flex flex-1 shrink justify-center items-center w-16 h-16 bg-gray-500 rounded-full border border-solid basis-0 border-white border-opacity-10">
                 <img
                   loading="lazy"
                   src={imageSrc}
                   alt={title}
-                  className="object-contain flex-1 shrink w-16 rounded-lg aspect-square basis-0"
+                  className="object-contain flex-1 shrink w-16 rounded-full aspect-square basis-0"
                 />
               </div>
             </div>

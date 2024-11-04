@@ -1,15 +1,13 @@
 import React from "react";
 import Header from "./Header";
 import WalletInfo from "./WalletInfo";
-import DepositSection from "./DepositSection";
-import { User } from "@privy-io/react-auth";
-import MyComponent from "../MyComponent";
+// import DepositSection from "./DepositSection";
+// import MyComponent from "../MyComponent";
 import DisconnectButton from "../DisconnectButton";
 
 interface DepositModalProps {
     onClose: () => void;
     onLogout: () => void;
-    user: User
 }
 
 const PortfolioModal: React.FC<DepositModalProps> = ({ onClose, onLogout }) => {
@@ -37,9 +35,9 @@ const PortfolioModal: React.FC<DepositModalProps> = ({ onClose, onLogout }) => {
 
                 {/* <WalletInfo onClose={onClose} />
                 <DisconnectButton text="Disconnect" iconSrc="https://cdn.builder.io/api/v1/image/assets/TEMP/61720aa3ee0f9f91bd5350a506f3496c5251c0cc4dfd39a8ec85aba56e103526?placeholderIfAbsent=true&apiKey=9a4d3cdfd283475dbc30e1b60dc2077d" /> */}
-                <DepositSection text={"Wallet Address"} />
+                {/* <DepositSection text={"Wallet Address"} /> */}
                 {/* <button onClick={onLogout}>Logout</button> */}
-                <MyComponent></MyComponent>
+                {/* <MyComponent></MyComponent> */}
 
             </main>
         </div>

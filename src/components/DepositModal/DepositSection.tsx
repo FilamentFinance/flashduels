@@ -1,16 +1,18 @@
 // src/components/DepositSection.tsx
 
 import { copyToClipboard, shortenAddress } from "@/utils/helper";
-import { usePrivy } from "@privy-io/react-auth";
+// import { usePrivy } from "@privy-io/react-auth";
 import React, { useState } from "react";
+import { useAccount } from "wagmi";
 
 const DepositSection = ({text}: {text:string}) => {
-  const { user } = usePrivy();
+  // const { user } = usePrivy();
+  const {address} = useAccount()
   const [isCopied, setIsCopied] = useState(false); // State to track copy status
 
   // Handle copy action
   const handleCopy = async () => {
-    const success = await copyToClipboard(user?.wallet?.address as string);
+    const success = await copyToClipboard(address as string);
     if (success) {
       setIsCopied(true); // Update state to show tick
       setTimeout(() => setIsCopied(false), 2000); // Reset after 2 seconds
@@ -30,7 +32,7 @@ const DepositSection = ({text}: {text:string}) => {
             <div className="flex flex-1 shrink items-center self-stretch my-auto text-base leading-none text-white whitespace-nowrap basis-8 min-w-[240px]">
               <div className="flex flex-1 shrink gap-2.5 items-start self-stretch px-4 py-2 my-auto w-full basis-0 min-w-[240px]">
                 <div className="flex-1 shrink w-full min-w-[240px]">
-                  {shortenAddress(user?.wallet?.address || '')}
+                  {shortenAddress(address || '')}
                 </div>
               </div>
             </div>

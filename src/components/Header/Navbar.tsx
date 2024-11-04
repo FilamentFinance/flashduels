@@ -1,35 +1,37 @@
 "use client"
-import React, { useState } from "react";
+import React from "react";
 import Navigation from "./Navigation";
 import DepositButton from "./DepositButton";
 import CreateDuelButton from "./CreateDuelButton";
 import UserProfile from "./UserProfile";
 import SettingsIcon from "./SettingsIcon";
-import { usePrivy } from "@privy-io/react-auth";
-import DepositModal from "../DepositModal/DepositModal";
+// import { usePrivy } from "@privy-io/react-auth";
+// import DepositModal from "../DepositModal/DepositModal";
 import IconButtonContainer from "./IconButton";
+import { useAccount } from "wagmi";
 
 const Navbar: React.FC = () => {
-    const {authenticated} = usePrivy();
-    const [isModalOpen, setModalOpen] = useState(false);
-
+    // const {authenticated} = usePrivy();
+const {isConnected} = useAccount();
+    // const [isModalOpen, setModalOpen] = useState(false);
+// 
     const handleOpenModal = () => {
-      setModalOpen(true);
+      // setModalOpen(true);
     };
   
-    const handleCloseModal = () => {
-      setModalOpen(false);
-    };
+    // const handleCloseModal = () => {
+      // setModalOpen(false);
+    // };
   return (
   
       <nav className="flex flex-row items-center gap-x-3">
         <Navigation />
-       {authenticated && <DepositButton onOpenModal={handleOpenModal} />}
-       {isModalOpen && <DepositModal onClose={handleCloseModal} />}
+       {isConnected && <DepositButton onOpenModal={handleOpenModal} />}
+       {/* {isModalOpen && <DepositModal onClose={handleCloseModal} />} */}
        <IconButtonContainer/>
-        {authenticated && <CreateDuelButton />}
+        {isConnected && <CreateDuelButton />}
         <UserProfile />
-        {authenticated && <SettingsIcon />}
+        {isConnected && <SettingsIcon />}
       </nav>
   
   );

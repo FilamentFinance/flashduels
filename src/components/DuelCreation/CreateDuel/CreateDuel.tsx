@@ -6,14 +6,14 @@ import InfoBox from "./InfoBox";
 import CreateDuelButton from "./CreateDuelButton";
 import TokenSelect from "./TokenInput";
 import { CHAIN_ID, durations, NEXT_PUBLIC_API, NEXT_PUBLIC_FLASH_DUELS, NEXT_PUBLIC_FLASH_USDC, NEXT_PUBLIC_RPC_URL, NEXT_PUBLIC_TIMER_BOT_URL } from "@/utils/consts";
-import { mapDurationToNumber } from "@/utils/helper";
+import { getAssetImage, mapDurationToNumber } from "@/utils/helper";
 import { FLASHUSDCABI } from "@/abi/FLASHUSDC";
 import { FLASHDUELSABI } from "@/abi/FlashDuelsABI";
-import { useWriteContract } from "wagmi";
+import { useAccount, useWriteContract } from "wagmi";
 import { waitForTransactionReceipt } from "wagmi/actions";
 import { config } from "@/app/config/wagmi";
 import axios from "axios";
-import { usePrivy } from "@privy-io/react-auth";
+// import { usePrivy } from "@privy-io/react-auth";
 import { ethers } from "ethers";
 import MarkPriceComponent from "./MarkPrice";
 
@@ -31,14 +31,14 @@ const CreateDuel: React.FC = () => {
   async function fetchTransactionEvents(transactionHash: string) {
     try {
       const receipt = await provider!.getTransactionReceipt(transactionHash);
-  
+
       if (!receipt) {
         console.error('Transaction receipt not found!');
         return;
       }
-  
+
       const contract = new ethers.Contract(NEXT_PUBLIC_FLASH_DUELS, FLASHDUELSABI, provider);
-  
+
       // Use a regular loop to allow early return
       for (const log of receipt.logs) {
         // Check if the log was emitted by your contract
@@ -50,7 +50,7 @@ const CreateDuel: React.FC = () => {
 
             const duelId = targetArray[2];
             const createTime = Number(targetArray[3]);
-  
+
             // Return the values
             return { duelId, createTime };
           } catch (error) {
@@ -61,13 +61,13 @@ const CreateDuel: React.FC = () => {
     } catch (error) {
       console.error('Error fetching transaction receipt:', error);
     }
-    
+
     // Return undefined if no logs are found
     return;
   }
 
- const { user } = usePrivy()
-
+  // const { user } = usePrivy()
+  const { address } = useAccount()
   const [formData, setFormData] = React.useState<FormData>({
     tokenInput: "BTC",
     triggerPrice: "",
@@ -76,7 +76,7 @@ const CreateDuel: React.FC = () => {
     durationSelect: "3H", // Set a default value if necessary
   });
 
- const handleInputChange = (
+  const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement> | string
   ) => {
     // Check if the input is a string (for custom components like DurationSelect)
@@ -161,6 +161,7 @@ const CreateDuel: React.FC = () => {
         type: "COIN_DUEL",
         token: symbol,
         markPrice: markPrice,
+        betIcon: getAssetImage(symbol),
         triggerPrice: formData.triggerPrice,
         minimumWager: formData.minWager,
         winCondition: winCondition,
@@ -170,14 +171,13 @@ const CreateDuel: React.FC = () => {
 
 
       console.log(duelData, "duelData")
-  
-      // Send request to your backend
+
       const response = await axios.post(
         `${NEXT_PUBLIC_API}/duels/create`,
         {
           ...duelData,
-          twitterUsername: user?.twitter?.username,
-          address: user?.wallet?.address,
+          twitterUsername: "",
+          address: address,
         },
         {
           headers: {
@@ -195,7 +195,7 @@ const CreateDuel: React.FC = () => {
         duration: durations[durationNumber],
         startTime: result.createTime,
         asset: symbol,
-        category:1
+        category: 1
       }, {
         headers: {
           'Content-Type': 'application/json',
@@ -227,7 +227,7 @@ const CreateDuel: React.FC = () => {
               </div>
             </div>
           </div> */}
-          <MarkPriceComponent asset={formData.tokenInput}/>
+          <MarkPriceComponent asset={formData.tokenInput} />
           <PriceInput
             name="triggerPrice"
             value={formData.triggerPrice}

@@ -8,13 +8,13 @@ import { useBalance } from "@/blockchain/useBalance";
 import { ethers } from "ethers";
 import { shortenAddress } from "@/utils/helper";
 
-const DuelGrid = ({activeButton, specialCategoryIndex, setSpecialCategoryIndex}: {activeButton:string, setActiveButton : (activeButton: string)=> void , specialCategoryIndex:number|null, setSpecialCategoryIndex: (specialCategoryIndex:number | null) => void}) => {
+const DuelGrid = ({ activeButton, specialCategoryIndex, setSpecialCategoryIndex }: { activeButton: string, setActiveButton: (activeButton: string) => void, specialCategoryIndex: number | null, setSpecialCategoryIndex: (specialCategoryIndex: number | null) => void }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalData, setModalData] = useState<Duel>();
   const { address } = useAccount();
   const { balance } = useBalance(address as string);
   const balanceNum = (Number(ethers.formatUnits(balance ? balance.toString() : 0, 6)));
-  
+
   const [duels, setDuels] = useState<Duel[]>()
 
   const categoryMap = [
@@ -26,22 +26,24 @@ const DuelGrid = ({activeButton, specialCategoryIndex, setSpecialCategoryIndex}:
 
   const getDuels = async () => {
     const response = await axios.get(`${NEXT_PUBLIC_API}/duels/getAll`);
-    console.log("allduels", response.data.allDuels)
+    console.log("allduels", response.data.allDuels);
+  
     const duel = response.data.allDuels
       .filter((item: NewDuelItem) => {
+        // Filtering based on `activeButton`
         if (activeButton === "liveDuels") {
-          return item.status === 0;
+          return item.status === 0;   // live duels
         } else if (activeButton === "bootstraping") {
-          return item.status === -1;
+          return item.status === -1;  // bootstraping duels
         } else if (activeButton === "completed") {
-          return item.status === 1;
+          return item.status === 1;   // completed duels
         }
-        return true; // Default to include all if no activeButton is set
+        return true;
       })
       .map((item: NewDuelItem) => ({
         title: item.betString || `Will ${item.token} be ${item.winCondition === 0 ? "ABOVE" : "BELOW"} ${item.triggerPrice}`,
         imageSrc: item.betIcon || "empty-string",
-        volume: `$${item.totalBetAmount}`,  
+        volume: `$${item.totalBetAmount}`,
         category: item.category,
         status: item.status,
         duelId: item.duelId,
@@ -52,11 +54,14 @@ const DuelGrid = ({activeButton, specialCategoryIndex, setSpecialCategoryIndex}:
         percentage: 50,  // Assuming this is static or based on some logic
         createdBy: item.user.twitterUsername || shortenAddress(item.user.address),
         token: item.token,
-        triggerPrice: item.triggerPrice
+        triggerPrice: item.triggerPrice,
+        totalBetAmount: item.totalBetAmount  // Added this field
       }));
-      console.log(duels,"duels")
+  
+    console.log("Filtered duels:", duel);
     setDuels(duel);
   }
+  
 
   useEffect(() => {
     getDuels()

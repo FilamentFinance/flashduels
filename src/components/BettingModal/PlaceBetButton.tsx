@@ -3,11 +3,10 @@ import { FLASHDUELSABI } from "@/abi/FlashDuelsABI";
 import { config } from "@/app/config/wagmi";
 import { postPricingData, useTotalBets } from "@/app/optionPricing";
 import { CHAIN_ID, NEXT_PUBLIC_API, NEXT_PUBLIC_FLASH_DUELS, NEXT_PUBLIC_FLASH_USDC } from "@/utils/consts";
-// import { getCryptoPrices } from "@/utils/prices";
-import { usePrivy } from "@privy-io/react-auth";
+import { calculateFlashDuelsOptionPrice } from "@/utils/flashDuelsOptionPricing";
 import axios from "axios";
 import React from "react";
-import { useWriteContract } from "wagmi";
+import { useAccount, useWriteContract } from "wagmi";
 import { waitForTransactionReceipt } from "wagmi/actions";
 
 interface PlaceBetButtonProps {
@@ -22,7 +21,8 @@ interface PlaceBetButtonProps {
 }
 
 const PlaceBetButton: React.FC<PlaceBetButtonProps> = ({ betAmount, bet, duelId, duelType, asset, triggerPrice, endsIn, markPrice }) => {
-  const { user } = usePrivy();
+  // const { user } = usePrivy();
+  const {address} = useAccount();
   
   const { totalBetYes, totalBetNo } = useTotalBets(duelId);
   console.log(endsIn, asset, triggerPrice, totalBetNo, totalBetYes ,"hello")
@@ -77,16 +77,17 @@ const PlaceBetButton: React.FC<PlaceBetButtonProps> = ({ betAmount, bet, duelId,
 
     if (duelType === "COIN_DUEL" && asset) {
       backendValue = await postPricingData(markPrice, Number(triggerPrice), (asset as string), timePeriod as number, totalBetYes || 0, totalBetNo || 0)
-      // const indexValue = bet === "YES" ? backendValue["Yes Price"] : backendValue["No Price"];
-      // const optionPrice = indexValue * 10 ** 6;
-      const optionPrice = backendValue * 10 ** 6;
+      const indexValue = bet === "YES" ? backendValue["Yes Price"] : backendValue["No Price"];
+      const optionPrice = indexValue * 10 ** 6;
+      // const optionPrice = backendValue * 10 ** 6;
       console.log(duelId, bet, asset, optionIndex, optionPrice, amount, "hello-duel");
       secondHash = await joinCryptoDuel(duelId, bet, asset, optionIndex, optionPrice, amount);
       console.log(secondHash, "second-hash")
 
     } else {
-      backendValue = 50;
-      const optionPrice = backendValue * 10 ** 6;
+      backendValue = calculateFlashDuelsOptionPrice(timePeriod || 0, totalBetNo || 0, totalBetYes || 0);
+      const indexValue = bet === "YES" ? backendValue["priceYes"] : backendValue["priceNo"];
+      const optionPrice = indexValue * 10 ** 6;
       secondHash = await joinFlashDuel(duelId, bet, optionIndex, optionPrice, amount);
       console.log(secondHash, "second-hash-flash")
 
@@ -97,14 +98,14 @@ const PlaceBetButton: React.FC<PlaceBetButtonProps> = ({ betAmount, bet, duelId,
     console.log(secondReceipt, "second-hash")
 
 
-    console.log("Call BE", user?.twitter?.username, bet, betAmount, duelId, duelType, optionIndex, backendValue);
+    // console.log("Call BE", user?.twitter?.username, bet, betAmount, duelId, duelType, optionIndex, backendValue);
 
     await axios.post(
       `${NEXT_PUBLIC_API}/bets/create`,
       {
-        twitterUsername: user?.twitter?.username,
+        twitterUsername: "",
         bet: bet,
-        address: user?.wallet?.address,
+        address: address,
         betAmount: betAmount,
         optionIndex: optionIndex,
         optionPrice: backendValue.toString(),

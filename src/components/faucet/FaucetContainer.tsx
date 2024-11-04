@@ -22,7 +22,7 @@ export const FaucetContainer = ({
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose}>
-      <main className="flex overflow-hidden flex-col rounded-lg border border-solid shadow-sm bg-zinc-900 border-zinc-700 max-w-[540px]">
+      <main className="flex overflow-hidden flex-col rounded-lg shadow-sm bg-zinc-900 max-w-[540px]">
         <header className="flex relative gap-10 justify-center items-start py-6 w-full text-2xl font-semibold tracking-normal text-white max-md:max-w-full">
           <h1 className="z-0 my-auto">Claim Faucet</h1>
           <button

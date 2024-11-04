@@ -182,8 +182,8 @@ const BetInfo: React.FC<BetInfoProps> = ({
         </div>
       </div>
       <div className="flex gap-2 items-start mt-3 w-full text-base text-center whitespace-nowrap text-stone-500">
-        <div className="flex-1 shrink basis-0">${(yesPrice)}/share</div>
-        <div className="flex-1 shrink basis-0">${noPrice}/share</div>
+        <div className="flex-1 shrink basis-0">${(yesPrice)?.toFixed(4)}/share</div>
+        <div className="flex-1 shrink basis-0">${(noPrice)?.toFixed(4)}/share</div>
       </div>
     </section>
   );

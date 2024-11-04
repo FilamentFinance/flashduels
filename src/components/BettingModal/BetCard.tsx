@@ -8,6 +8,7 @@ import { postPricingData, useTotalBets } from "@/app/optionPricing";
 import { priceIds } from "@/utils/helper";
 import { usePrice } from "@/app/providers/PriceContextProvider";
 import { ethers } from "ethers";
+import { calculateFlashDuelsOptionPrice } from "@/utils/flashDuelsOptionPricing";
 
 interface BetCardProps {
   betTitle: string;
@@ -74,14 +75,14 @@ const BetCard: React.FC<BetCardProps> = ({
         try {
           // const price = await getCryptoPrices(asset);
           const timePeriod = endsIn / (365 * 24);
-          console.log(timePeriod, triggerPrice, "timePeriod")
-          const pricingValue = totalBetNo && totalBetYes && await postPricingData(
+          console.log(timePeriod, triggerPrice,priceFormatted, asset, totalBetNo, totalBetYes, "timePeriod")
+          const pricingValue =  await postPricingData(
             priceFormatted as number,
             Number(triggerPrice),
             asset,
             timePeriod,
-            totalBetYes,
-            totalBetNo
+            totalBetYes || 0,
+            totalBetNo || 0
           );
           setNoPrice(pricingValue["No Price"]);
           setYesPrice(pricingValue["Yes Price"]);
@@ -89,6 +90,13 @@ const BetCard: React.FC<BetCardProps> = ({
         } catch (error) {
           console.error("Error fetching prices:", error);
         }
+      }
+      else{
+        const timePeriod = endsIn / 24;
+        console.log("no asset - its a flashduel")
+        const pricingValue = calculateFlashDuelsOptionPrice(timePeriod < 1 ? 1 : timePeriod, totalBetNo || 0, totalBetYes || 0);
+        setNoPrice(pricingValue["priceNo"]);
+        setYesPrice(pricingValue["priceYes"]);
       }
     };
 

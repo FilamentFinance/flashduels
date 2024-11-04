@@ -1,15 +1,20 @@
 "use client";
-import { usePrivy, User } from "@privy-io/react-auth";
+// import { usePrivy, User } from "@privy-io/react-auth";
 import React, { useEffect, useState } from "react";
 import { shortenAddress } from "@/utils/helper";
 import PortfolioModal from "../DepositModal/PortfolioModal";
 import { NEXT_PUBLIC_API } from "@/utils/consts";
+import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { useAccount } from "wagmi";
+import { disconnect } from "@wagmi/core/actions";
+import { config } from "@/app/config/wagmi";
 
 const UserProfile: React.FC = () => {
-  const { ready, authenticated, login, logout, user } = usePrivy();
+  // const { ready, authenticated, login, logout, user } = usePrivy();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const disableLogin = !ready || (ready && authenticated);
-
+  const { address, isConnected } = useAccount();
+  // const disableLogin = !ready || (ready && authenticated);
+  // 
   // console.log(user?.wallet?.address, user?.twitter?.username, "user")
   const interactWithBackend = async (twitterUsername: string | null | undefined, walletAddress: string | undefined) => {
     if (!walletAddress) return;
@@ -36,25 +41,25 @@ const UserProfile: React.FC = () => {
   };
 
   useEffect(() => {
-    if (authenticated) {
-      const walletAddress = user?.wallet?.address;
-      const twitterUsername = user?.twitter?.username;
+    if (isConnected) {
+      const walletAddress = address;
+      const twitterUsername = "";
       interactWithBackend(twitterUsername, walletAddress);
     }
-  }, [authenticated, user]);
-  
+  }, [isConnected, address]);
 
-  const handleLogout = async() => {
-    await logout();
-    setIsModalOpen(false); 
+
+  const handleLogout = async () => {
+    await disconnect(config);
+    setIsModalOpen(false);
   };
 
   return (
     <div className="flex gap-[4px] items-center p-[4px] my-auto rounded-[8px] bg-[rgba(255,255,255,0.02)]">
-      {authenticated ? (
+      {isConnected ? (
         <>
-          <div 
-            className="flex items-start self-stretch my-auto w-[26px] cursor-pointer" 
+          <div
+            className="flex items-start self-stretch my-auto w-[26px] cursor-pointer"
             onClick={() => setIsModalOpen(true)} // Open modal on click
           >
             <div className="flex justify-center items-center bg-gray-500 rounded h-[26px] min-h-[26px] w-[26px]">
@@ -65,29 +70,62 @@ const UserProfile: React.FC = () => {
           </div>
           <div onClick={() => setIsModalOpen(true)} className="flex gap-3 items-center self-stretch my-auto text-right whitespace-nowrap">
             <div className="flex flex-col justify-center self-stretch my-auto">
-              <div className="text-xs font-medium tracking-normal leading-none text-stone-200">
-                {user?.twitter?.username}
-              </div>
+              {/* <div className="text-xs font-medium tracking-normal leading-none text-stone-200">
+                user
+              </div> */}
               <div className="text-xs tracking-normal leading-relaxed text-stone-500">
-                {shortenAddress(user?.wallet?.address as string)}
+                {shortenAddress(address as string)}
               </div>
             </div>
           </div>
 
           {/* Modal for user details */}
           {isModalOpen && (
-            <PortfolioModal  onClose={() => setIsModalOpen(false)} onLogout={handleLogout} user={user as User} />
+            <PortfolioModal onClose={() => setIsModalOpen(false)} onLogout={handleLogout} />
             // onClose={() => setIsModalOpen(false)} onLogout={handleLogout} user={user as User}
           )}
         </>
       ) : (
-        <button 
-          onClick={login} 
-          disabled={disableLogin} 
-          className="gap-2.5 self-stretch px-3 py-2.5 my-auto text-base font-semibold leading-none text-gray-900 rounded shadow-sm bg-[linear-gradient(180deg,#F19ED2_0%,#C87ECA_100%)]"
-        >
-          Connect
-        </button>
+        // <ConnectButton/>
+        <ConnectButton.Custom>
+          {({
+            openConnectModal,
+            mounted,
+          }) => {
+            // Ensure the button is only displayed when the component is mounted
+            const ready = mounted;
+            console.log("ready", ready);
+
+            return (
+              <div
+                {...(!ready && {
+                  'aria-hidden': true,
+                  'style': {
+                    opacity: 0,
+                    pointerEvents: 'none',
+                    userSelect: 'none',
+                  },
+                })}
+              >
+                {/* Always show the "Connect Wallet" button */}
+                <button
+                  onClick={openConnectModal}
+                  className="gap-2.5 self-stretch px-3 py-2.5 my-auto text-base font-semibold leading-none text-gray-900 rounded shadow-sm bg-[linear-gradient(180deg,#F19ED2_0%,#C87ECA_100%)]"
+                >
+                  Connect Wallet
+                </button>
+              </div>
+            );
+          }}
+        </ConnectButton.Custom>
+
+        // <button 
+        //   onClick={login} 
+        //   disabled={disableLogin} 
+        //   className="gap-2.5 self-stretch px-3 py-2.5 my-auto text-base font-semibold leading-none text-gray-900 rounded shadow-sm bg-[linear-gradient(180deg,#F19ED2_0%,#C87ECA_100%)]"
+        // >
+        //   Connect
+        // </button>
       )}
     </div>
   );

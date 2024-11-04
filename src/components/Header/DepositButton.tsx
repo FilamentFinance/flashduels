@@ -12,6 +12,8 @@ const DepositButton: React.FC<DepositButtonProps> = ({ onOpenModal }) => {
   const {address} = useAccount();
   const {balance} = useBalance(address as string);
 
+  console.log(onOpenModal)
+
   const balanceNum = (Number(ethers.formatUnits(balance ? balance.toString() : 0, 6)));
   
   return (
@@ -25,12 +27,12 @@ const DepositButton: React.FC<DepositButtonProps> = ({ onOpenModal }) => {
         />
         <div className="self-stretch my-auto">{balanceNum}</div>
       </div>
-      <button 
+      {/* <button 
         onClick={onOpenModal} 
         className="gap-2.5 self-stretch px-3 py-2.5 my-auto text-base font-semibold leading-none text-gray-900 rounded shadow-sm bg-[linear-gradient(180deg,#F19ED2_0%,#C87ECA_100%)]"
       >
         Deposit
-      </button>
+      </button> */}
     </div>
   );
 };
