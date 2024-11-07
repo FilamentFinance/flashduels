@@ -149,7 +149,7 @@ const CreateDuelForm = () => {
         createdAt: result.createTime,
       };
     // Send request to your backend
-      const response = await axios.post(
+     await axios.post(
         `${NEXT_PUBLIC_API}/duels/create`,
         {
           ...duelData,
@@ -162,11 +162,9 @@ const CreateDuelForm = () => {
           }
         }
       );
+console.log("making response to timerbot")
 
-      console.log(response)
-      console.log(NEXT_PUBLIC_TIMER_BOT_URL, "hello-start")
-
-      await axios.post(`${NEXT_PUBLIC_TIMER_BOT_URL}/startDuel`, {
+      const response = await axios.post(`${NEXT_PUBLIC_TIMER_BOT_URL}/startDuel`, {
         duelId: result.duelId,
         duelType: 'FLASH_DUEL',
         duration: durations[durationNumber],
@@ -177,6 +175,7 @@ const CreateDuelForm = () => {
           'Content-Type': 'application/json',
         },
       });
+      console.log(response, "response from timerbot")
     } catch (error) {
       console.error("Error: ", error);
     }
@@ -197,7 +196,6 @@ const CreateDuelForm = () => {
         <BetInput name="betAmount" value={formData.betAmount} onChange={handleInputChange} />
         <BetIconUpload name="betIcon" value={formData.betIcon} onChange={handleInputChange} />
         <DurationSelect name="duration" value={formData.duration} onChange={handleInputChange} />
-
         <InfoBox />
         <SubmitButton />
       </div>

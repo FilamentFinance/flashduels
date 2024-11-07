@@ -15,6 +15,7 @@ interface BetInfoProps {
   totalBetAmount: number;
   noPrice?: number;
   yesPrice?: number;
+  status:number
 }
 
 const BetInfo: React.FC<BetInfoProps> = ({
@@ -30,7 +31,8 @@ const BetInfo: React.FC<BetInfoProps> = ({
   createdAt,
   totalBetAmount,
   noPrice,
-  yesPrice
+  yesPrice,
+  status
 }) => {
   const thirtyMinutesMs = 30 * 60 * 1000;
   const durationMs = endTime * 60 * 60 * 1000; // duration in hours converted to milliseconds
@@ -47,7 +49,7 @@ const BetInfo: React.FC<BetInfoProps> = ({
 
     // Check if 30 minutes have passed since createdAt
     const timeElapsedMs = currentTimeMs - startTimeMs;
-    if (timeElapsedMs > thirtyMinutesMs) {
+    if (timeElapsedMs > thirtyMinutesMs || status ===0) {
       // Use startAt if 30 minutes have passed
       const startAtTimeMs = startAt * 1000;
       const timeSinceStartAt = currentTimeMs - startAtTimeMs;

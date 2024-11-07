@@ -26,7 +26,8 @@ const DuelCard: React.FC<Duel> = ({
   startAt,
   createdAt,
   // creatorImageSrc,
-  onClick
+  onClick,
+  status
 }) => {
   const thirtyMinutesMs = 30 * 60 * 1000;
   const durationMs = timeLeft * 60 * 60 * 1000; // duration in hours converted to milliseconds
@@ -40,7 +41,7 @@ const DuelCard: React.FC<Duel> = ({
 
     // Check if 30 minutes have passed since createdAt
     const timeElapsedMs = currentTimeMs - startTimeMs;
-    if (timeElapsedMs > thirtyMinutesMs) {
+    if (timeElapsedMs > thirtyMinutesMs || status === 0) {
       // Use startAt if 30 minutes have passed
       const startAtTimeMs = startAt * 1000;
       const timeSinceStartAt = currentTimeMs - startAtTimeMs;

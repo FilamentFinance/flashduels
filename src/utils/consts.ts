@@ -39,6 +39,7 @@ export type NewDuelItem = {
 
 export type Duel = {
     title: string;
+    status: number;
     imageSrc: string;
     volume: string;
     category: string;

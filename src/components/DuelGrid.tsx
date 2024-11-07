@@ -19,8 +19,10 @@ const DuelGrid = ({ activeButton, specialCategoryIndex, setSpecialCategoryIndex 
 
   const categoryMap = [
     'Any',
-    'Politics',
     'Crypto',
+    'Politics',
+    'Sports',
+    
   ];
   console.log(categoryMap)
 
@@ -29,6 +31,16 @@ const DuelGrid = ({ activeButton, specialCategoryIndex, setSpecialCategoryIndex 
     console.log("allduels", response.data.allDuels);
   
     const duel = response.data.allDuels
+    .filter((item: NewDuelItem) => {
+      if (specialCategoryIndex !== null) {
+        if (specialCategoryIndex === 0) {
+          return true;
+        }else{
+          return item.category === categoryMap[specialCategoryIndex];
+        }
+         }
+      return true;
+    })
       .filter((item: NewDuelItem) => {
         // Filtering based on `activeButton`
         if (activeButton === "liveDuels") {
@@ -65,7 +77,7 @@ const DuelGrid = ({ activeButton, specialCategoryIndex, setSpecialCategoryIndex 
 
   useEffect(() => {
     getDuels()
-  }, [activeButton])
+  }, [activeButton, specialCategoryIndex])
 
   const handleCategoryClick = (index: number) => {
     const selectedDuel = duels![index];
@@ -88,6 +100,7 @@ const DuelGrid = ({ activeButton, specialCategoryIndex, setSpecialCategoryIndex 
         volume={modalData?.volume as string}
         timeLeft={modalData?.timeLeft as number}
         percentage={modalData?.percentage as number}
+        status={modalData?.status as number}
         createdBy={modalData?.createdBy as string}
         availableAmount={balanceNum as number}
         duelType={modalData?.duelType as string}

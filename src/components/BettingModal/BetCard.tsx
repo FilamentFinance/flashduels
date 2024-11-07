@@ -27,6 +27,7 @@ interface BetCardProps {
   totalBetAmount: number,
   endsIn: number
   triggerPrice?: string,
+  status:number;
 }
 
 const BetCard: React.FC<BetCardProps> = ({
@@ -44,6 +45,7 @@ const BetCard: React.FC<BetCardProps> = ({
   createdAt,
   asset,
   totalBetAmount,
+  status,
   endsIn,
   triggerPrice,
 }) => {
@@ -122,6 +124,7 @@ const BetCard: React.FC<BetCardProps> = ({
         <BetInfo
           bet={bet}
           setBet={setBet}
+          status={status}
           betTitle={betTitle}
           imageUrl={imageUrl}
           volume={volume}

@@ -78,7 +78,8 @@ const PlaceBetButton: React.FC<PlaceBetButtonProps> = ({ betAmount, bet, duelId,
     if (duelType === "COIN_DUEL" && asset) {
       backendValue = await postPricingData(markPrice, Number(triggerPrice), (asset as string), timePeriod as number, totalBetYes || 0, totalBetNo || 0)
       const indexValue = bet === "YES" ? backendValue["Yes Price"] : backendValue["No Price"];
-      const optionPrice = indexValue * 10 ** 6;
+      const optionPrice = Math.floor(indexValue * 10 ** 6);
+
       // const optionPrice = backendValue * 10 ** 6;
       console.log(duelId, bet, asset, optionIndex, optionPrice, amount, "hello-duel");
       secondHash = await joinCryptoDuel(duelId, bet, asset, optionIndex, optionPrice, amount);
@@ -87,7 +88,9 @@ const PlaceBetButton: React.FC<PlaceBetButtonProps> = ({ betAmount, bet, duelId,
     } else {
       backendValue = calculateFlashDuelsOptionPrice(timePeriod || 0, totalBetNo || 0, totalBetYes || 0);
       const indexValue = bet === "YES" ? backendValue["priceYes"] : backendValue["priceNo"];
-      const optionPrice = indexValue * 10 ** 6;
+      const optionPrice = Math.floor(indexValue * 10 ** 6);
+
+      console.log(optionPrice, "option-price")
       secondHash = await joinFlashDuel(duelId, bet, optionIndex, optionPrice, amount);
       console.log(secondHash, "second-hash-flash")
 
