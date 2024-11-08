@@ -9,9 +9,13 @@ import { priceIds } from "@/utils/helper";
 import { usePriceStream } from "../PriceStream";
 import { watchAccount } from "@wagmi/core";
 import { config } from "@/app/config/wagmi";
+import { usePathname, useRouter } from "next/navigation";
 
 const Header: React.FC = () => {
   const { address } = useAccount();
+  const router = useRouter();
+  const pathname = usePathname();
+  const isPath = pathname === `/`;
   // const { disconnect } = useDisconnect();
   // const { logout } = usePrivy();
   const {balance, refetch} = useBalance(address as string);
@@ -92,8 +96,12 @@ const Header: React.FC = () => {
   // }, [address, isConnected, disconnect]);
   return (
     <header className="flex w-full h-[107px] px-[50px] justify-between items-center flex-shrink-0 border-b-2 border-gray-500 border-opacity-20">
+      <div className="flex flex-row gap-x-2">
       <Logo />
-      <Navbar></Navbar>
+      <button onClick={() => router.push("/")} className={`text-[rgba(243,239,224,0.60)] ${isPath} ? "text-[var(--text-pink,#F19ED2)]" : "text-[rgba(243,239,224,0.60)]"`}>Home</button>
+      {/* <link href="/">Home</link> */}
+      </div>
+      <Navbar/>
       {/* <button onClick={async () => { await fundWallet(user?.wallet?.address as string); }}>hello</button> */}
     </header>
   );

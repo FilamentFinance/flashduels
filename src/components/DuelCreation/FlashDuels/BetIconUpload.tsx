@@ -1,25 +1,16 @@
-import React, { useState } from "react";
+import React from "react";
 
 interface BetIconUploadProps {
   name: string;
-  value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  value?: string;
+  // onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  previewImage: string | null;
+  uploading: boolean;
+  handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-const BetIconUpload: React.FC<BetIconUploadProps> = ({ name, value, onChange }) => {
-  const [previewImage, setPreviewImage] = useState<string | null>(null);
+const BetIconUpload: React.FC<BetIconUploadProps> = ({ name, handleFileChange, previewImage, uploading }) => {
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewImage(reader.result as string); // Set the preview image URL
-      };
-      reader.readAsDataURL(file); // Read the file as a data URL
-    }
-    onChange(event); // Trigger onChange when a file is selected
-  };
 
   return (
     <div className="flex flex-col mt-2 w-full">
@@ -48,7 +39,7 @@ const BetIconUpload: React.FC<BetIconUploadProps> = ({ name, value, onChange }) 
           type="file"
           id="betIcon"
           name={name}
-          value={value}
+          // value={value}
           className="sr-only"
           accept="image/*"
           onChange={handleFileChange} // Handle file change
@@ -57,7 +48,7 @@ const BetIconUpload: React.FC<BetIconUploadProps> = ({ name, value, onChange }) 
           htmlFor="betIcon"
           className="gap-2.5 self-stretch px-3 py-2.5 mt-6 w-full text-base font-semibold leading-none text-gray-900 whitespace-nowrap rounded shadow-sm bg-[linear-gradient(180deg,#F19ED2_0%,#C87ECA_100%)]"
         >
-          Upload Image
+          {uploading ? "Uploading..." : "Upload Image"}
         </label>
       </div>
     </div>

@@ -1,95 +1,111 @@
 import React, { useEffect, useState } from "react";
 import DuelCard from "./DuelCard";
 import BettingModal from "./BettingModal/BettingModal";
-import axios from "axios";
-import { Duel, NewDuelItem, NEXT_PUBLIC_API } from "@/utils/consts";
+import { Duel, NewDuelItem, NEXT_PUBLIC_WS_URL } from "@/utils/consts";
 import { useAccount } from "wagmi";
 import { useBalance } from "@/blockchain/useBalance";
 import { ethers } from "ethers";
 import { shortenAddress } from "@/utils/helper";
 
-const DuelGrid = ({ activeButton, specialCategoryIndex, setSpecialCategoryIndex }: { activeButton: string, setActiveButton: (activeButton: string) => void, specialCategoryIndex: number | null, setSpecialCategoryIndex: (specialCategoryIndex: number | null) => void }) => {
+const DuelGrid = ({ activeButton, specialCategoryIndex }: { activeButton: string, setActiveButton: (activeButton: string) => void, specialCategoryIndex: number | null, setSpecialCategoryIndex: (specialCategoryIndex: number | null) => void }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalData, setModalData] = useState<Duel>();
   const { address } = useAccount();
   const { balance } = useBalance(address as string);
   const balanceNum = (Number(ethers.formatUnits(balance ? balance.toString() : 0, 6)));
 
-  const [duels, setDuels] = useState<Duel[]>()
+  const [duels, setDuels] = useState<Duel[]>([]);
 
   const categoryMap = [
     'Any',
     'Crypto',
     'Politics',
     'Sports',
-    
   ];
-  console.log(categoryMap)
 
-  const getDuels = async () => {
-    const response = await axios.get(`${NEXT_PUBLIC_API}/duels/getAll`);
-    console.log("allduels", response.data.allDuels);
-  
-    const duel = response.data.allDuels
-    .filter((item: NewDuelItem) => {
-      if (specialCategoryIndex !== null) {
-        if (specialCategoryIndex === 0) {
-          return true;
-        }else{
-          return item.category === categoryMap[specialCategoryIndex];
-        }
-         }
-      return true;
-    })
-      .filter((item: NewDuelItem) => {
-        // Filtering based on `activeButton`
-        if (activeButton === "liveDuels") {
-          return item.status === 0;   // live duels
-        } else if (activeButton === "bootstraping") {
-          return item.status === -1;  // bootstraping duels
-        } else if (activeButton === "completed") {
-          return item.status === 1;   // completed duels
-        }
-        return true;
-      })
-      .map((item: NewDuelItem) => ({
-        title: item.betString || `Will ${item.token} be ${item.winCondition === 0 ? "ABOVE" : "BELOW"} ${item.triggerPrice}`,
-        imageSrc: item.betIcon || "empty-string",
-        volume: `$${item.totalBetAmount}`,
-        category: item.category,
-        status: item.status,
-        duelId: item.duelId,
-        duelType: item.duelType,
-        timeLeft: item.endsIn,
-        startAt: item.startAt || 0,
-        createdAt: item.createdAt,
-        percentage: 50,  // Assuming this is static or based on some logic
-        createdBy: item.user.twitterUsername || shortenAddress(item.user.address),
-        token: item.token,
-        triggerPrice: item.triggerPrice,
-        totalBetAmount: item.totalBetAmount  // Added this field
-      }));
-  
-    console.log("Filtered duels:", duel);
-    setDuels(duel);
-  }
-  
-
+  // WebSocket setup to get duels in real-time
   useEffect(() => {
-    getDuels()
-  }, [activeButton, specialCategoryIndex])
+    const socket = new WebSocket(NEXT_PUBLIC_WS_URL);
+    
+    socket.onopen = function() {
+      console.log('Connected to the WebSocket server');
+    };
 
-  const handleCategoryClick = (index: number) => {
-    const selectedDuel = duels![index];
+    socket.onmessage = function(event) {
+      console.log('Message received:', event.data);
+      const message = JSON.parse(event.data);
+      console.log(message,"message")
+      if (message.allDuels) {
+        const filteredDuels = message.allDuels
+          .filter((item: NewDuelItem) => {
+            if (specialCategoryIndex === 0 || specialCategoryIndex === null) {
+              return true;
+            } else {
+              return item.category === categoryMap[specialCategoryIndex];
+            }
+          })
+          .filter((item: NewDuelItem) => {
+            console.log(`Filtering duel with status ${item.status} for activeButton: ${activeButton}`);
+            if (activeButton === "liveDuels") {
+              console.log(`Live duels filter: ${item.status === 0}`);
+              return item.status === 0;  
+            } else if (activeButton === "bootstrapping") {
+              console.log(`Bootstrapping duels filter: ${item.status === -1}`);
+              return item.status === -1;  // Only bootstrapping duels
+            } else if (activeButton === "completed") {
+              console.log(`Completed duels filter: ${item.status === 1}`);
+              return item.status === 1;  // Only completed duels
+            }
+            return true;
+          })
+          .map((item: NewDuelItem) => ({
+            title: item.betString || `Will ${item.token} be ${item.winCondition === 0 ? "ABOVE" : "BELOW"} ${item.triggerPrice}`,
+            imageSrc: item.betIcon || "empty-string",
+            volume: `$${item.totalBetAmount}`,
+            category: item.category,
+            status: item.status,
+            duelId: item.duelId,
+            duelType: item.duelType,
+            timeLeft: item.endsIn,
+            startAt: item.startAt || 0,
+            createdAt: item.createdAt,
+            percentage: 50,
+            createdBy: item.user.twitterUsername || shortenAddress(item.user.address),
+            token: item.token,
+            triggerPrice: item.triggerPrice,
+            totalBetAmount: item.totalBetAmount
+          }));
+
+        setDuels(filteredDuels);
+      }
+    };
+
+    socket.onerror = function(error) {
+      console.log('WebSocket Error:', error);
+    };
+
+    socket.onclose = function() {
+      console.log('Disconnected from the WebSocket server');
+    };
+
+    // Cleanup WebSocket on unmount
+    return () => {
+      socket.close();
+    };
+  }, [activeButton, specialCategoryIndex]);
+
+  // Opens modal for a specific duel without updating category
+  const handleDuelClick = (index: number) => {
+    const selectedDuel = duels[index];
     setModalData(selectedDuel);
     setIsModalOpen(true);
-    setSpecialCategoryIndex(specialCategoryIndex === index ? null : index);
   };
+
   return (
     <>
       <div className="flex flex-wrap gap-4 items-center self-center px-[50px] w-full max-w-full w-full">
         {duels && duels.map((duel, index) => (
-          <DuelCard key={index} {...duel} onClick={() => handleCategoryClick(index)} />
+          <DuelCard key={index} {...duel} onClick={() => handleDuelClick(index)} />
         ))}
       </div>
       <BettingModal

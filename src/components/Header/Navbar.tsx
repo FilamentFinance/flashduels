@@ -25,7 +25,9 @@ const {isConnected} = useAccount();
   return (
   
       <nav className="flex flex-row items-center gap-x-3">
-        <Navigation />
+        {/* <Navigation pathname = {""} /> */}
+        <Navigation pathname = {"leaderboard"} />
+        <Navigation pathname = {"portfolio"} />
        {isConnected && <DepositButton onOpenModal={handleOpenModal} />}
        {/* {isModalOpen && <DepositModal onClose={handleCloseModal} />} */}
        <IconButtonContainer/>

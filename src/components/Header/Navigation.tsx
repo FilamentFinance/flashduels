@@ -2,15 +2,17 @@ import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const Navigation: React.FC = () => {
+const Navigation = ({pathname}: {pathname:string}) => {
   const router = usePathname();
-  const isLeaderboard = router === "/leaderboard";
+  const isPath = router === `/${pathname}`;
+  const capitalizedPathname = pathname.charAt(0).toUpperCase() + pathname.slice(1);
+
 
   return (
-    <Link href="/leaderboard" passHref>
+    <Link href={`/${pathname}`} passHref>
       <div
         className={`flex gap-1 items-center self-stretch my-auto text-base leading-5 whitespace-nowrap font-normal ${
-          isLeaderboard ? "text-[var(--text-pink,#F19ED2)]" : "text-[rgba(243,239,224,0.60)]"
+          isPath ? "text-[var(--text-pink,#F19ED2)]" : "text-[rgba(243,239,224,0.60)]"
         } cursor-pointer`}
       >
         <img
@@ -21,10 +23,10 @@ const Navigation: React.FC = () => {
         />
         <div
           className={`self-stretch my-auto ${
-            isLeaderboard ? "font-cairo text-[16px] font-normal leading-[20px]" : ""
+            isPath ? "font-cairo text-[16px] font-normal leading-[20px]" : ""
           }`}
         >
-          Leaderboard
+          {capitalizedPathname}
         </div>
       </div>
     </Link>

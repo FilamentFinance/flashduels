@@ -1,4 +1,5 @@
-import React from "react";
+"use client"
+import React, { useState } from "react";
 import CategorySelect from "./CategorySelect";
 import BetInput from "./BetInput";
 import BetIconUpload from "./BetIconUpload";
@@ -18,18 +19,22 @@ import axios from "axios";
 import { ethers } from "ethers";
 
 const CreateDuelForm = () => {
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+
+  
   const provider = new ethers.JsonRpcProvider(NEXT_PUBLIC_RPC_URL);
   async function fetchTransactionEvents(transactionHash: string) {
     try {
       const receipt = await provider!.getTransactionReceipt(transactionHash);
-  
+
       if (!receipt) {
         console.error('Transaction receipt not found!');
         return;
       }
-  
+
       const contract = new ethers.Contract(NEXT_PUBLIC_FLASH_DUELS, FLASHDUELSABI, provider);
-  
+
       // Use a regular loop to allow early return
       for (const log of receipt.logs) {
         // Check if the log was emitted by your contract
@@ -38,10 +43,10 @@ const CreateDuelForm = () => {
             // Parse the log using the ABI
             const parsedLog = contract.interface.parseLog(log);
             const targetArray = parsedLog!.args; // Access the target array
-  
+
             const duelId = targetArray[1];
             const createTime = Number(targetArray[3]);
-  
+
             // Return the values
             return { duelId, createTime };
           } catch (error) {
@@ -52,11 +57,11 @@ const CreateDuelForm = () => {
     } catch (error) {
       console.error('Error fetching transaction receipt:', error);
     }
-    
+
     // Return undefined if no logs are found
     return;
   }
-  const {address} = useAccount();
+  const { address } = useAccount();
   // const { user } = usePrivy()
   const [formData, setFormData] = React.useState({
     category: "",
@@ -80,7 +85,47 @@ const CreateDuelForm = () => {
       });
     }
   };
-
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Display the preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (reader.result && !uploading) {
+          setPreviewImage(reader.result as string);
+        }
+      };
+      reader.readAsDataURL(file);
+  
+      // Fetch pre-signed URL from the backend
+      setUploading(true);
+      try {
+        const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API}/aws/generate-presigned-url`, {
+          fileName: file.name,
+          fileType: file.type,
+        });
+        const { url } = data;
+        console.log("Received a pre-signed URL:", url);
+  
+        // Upload file to S3 using the pre-signed URL
+        const response = await axios.put(url, file, {
+          headers: { 'Content-Type': file.type },
+        });
+        console.log(response);
+  
+        setFormData({
+          ...formData,
+          betIcon: `https://flashduel-images.s3.us-east-1.amazonaws.com/uploads/${file.name}`,
+        });
+        console.log("File uploaded successfully");
+      } catch (error) {
+        console.error("File upload failed:", error);
+      } finally {
+        setUploading(false);
+      }
+    }
+  };
+  
   const {
     writeContractAsync: lpTokenApproveAsyncLocal,
   } = useWriteContract({});
@@ -140,7 +185,7 @@ const CreateDuelForm = () => {
         return;
       }
       const duelData = {
-        duelId: result.duelId ,
+        duelId: result.duelId,
         type: "FLASH_DUEL",
         category: formData.category === "" ? "Any" : formData.category,
         betString: formData.betAmount,
@@ -148,12 +193,12 @@ const CreateDuelForm = () => {
         endsIn: durations[durationNumber],
         createdAt: result.createTime,
       };
-    // Send request to your backend
-     await axios.post(
+      // Send request to your backend
+      await axios.post(
         `${NEXT_PUBLIC_API}/duels/create`,
         {
           ...duelData,
-          twitterUsername:"",
+          twitterUsername: "",
           address: address,
         },
         {
@@ -162,9 +207,9 @@ const CreateDuelForm = () => {
           }
         }
       );
-console.log("making response to timerbot")
+      console.log("making response to timerbot")
 
-      const response = await axios.post(`${NEXT_PUBLIC_TIMER_BOT_URL}/startDuel`, {
+      await axios.post(`${NEXT_PUBLIC_TIMER_BOT_URL}/startDuel`, {
         duelId: result.duelId,
         duelType: 'FLASH_DUEL',
         duration: durations[durationNumber],
@@ -175,7 +220,6 @@ console.log("making response to timerbot")
           'Content-Type': 'application/json',
         },
       });
-      console.log(response, "response from timerbot")
     } catch (error) {
       console.error("Error: ", error);
     }
@@ -194,7 +238,7 @@ console.log("making response to timerbot")
         </div>
         <CategorySelect name="category" value={formData.category} onChange={handleInputChange} />
         <BetInput name="betAmount" value={formData.betAmount} onChange={handleInputChange} />
-        <BetIconUpload name="betIcon" value={formData.betIcon} onChange={handleInputChange} />
+        <BetIconUpload name="betIcon" value={formData.betIcon} handleFileChange={handleFileChange} previewImage={previewImage} uploading={uploading} />
         <DurationSelect name="duration" value={formData.duration} onChange={handleInputChange} />
         <InfoBox />
         <SubmitButton />

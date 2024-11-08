@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import DuelGrid from "./DuelGrid";
 import DuelCategories from "./DuelCategories/DuelCategories";
 
-
 const MainContent: React.FC = () => {
   const [activeButton, setActiveButton] = useState<string>("liveDuels");
   const handleLiveDuelsClick = () => {

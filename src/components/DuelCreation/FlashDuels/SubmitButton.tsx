@@ -1,9 +1,5 @@
 import React from "react";
 
-// interface SubmitButtonProps {
-//   onClick: () => void;
-// }
-
 const SubmitButton = () => {
   return (
     <button

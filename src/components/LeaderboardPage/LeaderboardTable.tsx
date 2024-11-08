@@ -27,7 +27,7 @@ const LeaderboardTable: React.FC = () => {
         </div>
 
         <div className="flex h-[40px] py-[12px] px-[20px] justify-end items-center gap-[10px] self-stretch min-w-[393px] min-h-[16px] text-base">
-          Profit/ Loss%
+          Profit%
         </div>
 
       </div>
