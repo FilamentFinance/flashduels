@@ -36,7 +36,7 @@ const MarkPriceComponent = ({ asset }: { asset: string }) => {
                     Mark Price
                 </div>
                 <div className="flex-1 shrink gap-1 self-stretch my-auto text-white whitespace-nowrap text-right">
-                    {priceFormatted}
+                    ${(priceFormatted).toFixed(4)}
                 </div>
             </div>
         </div>
