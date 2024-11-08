@@ -15,7 +15,7 @@ const TransactionOverview = ({betAmount}: {betAmount:string}) => {
               Your Bet
             </span>
             <span className="flex flex-col self-stretch my-auto whitespace-nowrap">
-              {betAmount}
+              ${betAmount}
             </span>
           </div>
           <div className="flex gap-6 justify-between items-center mt-1 w-full">
@@ -33,14 +33,14 @@ const TransactionOverview = ({betAmount}: {betAmount:string}) => {
               5 USDC
             </span>
           </div>
-          <div className="flex gap-10 justify-between items-center mt-1 w-full">
+          {/* <div className="flex gap-10 justify-between items-center mt-1 w-full">
             <span className="flex flex-col items-start self-stretch my-auto w-[91px]">
               Est. Gas
             </span>
             <span className="flex flex-col self-stretch my-auto whitespace-nowrap">
               $0.01
             </span>
-          </div>
+          </div> */}
         </div>
       </div>
     </section>
