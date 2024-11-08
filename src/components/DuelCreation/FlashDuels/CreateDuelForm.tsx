@@ -100,7 +100,7 @@ const CreateDuelForm = () => {
       // Fetch pre-signed URL from the backend
       setUploading(true);
       try {
-        const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API}/aws/generate-presigned-url`, {
+        const { data } = await axios.post(`${NEXT_PUBLIC_API}/aws/generate-presigned-url`, {
           fileName: file.name,
           fileType: file.type,
         });
