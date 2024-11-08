@@ -4,9 +4,11 @@ interface BetAmountProps {
   availableAmount: number;
   betAmount: string;
   setBetAmount: (value: string) => void;
+  noPrice?: number;
+  yesPrice?: number;
 }
 
-const BetAmount: React.FC<BetAmountProps> = ({ availableAmount, betAmount, setBetAmount }) => {
+const BetAmount: React.FC<BetAmountProps> = ({ availableAmount, betAmount, setBetAmount, noPrice, yesPrice }) => {
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/[^0-9]/g, "");
@@ -52,7 +54,7 @@ const BetAmount: React.FC<BetAmountProps> = ({ availableAmount, betAmount, setBe
                 className="text-xl font-medium tracking-normal leading-none text-stone-200 bg-transparent border-none"
               />
               <div className="mt-1 text-xs tracking-normal leading-loose text-gray-500">
-                {parseInt(betAmount).toLocaleString()} Shares
+                {yesPrice ? yesPrice : noPrice} Shares
               </div>
             </div>
           </div>
