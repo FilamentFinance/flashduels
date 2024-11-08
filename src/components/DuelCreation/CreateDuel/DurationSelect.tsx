@@ -7,7 +7,7 @@ interface DurationSelectProps {
 }
 
 const DurationSelect: React.FC<DurationSelectProps> = ({onChange}) => {
-  const durations = ["3H", "6H", "12H", "24H", "48H"];
+  const durations = ["3H", "6H", "12H"];
   const [selectedDuration, setSelectedDuration] = useState<string>("3H"); // Set default duration
 
   const handleDurationClick = (duration: string) => {

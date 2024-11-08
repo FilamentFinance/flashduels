@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const durations = ["3H", "6H", "12H", "24H", "48H"];
+const durations = ["3H", "6H", "12H"];
 
 interface DurationSelectProps {
   name: string;
