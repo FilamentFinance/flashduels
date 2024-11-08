@@ -8,7 +8,7 @@ interface BetAmountProps {
   yesPrice?: number;
 }
 
-const BetAmount: React.FC<BetAmountProps> = ({ availableAmount, betAmount, setBetAmount, noPrice, yesPrice }) => {
+const BetAmount: React.FC<BetAmountProps> = ({ availableAmount, betAmount, setBetAmount }) => {
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/[^0-9]/g, "");
@@ -53,9 +53,9 @@ const BetAmount: React.FC<BetAmountProps> = ({ availableAmount, betAmount, setBe
                 aria-label="Bet amount"
                 className="text-xl font-medium tracking-normal leading-none text-stone-200 bg-transparent border-none"
               />
-              <div className="mt-1 text-xs tracking-normal leading-loose text-gray-500">
+              {/* <div className="mt-1 text-xs tracking-normal leading-loose text-gray-500">
                 {yesPrice ? yesPrice : noPrice} Shares
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
