@@ -245,9 +245,9 @@ const CreateDuel: React.FC = () => {
           <WinConditionSelect name="winCondition" value={formData.winCondition} onChange={handleInputChange} />
           <DurationSelect name="durationSelect" value={formData.durationSelect} onChange={handleInputChange} />
           <p className="self-start mt-4 text-xs font-medium tracking-normal leading-none text-center text-white">
-            YES wins if mark price is <span className="underline">above</span>{" "}
-            <span className="underline">[trigger price]</span> after{" "}
-            <span className="underline">3 Hours</span>
+            YES/NO wins if mark price is <span className="underline">{formData.winCondition}</span>{" "}
+            <span className="underline">${formData.triggerPrice}</span> after{" "}
+            <span className="underline">{formData.durationSelect}</span>
           </p>
         </div>
         <InfoBox />
