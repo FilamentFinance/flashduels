@@ -18,7 +18,8 @@ interface BettingModalProps {
   asset?: string;
   totalBetAmount: number;
   triggerPrice?: string;
-  status: number
+  status: number;
+  setIsModalOpen: (arg0: boolean)=>void;
 }
 
 const BettingModal: React.FC<BettingModalProps> = ({
@@ -38,11 +39,10 @@ const BettingModal: React.FC<BettingModalProps> = ({
   status,
   asset,
   totalBetAmount,
-  triggerPrice
+  triggerPrice,
+  setIsModalOpen
 }) => {
   if (!isOpen) return null;
-
-  console.log(triggerPrice, "triggerPrice")
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
@@ -65,6 +65,7 @@ const BettingModal: React.FC<BettingModalProps> = ({
           totalBetAmount={totalBetAmount} 
           endsIn={timeLeft}
           triggerPrice={triggerPrice}
+          setIsModalOpen={setIsModalOpen}
         />
       </div>
     </div>

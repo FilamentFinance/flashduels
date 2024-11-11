@@ -28,6 +28,7 @@ interface BetCardProps {
   endsIn: number
   triggerPrice?: string,
   status:number;
+  setIsModalOpen: (arg0: boolean)=>void;
 }
 
 const BetCard: React.FC<BetCardProps> = ({
@@ -48,6 +49,7 @@ const BetCard: React.FC<BetCardProps> = ({
   status,
   endsIn,
   triggerPrice,
+  setIsModalOpen
 }) => {
   const [betAmount, setBetAmount] = useState("1000");
   const [bet, setBet] = useState<string>("YES");
@@ -139,7 +141,7 @@ const BetCard: React.FC<BetCardProps> = ({
         />
         <BetAmount availableAmount={availableAmount} betAmount={betAmount} setBetAmount={setBetAmount} />
         <TransactionOverview betAmount={betAmount} />
-        <PlaceBetButton betAmount={betAmount} duelId={duelId} duelType={duelType} bet={bet} asset={asset} triggerPrice={triggerPrice} endsIn={endsIn} markPrice={priceFormatted as number}/>
+        <PlaceBetButton betAmount={betAmount} duelId={duelId} duelType={duelType} bet={bet} asset={asset} triggerPrice={triggerPrice} endsIn={endsIn} setIsModalOpen={setIsModalOpen} markPrice={priceFormatted as number}/>
       </div>
     </article>
   );

@@ -126,6 +126,7 @@ const DuelGrid = ({ activeButton, specialCategoryIndex }: { activeButton: string
         asset={modalData?.token as string}
         totalBetAmount={modalData?.totalBetAmount as number}
         triggerPrice={modalData?.triggerPrice as string}
+        setIsModalOpen={setIsModalOpen}
       />
     </>
   );

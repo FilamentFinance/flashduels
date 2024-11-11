@@ -18,7 +18,7 @@ const TransactionOverview = ({betAmount}: {betAmount:string}) => {
               ${betAmount}
             </span>
           </div>
-          <div className="flex gap-6 justify-between items-center mt-1 w-full">
+          {/* <div className="flex gap-6 justify-between items-center mt-1 w-full">
             <div className="flex gap-1 items-center self-stretch my-auto min-w-[240px] w-[326px]">
               <span className="flex flex-col self-stretch my-auto w-[91px]">
                 Platform fees
@@ -32,7 +32,7 @@ const TransactionOverview = ({betAmount}: {betAmount:string}) => {
             <span className="flex flex-col self-stretch my-auto whitespace-nowrap">
               5 USDC
             </span>
-          </div>
+          </div> */}
           {/* <div className="flex gap-10 justify-between items-center mt-1 w-full">
             <span className="flex flex-col items-start self-stretch my-auto w-[91px]">
               Est. Gas

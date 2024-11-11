@@ -38,6 +38,23 @@ body::before {
   z-index: -1; /* Keep it behind the content */
 }
 
+/* In your CSS or a global CSS file */
+.spinner {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* ExportWalletButton.module.css */
 .button {
   display: flex;
