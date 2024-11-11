@@ -57,10 +57,10 @@ const BetCard: React.FC<BetCardProps> = ({
   const [noPrice, setNoPrice] = useState<number>();
   const [yesPrice, setYesPrice] = useState<number>();
   const { prices } = usePrice()
-  console.log(percentage, "percentage")
   // Assuming useTotalBets is defined elsewhere
   const { totalBetYes, totalBetNo } = useTotalBets(duelId);
   const calculatedPercentage = (totalBetYes as number / (totalBetYes as number + Number(totalBetNo))) * 100;
+  console.log(calculatedPercentage, percentage, "calculatedPercentage", totalBetYes, totalBetNo)
   const id = asset
     ? priceIds.find((obj) => obj[asset as keyof typeof obj])?.[asset as keyof typeof priceIds[0]]
     : undefined;

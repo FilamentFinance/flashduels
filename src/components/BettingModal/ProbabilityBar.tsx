@@ -5,6 +5,7 @@ interface ProbabilityBarProps {
 }
 
 const ProbabilityBar: React.FC<ProbabilityBarProps> = ({ probability }) => {
+  console.log(probability, "probability");
   const filledBars = Math.round(probability / 10);
   const emptyBars = 10 - filledBars;
 

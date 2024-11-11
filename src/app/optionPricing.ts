@@ -45,17 +45,21 @@ const useTotalBets = (duelId: string) => {
         18
     ))
 
-
     useEffect(() => {
         if (yesData) setTotalBetYes(yesOption); // Convert to number if needed
         if (noData) setTotalBetNo(noOption);
     }, [yesData, noData]);
 
-    return { totalBetYes, totalBetNo, yesError, noError, isYesLoading, isNoLoading };
-}
+    return { 
+        totalBetYes: totalBetYes ?? 0, 
+        totalBetNo: totalBetNo ?? 0, 
+        yesError, 
+        noError, 
+        isYesLoading, 
+        isNoLoading 
+    };}
 
 const postPricingData = async (markPrice: number, triggerPrice: number, asset: string, timePeriod: number, totalYesBets: number, totalNobets: number) => {
-    console.log("hello-new")
     let data;
     console.log(triggerPrice, "triggerPrice-new")
     if (totalNobets === 0 && totalYesBets === 0) {
