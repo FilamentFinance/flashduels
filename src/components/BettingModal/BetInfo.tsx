@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ProbabilityBar from "./ProbabilityBar";
+// import ProbabilityBar from "./ProbabilityBar";
 
 interface BetInfoProps {
   betTitle: string;
@@ -15,7 +16,8 @@ interface BetInfoProps {
   totalBetAmount: number;
   noPrice?: number;
   yesPrice?: number;
-  status:number
+  status:number;
+  // duelId:string
 }
 
 const BetInfo: React.FC<BetInfoProps> = ({
@@ -32,14 +34,15 @@ const BetInfo: React.FC<BetInfoProps> = ({
   totalBetAmount,
   noPrice,
   yesPrice,
-  status
+  status,
+  // duelId
 }) => {
   const thirtyMinutesMs = 30 * 60 * 1000;
   const durationMs = endTime * 60 * 60 * 1000; // duration in hours converted to milliseconds
   console.log(totalBetAmount)
 
-  // State to track the dynamic timeLeft
   const [time, setTimeLeft] = useState("");
+  console.log(probability, "probability")
   // Function to calculate the remaining time
   const calculateRemainingTime = () => {
     const currentTimeMs = Date.now();
@@ -149,7 +152,7 @@ const BetInfo: React.FC<BetInfoProps> = ({
             </div>
           </div>
         </div>
-        <ProbabilityBar probability={probability} />
+        <ProbabilityBar probability={probability || 50} />
       </div>
       <div className="flex gap-10 justify-between items-center mt-3 w-full">
         <span className="gap-2.5 self-stretch my-auto text-base font-semibold tracking-normal leading-none text-gray-400">

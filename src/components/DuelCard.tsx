@@ -36,6 +36,8 @@ const DuelCard: React.FC<Duel> = ({
   console.log(percentage)
   const { totalBetYes, totalBetNo } = useTotalBets(duelId);
   const calculatedPercentage = (totalBetYes as number / (totalBetYes as number + Number(totalBetNo))) * 100;
+  console.log(calculatedPercentage, "calculatedPercentage", totalBetYes, totalBetNo, volume)
+ 
   const [time, setTimeLeft] = useState("");
   const calculateRemainingTime = () => {
     const currentTimeMs = Date.now();
