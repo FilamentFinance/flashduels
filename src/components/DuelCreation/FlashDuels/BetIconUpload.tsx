@@ -18,7 +18,7 @@ const BetIconUpload: React.FC<BetIconUploadProps> = ({ name, handleFileChange, p
         htmlFor="betIcon"
         className="flex gap-1 items-center w-full text-base tracking-normal leading-none text-gray-400"
       >
-        Bet Icon*
+        Duel Icon*
       </label>
       <div className="flex overflow-hidden flex-col justify-center items-center pt-6 mt-1 w-full text-xs tracking-normal leading-4 text-center text-gray-500 rounded-lg border border-dashed shadow-sm bg-neutral-800 border-white border-opacity-10">
         <img
@@ -27,7 +27,7 @@ const BetIconUpload: React.FC<BetIconUploadProps> = ({ name, handleFileChange, p
             previewImage ||
             "https://cdn.builder.io/api/v1/image/assets/TEMP/b2b5bf7698dde32467828a90702eea7fbeb2792b82c073178d2d09ca0b85c69d?placeholderIfAbsent=true&apiKey=9a4d3cdfd283475dbc30e1b60dc2077d"
           }
-          alt="Bet Icon Preview"
+          alt="Duel Icon Preview"
           className="object-contain w-8 aspect-square"
         />
         <div className="flex items-center max-w-full w-[195px]">

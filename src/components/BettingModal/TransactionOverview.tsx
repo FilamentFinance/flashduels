@@ -12,7 +12,7 @@ const TransactionOverview = ({betAmount}: {betAmount:string}) => {
         <div className="flex flex-col flex-1 shrink justify-center w-full basis-0 min-w-[240px]">
           <div className="flex gap-10 justify-between items-center w-full">
             <span className="flex flex-col items-start self-stretch my-auto w-[91px]">
-              Your Bet
+              Your Order
             </span>
             <span className="flex flex-col self-stretch my-auto whitespace-nowrap">
               ${betAmount}

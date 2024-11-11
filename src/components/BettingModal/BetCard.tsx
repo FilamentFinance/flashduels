@@ -107,7 +107,7 @@ const BetCard: React.FC<BetCardProps> = ({
   return (
     <article className="flex flex-col justify-center py-2.5 rounded-lg bg-zinc-900 max-w-[482px]">
       <header className="flex relative gap-2.5 justify-center items-start py-2 w-full text-xl font-semibold text-center text-white border-b border-zinc-700">
-        <h2 className="z-0 flex-1 shrink my-auto w-full basis-0">Place Bet</h2>
+        <h2 className="z-0 flex-1 shrink my-auto w-full basis-0">Join Duel</h2>
         <button
           onClick={onClose}
           className="absolute top-2 right-2 text-white hover:text-gray-300"

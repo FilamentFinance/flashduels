@@ -16,7 +16,7 @@ const BetInput: React.FC<BetInputProps> = ({ name, value, onChange }) => {
         htmlFor="bet"
         className="flex gap-1 items-center w-full text-base tracking-normal leading-none text-gray-400 whitespace-nowrap"
       >
-        Bet*
+        Duel*
       </label>
       <textarea
         required

@@ -50,7 +50,7 @@ const BetAmount: React.FC<BetAmountProps> = ({ availableAmount, betAmount, setBe
                 id="betAmount"
                 value={`$${betAmount}`}
                 onChange={handleAmountChange}
-                aria-label="Bet amount"
+                aria-label="Duel amount"
                 className="text-xl font-medium tracking-normal leading-none text-stone-200 bg-transparent border-none"
               />
               {/* <div className="mt-1 text-xs tracking-normal leading-loose text-gray-500">

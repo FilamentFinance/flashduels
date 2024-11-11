@@ -140,7 +140,7 @@ const PlaceBetButton: React.FC<PlaceBetButtonProps> = ({
       {loading ? (
         <div className="spinner"></div>  // Add the spinner here
       ) : (
-        <span>Place Bet</span>
+        <span>Join Duel</span>
       )}
     </div>
   </button>
