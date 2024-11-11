@@ -1,4 +1,5 @@
 
+import { useTotalBets } from "@/app/optionPricing";
 import { Duel } from "@/utils/consts";
 import React, { useEffect, useState } from "react";
 
@@ -23,6 +24,7 @@ const DuelCard: React.FC<Duel> = ({
   timeLeft,
   percentage,
   createdBy,
+  duelId,
   startAt,
   createdAt,
   // creatorImageSrc,
@@ -31,7 +33,9 @@ const DuelCard: React.FC<Duel> = ({
 }) => {
   const thirtyMinutesMs = 30 * 60 * 1000;
   const durationMs = timeLeft * 60 * 60 * 1000; // duration in hours converted to milliseconds
-
+  console.log(percentage)
+  const { totalBetYes, totalBetNo } = useTotalBets(duelId);
+  const calculatedPercentage = (totalBetYes as number / (totalBetYes as number + Number(totalBetNo))) * 100;
   const [time, setTimeLeft] = useState("");
   const calculateRemainingTime = () => {
     const currentTimeMs = Date.now();
@@ -76,7 +80,7 @@ const DuelCard: React.FC<Duel> = ({
   }, [createdAt, startAt, timeLeft]);
   
 
-  const isPositive = percentage >= 50;
+  const isPositive = calculatedPercentage >= 50;
   const colorClass = isPositive ? "text-lime-300" : "text-red-500";
   const bgColorClass = isPositive ? "bg-lime-300" : "bg-red-500";
 
@@ -129,14 +133,14 @@ const DuelCard: React.FC<Duel> = ({
             <div
               className={`text-base font-semibold leading-none ${colorClass}`}
             >
-              {percentage} %
+              {calculatedPercentage} %
             </div>
             <div className="flex gap-0.5 mt-1 min-h-[13px] w-[62px]">
               {[...Array(10)].map((_, index) => (
                 <div
                   key={index}
                   className={`flex flex-1 shrink ${
-                    index < percentage / 10
+                    index < calculatedPercentage / 10
                       ? bgColorClass
                       : "bg-gray-500 bg-opacity-30"
                   } rounded-xl basis-0 h-[13px] ${
