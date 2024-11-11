@@ -18,11 +18,11 @@ import axios from "axios";
 // import { usePrivy } from "@privy-io/react-auth";
 import { ethers } from "ethers";
 
-const CreateDuelForm = () => {
+const CreateDuelForm = ({ closeDuelModal }: { closeDuelModal: () => void }) => {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  
   const provider = new ethers.JsonRpcProvider(NEXT_PUBLIC_RPC_URL);
   async function fetchTransactionEvents(transactionHash: string) {
     try {
@@ -96,7 +96,7 @@ const CreateDuelForm = () => {
         }
       };
       reader.readAsDataURL(file);
-  
+
       // Fetch pre-signed URL from the backend
       setUploading(true);
       try {
@@ -106,13 +106,13 @@ const CreateDuelForm = () => {
         });
         const { url } = data;
         console.log("Received a pre-signed URL:", url);
-  
+
         // Upload file to S3 using the pre-signed URL
         const response = await axios.put(url, file, {
           headers: { 'Content-Type': file.type },
         });
         console.log(response);
-  
+
         setFormData({
           ...formData,
           betIcon: `https://flashduel-images.s3.us-east-1.amazonaws.com/uploads/${file.name}`,
@@ -125,7 +125,7 @@ const CreateDuelForm = () => {
       }
     }
   };
-  
+
   const {
     writeContractAsync: lpTokenApproveAsyncLocal,
   } = useWriteContract({});
@@ -157,6 +157,7 @@ const CreateDuelForm = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setLoading(true);
     const gasPrice = await getGasPrice(config)
     console.log("Form Data: ", formData);
     console.log("gasPrice", gasPrice)
@@ -222,6 +223,9 @@ const CreateDuelForm = () => {
       });
     } catch (error) {
       console.error("Error: ", error);
+    }finally{
+      setLoading(false)
+      closeDuelModal()
     }
   };
 
@@ -241,7 +245,7 @@ const CreateDuelForm = () => {
         <BetIconUpload name="betIcon" value={formData.betIcon} handleFileChange={handleFileChange} previewImage={previewImage} uploading={uploading} />
         <DurationSelect name="duration" value={formData.duration} onChange={handleInputChange} />
         <InfoBox />
-        <SubmitButton />
+        <SubmitButton loading={loading} uploading={uploading} />
       </div>
     </form>
   );

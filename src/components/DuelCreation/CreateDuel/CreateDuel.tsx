@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import PriceInput from "./PriceInput";
 import WinConditionSelect from "./WinConditionSelect";
 import DurationSelect from "./DurationSelect";
@@ -25,7 +25,8 @@ interface FormData {
   durationSelect: string;
 }
 
-const CreateDuel: React.FC = () => {
+const CreateDuel = ({closeDuelModal}:{closeDuelModal:()=>void}) => {
+  const [loading, setLoading] = useState(false); 
 
   const provider = new ethers.JsonRpcProvider(NEXT_PUBLIC_RPC_URL);
   async function fetchTransactionEvents(transactionHash: string) {
@@ -127,6 +128,7 @@ const CreateDuel: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setLoading(true);
     console.log("Form Data new: ", formData);
     try {
       const hash = await lpTokenApproveAsync();
@@ -169,10 +171,7 @@ const CreateDuel: React.FC = () => {
         createdAt: result.createTime,
       };
 
-
-      console.log(duelData, "duelData")
-
-      const response = await axios.post(
+      await axios.post(
         `${NEXT_PUBLIC_API}/duels/create`,
         {
           ...duelData,
@@ -186,9 +185,6 @@ const CreateDuel: React.FC = () => {
         }
       );
 
-      console.log(response)
-      // const durationHour = durationNumber === 0 ? 3 : durationNumber === 1 ? 6 : durationNumber ===2 ?12 : 0
-      // timer bot call
       await axios.post(`${NEXT_PUBLIC_TIMER_BOT_URL}/startDuel`, {
         duelId: result.duelId,
         duelType: 'COIN_DUEL',
@@ -203,6 +199,9 @@ const CreateDuel: React.FC = () => {
       });
     } catch (error) {
       console.error("Error: ", error);
+    }finally{
+      setLoading(false);
+      closeDuelModal();
     }
   };
 
@@ -251,7 +250,7 @@ const CreateDuel: React.FC = () => {
           </p>
         </div>
         <InfoBox />
-        <CreateDuelButton />
+        <CreateDuelButton loading={loading} />
       </main>
     </form>
   );

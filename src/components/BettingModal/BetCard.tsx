@@ -27,8 +27,8 @@ interface BetCardProps {
   totalBetAmount: number,
   endsIn: number
   triggerPrice?: string,
-  status:number;
-  setIsModalOpen: (arg0: boolean)=>void;
+  status: number;
+  setIsModalOpen: (arg0: boolean) => void;
 }
 
 const BetCard: React.FC<BetCardProps> = ({
@@ -56,7 +56,6 @@ const BetCard: React.FC<BetCardProps> = ({
   // const [markPrice, setMarkPrice] = useState<number | null>(null);
   const [noPrice, setNoPrice] = useState<number>();
   const [yesPrice, setYesPrice] = useState<number>();
-  console.log("shivams",triggerPrice, noPrice, yesPrice)
   const { prices } = usePrice()
 
   // Assuming useTotalBets is defined elsewhere
@@ -69,8 +68,7 @@ const BetCard: React.FC<BetCardProps> = ({
   const priceFormatted = Number(ethers.formatUnits(
     String((price) || 0),
     8
-))
-  console.log("id-new", priceFormatted);
+  ))
 
 
   useEffect(() => {
@@ -79,8 +77,8 @@ const BetCard: React.FC<BetCardProps> = ({
         try {
           // const price = await getCryptoPrices(asset);
           const timePeriod = endsIn / (365 * 24);
-          console.log(timePeriod, triggerPrice,priceFormatted, asset, totalBetNo, totalBetYes, "timePeriod")
-          const pricingValue =  await postPricingData(
+          console.log(timePeriod, triggerPrice, priceFormatted, asset, totalBetNo, totalBetYes, "timePeriod")
+          const pricingValue = await postPricingData(
             priceFormatted as number,
             Number(triggerPrice),
             asset,
@@ -90,12 +88,12 @@ const BetCard: React.FC<BetCardProps> = ({
           );
           setNoPrice(pricingValue["No Price"]);
           setYesPrice(pricingValue["Yes Price"]);
-          console.log(pricingValue,triggerPrice, "pricingValue", pricingValue["No Value"], pricingValue["Yes Value"])
+          console.log(pricingValue, triggerPrice, "pricingValue", pricingValue["No Value"], pricingValue["Yes Value"])
         } catch (error) {
           console.error("Error fetching prices:", error);
         }
       }
-      else{
+      else {
         const timePeriod = endsIn / 24;
         console.log("no asset - its a flashduel")
         const pricingValue = calculateFlashDuelsOptionPrice(timePeriod < 1 ? 1 : timePeriod, totalBetNo || 0, totalBetYes || 0);
@@ -141,7 +139,7 @@ const BetCard: React.FC<BetCardProps> = ({
         />
         <BetAmount availableAmount={availableAmount} betAmount={betAmount} setBetAmount={setBetAmount} />
         <TransactionOverview betAmount={betAmount} />
-        <PlaceBetButton betAmount={betAmount} duelId={duelId} duelType={duelType} bet={bet} asset={asset} triggerPrice={triggerPrice} endsIn={endsIn} setIsModalOpen={setIsModalOpen} markPrice={priceFormatted as number}/>
+        <PlaceBetButton betAmount={betAmount} duelId={duelId} duelType={duelType} bet={bet} asset={asset} triggerPrice={triggerPrice} endsIn={endsIn} setIsModalOpen={setIsModalOpen} markPrice={priceFormatted as number} />
       </div>
     </article>
   );

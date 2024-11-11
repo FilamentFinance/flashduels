@@ -65,7 +65,7 @@ const DuelCreationModal: React.FC<DuelCreationModalProps> = ({ onClose }) => {
             </button>
           </header>
           {isDuelSelected ? ( // Conditional rendering based on duel selection
-            selectedMarket === "Coin Duel" ? <CreateDuel /> : <CreateDuelForm/>
+            selectedMarket === "Coin Duel" ? <CreateDuel closeDuelModal={closeDuelModal} /> : <CreateDuelForm closeDuelModal={closeDuelModal}/>
           ) : (
             <div className="flex flex-col self-center mt-4 w-full">
               <ProgressBar />
