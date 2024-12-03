@@ -22,7 +22,14 @@ const PortfolioPage: React.FC = () => {
     const {balance} = useBalance(address as string);
     const balanceNum = (Number(ethers.formatUnits(balance ? balance.toString() : 0, 6)));
   
-    const [accountData, setAccountData] = React.useState<any>(null);
+    interface AccountData {
+        positionValue: string;
+        pnl: string;
+        totalBets: number;
+        totalDuelCreated: number;
+    }
+
+    const [accountData, setAccountData] = React.useState<AccountData | null>(null);
 
   
     React.useEffect(() => {
@@ -72,12 +79,12 @@ const PortfolioPage: React.FC = () => {
                         },
                         {
                             label: "Duels Joined",
-                            value: accountData.totalBets,
+                            value: (accountData.totalBets).toString(),
                             valueColor: "white",
                         },
                         {
                             label: "Duels Created",
-                            value: accountData.totalDuelCreated,
+                            value: (accountData.totalDuelCreated).toString(),
                             valueColor: "white",
                         },
                     ]}
