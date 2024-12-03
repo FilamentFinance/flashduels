@@ -86,7 +86,7 @@ const PortfolioGrid = ({ activeButton, specialCategoryIndex }: { activeButton: s
   };
 
   const sliderSettings = {
-    dots: true,
+    dots: false,
     infinite: true,
     speed: 500,
     slidesToShow: 3,
