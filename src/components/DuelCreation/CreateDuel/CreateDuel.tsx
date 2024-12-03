@@ -16,6 +16,7 @@ import axios from "axios";
 // import { usePrivy } from "@privy-io/react-auth";
 import { ethers } from "ethers";
 import MarkPriceComponent from "./MarkPrice";
+import { useBalance } from "@/blockchain/useBalance";
 
 interface FormData {
   tokenInput: string;
@@ -26,6 +27,8 @@ interface FormData {
 }
 
 const CreateDuel = ({closeDuelModal}:{closeDuelModal:()=>void}) => {
+  const {address} = useAccount();
+  const {balance, refetch} = useBalance(address as string);
   const [loading, setLoading] = useState(false); 
 
   const provider = new ethers.JsonRpcProvider(NEXT_PUBLIC_RPC_URL);
@@ -67,8 +70,6 @@ const CreateDuel = ({closeDuelModal}:{closeDuelModal:()=>void}) => {
     return;
   }
 
-  // const { user } = usePrivy()
-  const { address } = useAccount()
   const [formData, setFormData] = React.useState<FormData>({
     tokenInput: "BTC",
     triggerPrice: "",
@@ -202,6 +203,7 @@ const CreateDuel = ({closeDuelModal}:{closeDuelModal:()=>void}) => {
     }finally{
       setLoading(false);
       closeDuelModal();
+      refetch();
     }
   };
 

@@ -2,6 +2,7 @@ import { FLASHUSDCABI } from "@/abi/FLASHUSDC";
 import { FLASHDUELSABI } from "@/abi/FlashDuelsABI";
 import { config } from "@/app/config/wagmi";
 import { postPricingData, useTotalBets } from "@/app/optionPricing";
+import { useBalance } from "@/blockchain/useBalance";
 import { CHAIN_ID, NEXT_PUBLIC_API, NEXT_PUBLIC_FLASH_DUELS, NEXT_PUBLIC_FLASH_USDC } from "@/utils/consts";
 import { calculateFlashDuelsOptionPrice } from "@/utils/flashDuelsOptionPricing";
 import axios from "axios";
@@ -25,6 +26,7 @@ const PlaceBetButton: React.FC<PlaceBetButtonProps> = ({
   betAmount, bet, duelId, duelType, asset, triggerPrice, endsIn, markPrice, setIsModalOpen
 }) => {
   const { address } = useAccount();
+  const {balance, refetch} = useBalance(address as string);
   const { totalBetYes, totalBetNo } = useTotalBets(duelId);
   const [loading, setLoading] = useState(false); // Add loading state
 
@@ -128,6 +130,7 @@ const PlaceBetButton: React.FC<PlaceBetButtonProps> = ({
     } finally {
       setLoading(false); // Stop loading
       setIsModalOpen(false);
+      refetch()
     }
   };
 

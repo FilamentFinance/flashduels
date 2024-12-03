@@ -17,8 +17,11 @@ import { getGasPrice } from '@wagmi/core'
 import axios from "axios";
 // import { usePrivy } from "@privy-io/react-auth";
 import { ethers } from "ethers";
+import { useBalance } from "@/blockchain/useBalance";
 
 const CreateDuelForm = ({ closeDuelModal }: { closeDuelModal: () => void }) => {
+  const {address} = useAccount()
+  const {balance, refetch} = useBalance(address as string);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -61,7 +64,6 @@ const CreateDuelForm = ({ closeDuelModal }: { closeDuelModal: () => void }) => {
     // Return undefined if no logs are found
     return;
   }
-  const { address } = useAccount();
   // const { user } = usePrivy()
   const [formData, setFormData] = React.useState({
     category: "",
@@ -226,6 +228,7 @@ const CreateDuelForm = ({ closeDuelModal }: { closeDuelModal: () => void }) => {
     }finally{
       setLoading(false)
       closeDuelModal()
+      refetch()
     }
   };
 
