@@ -6,7 +6,7 @@ export interface StatItemProps {
 
 export interface AccountCardProps {
   // username: string;
-  address: string;
+  shortenAddress: string;
   accountValue: string;
   stats: StatItemProps[];
 }

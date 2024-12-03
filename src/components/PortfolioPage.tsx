@@ -11,6 +11,7 @@ import { useAccount } from "wagmi";
 import { shortenAddress } from "@/utils/helper";
 import { useBalance } from "@/blockchain/useBalance";
 import { ethers } from "ethers";
+import { NEXT_PUBLIC_API } from "@/utils/consts";
 
 const PortfolioPage: React.FC = () => {
     const [activeButton, setActiveButton] = useState<string>("liveDuels");
@@ -21,7 +22,27 @@ const PortfolioPage: React.FC = () => {
     const {balance} = useBalance(address as string);
     const balanceNum = (Number(ethers.formatUnits(balance ? balance.toString() : 0, 6)));
   
+    const [accountData, setAccountData] = React.useState<any>(null);
 
+  
+    React.useEffect(() => {
+      const fetchAccountData = async () => {
+        const response = await fetch(
+          `${NEXT_PUBLIC_API}/portfolio/accountDetails`,{
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              userAddress: address,
+            }),
+          }
+        );
+        const data = await response.json();
+        setAccountData(data.portfolioData);
+      };
+      fetchAccountData();
+    }, []);
     // console.log(account)
     return (
         <div className="flex justify-center">
@@ -35,32 +56,32 @@ const PortfolioPage: React.FC = () => {
                     </div>
                     <DuelsDashboard />
                 </div>
-                <AccountCard
-                    address={shortenAddress(address as string) as string}
+                {accountData && <AccountCard
+                    shortenAddress={shortenAddress(address as string) as string}
                     accountValue={balance ? balanceNum.toString() : "0"}
                     stats={[
                         {
                             label: "Positions Value",
-                            value: "$2000",
+                            value: accountData.positionValue,
                             valueColor: "white",
                         },
                         {
                             label: "Total P/L",
-                            value: "$250",
+                            value: accountData.pnl,
                             valueColor: "red-500",
                         },
                         {
                             label: "Duels Joined",
-                            value: "5",
+                            value: accountData.totalBets,
                             valueColor: "white",
                         },
                         {
                             label: "Duels Created",
-                            value: "10",
+                            value: accountData.totalDuelCreated,
                             valueColor: "white",
                         },
                     ]}
-                />
+                />}
             </div>
         </div>
     );

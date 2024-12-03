@@ -6,10 +6,12 @@ import { config } from "@/app/config/wagmi";
 
 export function AccountCard({
   // username,
-  address,
+  shortenAddress,
   accountValue,
   stats,
 }: AccountCardProps) {
+
+
   return (
     <div className="flex flex-col items-center self-stretch pt-3 mt-[15px] pb-72 my-auto rounded-lg border border-solid bg-neutral-900 border-neutral-800 min-h-[567px] min-w-[240px] w-[287px] max-md:pb-24">
       <div className="flex relative flex-col max-w-full w-[263px]">
@@ -27,13 +29,13 @@ export function AccountCard({
                 {username}
               </div> */}
               <div className="text-xs tracking-normal leading-relaxed text-gray-500">
-                {address}
+                {shortenAddress}
               </div>
             </div>
           </div>
         </div>
         <div className="z-0 mt-3 text-base font-semibold tracking-normal leading-tight text-gray-400">
-          Account Value
+          Account Balance
         </div>
         <div className="z-0 my-4 text-5xl font-semibold leading-none text-stone-200 max-md:text-4xl">
           ${accountValue}
