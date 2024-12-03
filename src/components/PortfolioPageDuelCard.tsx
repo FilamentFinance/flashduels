@@ -109,11 +109,11 @@ const PortfolioGrid = ({ activeButton, specialCategoryIndex }: { activeButton: s
 
   const numberOfSlides = duels.length; // Replace `sliderData` with your actual array
 
-if (numberOfSlides === 1) {
-  sliderSettings.slidesToShow = 1; // Only show 1 slide if there's only one slide
-} else if (numberOfSlides === 2) {
-  sliderSettings.slidesToShow = 2; // If 2 slides, show 2
-}
+// if (numberOfSlides === 1) {
+//   sliderSettings.slidesToShow = 1; // Only show 1 slide if there's only one slide
+// } else if (numberOfSlides === 2) {
+//   sliderSettings.slidesToShow = 2; // If 2 slides, show 2
+// }
 
   return (
     <>

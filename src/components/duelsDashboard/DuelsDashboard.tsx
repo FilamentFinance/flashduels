@@ -83,6 +83,9 @@ export function DuelsDashboard() {
                     duelName={item.duelDetails.betString || `Will ${item.duelDetails.token} be ${item.duelDetails.winCondition === 0 ? "ABOVE" : "BELOW"} ${item.duelDetails.triggerPrice}`}
                     key={`${index}-yes`}
                     direction={"Yes"}
+                    status={item.duelDetails.status}
+                    createdAt={item.duelDetails.createdAt}
+                    startAt={item.duelDetails.startAt}
                     avgPrice={item.yesBet.price as string}
                     value={item.yesBet.amount}
                     resolvesIn={item.duelDetails.endsIn as number}
@@ -93,6 +96,9 @@ export function DuelsDashboard() {
                   <DuelRow
                     duelName={item.duelDetails.betString || `Will ${item.duelDetails.token} be ${item.duelDetails.winCondition === 0 ? "ABOVE" : "BELOW"} ${item.duelDetails.triggerPrice}`}
                     key={`${index}-no`}
+                    status={item.duelDetails.status}
+                    createdAt={item.duelDetails.createdAt}
+                    startAt={item.duelDetails.startAt}
                     direction={"No"}
                     avgPrice={item.noBet.price as string}
                     value={item.noBet.amount}
@@ -154,16 +160,67 @@ function DuelRow({
   avgPrice,
   value,
   resolvesIn,
+  status,
+  createdAt,
+  startAt,
   icon
 }: {
   duelName: string;
   direction: string;
   // quantity: string;
   avgPrice: string;
+  status: number
   value: string;
   resolvesIn: number;
+  createdAt: number;
+  startAt: number;
   icon: string;
 }) {
+  const thirtyMinutesMs = 30 * 60 * 1000;
+  const durationMs = resolvesIn * 60 * 60 * 1000; 
+  const [time, setTimeLeft] = React.useState("");
+  const calculateRemainingTime = () => {
+    const currentTimeMs = Date.now();
+    const startTimeMs = createdAt * 1000;
+
+    let remainingTimeMs;
+
+    // Check if 30 minutes have passed since createdAt
+    const timeElapsedMs = currentTimeMs - startTimeMs;
+    if (timeElapsedMs > thirtyMinutesMs || status === 0) {
+      // Use startAt if 30 minutes have passed
+      const startAtTimeMs = startAt * 1000;
+      const timeSinceStartAt = currentTimeMs - startAtTimeMs;
+      remainingTimeMs = Math.max(durationMs - timeSinceStartAt, 0); // Calculate remaining time from startAt
+    } else {
+      // Use createdAt if 30 minutes have not passed
+      remainingTimeMs = Math.max(thirtyMinutesMs - timeElapsedMs, 0); // Calculate remaining time from createdAt
+    }
+
+    return remainingTimeMs;
+  };
+
+  // Function to format time in HH:MM:SS format
+  const formatTime = (ms: number) => {
+    const totalSeconds = Math.floor(ms / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    const padTime = (time: number) => time.toString().padStart(2, '0');
+    return `${padTime(hours)}:${padTime(minutes)}:${padTime(seconds)}`;
+  };
+
+  // Update timeLeft every second
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      const remainingTimeMs = calculateRemainingTime();
+      setTimeLeft(formatTime(remainingTimeMs)); // Update state with formatted time
+    }, 1000);
+
+    return () => clearInterval(interval); // Clear interval on component unmount
+  }, [createdAt, startAt, resolvesIn]);
+  
   return (
     <div className="flex items-center px-4 py-2 text-sm text-stone-300 border-b border-neutral-800">
       <div className="w-[25%] flex items-center gap-2">
@@ -174,7 +231,7 @@ function DuelRow({
       <div className="w-[15%] text-center">{(Number(avgPrice) * Number(value)).toFixed(3)}</div>
       <div className="w-[15%] text-center">{Number(avgPrice).toFixed(3)}</div>
       <div className="w-[15%] text-center">{value}</div>
-      <div className="w-[20%] text-center">{resolvesIn}</div>
+      <div className="w-[20%] text-center">{time}</div>
     </div>
   );
 }
