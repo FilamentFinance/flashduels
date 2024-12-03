@@ -21,7 +21,7 @@ import { useBalance } from "@/blockchain/useBalance";
 
 const CreateDuelForm = ({ closeDuelModal }: { closeDuelModal: () => void }) => {
   const {address} = useAccount()
-  const {balance, refetch} = useBalance(address as string);
+  const {refetch} = useBalance(address as string);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);

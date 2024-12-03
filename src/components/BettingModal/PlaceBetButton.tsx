@@ -26,7 +26,7 @@ const PlaceBetButton: React.FC<PlaceBetButtonProps> = ({
   betAmount, bet, duelId, duelType, asset, triggerPrice, endsIn, markPrice, setIsModalOpen
 }) => {
   const { address } = useAccount();
-  const {balance, refetch} = useBalance(address as string);
+  const {refetch} = useBalance(address as string);
   const { totalBetYes, totalBetNo } = useTotalBets(duelId);
   const [loading, setLoading] = useState(false); // Add loading state
 

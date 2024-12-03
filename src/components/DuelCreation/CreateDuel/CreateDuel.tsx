@@ -28,7 +28,7 @@ interface FormData {
 
 const CreateDuel = ({closeDuelModal}:{closeDuelModal:()=>void}) => {
   const {address} = useAccount();
-  const {balance, refetch} = useBalance(address as string);
+  const { refetch} = useBalance(address as string);
   const [loading, setLoading] = useState(false); 
 
   const provider = new ethers.JsonRpcProvider(NEXT_PUBLIC_RPC_URL);
