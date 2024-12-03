@@ -68,7 +68,7 @@ export function DuelsDashboard() {
           <TableHeader label="Duel" width="w-[25%]" />
           <TableHeader label="Direction" width="w-[15%]" align="center" />
           <TableHeader label="Quantity" width="w-[15%]" align="center" />
-          <TableHeader label="Entry Price" width="w-[15%]" align="center" />
+          <TableHeader label="Avg. Price" width="w-[15%]" align="center" />
           <TableHeader label="Value" width="w-[15%]" align="center" />
           <TableHeader label="Resolves in" width="w-[20%]" align="center" />
         </div>
@@ -229,8 +229,8 @@ function DuelRow({
       </div>
       <div className={`w-[15%] text-center ${direction === "Yes" ? 'text-green-500' : 'text-red-500'}`}>{direction}</div>
       <div className="w-[15%] text-center">{(Number(avgPrice) * Number(value)).toFixed(3)}</div>
-      <div className="w-[15%] text-center">{Number(avgPrice).toFixed(3)}</div>
-      <div className="w-[15%] text-center">{value}</div>
+      <div className="w-[15%] text-center">${Number(avgPrice).toFixed(3)}</div>
+      <div className="w-[15%] text-center">${value}</div>
       <div className="w-[20%] text-center">{time}</div>
     </div>
   );

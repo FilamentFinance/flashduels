@@ -10,6 +10,7 @@ import PortfolioGrid from "./PortfolioPageDuelCard";
 import { useAccount } from "wagmi";
 import { shortenAddress } from "@/utils/helper";
 import { useBalance } from "@/blockchain/useBalance";
+import { ethers } from "ethers";
 
 const PortfolioPage: React.FC = () => {
     const [activeButton, setActiveButton] = useState<string>("liveDuels");
@@ -18,7 +19,8 @@ const PortfolioPage: React.FC = () => {
  
     const {address} = useAccount();
     const {balance} = useBalance(address as string);
-    console.log(address)
+    const balanceNum = (Number(ethers.formatUnits(balance ? balance.toString() : 0, 6)));
+  
 
     // console.log(account)
     return (
@@ -35,7 +37,7 @@ const PortfolioPage: React.FC = () => {
                 </div>
                 <AccountCard
                     address={shortenAddress(address as string) as string}
-                    accountValue={balance ? balance.toString() : "0"}
+                    accountValue={balance ? balanceNum.toString() : "0"}
                     stats={[
                         {
                             label: "Positions Value",
