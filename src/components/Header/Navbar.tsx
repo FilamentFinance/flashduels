@@ -8,14 +8,14 @@ import SettingsIcon from "./SettingsIcon";
 // import { usePrivy } from "@privy-io/react-auth";
 // import DepositModal from "../DepositModal/DepositModal";
 import IconButtonContainer from "./IconButton";
-import { useAccount, useSwitchChain } from "wagmi";
+import { useAccount } from "wagmi";
 import { CHAIN_ID } from "@/utils/consts";
 
 
 const Navbar: React.FC = () => {
   // const {authenticated} = usePrivy();
   const { isConnected, chainId } = useAccount();
-  const { switchChain } = useSwitchChain()
+  // const { switchChain } = useSwitchChain()
   // const [isModalOpen, setModalOpen] = useState(false);
   // 
   const handleOpenModal = () => {
@@ -35,12 +35,12 @@ const Navbar: React.FC = () => {
       {/* {isModalOpen && <DepositModal onClose={handleCloseModal} />} */}
       <IconButtonContainer />
       {isConnected && chainId === CHAIN_ID && <CreateDuelButton />}
-      {chainId === CHAIN_ID ?
-        <UserProfile /> :
-        <button
+      {/* {chainId === CHAIN_ID ? */}
+        <UserProfile /> 
+        {/* <button
           onClick={() => switchChain({ chainId: CHAIN_ID })}
           className="gap-2.5 self-stretch px-3 py-2.5 my-auto text-base font-semibold leading-none text-gray-900 rounded shadow-sm bg-[linear-gradient(180deg,#F19ED2_0%,#C87ECA_100%)]"
-        >Switch Network</button>}
+        >Switch Network</button>} */}
       {isConnected && <SettingsIcon />}
     </nav>
 

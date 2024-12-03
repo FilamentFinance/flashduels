@@ -6,15 +6,19 @@ import { DuelsDashboard } from "./duelsDashboard/DuelsDashboard";
 // import DuelGrid from "./DuelGrid";
 // import PorfolioGrid from "./PortfolioPageDuelCard";
 import PortfolioGrid from "./PortfolioPageDuelCard";
-// import { useAccount, useDisconnect } from "wagmi";
+// import { useAccount } from "wagmi";
+import { useAccount } from "wagmi";
+import { shortenAddress } from "@/utils/helper";
+import { useBalance } from "@/blockchain/useBalance";
 
 const PortfolioPage: React.FC = () => {
     const [activeButton, setActiveButton] = useState<string>("liveDuels");
     const [specialCategoryIndex, setSpecialCategoryIndex] = useState<number | null>(0);
 
  
-    // const {account} = useAccount();
-    // console.log(account)
+    const {address} = useAccount();
+    const {balance} = useBalance(address as string);
+    console.log(address)
 
     // console.log(account)
     return (
@@ -22,7 +26,7 @@ const PortfolioPage: React.FC = () => {
             {/* Parent container now a row */}
             <div className="flex flex-row items-start justify-center max-w-full gap-x-[9px]">
                 <div className="flex flex-col max-w-[884px]">
-                    <DuelsHeader />
+                    <DuelsHeader activeButton={activeButton} setActiveButton={setActiveButton} />
                     <div className="min-h-[227px] my-[12px]">
                     <PortfolioGrid activeButton={activeButton} setActiveButton={setActiveButton} specialCategoryIndex={specialCategoryIndex} setSpecialCategoryIndex={setSpecialCategoryIndex} />
     
@@ -30,8 +34,8 @@ const PortfolioPage: React.FC = () => {
                     <DuelsDashboard />
                 </div>
                 <AccountCard
-                    address={"3482789042379087089" as string}
-                    accountValue="324"
+                    address={shortenAddress(address as string) as string}
+                    accountValue={balance ? balance.toString() : "0"}
                     stats={[
                         {
                             label: "Positions Value",

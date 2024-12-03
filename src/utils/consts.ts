@@ -58,4 +58,43 @@ export type Duel = {
     triggerPrice? : string
   };
 
+
+  type TableDuel = {
+    betId: string | null;
+    duelId: string;
+    duelType: string;
+    totalBetAmount: string;
+    yesBet: {
+      amount: string | null;
+      price: string | null;
+      value?: string; // optional, based on your data
+    };
+    noBet: {
+      amount: string | null;
+      price: string | null;
+    };
+    duelDetails: {
+      id: string;
+      createdAt: number;
+      startAt: number;
+      betString?:string
+      token: string;
+      category: string;
+      markPrice: string;
+      status: number;
+      triggerPrice: string;
+      minimumWager: string;
+      winCondition: number;
+      duelType: string;
+      endsIn: number;
+      duelId: string;
+      betIcon: string;
+      winner: number; // -1 indicates no winner yet
+      betId: string | null;
+      userId: string;
+    };
+  };
+  
+  export type ActiveDuels = TableDuel[];
+  
   export const durations = [3, 6, 12];

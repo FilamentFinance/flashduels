@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Slider from "react-slick";
 import DuelCard from "./DuelCard";
 import BettingModal from "./BettingModal/BettingModal";
-import { Duel, NewDuelItem, NEXT_PUBLIC_WS_URL } from "@/utils/consts";
+import { Duel, NewDuelItem, NEXT_PUBLIC_API } from "@/utils/consts";
 import { useAccount } from "wagmi";
 import { useBalance } from "@/blockchain/useBalance";
 import "slick-carousel/slick/slick.css"; 
@@ -10,6 +10,8 @@ import "slick-carousel/slick/slick-theme.css";
 
 import { ethers } from "ethers";
 import { shortenAddress } from "@/utils/helper";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 
 const PortfolioGrid = ({ activeButton, specialCategoryIndex }: { activeButton: string, setActiveButton: (activeButton: string) => void, specialCategoryIndex: number | null, setSpecialCategoryIndex: (specialCategoryIndex: number | null) => void }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -19,61 +21,64 @@ const PortfolioGrid = ({ activeButton, specialCategoryIndex }: { activeButton: s
   const balanceNum = (Number(ethers.formatUnits(balance ? balance.toString() : 0, 6)));
 
   const [duels, setDuels] = useState<Duel[]>([]);
+  const [loading, setLoading] = useState(true); // Add loading state
 
-  const categoryMap = [
-    'Any',
-    'Crypto',
-    'Politics',
-    'Sports',
-  ];
-
-  // WebSocket setup to get duels in real-time
   useEffect(() => {
-    const socket = new WebSocket(NEXT_PUBLIC_WS_URL);
-    
-    socket.onopen = () => console.log('Connected to the WebSocket server');
-    socket.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-      if (message.allDuels) {
-        const filteredDuels = message.allDuels
-          .filter((item: NewDuelItem) => {
-            if (specialCategoryIndex === 0 || specialCategoryIndex === null) {
-              return true;
-            } else {
-              return item.category === categoryMap[specialCategoryIndex];
-            }
-          })
-          .filter((item: NewDuelItem) => {
-            if (activeButton === "liveDuels") return item.status === 0;
-            if (activeButton === "bootstrapping") return item.status === -1;
-            if (activeButton === "completed") return item.status === 1;
-            return true;
-          })
-          .map((item: NewDuelItem) => ({
-            title: item.betString || `Will ${item.token} be ${item.winCondition === 0 ? "ABOVE" : "BELOW"} ${item.triggerPrice}`,
-            imageSrc: item.betIcon || "empty-string",
-            volume: `$${item.totalBetAmount}`,
-            category: item.category,
-            status: item.status,
-            duelId: item.duelId,
-            duelType: item.duelType,
-            timeLeft: item.endsIn,
-            startAt: item.startAt || 0,
-            createdAt: item.createdAt,
-            percentage: 50,
-            createdBy: item.user.twitterUsername || shortenAddress(item.user.address),
-            token: item.token,
-            triggerPrice: item.triggerPrice,
-            totalBetAmount: item.totalBetAmount
-          }));
+    const fetchDuels = async () => {
+      setLoading(true); // Set loading to true when fetching data
+      try {
+        const response = await fetch(`${NEXT_PUBLIC_API}/portfolio/duels`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userAddress: address,
+          }),
+        });
 
-        setDuels(filteredDuels);
+        if (!response.ok) {
+          throw new Error("Failed to fetch duels");
+        }
+
+        const data = await response.json();
+        if (data.allDuels) {
+          const filteredDuels = data.allDuels
+            .filter((item: NewDuelItem) => {
+              if (activeButton === "liveDuels") return item.status === 0;
+              if (activeButton === "bootstrapping") return item.status === -1;
+              if (activeButton === "completed") return item.status === 1;
+              return true;
+            })
+            .map((item: NewDuelItem) => ({
+              title: item.betString || `Will ${item.token} be ${item.winCondition === 0 ? "ABOVE" : "BELOW"} ${item.triggerPrice}`,
+              imageSrc: item.betIcon || "empty-string",
+              volume: `$${item.totalBetAmount}`,
+              category: item.category,
+              status: item.status,
+              duelId: item.duelId,
+              duelType: item.duelType,
+              timeLeft: item.endsIn,
+              startAt: item.startAt || 0,
+              createdAt: item.createdAt,
+              percentage: 50,
+              createdBy: item.user.twitterUsername || shortenAddress(item.user.address),
+              token: item.token,
+              triggerPrice: item.triggerPrice,
+              totalBetAmount: item.totalBetAmount,
+            }));
+
+          setDuels(filteredDuels);
+        }
+      } catch (error) {
+        console.error("Error fetching duels:", error);
+      } finally {
+        setLoading(false); // Set loading to false after data is fetched
       }
     };
-    socket.onerror = (error) => console.error('WebSocket Error:', error);
-    socket.onclose = () => console.log('Disconnected from the WebSocket server');
-    return () => socket.close();
-  }, [activeButton, specialCategoryIndex]);
+
+    fetchDuels();
+  }, [address, activeButton, specialCategoryIndex]);
 
   const handleDuelClick = (index: number) => {
     setModalData(duels[index]);
@@ -84,8 +89,8 @@ const PortfolioGrid = ({ activeButton, specialCategoryIndex }: { activeButton: s
     dots: true,
     infinite: true,
     speed: 500,
-    slidesToShow: 3, // Number of cards visible
-    slidesToScroll: 1, // How many cards to scroll at a time
+    slidesToShow: 3,
+    slidesToScroll: 1,
     responsive: [
       {
         breakpoint: 1024,
@@ -102,13 +107,31 @@ const PortfolioGrid = ({ activeButton, specialCategoryIndex }: { activeButton: s
     ],
   };
 
+  const numberOfSlides = duels.length; // Replace `sliderData` with your actual array
+
+if (numberOfSlides === 1) {
+  sliderSettings.slidesToShow = 1; // Only show 1 slide if there's only one slide
+} else if (numberOfSlides === 2) {
+  sliderSettings.slidesToShow = 2; // If 2 slides, show 2
+}
+
   return (
     <>
-      <Slider {...sliderSettings} >
-        {duels && duels.map((duel, index) => (
-          <DuelCard key={index} {...duel} onClick={() => handleDuelClick(index)} />
-        ))}
-      </Slider>
+      {loading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <Skeleton key={index} height={200} />
+          ))}
+        </div>
+      ) : duels.length > 0 ? (
+        <Slider {...sliderSettings}>
+          {duels.map((duel, index) => (
+            <DuelCard key={index} {...duel} onClick={() => handleDuelClick(index)} />
+          ))}
+        </Slider>
+      ) : (
+        <p className="text-center text-white mt-4">No duels available</p>
+      )}
       <BettingModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

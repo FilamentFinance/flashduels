@@ -1,7 +1,8 @@
 import * as React from "react";
 import { StatItem } from "./StatItem";
 import { AccountCardProps } from "./types";
-// import { useDisconnect } from "wagmi";
+import { disconnect } from "@wagmi/core/actions";
+import { config } from "@/app/config/wagmi";
 
 export function AccountCard({
   // username,
@@ -9,7 +10,6 @@ export function AccountCard({
   accountValue,
   stats,
 }: AccountCardProps) {
-  // const {disconnect} = useDisconnect();
   return (
     <div className="flex flex-col items-center self-stretch pt-3 mt-[15px] pb-72 my-auto rounded-lg border border-solid bg-neutral-900 border-neutral-800 min-h-[567px] min-w-[240px] w-[287px] max-md:pb-24">
       <div className="flex relative flex-col max-w-full w-[263px]">
@@ -38,7 +38,7 @@ export function AccountCard({
         <div className="z-0 my-4 text-5xl font-semibold leading-none text-stone-200 max-md:text-4xl">
           ${accountValue}
         </div>
-        <div className="flex z-0 flex-col mt-3 w-full text-base font-semibold leading-none whitespace-nowrap">
+        {/* <div className="flex z-0 flex-col mt-3 w-full text-base font-semibold leading-none whitespace-nowrap">
           <div className="flex gap-2 items-start w-full">
             <button className="flex-1 shrink gap-2.5 self-stretch p-2.5 text-gray-900 bg-pink-300 rounded-lg">
               Deposit
@@ -47,13 +47,16 @@ export function AccountCard({
               Withdraw
             </button>
           </div>
-        </div>
+        </div> */}
+        <button onClick={async() => await disconnect(config)}>
         <img
           loading="lazy"
           src="https://cdn.builder.io/api/v1/image/assets/4bd09ea4570a4d12834637c604f75b6a/e40368f0edb67a1b3b5e6484642582a4b415e936668ed29022089c454c1bb894?apiKey=4bd09ea4570a4d12834637c604f75b6a&"
           alt=""
           className="object-contain absolute top-0 right-0 z-0 w-7 h-7 aspect-square"
         />
+        </button>
+       
       </div>
       <img
         loading="lazy"

@@ -41,7 +41,7 @@ const useTotalBets = (duelId: string) => {
     ))
 
     const noOption = Number(ethers.formatUnits(
-        String((yesData) || 0),
+        String((noData) || 0),
         18
     ))
 
@@ -70,7 +70,7 @@ const postPricingData = async (markPrice: number, triggerPrice: number, asset: s
             total_yes_bets: 50,
             total_no_bets: 50,
             beta: 0.15,
-            symbol: `${asset}USDT`
+            symbol: `${asset}USDC`
         };
     } else {
         data = {
@@ -80,7 +80,7 @@ const postPricingData = async (markPrice: number, triggerPrice: number, asset: s
             total_yes_bets: totalYesBets,
             total_no_bets: totalNobets,
             beta: 0.15,
-            symbol: `${asset}USDT`
+            symbol: `${asset}USDC`
         };
     }
     console.log(data, "data-new")

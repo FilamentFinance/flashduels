@@ -35,8 +35,8 @@ const DuelCard: React.FC<Duel> = ({
   const durationMs = timeLeft * 60 * 60 * 1000; // duration in hours converted to milliseconds
   console.log(percentage)
   const { totalBetYes, totalBetNo } = useTotalBets(duelId);
-  const calculatedPercentage = (totalBetYes as number / (totalBetYes as number + Number(totalBetNo))) * 100;
-  console.log(calculatedPercentage, "calculatedPercentage", totalBetYes, totalBetNo, volume)
+  const calculatedPercentage = (totalBetYes as number / (Number(totalBetYes) + Number(totalBetNo))) * 100;
+  console.log(calculatedPercentage, "calculated", totalBetYes, totalBetNo, volume)
  
   const [time, setTimeLeft] = useState("");
   const calculateRemainingTime = () => {
@@ -82,7 +82,7 @@ const DuelCard: React.FC<Duel> = ({
   }, [createdAt, startAt, timeLeft]);
   
 
-  const isPositive = calculatedPercentage >= 50;
+  const isPositive = calculatedPercentage || 50 >= 50;
   const colorClass = isPositive ? "text-lime-300" : "text-red-500";
   const bgColorClass = isPositive ? "bg-lime-300" : "bg-red-500";
 
@@ -135,14 +135,14 @@ const DuelCard: React.FC<Duel> = ({
             <div
               className={`text-base font-semibold leading-none ${colorClass}`}
             >
-              {calculatedPercentage} %
+              {calculatedPercentage ? calculatedPercentage.toFixed(0) : 50} %
             </div>
             <div className="flex gap-0.5 mt-1 min-h-[13px] w-[62px]">
               {[...Array(10)].map((_, index) => (
                 <div
                   key={index}
                   className={`flex flex-1 shrink ${
-                    index < calculatedPercentage / 10
+                    index < (calculatedPercentage || 50 )/ 10
                       ? bgColorClass
                       : "bg-gray-500 bg-opacity-30"
                   } rounded-xl basis-0 h-[13px] ${

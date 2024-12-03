@@ -3,9 +3,8 @@ import * as React from "react";
 // import DuelGrid from "../DuelGrid";
 // import { DuelFilter } from "./DuelFilter";
 
-export function DuelsHeader() {
+export function DuelsHeader({ activeButton, setActiveButton }: { activeButton: string, setActiveButton: (activeButton: string) => void }) {
   // const [activeFilterIndex, setActiveFilterIndex] = React.useState(0);
-  const [activeButton, setActiveButton] = React.useState<string>("liveDuels");
   const handleLiveDuelsClick = () => {
     console.log('Live Duels clicked!');
     setActiveButton('liveDuels'); // Set active button

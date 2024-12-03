@@ -13,7 +13,7 @@ const ProbabilityBar: React.FC<ProbabilityBarProps> = ({ probability }) => {
     <div className="flex flex-col justify-center self-stretch my-auto w-[62px]">
       <div className="flex flex-col justify-center w-full min-h-[36px]">
         <div className="self-center text-base font-semibold leading-none text-lime-300">
-          {probability}%
+          {probability.toFixed(0)}%
         </div>
         <div className="flex gap-0.5 mt-1 w-full min-h-[13px]">
           {[...Array(filledBars)].map((_, index) => (
