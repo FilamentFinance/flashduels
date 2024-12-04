@@ -10,6 +10,7 @@ import SettingsIcon from "./SettingsIcon";
 import IconButtonContainer from "./IconButton";
 import { useAccount } from "wagmi";
 import { CHAIN_ID } from "@/utils/consts";
+import { RewardCard } from "../rewards/RewardCard";
 
 
 const Navbar: React.FC = () => {
@@ -31,6 +32,7 @@ const Navbar: React.FC = () => {
       {/* <Navigation pathname = {""} /> */}
       <Navigation pathname={"leaderboard"} />
       {isConnected && chainId === CHAIN_ID && <Navigation pathname={"portfolio"} />}
+      <RewardCard/>
       {isConnected && <DepositButton onOpenModal={handleOpenModal} />}
       {/* {isModalOpen && <DepositModal onClose={handleCloseModal} />} */}
       <IconButtonContainer />
