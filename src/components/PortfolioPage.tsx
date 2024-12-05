@@ -69,22 +69,22 @@ const PortfolioPage: React.FC = () => {
                     stats={[
                         {
                             label: "Positions Value",
-                            value: accountData.positionValue,
+                            value: `$${accountData.positionValue}`,
                             valueColor: "white",
                         },
                         {
                             label: "Total P/L",
-                            value: accountData.pnl,
+                            value:`$${Number(accountData.pnl).toFixed(2)}`,
                             valueColor: "red-500",
                         },
                         {
                             label: "Duels Joined",
-                            value: (accountData.totalBets).toString(),
+                            value:` ${(accountData.totalBets).toString()}`,
                             valueColor: "white",
                         },
                         {
                             label: "Duels Created",
-                            value: (accountData.totalDuelCreated).toString(),
+                            value: `${(accountData.totalDuelCreated).toString()}`,
                             valueColor: "white",
                         },
                     ]}

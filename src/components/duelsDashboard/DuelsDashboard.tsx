@@ -242,7 +242,7 @@ function DuelRow({
       <div className="w-[15%] text-center">{(Number(avgPrice) * Number(value)).toFixed(3)}</div>
       <div className="w-[15%] text-center">${Number(avgPrice).toFixed(3)}</div>
       <div className="w-[15%] text-center">${value}</div>
-      <div className="w-[20%] text-center">{activeTab === "history" ? pnl.toFixed(2) : time}</div>
+      <div className="w-[20%] text-center">{activeTab === "history" ? `$${pnl.toFixed(2)}` : time}</div>
     </div>
   );
 }
