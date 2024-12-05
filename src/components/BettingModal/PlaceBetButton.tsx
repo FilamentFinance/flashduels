@@ -9,6 +9,8 @@ import axios from "axios";
 import React, { useState } from "react";
 import { useAccount, useWriteContract } from "wagmi";
 import { waitForTransactionReceipt } from "wagmi/actions";
+import { GeneralNotificationAtom } from "../GeneralNotification";
+import { useAtom } from "jotai";
 
 interface PlaceBetButtonProps {
   betAmount: string;
@@ -19,17 +21,18 @@ interface PlaceBetButtonProps {
   triggerPrice?: string;
   endsIn?: number;
   markPrice: number;
-  setIsModalOpen: (arg0: boolean)=>void;
+  setIsModalOpen: (arg0: boolean) => void;
 }
 
 const PlaceBetButton: React.FC<PlaceBetButtonProps> = ({
   betAmount, bet, duelId, duelType, asset, triggerPrice, endsIn, markPrice, setIsModalOpen
 }) => {
   const { address } = useAccount();
-  const {refetch} = useBalance(address as string);
+  const [notification, setNotification] = useAtom(GeneralNotificationAtom);
+  const { refetch } = useBalance(address as string);
   const { totalBetYes, totalBetNo } = useTotalBets(duelId);
   const [loading, setLoading] = useState(false); // Add loading state
-
+  console.log(notification)
   const {
     writeContractAsync: lpTokenApproveAsyncLocal,
   } = useWriteContract({});
@@ -91,13 +94,13 @@ const PlaceBetButton: React.FC<PlaceBetButtonProps> = ({
           totalBetYes || 0,
           totalBetNo || 0
         );
-         indexValue = bet === "YES" ? backendValue["Yes Price"] : backendValue["No Price"];
+        indexValue = bet === "YES" ? backendValue["Yes Price"] : backendValue["No Price"];
         const optionPrice = Math.floor(indexValue * 10 ** 6);
 
         secondHash = await joinCryptoDuel(duelId, bet, asset, optionIndex, optionPrice, amount);
       } else {
         backendValue = calculateFlashDuelsOptionPrice(timePeriod || 0, totalBetNo || 0, totalBetYes || 0);
-         indexValue = bet === "YES" ? backendValue["priceYes"] : backendValue["priceNo"];
+        indexValue = bet === "YES" ? backendValue["priceYes"] : backendValue["priceNo"];
         const optionPrice = Math.floor(indexValue * 10 ** 6);
 
         secondHash = await joinFlashDuel(duelId, bet, optionIndex, optionPrice, amount);
@@ -124,8 +127,17 @@ const PlaceBetButton: React.FC<PlaceBetButtonProps> = ({
           }
         }
       );
-
+      setNotification({
+        isOpen: true,
+        success: true,
+        massage: "Duel Joined Successfully",
+      });
     } catch (error) {
+      setNotification({
+        isOpen: true,
+        success: false,
+        massage: "Failed to Join Duel",
+      });
       console.error("Error placing bet:", error);
     } finally {
       setLoading(false); // Stop loading
@@ -136,19 +148,19 @@ const PlaceBetButton: React.FC<PlaceBetButtonProps> = ({
 
   return (
     <button
-    className="flex flex-col mt-4 w-full text-base font-semibold leading-none text-gray-900"
-    disabled={!betAmount}
-    onClick={handleClick}
-  >
-    <div className="gap-2.5 self-stretch px-3 py-2.5 w-full rounded shadow-sm bg-[linear-gradient(180deg,#F19ED2_0%,#C87ECA_100%)]">
-      {loading ? (
-        <div className="spinner"></div>  // Add the spinner here
-      ) : (
-        <span>Join Duel</span>
-      )}
-    </div>
-  </button>
-  
+      className="flex flex-col mt-4 w-full text-base font-semibold leading-none text-gray-900"
+      disabled={!betAmount}
+      onClick={handleClick}
+    >
+      <div className="gap-2.5 self-stretch px-3 py-2.5 w-full rounded shadow-sm bg-[linear-gradient(180deg,#F19ED2_0%,#C87ECA_100%)]">
+        {loading ? (
+          <div className="spinner"></div>  // Add the spinner here
+        ) : (
+          <span>Join Duel</span>
+        )}
+      </div>
+    </button>
+
   );
 };
 

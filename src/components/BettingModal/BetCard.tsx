@@ -9,6 +9,7 @@ import { priceIds } from "@/utils/helper";
 import { usePrice } from "@/app/providers/PriceContextProvider";
 import { ethers } from "ethers";
 import { calculateFlashDuelsOptionPrice } from "@/utils/flashDuelsOptionPricing";
+import { GeneralNotification } from "../GeneralNotification";
 
 interface BetCardProps {
   betTitle: string;
@@ -143,6 +144,7 @@ const BetCard: React.FC<BetCardProps> = ({
         <TransactionOverview betAmount={betAmount} />
         <PlaceBetButton betAmount={betAmount} duelId={duelId} duelType={duelType} bet={bet} asset={asset} triggerPrice={triggerPrice} endsIn={endsIn} setIsModalOpen={setIsModalOpen} markPrice={priceFormatted as number} />
       </div>
+      <GeneralNotification></GeneralNotification>
     </article>
   );
 };

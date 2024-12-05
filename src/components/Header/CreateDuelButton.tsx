@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import DuelCreationModal from '../DuelCreation/DuelCreationModal';
+import { GeneralNotification } from '../GeneralNotification';
 
 const CreateDuelButton = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -24,6 +25,7 @@ const CreateDuelButton = () => {
       {isModalOpen && (
         <DuelCreationModal onClose={handleCloseModal} />
       )}
+      <GeneralNotification></GeneralNotification>
     </div>
   );
 };

@@ -18,13 +18,17 @@ import axios from "axios";
 // import { usePrivy } from "@privy-io/react-auth";
 import { ethers } from "ethers";
 import { useBalance } from "@/blockchain/useBalance";
+import { GeneralNotificationAtom } from "@/components/GeneralNotification";
+import { useAtom } from "jotai";
 
 const CreateDuelForm = ({ closeDuelModal }: { closeDuelModal: () => void }) => {
   const {address} = useAccount()
   const {refetch} = useBalance(address as string);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [notification, setNotification] = useAtom(GeneralNotificationAtom);
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
+  console.log(notification)
 
   const provider = new ethers.JsonRpcProvider(NEXT_PUBLIC_RPC_URL);
   async function fetchTransactionEvents(transactionHash: string) {
@@ -223,7 +227,17 @@ const CreateDuelForm = ({ closeDuelModal }: { closeDuelModal: () => void }) => {
           'Content-Type': 'application/json',
         },
       });
+      setNotification({
+        isOpen: true,
+        success: true,
+        massage: "Created Flash Duel",
+      });
     } catch (error) {
+      setNotification({
+        isOpen: true,
+        success: false,
+        massage: "Failed to Create Flash Duel",
+      });
       console.error("Error: ", error);
     }finally{
       setLoading(false)

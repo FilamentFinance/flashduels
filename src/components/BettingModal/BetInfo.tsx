@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import ProbabilityBar from "./ProbabilityBar";
-// import ProbabilityBar from "./ProbabilityBar";
 
 interface BetInfoProps {
   betTitle: string;

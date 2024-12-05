@@ -3,6 +3,7 @@ import ProgressBar from "./ProgressBar";
 import MarketOption from "./MarketOption";
 import CreateDuel from "./CreateDuel/CreateDuel";
 import CreateDuelForm from "./FlashDuels/CreateDuelForm";
+import { GeneralNotification } from "../GeneralNotification";
 
 interface DuelCreationModalProps {
   onClose: () => void;
@@ -108,6 +109,7 @@ const DuelCreationModal: React.FC<DuelCreationModalProps> = ({ onClose }) => {
             </div>
           )}
         </div>
+        <GeneralNotification></GeneralNotification>
       </section>
     </>
   );

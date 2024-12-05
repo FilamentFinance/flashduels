@@ -17,6 +17,8 @@ import axios from "axios";
 import { ethers } from "ethers";
 import MarkPriceComponent from "./MarkPrice";
 import { useBalance } from "@/blockchain/useBalance";
+import { GeneralNotificationAtom } from "@/components/GeneralNotification";
+import { useAtom } from "jotai";
 
 interface FormData {
   tokenInput: string;
@@ -26,10 +28,12 @@ interface FormData {
   durationSelect: string;
 }
 
-const CreateDuel = ({closeDuelModal}:{closeDuelModal:()=>void}) => {
-  const {address} = useAccount();
-  const { refetch} = useBalance(address as string);
-  const [loading, setLoading] = useState(false); 
+const CreateDuel = ({ closeDuelModal }: { closeDuelModal: () => void }) => {
+  const { address } = useAccount();
+  const { refetch } = useBalance(address as string);
+  const [notification, setNotification] = useAtom(GeneralNotificationAtom);
+  const [loading, setLoading] = useState(false);
+  console.log(notification)
 
   const provider = new ethers.JsonRpcProvider(NEXT_PUBLIC_RPC_URL);
   async function fetchTransactionEvents(transactionHash: string) {
@@ -198,9 +202,21 @@ const CreateDuel = ({closeDuelModal}:{closeDuelModal:()=>void}) => {
           'Content-Type': 'application/json',
         },
       });
+
+      setNotification({
+        isOpen: true,
+        success: true,
+        massage: "Created Crypto Duel",
+      });
+
     } catch (error) {
       console.error("Error: ", error);
-    }finally{
+      setNotification({
+        isOpen: true,
+        success: false,
+        massage: "Failed to Create Crypto Duel",
+      });
+    } finally {
       setLoading(false);
       closeDuelModal();
       refetch();
