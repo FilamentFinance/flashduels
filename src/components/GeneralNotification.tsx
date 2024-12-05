@@ -10,9 +10,9 @@ export const GeneralNotificationAtom = atom<{
   success: boolean;
   massage: string;
 }>({
-  isOpen: true,
+  isOpen: false,
   success: false,
-  massage: "Hello Hello Hello",
+  massage: "",
 });
 
 export const GeneralNotification = () => {
