@@ -18,10 +18,8 @@ export function DuelsDashboard() {
         userAddress: address,
       }),
     }
-    console.log(body, "body")
     const response = await fetch(`${NEXT_PUBLIC_API}/portfolio/table/duels`, body);
     const data = await response.json();
-    console.log(data, "data")
     setDuels(data);
   };
 
@@ -70,7 +68,12 @@ export function DuelsDashboard() {
           <TableHeader label="Quantity" width="w-[15%]" align="center" />
           <TableHeader label="Avg. Price" width="w-[15%]" align="center" />
           <TableHeader label="Value" width="w-[15%]" align="center" />
+          {activeTab === "history" ? (
+            <TableHeader label="Profit/Loss" width="w-[20%]" align="center" />
+          ) : (
           <TableHeader label="Resolves in" width="w-[20%]" align="center" />
+          )
+        }
         </div>
 
         {/* Table Rows */}
@@ -90,6 +93,8 @@ export function DuelsDashboard() {
                     value={item.yesBet.amount}
                     resolvesIn={item.duelDetails.endsIn as number}
                     icon={item.duelDetails.betIcon}
+                    pnl={item.pnl}
+                    activeTab={activeTab}
                   />
                 )}
                 {item.noBet.amount && (
@@ -104,6 +109,8 @@ export function DuelsDashboard() {
                     value={item.noBet.amount}
                     resolvesIn={item.duelDetails.endsIn as number}
                     icon={item.duelDetails.betIcon}
+                    pnl={item.pnl}
+                    activeTab={activeTab}
                   />
                 )}
               </>
@@ -163,10 +170,13 @@ function DuelRow({
   status,
   createdAt,
   startAt,
-  icon
+  icon,
+  pnl,
+  activeTab
 }: {
   duelName: string;
   direction: string;
+  activeTab: string;
   // quantity: string;
   avgPrice: string;
   status: number
@@ -175,6 +185,7 @@ function DuelRow({
   createdAt: number;
   startAt: number;
   icon: string;
+  pnl: number
 }) {
   const thirtyMinutesMs = 30 * 60 * 1000;
   const durationMs = resolvesIn * 60 * 60 * 1000; 
@@ -231,7 +242,7 @@ function DuelRow({
       <div className="w-[15%] text-center">{(Number(avgPrice) * Number(value)).toFixed(3)}</div>
       <div className="w-[15%] text-center">${Number(avgPrice).toFixed(3)}</div>
       <div className="w-[15%] text-center">${value}</div>
-      <div className="w-[20%] text-center">{time}</div>
+      <div className="w-[20%] text-center">{activeTab === "history" ? pnl.toFixed(2) : time}</div>
     </div>
   );
 }

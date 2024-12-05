@@ -60,6 +60,7 @@ export type Duel = {
 
 
   type TableDuel = {
+    pnl: number;
     betId: string | null;
     duelId: string;
     duelType: string;
