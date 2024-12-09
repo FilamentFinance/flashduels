@@ -1,11 +1,6 @@
 "use client"
-import { useState } from 'react';
+export default function ToggleButtons({ activeButton, setActiveButton}: { activeButton: string, setActiveButton: (button: string) => void }) {
 
-export default function ToggleButtons() {
-  // State to keep track of the active button
-  const [activeButton, setActiveButton] = useState('creators'); // default to 'creators'
-
-  // Function to handle button click
   const handleButtonClick = (button: string) => {
     setActiveButton(button);
   };

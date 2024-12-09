@@ -1,19 +1,51 @@
-import React from "react";
+import React, { useEffect } from "react";
 import LeaderboardRow from "./LeaderboardRow";
+import axios from "axios";
+import { NEXT_PUBLIC_API } from "@/utils/consts";
 
 interface LeaderboardData {
   rank: number;
-  account: string;
-  profitLoss: string;
+  address: string;
+  pnl: string;
 }
 
-const leaderboardData: LeaderboardData[] = [
-  { rank: 23, account: "KZED", profitLoss: "+$4500 (45%)" },
-  { rank: 1, account: "KZED", profitLoss: "+$4500 (45%)" },
-  // ... add more data as needed
-];
+// const leaderboardData: LeaderboardData[] = [
+//   { rank: 23, address: "KZED", pnl: "+$4500 (45%)" },
+//   { rank: 1, address: "KZED", pnl: "+$4500 (45%)" },
+//   // ... add more data as needed
+// ];
 
-const LeaderboardTable: React.FC = () => {
+const LeaderboardTable = ({ activeButton}: { activeButton: string }) => {
+  const [data, setData] = React.useState<LeaderboardData[]>([])
+
+  console.log("result", activeButton)
+  
+  const getCreatorsData = async () => {
+    // fetch creators data
+    const response = await axios.get(`${NEXT_PUBLIC_API}/leaderboard/creators`)
+    const result = response.data.userProfits
+    setData(result)
+    // console.log("result", result)
+  };
+
+  const getTradersData = async () => {
+    const response = await axios.get(`${NEXT_PUBLIC_API}/leaderboard/traders`)
+    const result = response.data.userProfits
+    setData(result)
+    // console.log(result)
+  }
+
+  useEffect(() => {
+    if (activeButton === 'creators') {
+      // fetch creators data
+      getCreatorsData()
+    }
+    if (activeButton === 'traders') {
+      // fetch traders data
+      getTradersData()
+    }
+  }, [activeButton])
+  
   return (
     <div className="flex flex-col mt-0 w-full max-w-[980px] rounded-xl border border-solid bg-zinc-900 border-white border-opacity-10">
       <div className="flex justify-between px-4 py-2 w-full text-base text-gray-500 border-b border-white border-opacity-10">
@@ -31,7 +63,7 @@ const LeaderboardTable: React.FC = () => {
         </div>
 
       </div>
-      {leaderboardData.map((data, index) => (
+      {data.map((data, index) => (
         <LeaderboardRow key={index} {...data} />
       ))}
     </div>

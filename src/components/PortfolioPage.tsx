@@ -50,6 +50,9 @@ const PortfolioPage: React.FC = () => {
       };
       fetchAccountData();
     }, []);
+
+    const accountColor = accountData?.pnl && Number(accountData.pnl) > 0 ? "lime-300" : "red-600";
+    console.log(accountColor, "accountColor")
     // console.log(account)
     return (
         <div className="flex justify-center">
@@ -75,7 +78,7 @@ const PortfolioPage: React.FC = () => {
                         {
                             label: "Total P/L",
                             value:`$${Number(accountData.pnl).toFixed(2)}`,
-                            valueColor: "red-500",
+                            valueColor: accountColor,
                         },
                         {
                             label: "Duels Joined",
