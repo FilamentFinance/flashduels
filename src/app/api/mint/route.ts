@@ -41,14 +41,3 @@ export async function POST(
     }
   }
 // }
-
-export async function GET() {
-  try {
-      // Your logic for fetching data
-      const data = { message: 'Hello Traders' }; // Example response
-      return NextResponse.json(data);
-  } catch (error) {
-      console.error(error);
-      return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
-  }
-}
