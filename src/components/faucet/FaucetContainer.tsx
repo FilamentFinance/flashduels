@@ -5,6 +5,10 @@ import { Modal } from "./Modal";
 import { NEXT_PUBLIC_FLASH_USDC } from "@/utils/consts";
 import { shortenAddress } from "@/utils/helper";
 import { useRouter } from "next/navigation";
+import axios from "axios";
+import { useAccount } from "wagmi";
+import { useAtom } from "jotai";
+import { GeneralNotificationAtom } from "../GeneralNotification";
 
 interface FaucetContainerTypes {
   isOpen: boolean;
@@ -18,8 +22,35 @@ export const FaucetContainer = ({
   handleClose
 }: FaucetContainerTypes) => {
   const router = useRouter()
-  const content = `Token Address: ${shortenAddress(NEXT_PUBLIC_FLASH_USDC)}`
+  const { address } = useAccount();
+  const [notification, setNotification] = useAtom(GeneralNotificationAtom);
 
+  const content = `Token Address: ${shortenAddress(NEXT_PUBLIC_FLASH_USDC)}`
+  const [mintLoading, setMintLoading] = React.useState(false);
+  const handleClaimFaucet = async () => {
+    try {
+      setMintLoading(true);
+      await axios.post("/api/mint", {
+        erc20Address: address?.toLowerCase() || "",
+      });
+
+      setNotification({
+        isOpen: true,
+        success: true,
+        massage: "Minted Successfully",
+      });
+    } catch (error) {
+      setNotification({
+        isOpen: true,
+        success: false,
+        massage: "Failed to Mint Tokens",
+      });
+      console.log("Error", error);
+    } finally {
+      setMintLoading(false);
+    }
+  }
+  console.log(notification)
   return (
     <Modal isOpen={isOpen} onClose={handleClose}>
       <main className="flex overflow-hidden flex-col rounded-lg shadow-sm bg-zinc-900 max-w-[540px]">
@@ -62,10 +93,11 @@ export const FaucetContainer = ({
           <div className="flex flex-wrap gap-2.5 mt-8 w-full min-h-[63px] max-md:max-w-full">
             <Button
               variant="primary"
-              onClick={() => { }}
+              onClick={handleClaimFaucet}
               ariaLabel="Claim faucet"
+
             >
-              Claim Faucet
+              {mintLoading ? <div className="spinner"></div> : "Claim Faucet"}
             </Button>
 
             <Button
