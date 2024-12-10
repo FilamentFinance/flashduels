@@ -16,7 +16,8 @@ export const GeneralNotificationAtom = atom<{
 });
 
 export const GeneralNotification = () => {
-	const [isFaucetToasterOpen, setIsFaucetToasterOpenAtom] = useAtom(GeneralNotificationAtom)
+	const [isFaucetToasterOpen, setIsFaucetToasterOpenAtom] = useAtom(GeneralNotificationAtom);
+
 	useEffect(() => {
 		if (isFaucetToasterOpen.isOpen) {
 			setTimeout(() => {
@@ -24,53 +25,57 @@ export const GeneralNotification = () => {
 					isOpen: false,
 					success: false,
 					massage: '',
-				})
-			}, 5000)
+				});
+			}, 5000);
 		}
-	}, [isFaucetToasterOpen])
+	}, [isFaucetToasterOpen]);
 
 	return (
 		<div>
 			{isFaucetToasterOpen.isOpen && (
-				<>
-					<div className='fixed duration-500 w-[500px] h-fit flex justify-end items-start right-[2%] top-[2%] z-[9999]   max-[500px]:px-4'>
-						<div className='failed_order-bg_popup !border-[#FFFFFF1A] !bg-[#262729] w-[300px] transform px-4 py-3 text-left align-middle shadow-xl transition-all'>
-							<div className='w-full flex flex-row justify-between items-center'>
-								<div className='flex items-center justify-start  gap-3 w-full'>
-									<div
-										className={`w-10 h-8 flex justify-center items-center rounded-full ${
-											isFaucetToasterOpen.success
-												? 'bg-[#10B981]'
-												: 'bg-[#D65454]'
-										}`}
-									>
-										{isFaucetToasterOpen.success ? (
-											<IoCheckmarkOutline size={25} />
-										) : (
-											<RxCross1 size={22} />
-										)}
-									</div>
-									<div className='text-white  w-full'>{isFaucetToasterOpen.massage}</div>
-								</div>
-								<button
-									className=''
-									onClick={() =>
-										setIsFaucetToasterOpenAtom({
-											isOpen: false,
-											success: false,
-											massage: '',
-										})
-									}
+				<div className="fixed duration-500 w-[500px] h-fit flex justify-end items-start right-[2%] top-[2%] z-[9999] max-[500px]:px-4">
+					<div
+						className="w-[300px] px-4 py-3 text-left align-middle shadow-xl transition-all"
+						style={{
+							borderRadius: '8px',
+							border: '1px solid var(--button-stroke-white-5, rgba(255, 255, 255, 0.05))',
+							background: 'linear-gradient(172deg, #0B1216 10.22%, #F19ED2 436.76%)',
+							boxShadow: '0px 4px 7px 0px rgba(0, 0, 0, 0.30)',
+						}}
+					>
+						<div className="w-full flex flex-row justify-between items-center">
+							<div className="flex items-center justify-start gap-3 w-full">
+								<div
+									className={`w-10 h-8 flex justify-center items-center rounded-full ${
+										isFaucetToasterOpen.success ? 'bg-[#F19ED2]' : 'bg-[#D65454]'
+									}`}
 								>
-									<AiOutlineClose className='text-base text-white' />
-								</button>
+									{isFaucetToasterOpen.success ? (
+										<IoCheckmarkOutline size={25} />
+									) : (
+										<RxCross1 size={22} />
+									)}
+								</div>
+								<div className="text-white w-full">{isFaucetToasterOpen.massage}</div>
 							</div>
+							<button
+								onClick={() =>
+									setIsFaucetToasterOpenAtom({
+										isOpen: false,
+										success: false,
+										massage: '',
+									})
+								}
+							>
+								<AiOutlineClose className="text-base text-white" />
+							</button>
 						</div>
 					</div>
-				</>
+				</div>
 			)}
 		</div>
-	)
-}
+	);
+};
+
 
 

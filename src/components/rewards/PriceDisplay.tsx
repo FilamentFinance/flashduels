@@ -13,7 +13,7 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
         alt=""
         className="object-contain shrink-0 self-stretch my-auto aspect-square w-[18px]"
       />
-      <div className="self-stretch my-auto">${amount}</div>
+      <div className="self-stretch my-auto">${amount.toFixed(2)}</div>
     </div>
   );
 };

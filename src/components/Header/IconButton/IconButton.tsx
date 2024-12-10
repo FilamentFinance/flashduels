@@ -1,4 +1,5 @@
 import { FaucetContainer } from "@/components/faucet/FaucetContainer";
+import { GeneralNotification } from "@/components/GeneralNotification";
 import * as React from "react";
 
 interface IconButtonProps {
@@ -29,6 +30,7 @@ export const IconButton: React.FC<IconButtonProps> = ({
       />
     </button>
      {isOpen && <FaucetContainer isOpen={isOpen} handleClose={handleClose} />}
+     <GeneralNotification></GeneralNotification>
      </div>
   );
 };

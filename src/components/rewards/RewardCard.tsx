@@ -14,7 +14,7 @@ export const RewardCard: React.FC = () => {
     data: available,
   } = useReadContract({
     abi: FLASHDUELSABI,
-    functionName: "getAllTimeEarnings",
+    functionName: "allTimeEarnings",
     address: NEXT_PUBLIC_FLASH_DUELS as `0x${string}`,
     chainId: CHAIN_ID,
     args: [address],

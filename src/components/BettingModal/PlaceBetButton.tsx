@@ -11,6 +11,8 @@ import { useAccount, useWriteContract } from "wagmi";
 import { waitForTransactionReceipt } from "wagmi/actions";
 import { GeneralNotificationAtom } from "../GeneralNotification";
 import { useAtom } from "jotai";
+import { estConnection } from "@/utils/atoms";
+import usePopup from "@/app/providers/PopupProvider";
 
 interface PlaceBetButtonProps {
   betAmount: string;
@@ -28,6 +30,8 @@ const PlaceBetButton: React.FC<PlaceBetButtonProps> = ({
   betAmount, bet, duelId, duelType, asset, triggerPrice, endsIn, markPrice, setIsModalOpen
 }) => {
   const { address } = useAccount();
+  const [establishConnection] = useAtom(estConnection)
+ const {showPopup} = usePopup()
   const [notification, setNotification] = useAtom(GeneralNotificationAtom);
   const { refetch } = useBalance(address as string);
   const { totalBetYes, totalBetNo } = useTotalBets(duelId);
@@ -147,6 +151,13 @@ const PlaceBetButton: React.FC<PlaceBetButtonProps> = ({
   };
 
   return (
+    <div>
+   {establishConnection ?   <button
+   className="gap-2.5 self-stretch px-3 py-2.5 w-full rounded shadow-sm bg-[linear-gradient(180deg,#F19ED2_0%,#C87ECA_100%)]"
+   onClick={showPopup}
+   >
+     Enable Trading
+   </button>:
     <button
       className="flex flex-col mt-4 w-full text-base font-semibold leading-none text-gray-900"
       disabled={!betAmount}
@@ -159,7 +170,8 @@ const PlaceBetButton: React.FC<PlaceBetButtonProps> = ({
           <span>Join Duel</span>
         )}
       </div>
-    </button>
+    </button>}
+    </div>
 
   );
 };

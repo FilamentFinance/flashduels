@@ -1,9 +1,8 @@
 "use client";
 // import { usePrivy, User } from "@privy-io/react-auth";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { shortenAddress } from "@/utils/helper";
 import PortfolioModal from "../DepositModal/PortfolioModal";
-import { NEXT_PUBLIC_API } from "@/utils/consts";
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccount } from "wagmi";
 import { disconnect } from "@wagmi/core/actions";
@@ -12,41 +11,41 @@ import { config } from "@/app/config/wagmi";
 const UserProfile: React.FC = () => {
   // const { ready, authenticated, login, logout, user } = usePrivy();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { address, isConnected } = useAccount();
+  const { address, isConnected } = useAccount()
   // const disableLogin = !ready || (ready && authenticated);
   // 
   // console.log(user?.wallet?.address, user?.twitter?.username, "user")
-  const interactWithBackend = async (twitterUsername: string | null | undefined, walletAddress: string | undefined) => {
-    if (!walletAddress) return;
+  // const interactWithBackend = async (twitterUsername: string | null | undefined, walletAddress: string | undefined) => {
+  //   if (!walletAddress) return;
 
-    try {
-      const response = await fetch(`${NEXT_PUBLIC_API}/users/auth`, { // Updated endpoint
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ twitterUsername, address: walletAddress }), // Sending both username and address
-      });
+  //   try {
+  //     const response = await fetch(`${NEXT_PUBLIC_API}/users/auth`, { // Updated endpoint
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({ twitterUsername, address: walletAddress }), // Sending both username and address
+  //     });
 
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Authentication successful:', data);
-        // Here you can save the token or user data as needed
-      } else {
-        console.error('Failed to authenticate:', response.statusText);
-      }
-    } catch (error) {
-      console.error('Error interacting with backend:', error);
-    }
-  };
+  //     if (response.ok) {
+  //       const data = await response.json();
+  //       console.log('Authentication successful:', data);
+  //       // Here you can save the token or user data as needed
+  //     } else {
+  //       console.error('Failed to authenticate:', response.statusText);
+  //     }
+  //   } catch (error) {
+  //     console.error('Error interacting with backend:', error);
+  //   }
+  // };
 
-  useEffect(() => {
-    if (isConnected) {
-      const walletAddress = address;
-      const twitterUsername = "";
-      interactWithBackend(twitterUsername, walletAddress);
-    }
-  }, [isConnected, address]);
+  // useEffect(() => {
+  //   if (isConnected) {
+  //     const walletAddress = address;
+  //     const twitterUsername = "";
+  //     interactWithBackend(twitterUsername, walletAddress);
+  //   }
+  // }, [isConnected, address]);
 
 
   const handleLogout = async () => {
@@ -118,15 +117,7 @@ const UserProfile: React.FC = () => {
             );
           }}
         </ConnectButton.Custom>
-
-        // <button 
-        //   onClick={login} 
-        //   disabled={disableLogin} 
-        //   className="gap-2.5 self-stretch px-3 py-2.5 my-auto text-base font-semibold leading-none text-gray-900 rounded shadow-sm bg-[linear-gradient(180deg,#F19ED2_0%,#C87ECA_100%)]"
-        // >
-        //   Connect
-        // </button>
-      )}
+      ) }
     </div>
   );
 };

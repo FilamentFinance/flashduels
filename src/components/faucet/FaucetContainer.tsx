@@ -31,7 +31,7 @@ export const FaucetContainer = ({
     try {
       setMintLoading(true);
       await axios.post("/api/mint", {
-        erc20Address: address?.toLowerCase() || "",
+        address: address?.toLowerCase() || "",
       });
 
       setNotification({

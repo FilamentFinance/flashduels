@@ -5,22 +5,37 @@ import { useAccount, useReadContract, useWriteContract } from "wagmi";
 import { CHAIN_ID, NEXT_PUBLIC_FLASH_DUELS } from "@/utils/consts";
 import { FLASHDUELSABI } from "@/abi/FlashDuelsABI";
 import { ethers } from "ethers";
+import { useAtom } from "jotai";
+import { GeneralNotificationAtom } from "../GeneralNotification";
+import { useBalance } from "@/blockchain/useBalance";
 
 export function ClaimFundsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const [amount, setAmount] = React.useState("1000");
+  const [loading, setLoading] = React.useState(false);
+  const [notification,setNotification] = useAtom(GeneralNotificationAtom);
+  const [refetchToggle, setRefetchToggle] = React.useState(false);
+  const { address} = useAccount();
+  const {refetch: refetchAccountBalance} = useBalance(address as string);
   const {
     writeContractAsync: lpTokenSecondFunctionAsyncLocal,
   } = useWriteContract({});
-  const { address } = useAccount();
   const {
     data: available,
+    refetch
   } = useReadContract({
     abi: FLASHDUELSABI,
-    functionName: "getAllTimeEarnings",
+    functionName: "allTimeEarnings",
     address: NEXT_PUBLIC_FLASH_DUELS as `0x${string}`,
     chainId: CHAIN_ID,
     args: [address],
+    // refetc: refetchToggle,
   });
+  console.log(notification, "notification")
+
+  React.useEffect(() => {
+    // Trigger re-fetch whenever refetchTrigger changes
+    if (refetch) refetch();
+  }, [refetchToggle, refetch]);
 
   const availableAmount = Number(ethers.formatUnits(
     String((available) || 0),
@@ -33,13 +48,34 @@ export function ClaimFundsModal({ isOpen, onClose }: { isOpen: boolean; onClose:
   };
 
   const handleClaim = async () => {
-    lpTokenSecondFunctionAsyncLocal({
-      abi: FLASHDUELSABI,
-      address: NEXT_PUBLIC_FLASH_DUELS as `0x${string}`,
-      functionName: "withdrawEarnings",
-      chainId: CHAIN_ID,
-      args: [parseFloat(amount) * 10 ** 6],
-    });
+    setLoading(true);
+    try{
+      await lpTokenSecondFunctionAsyncLocal({
+        abi: FLASHDUELSABI,
+        address: NEXT_PUBLIC_FLASH_DUELS as `0x${string}`,
+        functionName: "withdrawEarnings",
+        chainId: CHAIN_ID,
+        args: [parseFloat(amount) * 10 ** 6],
+      });
+      setNotification({
+        isOpen: true,
+        success: true,
+        massage: "Claimed Successfully",
+      })
+    }catch(e){
+      console.log(e);
+      setNotification({
+        isOpen: true,
+        success: false,
+        massage: "Failed to Claim Earnings",
+      })
+    }finally{
+      setLoading(false);
+      onClose();
+      setRefetchToggle(!refetchToggle);
+      refetchAccountBalance();
+    }
+   
   };
 
   if (!isOpen) {
@@ -77,7 +113,7 @@ export function ClaimFundsModal({ isOpen, onClose }: { isOpen: boolean; onClose:
             />
           </div>
           <div className="flex gap-2.5 mt-8 w-full font-semibold leading-none text-gray-900 min-h-[63px]">
-            <ClaimButton onClick={async () => await handleClaim()} />
+            <ClaimButton onClick={async () => await handleClaim()} loading={loading}/>
           </div>
         </div>
       </div>

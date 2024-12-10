@@ -21,7 +21,7 @@ export function AmountInput({
             Available:{" "}
           </div>
           <div className="self-stretch my-auto tracking-normal">
-            {available}{" "}
+            {available.toFixed(2)}{" "}
           </div>
           <div className="flex gap-2 items-start self-stretch my-auto font-semibold leading-none text-center text-pink-300 whitespace-nowrap">
             <div className="flex items-start">

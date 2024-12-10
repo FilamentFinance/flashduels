@@ -15,4 +15,5 @@ export interface AmountInputProps {
 export interface ClaimButtonProps {
   onClick: () => void;
   disabled?: boolean;
+  loading: boolean;
 }

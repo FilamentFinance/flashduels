@@ -9,13 +9,17 @@ import SettingsIcon from "./SettingsIcon";
 // import DepositModal from "../DepositModal/DepositModal";
 import IconButtonContainer from "./IconButton";
 import { useAccount } from "wagmi";
-import { CHAIN_ID } from "@/utils/consts";
+// import { CHAIN_ID } from "@/utils/consts";
 import { RewardCard } from "../rewards/RewardCard";
+import { estConnection } from "@/utils/atoms";
+import { useAtom } from "jotai";
+import usePopup from "@/app/providers/PopupProvider";
 
 
 const Navbar: React.FC = () => {
   // const {authenticated} = usePrivy();
-  const { isConnected, chainId } = useAccount();
+  const { isConnected } = useAccount();
+  const {showPopup} = usePopup()
   // const { switchChain } = useSwitchChain()
   // const [isModalOpen, setModalOpen] = useState(false);
   // 
@@ -26,23 +30,27 @@ const Navbar: React.FC = () => {
   // const handleCloseModal = () => {
   // setModalOpen(false);
   // };
+  const [establishConnection] = useAtom(estConnection)
+  console.log(establishConnection, "establishConnection")
+
   return (
 
     <nav className="flex flex-row items-center gap-x-3">
-      {/* <Navigation pathname = {""} /> */}
       <Navigation pathname={"leaderboard"} />
-      {isConnected && chainId === CHAIN_ID && <Navigation pathname={"portfolio"} />}
-      <RewardCard/>
+      {isConnected && <Navigation pathname={"portfolio"} />}
+     {isConnected && <RewardCard/>}
       {isConnected && <DepositButton onOpenModal={handleOpenModal} />}
       {/* {isModalOpen && <DepositModal onClose={handleCloseModal} />} */}
-      <IconButtonContainer />
-      {isConnected && chainId === CHAIN_ID && <CreateDuelButton />}
-      {/* {chainId === CHAIN_ID ? */}
-        <UserProfile /> 
-        {/* <button
-          onClick={() => switchChain({ chainId: CHAIN_ID })}
-          className="gap-2.5 self-stretch px-3 py-2.5 my-auto text-base font-semibold leading-none text-gray-900 rounded shadow-sm bg-[linear-gradient(180deg,#F19ED2_0%,#C87ECA_100%)]"
-        >Switch Network</button>} */}
+     { isConnected && <IconButtonContainer />}
+      {isConnected && !establishConnection && <CreateDuelButton />}
+       {!isConnected ? <UserProfile /> : establishConnection &&
+            <button
+             className="gap-2.5 self-stretch px-3 py-2.5 my-auto text-base font-semibold leading-none text-gray-900 rounded shadow-sm bg-[linear-gradient(180deg,#F19ED2_0%,#C87ECA_100%)]"
+             onClick={showPopup}
+            >
+              Enable Trading
+            </button>
+        }
       {isConnected && <SettingsIcon />}
     </nav>
 
