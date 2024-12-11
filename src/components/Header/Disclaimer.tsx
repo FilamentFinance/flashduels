@@ -66,7 +66,7 @@ console.log(enableButton, establishConnection)
       }
       if (signature) {
         console.log(hashMessage, "hashMessage", hashMsg)
-        const result = await apiClient.post(
+        const response = await apiClient.post(
           `${NEXT_PUBLIC_API}/users/auth`,
           {
             account: address?.toLowerCase(),
@@ -75,6 +75,8 @@ console.log(enableButton, establishConnection)
             expiry,
           }
         );
+        const result = response.data.result;
+        console.log(result, "result")
         // if (result.status === 401) {
         //   localStorage.removeItem(`signingKey_${address?.toLowerCase()}`);
         //   localStorage.removeItem(`signingKeyExpiry_${address?.toLowerCase()}`);

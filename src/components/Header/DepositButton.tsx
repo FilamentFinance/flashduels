@@ -25,7 +25,7 @@ const DepositButton: React.FC<DepositButtonProps> = ({ onOpenModal }) => {
           alt=""
           className="object-contain shrink-0 self-stretch my-auto aspect-square w-[18px]"
         />
-        <div className="self-stretch my-auto">{balanceNum}</div>
+        <div className="self-stretch my-auto">${balanceNum}</div>
       </div>
       {/* <button 
         onClick={onOpenModal} 

@@ -13,18 +13,20 @@ import { useBalance } from "@/blockchain/useBalance";
 import { ethers } from "ethers";
 import { NEXT_PUBLIC_API } from "@/utils/consts";
 import usePopup from "@/app/providers/PopupProvider";
+import { useAtom } from "jotai";
+import { estConnection } from "@/utils/atoms";
 
 const PortfolioPage: React.FC = () => {
-  const [establishConnection] = useState(false);
+  const [establishConnection, setEstablishConnection] = useAtom(estConnection);
   const { showPopup } = usePopup();
-
+console.log(setEstablishConnection, "establishConnection")
   const [activeButton, setActiveButton] = useState<string>("liveDuels");
   const [specialCategoryIndex, setSpecialCategoryIndex] = useState<number | null>(0);
 
 
   const { address } = useAccount();
   const { balance } = useBalance(address as string);
-  const balanceNum = (Number(ethers.formatUnits(balance ? balance.toString() : 0, 6)));
+  const balanceNum = (Number(ethers.formatUnits(balance   ? balance.toString() : 0, 6)));
 
   interface AccountData {
     positionValue: string;
