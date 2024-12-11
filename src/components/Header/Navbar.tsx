@@ -43,7 +43,8 @@ const Navbar: React.FC = () => {
       {/* {isModalOpen && <DepositModal onClose={handleCloseModal} />} */}
      { isConnected && <IconButtonContainer />}
       {isConnected && !establishConnection && <CreateDuelButton />}
-       {!isConnected ? <UserProfile /> : establishConnection &&
+       {isConnected && <UserProfile />}
+       {establishConnection &&
             <button
              className="gap-2.5 self-stretch px-3 py-2.5 my-auto text-base font-semibold leading-none text-gray-900 rounded shadow-sm bg-[linear-gradient(180deg,#F19ED2_0%,#C87ECA_100%)]"
              onClick={showPopup}
