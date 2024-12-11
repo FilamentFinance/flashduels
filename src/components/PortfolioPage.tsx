@@ -17,9 +17,9 @@ import { useAtom } from "jotai";
 import { estConnection } from "@/utils/atoms";
 
 const PortfolioPage: React.FC = () => {
-  const [establishConnection, setEstablishConnection] = useAtom(estConnection);
+  const [establishConnection] = useAtom(estConnection);
   const { showPopup } = usePopup();
-console.log(setEstablishConnection, "establishConnection")
+// console.log(setEstablishConnection, "establishConnection")
   const [activeButton, setActiveButton] = useState<string>("liveDuels");
   const [specialCategoryIndex, setSpecialCategoryIndex] = useState<number | null>(0);
 
@@ -58,7 +58,7 @@ console.log(setEstablishConnection, "establishConnection")
   }, []);
 
 
-  if (!establishConnection) {
+  if (establishConnection) {
     return <div className="flex justify-center">
 
       <button
