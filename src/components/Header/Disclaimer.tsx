@@ -53,7 +53,7 @@ console.log(enableButton, establishConnection)
       try {
         signature = await signMessage(config, {
           connector, 
-          message: hashMsg,
+          message: publicKey,
         });
       } catch (e) {
         if ((e as { code: number }).code === 4001) {
