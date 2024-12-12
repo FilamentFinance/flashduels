@@ -5,7 +5,7 @@ import { postPricingData, useTotalBets } from "@/app/optionPricing";
 import { useBalance } from "@/blockchain/useBalance";
 import { CHAIN_ID, NEXT_PUBLIC_API, NEXT_PUBLIC_FLASH_DUELS, NEXT_PUBLIC_FLASH_USDC } from "@/utils/consts";
 import { calculateFlashDuelsOptionPrice } from "@/utils/flashDuelsOptionPricing";
-import axios from "axios";
+// import axios from "axios";
 import React, { useState } from "react";
 import { useAccount, useWriteContract } from "wagmi";
 import { waitForTransactionReceipt } from "wagmi/actions";

@@ -1,4 +1,4 @@
-import axios from "axios";
+// import axios from "axios";
 import { ethers } from "ethers";
 
 export const handleOrderSignature = async (
@@ -62,7 +62,7 @@ export const isSigningKeyValid = async (
 export const generateAndStorePrivateKey = async (address: string) => {
   const wallet = ethers.Wallet.createRandom();
   const privateKey = wallet.privateKey;
-
+console.log(address)
   // const isWhitelisted = await checkWhitelistStatus(address);
 
   const now = new Date().getTime();

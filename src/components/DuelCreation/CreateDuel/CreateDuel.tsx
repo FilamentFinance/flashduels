@@ -12,7 +12,7 @@ import { FLASHDUELSABI } from "@/abi/FlashDuelsABI";
 import { useAccount, useWriteContract } from "wagmi";
 import { waitForTransactionReceipt } from "wagmi/actions";
 import { config } from "@/app/config/wagmi";
-import axios from "axios";
+// import axios from "axios";
 // import { usePrivy } from "@privy-io/react-auth";
 import { ethers } from "ethers";
 import MarkPriceComponent from "./MarkPrice";
