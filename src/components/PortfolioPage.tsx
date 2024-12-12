@@ -15,6 +15,7 @@ import { NEXT_PUBLIC_API } from "@/utils/consts";
 import usePopup from "@/app/providers/PopupProvider";
 import { useAtom } from "jotai";
 import { estConnection } from "@/utils/atoms";
+import { apiClient } from "@/utils/apiClient";
 
 const PortfolioPage: React.FC = () => {
   const [establishConnection] = useAtom(estConnection);
@@ -40,19 +41,18 @@ const PortfolioPage: React.FC = () => {
 
   React.useEffect(() => {
     const fetchAccountData = async () => {
-      const response = await fetch(
-        `${NEXT_PUBLIC_API}/portfolio/accountDetails`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userAddress: address,
-        }),
+      try {
+        const response = await apiClient.post(`${NEXT_PUBLIC_API}/portfolio/accountDetails`, {
+          userAddress: address?.toLowerCase(),
+        }, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        setAccountData(response.data.portfolioData);
+      } catch (error) {
+        console.error("Error fetching account data:", error);
       }
-      );
-      const data = await response.json();
-      setAccountData(data.portfolioData);
     };
     fetchAccountData();
   }, []);

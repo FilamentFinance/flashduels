@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useAccount } from "wagmi";
 import { ActiveDuels, NEXT_PUBLIC_API } from "@/utils/consts";
+import { apiClient } from "@/utils/apiClient";
 
 export function DuelsDashboard() {
   const [activeTab, setActiveTab] = React.useState("duels");
@@ -9,32 +10,33 @@ export function DuelsDashboard() {
   const { address } = useAccount();
 
   const getDuelsData = async () => {
-    const body = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        userAddress: address,
-      }),
+    try {
+      const response = await apiClient.post(`${NEXT_PUBLIC_API}/portfolio/table/duels`, {
+        userAddress: address?.toLowerCase(),
+      }, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      setDuels(response.data);
+    } catch (error) {
+      console.error("Error fetching duels data:", error);
     }
-    const response = await fetch(`${NEXT_PUBLIC_API}/portfolio/table/duels`, body);
-    const data = await response.json();
-    setDuels(data);
   };
-
+  
   const getHistoryData = async () => {
-    const response = await fetch(`${NEXT_PUBLIC_API}/portfolio/table/history`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        userAddress: address,
-      }),
-    });
-    const data = await response.json();
-    setHistory(data);
+    try {
+      const response = await apiClient.post(`${NEXT_PUBLIC_API}/portfolio/table/history`, {
+        userAddress: address?.toLowerCase(),
+      }, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      setHistory(response.data);
+    } catch (error) {
+      console.error("Error fetching history data:", error);
+    }
   };
 
   // Fetch data when activeTab changes

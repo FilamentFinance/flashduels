@@ -70,7 +70,7 @@ const postPricingData = async (markPrice: number, triggerPrice: number, asset: s
             total_yes_bets: 50,
             total_no_bets: 50,
             beta: 0.15,
-            symbol: `${asset}USDC`
+            symbol: `${asset}USD`
         };
     } else {
         data = {
@@ -80,7 +80,7 @@ const postPricingData = async (markPrice: number, triggerPrice: number, asset: s
             total_yes_bets: totalYesBets,
             total_no_bets: totalNobets,
             beta: 0.15,
-            symbol: `${asset}USDC`
+            symbol: `${asset}USD`
         };
     }
     console.log(data, "data-new")

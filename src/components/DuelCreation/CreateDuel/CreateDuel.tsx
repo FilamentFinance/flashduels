@@ -182,7 +182,7 @@ const CreateDuel = ({ closeDuelModal }: { closeDuelModal: () => void }) => {
         {
           ...duelData,
           twitterUsername: "",
-          address: address,
+          address: address?.toLowerCase(),
         },
         {
           headers: {

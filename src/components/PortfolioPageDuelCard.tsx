@@ -12,6 +12,7 @@ import { ethers } from "ethers";
 import { shortenAddress } from "@/utils/helper";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
+import { apiClient } from "@/utils/apiClient";
 
 const PortfolioGrid = ({ activeButton, specialCategoryIndex }: { activeButton: string, setActiveButton: (activeButton: string) => void, specialCategoryIndex: number | null, setSpecialCategoryIndex: (specialCategoryIndex: number | null) => void }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -27,23 +28,16 @@ const PortfolioGrid = ({ activeButton, specialCategoryIndex }: { activeButton: s
     const fetchDuels = async () => {
       setLoading(true); // Set loading to true when fetching data
       try {
-        const response = await fetch(`${NEXT_PUBLIC_API}/portfolio/duels`, {
-          method: "POST",
+        const response = await apiClient.post(`${NEXT_PUBLIC_API}/portfolio/duels`, {
+          userAddress: address?.toLowerCase(),
+        }, {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            userAddress: address,
-          }),
         });
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch duels");
-        }
-
-        const data = await response.json();
-        if (data.allDuels) {
-          const filteredDuels = data.allDuels
+    
+        if (response.data.allDuels) {
+          const filteredDuels = response.data.allDuels
             .filter((item: NewDuelItem) => {
               if (activeButton === "liveDuels") return item.status === 0;
               if (activeButton === "bootstrapping") return item.status === -1;
@@ -67,7 +61,7 @@ const PortfolioGrid = ({ activeButton, specialCategoryIndex }: { activeButton: s
               triggerPrice: item.triggerPrice,
               totalBetAmount: item.totalBetAmount,
             }));
-
+    
           setDuels(filteredDuels);
         }
       } catch (error) {
