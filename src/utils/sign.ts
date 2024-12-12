@@ -7,7 +7,11 @@ export const handleOrderSignature = async (
   address: string,
   setEstablishConnection: (value: boolean) => void
 ) => {
-  const result = await isSigningKeyValid(disconnect, address, setEstablishConnection);
+  const result = await isSigningKeyValid(
+    disconnect,
+    address,
+    setEstablishConnection
+  );
   if (!result.type) {
     return;
   }
@@ -15,7 +19,7 @@ export const handleOrderSignature = async (
   const signer = new ethers.Wallet(signingKey as string);
 
   const orderSignature = await signer.signMessage(orderId);
-   return orderSignature;
+  return orderSignature;
 };
 
 export const isSigningKeyValid = async (
@@ -24,15 +28,19 @@ export const isSigningKeyValid = async (
   setEstablishConnection: (value: boolean) => void
 ) => {
   // console.log(address, "address-sign", localStorage.getItem(`signingKey_${address?.toLowerCase()}`))
-  const signingKey = localStorage.getItem(`signingKey_${address?.toLowerCase()}`);
-  const expiry = localStorage.getItem(`signingKeyExpiry_${address?.toLowerCase()}`);
+  const signingKey = localStorage.getItem(
+    `signingKey_${address?.toLowerCase()}`
+  );
+  const expiry = localStorage.getItem(
+    `signingKeyExpiry_${address?.toLowerCase()}`
+  );
   if (!signingKey || !expiry) {
     localStorage.removeItem(`signingKey_${address?.toLowerCase()}`);
     localStorage.removeItem(`signingKeyExpiry_${address?.toLowerCase()}`);
     localStorage.removeItem(`Bearer_${address?.toLowerCase()}`);
     // disconnect();
     setEstablishConnection(true);
-    return {statement: false, type: false};
+    return { statement: false, type: false };
   }
 
   const now = new Date().getTime();
@@ -43,10 +51,10 @@ export const isSigningKeyValid = async (
     localStorage.removeItem(`Bearer_${address?.toLowerCase()}`);
     // disconnect();
     setEstablishConnection(true);
-    return {statement: true, type: false};
+    return { statement: true, type: false };
   }
 
-   return {statement: true, type: true};
+  return { statement: true, type: true };
 };
 
 // const checkWhitelistStatus = async (address: string) => {
@@ -55,25 +63,27 @@ export const isSigningKeyValid = async (
 //     return response.data.isWhitelisted;
 //   } catch (error) {
 //     console.error('Error checking whitelist status:', error);
-//     return false; 
+//     return false;
 //   }
 // };
 
 export const generateAndStorePrivateKey = async (address: string) => {
   const wallet = ethers.Wallet.createRandom();
   const privateKey = wallet.privateKey;
-console.log(address)
+  console.log(address);
   // const isWhitelisted = await checkWhitelistStatus(address);
 
   const now = new Date().getTime();
-  const expiryDuration =  7 * 24 * 60 * 60 * 1000;
+  const expiryDuration = 7 * 24 * 60 * 60 * 1000;
   const expiry = (now + expiryDuration).toString();
 
   return { privateKey, expiry };
 };
 
 export const getSigner = async (address?: string) => {
-  const signingKey = localStorage.getItem(`signingKey_${address?.toLowerCase()}`);
+  const signingKey = localStorage.getItem(
+    `signingKey_${address?.toLowerCase()}`
+  );
   const signer = new ethers.Wallet(signingKey as string);
   const signerAddress = await signer.getAddress();
   return { signingKey, signerAddress };
