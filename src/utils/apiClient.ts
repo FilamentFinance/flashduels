@@ -7,7 +7,7 @@ const apiClient = axios.create({
 });
 
 
-const setupInterceptors = async (userAddress:string, disconnect: ()=> void, setEstablishConnection: (value:boolean) => void, result?:string) => {
+const setupInterceptors = async (userAddress:string, disconnect: ()=> void, setEstablishConnection: (value:boolean) => void) => {
   console.log("setup-interceptor called")
   apiClient.interceptors.request.clear();
   apiClient.interceptors.response.clear();
