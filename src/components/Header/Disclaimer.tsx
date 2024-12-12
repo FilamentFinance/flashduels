@@ -8,7 +8,7 @@ import Image from "next/image";
 import { apiClient, setupInterceptors } from "@/utils/apiClient";
 import { ethers } from "ethers";
 import { NEXT_PUBLIC_API } from "@/utils/consts";
-import { getAccount, signMessage } from '@wagmi/core'
+import { getAccount, signMessage } from "@wagmi/core";
 import { useConfig } from "wagmi";
 import { useBalance } from "@/blockchain/useBalance";
 import { estConnection } from "@/utils/atoms";
@@ -23,10 +23,10 @@ const DisclaimerPopup: React.FC<DisclaimerPopupProps> = ({ onClose }) => {
   const [enableButton, setenableButton] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   const config = useConfig();
-  const { address, connector } = getAccount(config)
- 
+  const { address, connector } = getAccount(config);
+
   const { refetch } = useBalance(address as string);
-  const [establishConnection, setEstablishConnection] = useAtom(estConnection); 
+  const [establishConnection, setEstablishConnection] = useAtom(estConnection);
   // const { address } = useAccount();
   const { disconnect } = useDisconnect();
 
@@ -34,7 +34,7 @@ const DisclaimerPopup: React.FC<DisclaimerPopupProps> = ({ onClose }) => {
     setIsChecked(e.target.checked);
   };
   // const {address} = useAccount()
-console.log(enableButton, establishConnection)
+  console.log(enableButton, establishConnection);
   const handleDisclaimerAccept = async () => {
     setDisclaimerVisible(false);
     // const registerFunction = async (
@@ -42,17 +42,19 @@ console.log(enableButton, establishConnection)
     //   disconnect: () => void
     // ) => {
     try {
-      const { privateKey, expiry } = await generateAndStorePrivateKey(address as string);
+      const { privateKey, expiry } = await generateAndStorePrivateKey(
+        address as string
+      );
       const wallet = new ethers.Wallet(privateKey);
       const publicKey = (await wallet.getAddress()).toLowerCase();
       const hashMessage = `${publicKey}`;
       const hashMsg = ethers.hashMessage(hashMessage);
-    //   const hashMessage = ethers.solidityPackedKeccak256(["string", "string"], [publicKey, expiry]);
+      //   const hashMessage = ethers.solidityPackedKeccak256(["string", "string"], [publicKey, expiry]);
 
       let signature;
       try {
         signature = await signMessage(config, {
-          connector, 
+          connector,
           message: publicKey,
         });
       } catch (e) {
@@ -65,39 +67,44 @@ console.log(enableButton, establishConnection)
         console.log("Error during signature", e);
       }
       if (signature) {
-        console.log(hashMessage, "hashMessage", hashMsg)
-        const response = await apiClient.post(
-          `${NEXT_PUBLIC_API}/users/auth`,
-          {
-            account: address?.toLowerCase(),
-            signature: signature,
-            publicKey: publicKey.toLowerCase(),
-            expiry,
-          }
-        );
+        console.log(hashMessage, "hashMessage", hashMsg);
+        const response = await apiClient.post(`${NEXT_PUBLIC_API}/users/auth`, {
+          account: address?.toLowerCase(),
+          signature: signature,
+          publicKey: publicKey.toLowerCase(),
+          expiry,
+        });
         const result = response.data.result;
-        console.log(result, "result")
+        console.log(result, "result");
         // if (result.status === 401) {
         //   localStorage.removeItem(`signingKey_${address?.toLowerCase()}`);
         //   localStorage.removeItem(`signingKeyExpiry_${address?.toLowerCase()}`);
         //   localStorage.removeItem(`Bearer_${address?.toLowerCase()}`);
         //   disconnect();
         // }
-        localStorage.setItem(`signingKey_${address?.toLowerCase()}`, privateKey);
-        localStorage.setItem(`signingKeyExpiry_${address?.toLowerCase()}`, expiry);
-        localStorage.setItem(`Bearer_${address?.toLowerCase()}`, result.data);
-        setEstablishConnection(false)
-        await setupInterceptors((address as string)?.toLowerCase(), disconnect, setEstablishConnection);
+        localStorage.setItem(
+          `signingKey_${address?.toLowerCase()}`,
+          privateKey
+        );
+        localStorage.setItem(
+          `signingKeyExpiry_${address?.toLowerCase()}`,
+          expiry
+        );
+        localStorage.setItem(`Bearer_${address?.toLowerCase()}`, result);
+        setEstablishConnection(false);
+        await setupInterceptors(
+          (address as string)?.toLowerCase(),
+          disconnect,
+          setEstablishConnection
+        );
       }
     } catch (error) {
       console.error("Error handling user connection:", error);
-    }finally{
-      refetch()
+    } finally {
+      refetch();
       onClose();
     }
-    
   };
-
 
   useEffect(() => {
     return () => {
@@ -106,7 +113,7 @@ console.log(enableButton, establishConnection)
   }, []);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleScroll = (event:any) => {
+  const handleScroll = (event: any) => {
     const hitBottom =
       event.target.scrollHeight - event.target.scrollTop ===
       event.target.clientHeight;
@@ -190,7 +197,8 @@ console.log(enableButton, establishConnection)
                   and{" "}
                   <Link href="/privacy-policy">
                     <span className="text-[#40E0D0]">Privacy Policy</span>
-                  </Link>.
+                  </Link>
+                  .
                 </p>
               </div>
 
@@ -213,10 +221,11 @@ console.log(enableButton, establishConnection)
                 <button
                   onClick={handleDisclaimerAccept}
                   disabled={!isChecked}
-                  className={`w-full text-sm font-semibold py-3 rounded-lg ${isChecked
-                    ? "bg-[#40E0D0] text-[#0B2B28]"
-                    : "bg-gray-600 text-gray-400 cursor-not-allowed"
-                    }`}
+                  className={`w-full text-sm font-semibold py-3 rounded-lg ${
+                    isChecked
+                      ? "bg-[#40E0D0] text-[#0B2B28]"
+                      : "bg-gray-600 text-gray-400 cursor-not-allowed"
+                  }`}
                 >
                   Agree
                 </button>

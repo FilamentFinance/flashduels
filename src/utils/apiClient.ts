@@ -13,7 +13,7 @@ const setupInterceptors = async (userAddress:string, disconnect: ()=> void, setE
 
   apiClient.interceptors.request.use((config) => {
     if (userAddress) {
-      const authToken = localStorage.getItem(`Bearer_${userAddress}`);
+      const authToken = localStorage.getItem(`Bearer_ ${userAddress}`);
       if (authToken) {
         config.headers['Authorization'] = `Bearer ${authToken}`;
       }
