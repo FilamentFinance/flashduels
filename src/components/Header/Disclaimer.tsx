@@ -322,11 +322,11 @@ const DisclaimerPopup: React.FC<DisclaimerPopupProps> = ({ onClose }) => {
                   <b>Acceptance of Terms:</b> By proceeding, you acknowledge
                   that you have read and agree to Filament`s{" "}
                   <Link href="/terms-of-use">
-                    <span className="text-[#40E0D0]">Terms of Use</span>
+                    <span className="text-[#F37FB7]">Terms of Use</span>
                   </Link>{" "}
                   and{" "}
                   <Link href="/privacy-policy">
-                    <span className="text-[#40E0D0]">Privacy Policy</span>
+                    <span className="text-[#F37FB7]">Privacy Policy</span>
                   </Link>
                   .
                 </p>
@@ -353,7 +353,7 @@ const DisclaimerPopup: React.FC<DisclaimerPopupProps> = ({ onClose }) => {
                   disabled={!isChecked}
                   className={`w-full text-sm font-semibold py-3 rounded-lg ${
                     isChecked
-                      ? "bg-[#40E0D0] text-[#0B2B28]"
+                      ? "bg-[#F19ED2] text-[#0B2B28]"
                       : "bg-gray-600 text-gray-400 cursor-not-allowed"
                   }`}
                 >
