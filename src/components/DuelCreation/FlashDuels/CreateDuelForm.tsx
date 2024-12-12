@@ -115,7 +115,7 @@ const CreateDuelForm = ({ closeDuelModal }: { closeDuelModal: () => void }) => {
         console.log("Received a pre-signed URL:", url);
 
         // Upload file to S3 using the pre-signed URL
-        const response = await apiClient.put(url, file, {
+        const response = await axios.put(url, file, {
           headers: { 'Content-Type': file.type },
         });
         console.log(response);
