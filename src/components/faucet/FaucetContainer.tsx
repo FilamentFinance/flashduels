@@ -7,6 +7,7 @@ import { shortenAddress } from "@/utils/helper";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { useAccount } from "wagmi";
+import { useBalance } from "@/blockchain/useBalance";
 import { useAtom } from "jotai";
 import { GeneralNotificationAtom } from "../GeneralNotification";
 
@@ -24,7 +25,7 @@ export const FaucetContainer = ({
   const router = useRouter()
   const { address } = useAccount();
   const [notification, setNotification] = useAtom(GeneralNotificationAtom);
-
+  const { refetch} = useBalance(address as string);
   const content = `Token Address: ${shortenAddress(NEXT_PUBLIC_FLASH_USDC)}`
   const [mintLoading, setMintLoading] = React.useState(false);
   const handleClaimFaucet = async () => {
@@ -48,6 +49,9 @@ export const FaucetContainer = ({
       console.log("Error", error);
     } finally {
       setMintLoading(false);
+      handleClose()
+      refetch()
+      
     }
   }
   console.log(notification)

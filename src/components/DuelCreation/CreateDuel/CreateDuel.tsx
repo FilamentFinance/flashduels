@@ -19,6 +19,7 @@ import MarkPriceComponent from "./MarkPrice";
 import { useBalance } from "@/blockchain/useBalance";
 import { GeneralNotificationAtom } from "@/components/GeneralNotification";
 import { useAtom } from "jotai";
+import { apiClient } from "@/utils/apiClient";
 
 interface FormData {
   tokenInput: string;
@@ -176,7 +177,7 @@ const CreateDuel = ({ closeDuelModal }: { closeDuelModal: () => void }) => {
         createdAt: result.createTime,
       };
 
-      await axios.post(
+      await apiClient.post(
         `${NEXT_PUBLIC_API}/duels/create`,
         {
           ...duelData,
@@ -190,7 +191,7 @@ const CreateDuel = ({ closeDuelModal }: { closeDuelModal: () => void }) => {
         }
       );
 
-      await axios.post(`${NEXT_PUBLIC_TIMER_BOT_URL}/startDuel`, {
+      await apiClient.post(`${NEXT_PUBLIC_TIMER_BOT_URL}/startDuel`, {
         duelId: result.duelId,
         duelType: 'COIN_DUEL',
         duration: durations[durationNumber],

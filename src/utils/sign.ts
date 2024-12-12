@@ -49,24 +49,24 @@ export const isSigningKeyValid = async (
    return {statement: true, type: true};
 };
 
-const checkWhitelistStatus = async (address: string) => {
-  try {
-    const response = await axios.post('/api/whitelistAddress', { address });
-    return response.data.isWhitelisted;
-  } catch (error) {
-    console.error('Error checking whitelist status:', error);
-    return false; 
-  }
-};
+// const checkWhitelistStatus = async (address: string) => {
+//   try {
+//     const response = await axios.post('/api/whitelistAddress', { address });
+//     return response.data.isWhitelisted;
+//   } catch (error) {
+//     console.error('Error checking whitelist status:', error);
+//     return false; 
+//   }
+// };
 
 export const generateAndStorePrivateKey = async (address: string) => {
   const wallet = ethers.Wallet.createRandom();
   const privateKey = wallet.privateKey;
 
-  const isWhitelisted = await checkWhitelistStatus(address);
+  // const isWhitelisted = await checkWhitelistStatus(address);
 
   const now = new Date().getTime();
-  const expiryDuration = isWhitelisted ? 30 * 24 * 60 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000;
+  const expiryDuration =  7 * 24 * 60 * 60 * 1000;
   const expiry = (now + expiryDuration).toString();
 
   return { privateKey, expiry };

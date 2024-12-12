@@ -20,6 +20,7 @@ import { ethers } from "ethers";
 import { useBalance } from "@/blockchain/useBalance";
 import { GeneralNotificationAtom } from "@/components/GeneralNotification";
 import { useAtom } from "jotai";
+import { apiClient } from "@/utils/apiClient";
 
 const CreateDuelForm = ({ closeDuelModal }: { closeDuelModal: () => void }) => {
   const {address} = useAccount()
@@ -106,7 +107,7 @@ const CreateDuelForm = ({ closeDuelModal }: { closeDuelModal: () => void }) => {
       // Fetch pre-signed URL from the backend
       setUploading(true);
       try {
-        const { data } = await axios.post(`${NEXT_PUBLIC_API}/aws/generate-presigned-url`, {
+        const { data } = await apiClient.post(`${NEXT_PUBLIC_API}/aws/generate-presigned-url`, {
           fileName: file.name,
           fileType: file.type,
         });
@@ -114,7 +115,7 @@ const CreateDuelForm = ({ closeDuelModal }: { closeDuelModal: () => void }) => {
         console.log("Received a pre-signed URL:", url);
 
         // Upload file to S3 using the pre-signed URL
-        const response = await axios.put(url, file, {
+        const response = await apiClient.put(url, file, {
           headers: { 'Content-Type': file.type },
         });
         console.log(response);
@@ -201,7 +202,7 @@ const CreateDuelForm = ({ closeDuelModal }: { closeDuelModal: () => void }) => {
         createdAt: result.createTime,
       };
       // Send request to your backend
-      await axios.post(
+      await apiClient.post(
         `${NEXT_PUBLIC_API}/duels/create`,
         {
           ...duelData,

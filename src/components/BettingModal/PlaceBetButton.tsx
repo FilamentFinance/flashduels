@@ -13,6 +13,7 @@ import { GeneralNotificationAtom } from "../GeneralNotification";
 import { useAtom } from "jotai";
 import { estConnection } from "@/utils/atoms";
 import usePopup from "@/app/providers/PopupProvider";
+import { apiClient } from "@/utils/apiClient";
 
 interface PlaceBetButtonProps {
   betAmount: string;
@@ -113,7 +114,7 @@ const PlaceBetButton: React.FC<PlaceBetButtonProps> = ({
       const secondReceipt = await waitForTransactionReceipt(config, { hash: secondHash as `0x${string}` });
       console.log(secondReceipt, "second-hash");
 
-      await axios.post(
+      await apiClient.post(
         `${NEXT_PUBLIC_API}/bets/create`,
         {
           twitterUsername: "",
