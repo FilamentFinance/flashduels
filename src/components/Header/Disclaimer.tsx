@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { generateAndStorePrivateKey } from "@/utils/sign";
 import Link from "next/link";
 import { useDisconnect } from "wagmi";
-import Image from "next/image";
+// import Image from "next/image";
 // import { disconnect } from "process";
 import { apiClient, setupInterceptors } from "@/utils/apiClient";
 import { ethers } from "ethers";
