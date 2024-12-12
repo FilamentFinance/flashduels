@@ -30,6 +30,11 @@ const DisclaimerPopup: React.FC<DisclaimerPopupProps> = ({ onClose }) => {
   // const { address } = useAccount();
   const { disconnect } = useDisconnect();
 
+  useEffect(() => {
+    console.log("auth-Called");
+    (setupInterceptors(address as string, disconnect, setEstablishConnection));
+  }, [estConnection])
+
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsChecked(e.target.checked);
   };
@@ -75,7 +80,7 @@ const DisclaimerPopup: React.FC<DisclaimerPopupProps> = ({ onClose }) => {
           expiry,
         });
         const result = response.data.result;
-        console.log(result, "result");
+        // console.log(result, "result");
         // if (result.status === 401) {
         //   localStorage.removeItem(`signingKey_${address?.toLowerCase()}`);
         //   localStorage.removeItem(`signingKeyExpiry_${address?.toLowerCase()}`);
@@ -92,10 +97,12 @@ const DisclaimerPopup: React.FC<DisclaimerPopupProps> = ({ onClose }) => {
         );
         localStorage.setItem(`Bearer_${address?.toLowerCase()}`, result);
         setEstablishConnection(false);
+
         await setupInterceptors(
-          (address as string)?.toLowerCase(),
+          (address?.toLowerCase() as string)?.toLowerCase(),
           disconnect,
-          setEstablishConnection
+          setEstablishConnection,
+          // result
         );
       }
     } catch (error) {
@@ -103,6 +110,12 @@ const DisclaimerPopup: React.FC<DisclaimerPopupProps> = ({ onClose }) => {
     } finally {
       refetch();
       onClose();
+      await setupInterceptors(
+        (address?.toLowerCase() as string)?.toLowerCase(),
+        disconnect,
+        setEstablishConnection,
+        // "hello"
+      );
     }
   };
 

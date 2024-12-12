@@ -6,6 +6,7 @@ import Header from "@/components/Header/Header";
 import { PriceProvider } from "./providers/PriceContextProvider";
 import RainbowKitProviders from "./providers/RainbowKitProvider";
 import { PopupProvider } from "./providers/PopupProvider";
+// import { setupInterceptors } from "@/utils/apiClient";
 // import Providers from "./providers/PrivyProvider";
 
 const geistSans = localFont({

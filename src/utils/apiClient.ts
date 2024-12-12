@@ -1,3 +1,4 @@
+"use client"
 import axios from 'axios';
 import { NEXT_PUBLIC_API } from './consts';
 
@@ -6,15 +7,18 @@ const apiClient = axios.create({
 });
 
 
-const setupInterceptors = async (userAddress:string, disconnect: ()=> void, setEstablishConnection: (value:boolean) => void) => {
-  
+const setupInterceptors = async (userAddress:string, disconnect: ()=> void, setEstablishConnection: (value:boolean) => void, result?:string) => {
+  console.log("setup-interceptor called")
   apiClient.interceptors.request.clear();
   apiClient.interceptors.response.clear();
 
   apiClient.interceptors.request.use((config) => {
     if (userAddress) {
-      const authToken = localStorage.getItem(`Bearer_ ${userAddress}`);
-      if (authToken) {
+      console.log(`signingKey_${userAddress.toLowerCase()}`, localStorage.getItem(`signingKey_${userAddress.toLowerCase()}`), "auth-logs")
+      const authToken = localStorage.getItem(`Bearer_${userAddress.toLowerCase()}`);
+     console.log(authToken, "authToken", userAddress, localStorage.getItem(`Bearer_${userAddress.toLowerCase()}`))
+    // console.log(result, "result", userAddress)  
+    if (authToken) {
         config.headers['Authorization'] = `Bearer ${authToken}`;
       }
     }
