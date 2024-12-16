@@ -48,6 +48,7 @@ export const MarketDuel: React.FC<BetCardProps> = ({
   triggerPrice,
   setIsModalOpen,
 }) => {
+  console.log(onClose, "onClose");
   const thirtyMinutesMs = 30 * 60 * 1000;
   const durationMs = endTime * 60 * 60 * 1000; // duration in hours converted to milliseconds
   console.log(totalBetAmount);

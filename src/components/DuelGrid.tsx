@@ -23,6 +23,7 @@ const DuelGrid = ({ activeButton, specialCategoryIndex }: { activeButton: string
     'Politics',
     'Sports',
   ];
+  console.log(setModalData)
 
   // WebSocket setup to get duels in real-time
   useEffect(() => {

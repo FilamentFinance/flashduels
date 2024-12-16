@@ -1,72 +1,73 @@
-import React, { useEffect, useState } from "react";
-import ProbabilityBar from "./ProbabilityBar";
+import React from "react";
+// import ProbabilityBar from "./ProbabilityBar";
 import { BetInfoProps } from "@/utils/consts";
 
 const BetInfo: React.FC<BetInfoProps> = ({
   bet,
   setBet,
-  betTitle,
-  imageUrl,
-  volume,
-  endTime,
+  // betTitle,
+  // imageUrl,
+  // volume,
+  // endTime,
   probability,
-  createdBy,
-  startAt,
-  createdAt,
-  totalBetAmount,
+  // createdBy,
+  // startAt,
+  // createdAt,
+  // totalBetAmount,
   noPrice,
   yesPrice,
-  status,
+  // status,
   // duelId
 }) => {
-  const thirtyMinutesMs = 30 * 60 * 1000;
-  const durationMs = endTime * 60 * 60 * 1000; // duration in hours converted to milliseconds
-  console.log(totalBetAmount)
+  // console.log(bet, betTitle, imageUrl, volume, createdBy, "bet", totalBetAmount)
+  // const thirtyMinutesMs = 30 * 60 * 1000;
+  // const durationMs = endTime * 60 * 60 * 1000; // duration in hours converted to milliseconds
+  // console.log(totalBetAmount)
 
-  const [time, setTimeLeft] = useState("");
+  // const [time, setTimeLeft] = useState("");
   console.log(probability, "probability")
   // Function to calculate the remaining time
-  const calculateRemainingTime = () => {
-    const currentTimeMs = Date.now();
-    const startTimeMs = createdAt * 1000;
+  // const calculateRemainingTime = () => {
+  //   const currentTimeMs = Date.now();
+  //   const startTimeMs = createdAt * 1000;
 
-    let remainingTimeMs;
+  //   let remainingTimeMs;
 
-    // Check if 30 minutes have passed since createdAt
-    const timeElapsedMs = currentTimeMs - startTimeMs;
-    if (timeElapsedMs > thirtyMinutesMs || status ===0) {
-      // Use startAt if 30 minutes have passed
-      const startAtTimeMs = startAt * 1000;
-      const timeSinceStartAt = currentTimeMs - startAtTimeMs;
-      remainingTimeMs = Math.max(durationMs - timeSinceStartAt, 0); // Calculate remaining time from startAt
-    } else {
-      // Use createdAt if 30 minutes have not passed
-      remainingTimeMs = Math.max(thirtyMinutesMs - timeElapsedMs, 0); // Calculate remaining time from createdAt
-    }
+  //   // Check if 30 minutes have passed since createdAt
+  //   const timeElapsedMs = currentTimeMs - startTimeMs;
+  //   if (timeElapsedMs > thirtyMinutesMs || status ===0) {
+  //     // Use startAt if 30 minutes have passed
+  //     const startAtTimeMs = startAt * 1000;
+  //     const timeSinceStartAt = currentTimeMs - startAtTimeMs;
+  //     remainingTimeMs = Math.max(durationMs - timeSinceStartAt, 0); // Calculate remaining time from startAt
+  //   } else {
+  //     // Use createdAt if 30 minutes have not passed
+  //     remainingTimeMs = Math.max(thirtyMinutesMs - timeElapsedMs, 0); // Calculate remaining time from createdAt
+  //   }
 
-    return remainingTimeMs;
-  };
+  //   return remainingTimeMs;
+  // };
 
   // Function to format time in HH:MM:SS format
-  const formatTime = (ms: number) => {
-    const totalSeconds = Math.floor(ms / 1000);
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
+  // const formatTime = (ms: number) => {
+  //   const totalSeconds = Math.floor(ms / 1000);
+  //   const hours = Math.floor(totalSeconds / 3600);
+  //   const minutes = Math.floor((totalSeconds % 3600) / 60);
+  //   const seconds = totalSeconds % 60;
 
-    const padTime = (time: number) => time.toString().padStart(2, '0');
-    return `${padTime(hours)}:${padTime(minutes)}:${padTime(seconds)}`;
-  };
+  //   const padTime = (time: number) => time.toString().padStart(2, '0');
+  //   return `${padTime(hours)}:${padTime(minutes)}:${padTime(seconds)}`;
+  // };
 
   // Update timeLeft every second
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const remainingTimeMs = calculateRemainingTime();
-      setTimeLeft(formatTime(remainingTimeMs)); // Update state with formatted time
-    }, 1000);
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     const remainingTimeMs = calculateRemainingTime();
+  //     setTimeLeft(formatTime(remainingTimeMs)); // Update state with formatted time
+  //   }, 1000);
 
-    return () => clearInterval(interval); // Clear interval on component unmount
-  }, [createdAt, startAt, endTime]);
+  //   return () => clearInterval(interval); // Clear interval on component unmount
+  // }, [createdAt, startAt, endTime]);
   return (
     <section className="flex flex-col p-3 w-full rounded-xl bg-white bg-opacity-0">
       {/* <div className="flex gap-2 items-start w-full">
