@@ -1,9 +1,11 @@
-import { FLASHDUELSABI } from '@/abi/FlashDuelsABI';
-import { CHAIN_ID, NEXT_PUBLIC_FLASH_DUELS } from '@/utils/consts';
+// import { FLASHDUELSABI } from '@/abi/FLASHUSDC';
+import { CHAIN_ID, NEXT_PUBLIC_DIAMOND } from '@/utils/consts';
 import axios from 'axios';
 import { useReadContract } from 'wagmi';
 import { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
+// import { FLASHDUELS_CORE_ABI } from '@/abi/FlashDuelsCoreFacet';
+import { FLASHDUELS_VIEWFACET } from '@/abi/FlashDuelsViewFacet';
 
 const useTotalBets = (duelId: string) => {
     const [totalBetYes, setTotalBetYes] = useState<number | null>(null);
@@ -15,9 +17,9 @@ const useTotalBets = (duelId: string) => {
         error: yesError,
         isLoading: isYesLoading,
     } = useReadContract({
-        abi: FLASHDUELSABI,
+        abi: FLASHDUELS_VIEWFACET,
         functionName: "totalBetsOnOption",
-        address: NEXT_PUBLIC_FLASH_DUELS as `0x${string}`,
+        address: NEXT_PUBLIC_DIAMOND as `0x${string}`,
         chainId: CHAIN_ID,
         args: [duelId, 0, "YES"],
     });
@@ -28,9 +30,9 @@ const useTotalBets = (duelId: string) => {
         error: noError,
         isLoading: isNoLoading,
     } = useReadContract({
-        abi: FLASHDUELSABI,
+        abi: FLASHDUELS_VIEWFACET,
         functionName: "totalBetsOnOption",
-        address: NEXT_PUBLIC_FLASH_DUELS as `0x${string}`,
+        address: NEXT_PUBLIC_DIAMOND as `0x${string}`,
         chainId: CHAIN_ID,
         args: [duelId, 1, "NO"],
     });

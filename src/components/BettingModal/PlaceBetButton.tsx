@@ -1,9 +1,8 @@
 import { FLASHUSDCABI } from "@/abi/FLASHUSDC";
-import { FLASHDUELSABI } from "@/abi/FlashDuelsABI";
 import { config } from "@/app/config/wagmi";
 import { postPricingData, useTotalBets } from "@/app/optionPricing";
 import { useBalance } from "@/blockchain/useBalance";
-import { CHAIN_ID, NEXT_PUBLIC_API, NEXT_PUBLIC_FLASH_DUELS, NEXT_PUBLIC_FLASH_USDC } from "@/utils/consts";
+import { CHAIN_ID, NEXT_PUBLIC_API, NEXT_PUBLIC_DIAMOND, NEXT_PUBLIC_FLASH_DUELS, NEXT_PUBLIC_FLASH_USDC } from "@/utils/consts";
 import { calculateFlashDuelsOptionPrice } from "@/utils/flashDuelsOptionPricing";
 // import axios from "axios";
 import React, { useState } from "react";
@@ -14,6 +13,7 @@ import { useAtom } from "jotai";
 import { estConnection } from "@/utils/atoms";
 import usePopup from "@/app/providers/PopupProvider";
 import { apiClient } from "@/utils/apiClient";
+import { FLASHDUELS_CORE_ABI } from "@/abi/FlashDuelsCoreFacet";
 
 interface PlaceBetButtonProps {
   betAmount: string;
@@ -49,15 +49,15 @@ const PlaceBetButton: React.FC<PlaceBetButtonProps> = ({
     lpTokenApproveAsyncLocal({
       abi: FLASHUSDCABI,
       address: NEXT_PUBLIC_FLASH_USDC as `0x${string}`,
-      functionName: "increaseAllowance",
+      functionName: "increaseAllowance", //@note - mainnet - approve
       chainId: CHAIN_ID,
       args: [NEXT_PUBLIC_FLASH_DUELS, amount],
     });
 
   const joinCryptoDuel = async (duelId: string, option: string, asset: string, optionIndex: number, optionPrice: number, amount: number) => {
     return lpTokenSecondFunctionAsyncLocal({
-      abi: FLASHDUELSABI,
-      address: NEXT_PUBLIC_FLASH_DUELS as `0x${string}`,
+      abi: FLASHDUELS_CORE_ABI,
+      address: NEXT_PUBLIC_DIAMOND as `0x${string}`,
       functionName: "joinCryptoDuel",
       chainId: CHAIN_ID,
       args: [duelId, option, asset, optionIndex, optionPrice, amount],
@@ -66,8 +66,8 @@ const PlaceBetButton: React.FC<PlaceBetButtonProps> = ({
 
   const joinFlashDuel = async (duelId: string, option: string, optionIndex: number, optionPrice: number, amount: number) =>
     lpTokenSecondFunctionAsyncLocal({
-      abi: FLASHDUELSABI,
-      address: NEXT_PUBLIC_FLASH_DUELS as `0x${string}`,
+      abi: FLASHDUELS_CORE_ABI,
+      address: NEXT_PUBLIC_DIAMOND as `0x${string}`,
       functionName: "joinDuel",
       chainId: CHAIN_ID,
       args: [duelId, option, optionIndex, optionPrice, amount],

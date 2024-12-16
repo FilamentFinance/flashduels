@@ -7,11 +7,11 @@ import DurationSelect from "./DurationSelect";
 import InfoBox from "./InfoBox";
 import SubmitButton from "./SubmitButton";
 import { useAccount, useWriteContract } from "wagmi";
-import { CHAIN_ID, durations, NEXT_PUBLIC_API, NEXT_PUBLIC_FLASH_DUELS, NEXT_PUBLIC_FLASH_USDC, NEXT_PUBLIC_RPC_URL, NEXT_PUBLIC_TIMER_BOT_URL } from "@/utils/consts";
-import { FLASHUSDCABI } from "@/abi/FLASHUSDC";
+import { CHAIN_ID, durations, NEXT_PUBLIC_API, NEXT_PUBLIC_DIAMOND, NEXT_PUBLIC_FLASH_DUELS, NEXT_PUBLIC_FLASH_USDC, NEXT_PUBLIC_RPC_URL, NEXT_PUBLIC_TIMER_BOT_URL } from "@/utils/consts";
+// import { FLASHUSDCABI } from "@/abi/FLASHUSDC";
 import { waitForTransactionReceipt } from "wagmi/actions";
 import { config } from "@/app/config/wagmi";
-import { FLASHDUELSABI } from "@/abi/FlashDuelsABI";
+// import { FLASHDUELSABI } from "@/abi/FLASHUSDC";
 import { mapCategoryToEnumIndex, mapDurationToNumber } from "@/utils/helper";
 import { getGasPrice } from '@wagmi/core'
 import axios from "axios";
@@ -21,6 +21,8 @@ import { useBalance } from "@/blockchain/useBalance";
 import { GeneralNotificationAtom } from "@/components/GeneralNotification";
 import { useAtom } from "jotai";
 import { apiClient } from "@/utils/apiClient";
+import { FLASHDUELS_CORE_ABI } from "@/abi/FlashDuelsCoreFacet";
+import { FLASHUSDCABI } from "@/abi/FLASHUSDC";
 
 const CreateDuelForm = ({ closeDuelModal }: { closeDuelModal: () => void }) => {
   const {address} = useAccount()
@@ -41,7 +43,7 @@ const CreateDuelForm = ({ closeDuelModal }: { closeDuelModal: () => void }) => {
         return;
       }
 
-      const contract = new ethers.Contract(NEXT_PUBLIC_FLASH_DUELS, FLASHDUELSABI, provider);
+      const contract = new ethers.Contract(NEXT_PUBLIC_DIAMOND, FLASHDUELS_CORE_ABI, provider);
 
       // Use a regular loop to allow early return
       for (const log of receipt.logs) {
@@ -154,8 +156,8 @@ const CreateDuelForm = ({ closeDuelModal }: { closeDuelModal: () => void }) => {
   // Function to call the second contract function
   const lpTokenSecondFunctionAsync = (topic: string, category: number, duration: number, options: string[]) =>
     lpTokenSecondFunctionAsyncLocal({
-      abi: FLASHDUELSABI,
-      address: NEXT_PUBLIC_FLASH_DUELS as `0x${string}`,
+      abi: FLASHDUELS_CORE_ABI,
+      address: NEXT_PUBLIC_DIAMOND as `0x${string}`,
       functionName: "createDuel",
       chainId: CHAIN_ID,
       args: [category, topic, options, duration],

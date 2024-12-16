@@ -2,9 +2,10 @@ import * as React from "react";
 import { PriceDisplay } from "./PriceDisplay";
 import { ClaimButton } from "./ClaimButton";
 import { useAccount, useReadContract } from "wagmi";
-import { CHAIN_ID, NEXT_PUBLIC_FLASH_DUELS } from "@/utils/consts";
-import { FLASHDUELSABI } from "@/abi/FlashDuelsABI";
+import { CHAIN_ID, NEXT_PUBLIC_DIAMOND } from "@/utils/consts";
+// import { FLASHDUELSABI } from "@/abi/FLASHUSDC";
 import { ethers } from "ethers";
+import { FLASHDUELS_VIEWFACET } from "@/abi/FlashDuelsViewFacet";
 
 export const RewardCard: React.FC = () => {
 
@@ -13,9 +14,9 @@ export const RewardCard: React.FC = () => {
   const {
     data: available,
   } = useReadContract({
-    abi: FLASHDUELSABI,
-    functionName: "allTimeEarnings",
-    address: NEXT_PUBLIC_FLASH_DUELS as `0x${string}`,
+    abi: FLASHDUELS_VIEWFACET,
+    functionName: "getAllTimeEarnings",
+    address: NEXT_PUBLIC_DIAMOND as `0x${string}`,
     chainId: CHAIN_ID,
     args: [address],
   });

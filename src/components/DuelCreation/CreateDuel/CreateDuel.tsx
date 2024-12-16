@@ -5,10 +5,8 @@ import DurationSelect from "./DurationSelect";
 import InfoBox from "./InfoBox";
 import CreateDuelButton from "./CreateDuelButton";
 import TokenSelect from "./TokenInput";
-import { CHAIN_ID, durations, NEXT_PUBLIC_API, NEXT_PUBLIC_FLASH_DUELS, NEXT_PUBLIC_FLASH_USDC, NEXT_PUBLIC_RPC_URL, NEXT_PUBLIC_TIMER_BOT_URL } from "@/utils/consts";
+import { CHAIN_ID, durations, NEXT_PUBLIC_API, NEXT_PUBLIC_DIAMOND, NEXT_PUBLIC_FLASH_DUELS, NEXT_PUBLIC_FLASH_USDC, NEXT_PUBLIC_RPC_URL, NEXT_PUBLIC_TIMER_BOT_URL } from "@/utils/consts";
 import { getAssetImage, mapDurationToNumber } from "@/utils/helper";
-import { FLASHUSDCABI } from "@/abi/FLASHUSDC";
-import { FLASHDUELSABI } from "@/abi/FlashDuelsABI";
 import { useAccount, useWriteContract } from "wagmi";
 import { waitForTransactionReceipt } from "wagmi/actions";
 import { config } from "@/app/config/wagmi";
@@ -20,6 +18,8 @@ import { useBalance } from "@/blockchain/useBalance";
 import { GeneralNotificationAtom } from "@/components/GeneralNotification";
 import { useAtom } from "jotai";
 import { apiClient } from "@/utils/apiClient";
+import { FLASHDUELS_CORE_ABI } from "@/abi/FlashDuelsCoreFacet";
+import { FLASHUSDCABI } from "@/abi/FLASHUSDC";
 
 interface FormData {
   tokenInput: string;
@@ -46,7 +46,7 @@ const CreateDuel = ({ closeDuelModal }: { closeDuelModal: () => void }) => {
         return;
       }
 
-      const contract = new ethers.Contract(NEXT_PUBLIC_FLASH_DUELS, FLASHDUELSABI, provider);
+      const contract = new ethers.Contract(NEXT_PUBLIC_DIAMOND, FLASHDUELS_CORE_ABI, provider);
 
       // Use a regular loop to allow early return
       for (const log of receipt.logs) {
@@ -124,8 +124,8 @@ const CreateDuel = ({ closeDuelModal }: { closeDuelModal: () => void }) => {
   const lpTokenSecondFunctionAsync = (symbol: string, options: string[], minWager: number, triggerValue: number, triggerType: number, triggerCondition: number, duration: number) =>
 
     lpTokenSecondFunctionAsyncLocal({
-      abi: FLASHDUELSABI,
-      address: NEXT_PUBLIC_FLASH_DUELS as `0x${string}`,
+      abi: FLASHDUELS_CORE_ABI,
+      address: NEXT_PUBLIC_DIAMOND as `0x${string}`,
       functionName: "createCryptoDuel",
       chainId: CHAIN_ID,
       args: [symbol, options, triggerValue, triggerType, triggerCondition, duration],
