@@ -96,6 +96,45 @@ export type Duel = {
     };
   };
   
+  export interface BetInfoProps {
+    betTitle: string;
+    imageUrl: string;
+    volume: string;
+    endTime: number;
+    probability: number;
+    createdBy: string;
+    bet: string;
+    setBet: (bet: string) => void;
+    startAt: number;
+    createdAt: number;
+    totalBetAmount: number;
+    noPrice?: number;
+    yesPrice?: number;
+    status:number;
+    // duelId:string
+  }
+
+  export interface BetCardProps {
+    betTitle: string;
+    imageUrl: string;
+    volume: string;
+    endTime: number;
+    percentage: number;
+    createdBy: string;
+    availableAmount: number;
+    onClose: () => void,
+    duelId: string,
+    duelType: string,
+    startAt: number,
+    createdAt: number,
+    asset?: string,
+    totalBetAmount: number,
+    endsIn: number
+    triggerPrice?: string,
+    status: number;
+    setIsModalOpen: (arg0: boolean) => void;
+  }
+
   export type ActiveDuels = TableDuel[];
   
   export const durations = [3, 6, 12];

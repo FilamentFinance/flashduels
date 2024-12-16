@@ -6,6 +6,7 @@ import { useAccount } from "wagmi";
 import { useBalance } from "@/blockchain/useBalance";
 import { ethers } from "ethers";
 import { shortenAddress } from "@/utils/helper";
+import { useRouter } from "next/navigation";
 
 const DuelGrid = ({ activeButton, specialCategoryIndex }: { activeButton: string, setActiveButton: (activeButton: string) => void, specialCategoryIndex: number | null, setSpecialCategoryIndex: (specialCategoryIndex: number | null) => void }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -13,7 +14,7 @@ const DuelGrid = ({ activeButton, specialCategoryIndex }: { activeButton: string
   const { address } = useAccount();
   const { balance } = useBalance(address as string);
   const balanceNum = (Number(ethers.formatUnits(balance ? balance.toString() : 0, 6)));
-
+  const router = useRouter();
   const [duels, setDuels] = useState<Duel[]>([]);
 
   const categoryMap = [
@@ -95,17 +96,21 @@ const DuelGrid = ({ activeButton, specialCategoryIndex }: { activeButton: string
   }, [activeButton, specialCategoryIndex]);
 
   // Opens modal for a specific duel without updating category
-  const handleDuelClick = (index: number) => {
-    const selectedDuel = duels[index];
-    setModalData(selectedDuel);
-    setIsModalOpen(true);
+  // const handleDuelClick = (index: number) => {
+  //   const selectedDuel = duels[index];
+  //   setModalData(selectedDuel);
+  //   setIsModalOpen(true);
+  // };
+
+  const handleDuelClick = (duelId: string) => {
+    router.push(`/bet?duelId=${duelId}`);
   };
 
   return (
     <>
       <div className="flex flex-wrap gap-4 items-center self-center px-[50px] w-full max-w-full w-full">
         {duels && duels.map((duel, index) => (
-          <DuelCard key={index} {...duel} onClick={() => handleDuelClick(index)} />
+          <DuelCard key={index} {...duel} onClick={() => handleDuelClick(duel.duelId)} />
         ))}
       </div>
       <BettingModal

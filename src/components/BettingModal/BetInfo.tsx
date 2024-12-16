@@ -1,23 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ProbabilityBar from "./ProbabilityBar";
-
-interface BetInfoProps {
-  betTitle: string;
-  imageUrl: string;
-  volume: string;
-  endTime: number;
-  probability: number;
-  createdBy: string;
-  bet: string;
-  setBet: (bet: string) => void;
-  startAt: number;
-  createdAt: number;
-  totalBetAmount: number;
-  noPrice?: number;
-  yesPrice?: number;
-  status:number;
-  // duelId:string
-}
+import { BetInfoProps } from "@/utils/consts";
 
 const BetInfo: React.FC<BetInfoProps> = ({
   bet,
@@ -86,7 +69,7 @@ const BetInfo: React.FC<BetInfoProps> = ({
   }, [createdAt, startAt, endTime]);
   return (
     <section className="flex flex-col p-3 w-full rounded-xl bg-white bg-opacity-0">
-      <div className="flex gap-2 items-start w-full">
+      {/* <div className="flex gap-2 items-start w-full">
         <div className="flex gap-2 w-16 min-h-[64px]">
           <div className="flex flex-1 shrink basis-0 size-full">
             <div className="flex flex-1 shrink justify-center items-center w-16 h-16 bg-gray-500 rounded-lg border border-solid basis-0 border-white border-opacity-10">
@@ -101,8 +84,8 @@ const BetInfo: React.FC<BetInfoProps> = ({
         <h3 className="flex-1 shrink text-xl font-semibold leading-none text-white min-w-[240px]">
           {betTitle}
         </h3>
-      </div>
-      <div className="flex gap-3 items-center mt-3 w-full min-h-[44px]">
+      </div> */}
+      {/* <div className="flex gap-3 items-center mt-3 w-full min-h-[44px]">
         <div className="flex flex-col flex-1 shrink self-stretch my-auto text-base font-semibold tracking-normal leading-none text-white basis-0 min-w-[240px]">
           <div className="flex flex-col items-start w-full">
             <div className="flex gap-1 items-center w-[150px]">
@@ -152,8 +135,8 @@ const BetInfo: React.FC<BetInfoProps> = ({
           </div>
         </div>
         <ProbabilityBar probability={probability || 50} />
-      </div>
-      <div className="flex gap-10 justify-between items-center mt-3 w-full">
+      </div> */}
+      {/* <div className="flex gap-10 justify-between items-center mt-3 w-full">
         <span className="gap-2.5 self-stretch my-auto text-base font-semibold tracking-normal leading-none text-gray-400">
           Created By:{" "}
         </span>
@@ -165,7 +148,7 @@ const BetInfo: React.FC<BetInfoProps> = ({
             {createdBy}
           </span>
         </div>
-      </div>
+      </div> */}
       <div className="flex flex-col mt-3 w-full text-base font-semibold leading-none whitespace-nowrap min-h-[57px]">
         <div className="flex flex-1 gap-2 size-full">
           <button
@@ -189,6 +172,55 @@ const BetInfo: React.FC<BetInfoProps> = ({
         <div className="flex-1 shrink basis-0">${(yesPrice)?.toFixed(4)}/share</div>
         <div className="flex-1 shrink basis-0">${(noPrice)?.toFixed(4)}/share</div>
       </div>
+      {/* <div className="flex items-center mt-3 w-full">
+                      <div className="flex flex-1 shrink gap-2 items-center self-stretch my-auto w-full rounded-lg basis-0 min-w-[240px]">
+                        <label className="flex gap-2.5 items-center self-stretch my-auto w-4">
+                          <input
+                            type="checkbox"
+                            className="hidden"
+                            aria-label="Match market orders"
+                          />
+                          <div className="flex overflow-hidden justify-center items-center self-stretch my-auto w-4 h-4 bg-pink-300 rounded border border-solid border-pink-300 border-opacity-60 min-h-[16px]">
+                            <img
+                              loading="lazy"
+                              src="https://cdn.builder.io/api/v1/image/assets/4bd09ea4570a4d12834637c604f75b6a/2d84382d7a37b16c1d5e2a3a2db49814b8cbc0e8a36a591e566745fc640a27ef?apiKey=0079b6be27434c51a81de1c6567570a7&"
+                              className="object-contain self-stretch my-auto w-3.5 aspect-square"
+                              alt=""
+                            />
+                          </div>
+                        </label>
+                        <div className="self-stretch pt-0.5 my-auto w-36 text-sm font-medium tracking-normal leading-none text-white">
+                          Match Market Orders
+                        </div>
+                        <img
+                          loading="lazy"
+                          src="https://cdn.builder.io/api/v1/image/assets/4bd09ea4570a4d12834637c604f75b6a/a57915f697782d6642a6220d20312f1518adeeed663a49a5b001ab1e95e81fd8?apiKey=0079b6be27434c51a81de1c6567570a7&"
+                          className="object-contain shrink-0 self-stretch my-auto w-4 aspect-square"
+                          alt=""
+                        />
+                      </div>
+                    </div>  */}
+
+                    {/* <div className="flex gap-3 items-start p-2 mt-3 w-full text-sm tracking-normal leading-none text-gray-400 rounded border border-solid bg-neutral-900 border-white border-opacity-10"> */}
+                    {/* <div className="flex flex-col flex-1 shrink justify-center w-full basis-0 min-w-[240px]"> */}
+                      {/* <div className="flex gap-10 justify-between items-center w-full">
+                        <div className="flex flex-col items-start self-stretch my-auto w-[91px]">
+                          <div>400 Yes</div>
+                        </div>
+                        <div className="flex flex-col self-stretch my-auto whitespace-nowrap">
+                          <div>$0.06</div>
+                        </div>
+                      </div> */}
+                      {/* <div className="flex gap-10 justify-between items-center mt-1 w-full">
+                        <div className="flex flex-col items-start self-stretch my-auto w-[91px]">
+                          <div>600 Yes</div>
+                        </div>
+                        <div className="flex flex-col self-stretch my-auto whitespace-nowrap">
+                          <div>$0.05</div>
+                        </div>
+                      </div> */}
+                    {/* </div> */}
+                  {/* </div> */}
     </section>
   );
 };

@@ -10,27 +10,8 @@ import { usePrice } from "@/app/providers/PriceContextProvider";
 import { ethers } from "ethers";
 import { calculateFlashDuelsOptionPrice } from "@/utils/flashDuelsOptionPricing";
 import { GeneralNotification } from "../GeneralNotification";
+import { BetCardProps } from "@/utils/consts";
 
-interface BetCardProps {
-  betTitle: string;
-  imageUrl: string;
-  volume: string;
-  endTime: number;
-  percentage: number;
-  createdBy: string;
-  availableAmount: number;
-  onClose: () => void,
-  duelId: string,
-  duelType: string,
-  startAt: number,
-  createdAt: number,
-  asset?: string,
-  totalBetAmount: number,
-  endsIn: number
-  triggerPrice?: string,
-  status: number;
-  setIsModalOpen: (arg0: boolean) => void;
-}
 
 const BetCard: React.FC<BetCardProps> = ({
   betTitle,
@@ -123,7 +104,7 @@ const BetCard: React.FC<BetCardProps> = ({
           </svg>
         </button>
       </header>
-      <div className="flex flex-col px-4 mt-4 w-full">
+      <div className="flex flex-col justify-between px-4 mt-4 w-full">
         <BetInfo
           bet={bet}
           setBet={setBet}
@@ -140,13 +121,20 @@ const BetCard: React.FC<BetCardProps> = ({
           noPrice={noPrice}
           yesPrice={yesPrice}
         />
+        <div className="flex flex-col h-full">
         <BetAmount availableAmount={availableAmount} betAmount={betAmount} setBetAmount={setBetAmount} />
         <TransactionOverview betAmount={betAmount} />
         <PlaceBetButton betAmount={betAmount} duelId={duelId} duelType={duelType} bet={bet} asset={asset} triggerPrice={triggerPrice} endsIn={endsIn} setIsModalOpen={setIsModalOpen} markPrice={priceFormatted as number} />
-      </div>
+      
+        </div>
+       </div>
       <GeneralNotification></GeneralNotification>
     </article>
   );
 };
 
+
 export default BetCard;
+
+
+
