@@ -5,7 +5,7 @@ import DurationSelect from "./DurationSelect";
 import InfoBox from "./InfoBox";
 import CreateDuelButton from "./CreateDuelButton";
 import TokenSelect from "./TokenInput";
-import { CHAIN_ID, durations, NEXT_PUBLIC_API, NEXT_PUBLIC_DIAMOND, NEXT_PUBLIC_FLASH_DUELS, NEXT_PUBLIC_FLASH_USDC, NEXT_PUBLIC_RPC_URL, NEXT_PUBLIC_TIMER_BOT_URL } from "@/utils/consts";
+import { CHAIN_ID, durations, NEXT_PUBLIC_API, NEXT_PUBLIC_DIAMOND, NEXT_PUBLIC_FLASH_USDC, NEXT_PUBLIC_RPC_URL, NEXT_PUBLIC_TIMER_BOT_URL } from "@/utils/consts";
 import { getAssetImage, mapDurationToNumber } from "@/utils/helper";
 import { useAccount, useWriteContract } from "wagmi";
 import { waitForTransactionReceipt } from "wagmi/actions";
@@ -51,7 +51,7 @@ const CreateDuel = ({ closeDuelModal }: { closeDuelModal: () => void }) => {
       // Use a regular loop to allow early return
       for (const log of receipt.logs) {
         // Check if the log was emitted by your contract
-        if (log.address.toLowerCase() === NEXT_PUBLIC_FLASH_DUELS.toLowerCase()) {
+        if (log.address.toLowerCase() === NEXT_PUBLIC_DIAMOND.toLowerCase()) {
           try {
             // Parse the log using the ABI
             const parsedLog = contract.interface.parseLog(log);
@@ -117,9 +117,10 @@ const CreateDuel = ({ closeDuelModal }: { closeDuelModal: () => void }) => {
       address: NEXT_PUBLIC_FLASH_USDC as `0x${string}`,
       functionName: "increaseAllowance",
       chainId: CHAIN_ID,
-      args: [NEXT_PUBLIC_FLASH_DUELS, 5 * 10 ** 6],
+      args: [NEXT_PUBLIC_FLASH_USDC, 5 * 10 ** 6],
     });
 
+    console.log(NEXT_PUBLIC_DIAMOND, "hello")
   // Function to call the second contract function
   const lpTokenSecondFunctionAsync = (symbol: string, options: string[], minWager: number, triggerValue: number, triggerType: number, triggerCondition: number, duration: number) =>
 
@@ -128,9 +129,8 @@ const CreateDuel = ({ closeDuelModal }: { closeDuelModal: () => void }) => {
       address: NEXT_PUBLIC_DIAMOND as `0x${string}`,
       functionName: "createCryptoDuel",
       chainId: CHAIN_ID,
-      args: [symbol, options, triggerValue, triggerType, triggerCondition, duration],
+      args: ["BTC", options, triggerValue, triggerType, triggerCondition, duration],
     });
-
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -152,6 +152,7 @@ const CreateDuel = ({ closeDuelModal }: { closeDuelModal: () => void }) => {
       const symbol = formData.tokenInput;
       const winCondition = formData.winCondition === "ABOVE" ? 0 : 1;
       const markPrice = "66000";
+      console.log(symbol, typeof(symbol), "symbol")
 
       const secondHash = await lpTokenSecondFunctionAsync(symbol, options, minWager, triggerPrice, triggerType, winCondition, durationNumber);
       const secondReceipt = await waitForTransactionReceipt(config, { hash: secondHash });

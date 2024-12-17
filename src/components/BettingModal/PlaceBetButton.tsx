@@ -2,7 +2,7 @@ import { FLASHUSDCABI } from "@/abi/FLASHUSDC";
 import { config } from "@/app/config/wagmi";
 import { postPricingData, useTotalBets } from "@/app/optionPricing";
 import { useBalance } from "@/blockchain/useBalance";
-import { CHAIN_ID, NEXT_PUBLIC_API, NEXT_PUBLIC_DIAMOND, NEXT_PUBLIC_FLASH_DUELS, NEXT_PUBLIC_FLASH_USDC } from "@/utils/consts";
+import { CHAIN_ID, NEXT_PUBLIC_API, NEXT_PUBLIC_DIAMOND, NEXT_PUBLIC_FLASH_USDC } from "@/utils/consts";
 import { calculateFlashDuelsOptionPrice } from "@/utils/flashDuelsOptionPricing";
 // import axios from "axios";
 import React, { useState } from "react";
@@ -51,7 +51,7 @@ const PlaceBetButton: React.FC<PlaceBetButtonProps> = ({
       address: NEXT_PUBLIC_FLASH_USDC as `0x${string}`,
       functionName: "increaseAllowance", //@note - mainnet - approve
       chainId: CHAIN_ID,
-      args: [NEXT_PUBLIC_FLASH_DUELS, amount],
+      args: [NEXT_PUBLIC_FLASH_USDC, amount],
     });
 
   const joinCryptoDuel = async (duelId: string, option: string, asset: string, optionIndex: number, optionPrice: number, amount: number) => {

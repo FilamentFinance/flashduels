@@ -7,7 +7,7 @@ import DurationSelect from "./DurationSelect";
 import InfoBox from "./InfoBox";
 import SubmitButton from "./SubmitButton";
 import { useAccount, useWriteContract } from "wagmi";
-import { CHAIN_ID, durations, NEXT_PUBLIC_API, NEXT_PUBLIC_DIAMOND, NEXT_PUBLIC_FLASH_DUELS, NEXT_PUBLIC_FLASH_USDC, NEXT_PUBLIC_RPC_URL, NEXT_PUBLIC_TIMER_BOT_URL } from "@/utils/consts";
+import { CHAIN_ID, durations, NEXT_PUBLIC_API, NEXT_PUBLIC_DIAMOND, NEXT_PUBLIC_FLASH_USDC, NEXT_PUBLIC_RPC_URL, NEXT_PUBLIC_TIMER_BOT_URL } from "@/utils/consts";
 // import { FLASHUSDCABI } from "@/abi/FLASHUSDC";
 import { waitForTransactionReceipt } from "wagmi/actions";
 import { config } from "@/app/config/wagmi";
@@ -48,7 +48,7 @@ const CreateDuelForm = ({ closeDuelModal }: { closeDuelModal: () => void }) => {
       // Use a regular loop to allow early return
       for (const log of receipt.logs) {
         // Check if the log was emitted by your contract
-        if (log.address.toLowerCase() === NEXT_PUBLIC_FLASH_DUELS.toLowerCase()) {
+        if (log.address.toLowerCase() === NEXT_PUBLIC_DIAMOND.toLowerCase()) {
           try {
             // Parse the log using the ABI
             const parsedLog = contract.interface.parseLog(log);
@@ -150,7 +150,7 @@ const CreateDuelForm = ({ closeDuelModal }: { closeDuelModal: () => void }) => {
       address: NEXT_PUBLIC_FLASH_USDC as `0x${string}`,
       functionName: "increaseAllowance",
       chainId: CHAIN_ID,
-      args: [NEXT_PUBLIC_FLASH_DUELS, 5 * 10 ** 6],
+      args: [NEXT_PUBLIC_FLASH_USDC, 5 * 10 ** 6],
     });
 
   // Function to call the second contract function
