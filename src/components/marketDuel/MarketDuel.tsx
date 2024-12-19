@@ -2,11 +2,11 @@ import * as React from "react";
 import { OrderItem } from "./OrderItem";
 import { MarketStats } from "./MarketStats";
 import ProbabilityBar from "../BettingModal/ProbabilityBar";
-import { BetCardProps, NEXT_PUBLIC_API } from "@/utils/consts";
+import { BetCardProps, NEXT_PUBLIC_API, OptionBetType } from "@/utils/consts";
 import { useRouter } from "next/navigation";
 import BetInfo from "../BettingModal/BetInfo";
 import BetAmount from "../BettingModal/BetAmount";
-import TransactionOverview from "../BettingModal/TransactionOverview";
+// import TransactionOverview from "../BettingModal/TransactionOverview";
 import PlaceBetButton from "../BettingModal/PlaceBetButton";
 import { postPricingData, useTotalBets } from "@/app/optionPricing";
 import { ethers } from "ethers";
@@ -16,19 +16,20 @@ import { calculateFlashDuelsOptionPrice } from "@/utils/flashDuelsOptionPricing"
 import { priceIds } from "@/utils/helper";
 import PriceModal from "../BettingModal/PriceModal";
 import { apiClient } from "@/utils/apiClient";
+import SellButton from "./SellButton";
 
-const yesOrders = [
-  { price: "$0.56", amount: "4000", type: "YES" },
-  { price: "$0.56", amount: "4000", type: "YES" },
-  { price: "$0.56", amount: "4000", type: "YES" },
-  { price: "$0.56", amount: "4000", type: "YES" },
-  { price: "$0.56", amount: "4000", type: "YES" },
-];
+// const yesOrders = [
+//   { price: "$0.56", amount: "4000", type: "YES" },
+//   { price: "$0.56", amount: "4000", type: "YES" },
+//   { price: "$0.56", amount: "4000", type: "YES" },
+//   { price: "$0.56", amount: "4000", type: "YES" },
+//   { price: "$0.56", amount: "4000", type: "YES" },
+// ];
 
-const noOrders = [
-  { price: "$0.245", amount: "4000", type: "NO" },
-  { price: "$0.12", amount: "4000", type: "NO" },
-];
+// const noOrders = [
+//   { price: "$0.245", amount: "4000", type: "NO" },
+//   { price: "$0.12", amount: "4000", type: "NO" },
+// ];
 
 export const MarketDuel: React.FC<BetCardProps> = ({
   betTitle,
@@ -55,11 +56,12 @@ export const MarketDuel: React.FC<BetCardProps> = ({
   const thirtyMinutesMs = 30 * 60 * 1000;
   const durationMs = endTime * 60 * 60 * 1000; // duration in hours converted to milliseconds
   const router = useRouter();
-  const [betsData, setBetsData] = useState<any>([]);
-  console.log(totalBetAmount, betsData, "bets-data-here");
+  const [betsData, setBetsData] = useState([]);
+  // console.log(totalBetAmount, betsData, "bets-data-here");
 
   const [time, setTimeLeft] = React.useState("");
   const [priceOfBet, setPriceOfBet] = React.useState("0.00");
+  const [betOptionId, setBetOptionId] = React.useState("");
   // console.log(percentage, "probability")
   // Function to calculate the remaining time
   const calculateRemainingTime = () => {
@@ -95,6 +97,8 @@ export const MarketDuel: React.FC<BetCardProps> = ({
   };
   const [betAmount, setBetAmount] = useState("1000");
   const [betState, setBetState] = useState<string>("YES");
+  const [yesBets, setYesBets] = useState<OptionBetType[]>([]);
+  const [noBets, setNoBets] = useState<OptionBetType[]>([]);
   // const [markPrice, setMarkPrice] = useState<number | null>(null);
   const [noPrice, setNoPrice] = useState<number>();
   const [yesPrice, setYesPrice] = useState<number>();
@@ -104,20 +108,22 @@ export const MarketDuel: React.FC<BetCardProps> = ({
 
   const marketPlaceList = async () => {
     try {
-      const response = await apiClient.post(
-        `${NEXT_PUBLIC_API}/marketPlace/list`,
-        { duelId: duelId }
+      const response = await apiClient.get(
+        `${NEXT_PUBLIC_API}/marketPlace/list/${duelId}`,
       );
-      // console.log("hello-getBets");
-      console.log(response, "response");
       const data = response.data;
-      console.log(data, "data-here");
+      const yesBets = data.filter((bet:OptionBetType) => bet.betOption?.index === 0)
+      console.log(data[0].betOption , "Bet-Option", yesBets)
+      const noBets = data.filter((bet: OptionBetType) => bet.betOption?.index === 1)
+      setYesBets(yesBets);
+      setNoBets(noBets);
     } catch (error) {
       console.error("Error fetching bet:", error);
     }
   };
-  
-  React.useEffect(() => {marketPlaceList()},[])
+  console.log(yesBets, "yesBets", noBets, "noBets");
+
+  React.useEffect(() => { marketPlaceList() }, [duelId])
 
   const calculatedPercentage =
     ((totalBetYes as number) / ((totalBetYes as number) + Number(totalBetNo))) *
@@ -132,12 +138,27 @@ export const MarketDuel: React.FC<BetCardProps> = ({
   );
   const id = asset
     ? priceIds.find((obj) => obj[asset as keyof typeof obj])?.[
-        asset as keyof (typeof priceIds)[0]
-      ]
+    asset as keyof (typeof priceIds)[0]
+    ]
     : undefined;
   const formattedId = id?.startsWith("0x") ? id.slice(2) : id;
   const price = formattedId && prices[formattedId];
   const priceFormatted = Number(ethers.formatUnits(String(price || 0), 8));
+
+  const handleBuyOrders = async(betOptionMarketId: string) => {
+    try {
+      const response = await apiClient.post(
+        `${NEXT_PUBLIC_API}/betOption/buy`,
+        {duelId, betOptionMarketId},
+      );
+      const data = response.data;
+
+      console.log(data, "data-new")
+    
+    } catch (error) {
+      console.error("Error fetching bet:", error);
+    }
+  }
 
   React.useEffect(() => {
     const fetchPrices = async () => {
@@ -329,20 +350,20 @@ export const MarketDuel: React.FC<BetCardProps> = ({
                         <div className="flex gap-2 items-start w-[139px]">
                           <div className="flex flex-col flex-1 shrink w-full basis-0">
                             <div className="flex-1 shrink gap-1 self-stretch w-full text-ellipsis">
-                              Amount
+                              Quantity
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
                     <div className="flex flex-col mt-1.5 w-full h-[388px]">
-                      {yesOrders.map((order, index) => (
+                      {yesBets.map((order:OptionBetType, index) => (
                         <OrderItem
                           key={index}
                           price={order.price}
-                          amount={order.amount}
-                          type={order.type}
-                          onBuy={() => {}}
+                          amount={order.quantity}
+                          type={"YES"}
+                          onBuy={() => handleBuyOrders(order.id)}
                         />
                       ))}
                     </div>
@@ -373,13 +394,14 @@ export const MarketDuel: React.FC<BetCardProps> = ({
                       </div>
                     </div>
                     <div className="flex flex-col mt-1.5 w-full">
-                      {noOrders.map((order, index) => (
+                      {noBets.map((order:OptionBetType, index) => (
                         <OrderItem
                           key={index}
                           price={order.price}
-                          amount={order.amount}
-                          type={order.type}
-                          onBuy={() => {}}
+                          amount={order.quantity}
+                          type={"NO"}
+                          onBuy={() => handleBuyOrders(order.id)}
+
                         />
                       ))}
                     </div>
@@ -394,11 +416,10 @@ export const MarketDuel: React.FC<BetCardProps> = ({
                 {/* Form tabs */}
                 <div className="flex gap-5 items-start px-5 w-full text-xl font-semibold whitespace-nowrap border-b-2 border-white border-opacity-10">
                   <button
-                    className={`flex flex-col justify-center ${
-                      side === "BUY"
+                    className={`flex flex-col justify-center ${side === "BUY"
                         ? "text-pink-300 border-b-2 border-pink-300"
                         : "rounded-lg text-zinc-700"
-                    }`}
+                      }`}
                     aria-label="Switch to buy tab"
                     onClick={() => setSide("BUY")}
                   >
@@ -407,11 +428,10 @@ export const MarketDuel: React.FC<BetCardProps> = ({
                     </div>
                   </button>
                   <button
-                    className={`flex flex-col justify-center ${
-                      side === "SELL"
+                    className={`flex flex-col justify-center ${side === "SELL"
                         ? "text-pink-300 border-b-2 border-pink-300"
                         : "rounded-lg text-zinc-700"
-                    } `}
+                      } `}
                     aria-label="Switch to sell tab"
                     onClick={() => setSide("SELL")}
                   >
@@ -446,7 +466,27 @@ export const MarketDuel: React.FC<BetCardProps> = ({
                           betAmount={betAmount}
                           setBetAmount={setBetAmount}
                         />
-                        <TransactionOverview betAmount={betAmount} />
+                           {/* Order summary */}
+                    <div className="flex gap-3 items-start p-2 mt-3 w-full text-sm tracking-normal leading-none text-gray-400 rounded border border-solid bg-neutral-900 border-white border-opacity-10">
+                      <div className="flex flex-col flex-1 shrink justify-center w-full basis-0 min-w-[240px]">
+                        {/* <div className="flex gap-10 justify-between items-center w-full">
+                          <div className="flex flex-col items-start self-stretch my-auto w-[91px]">
+                            <div>400 Yes</div>
+                          </div>
+                          <div className="flex flex-col self-stretch my-auto whitespace-nowrap">
+                            <div>$0.06</div>
+                          </div>
+                        </div> */}
+                        <div className="flex gap-10 justify-between items-center mt-1 w-full">
+                          <div className="flex flex-col items-start self-stretch my-auto w-[91px]">
+                            <div>{betState === "YES" ? (Number(betAmount) * Number(yesPrice)).toFixed(2) : (Number(betAmount) * Number(noPrice)).toFixed(2)} {betState}</div>
+                          </div>
+                          <div className="flex flex-col self-stretch my-auto whitespace-nowrap">
+                            <div>${betState === "YES" ? (yesPrice)?.toFixed(2) : (noPrice)?.toFixed(2)}</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                         <PlaceBetButton
                           betAmount={betAmount}
                           duelId={duelId}
@@ -462,7 +502,7 @@ export const MarketDuel: React.FC<BetCardProps> = ({
                     </div>
 
                     {/* Match market orders toggle */}
-                    <div className="flex items-center mt-3 w-full">
+                    {/* <div className="flex items-center mt-3 w-full">
                       <div className="flex flex-1 shrink gap-2 items-center self-stretch my-auto w-full rounded-lg basis-0 min-w-[240px]">
                         <label className="flex gap-2.5 items-center self-stretch my-auto w-4">
                           <input
@@ -489,32 +529,12 @@ export const MarketDuel: React.FC<BetCardProps> = ({
                           alt=""
                         />
                       </div>
-                    </div>
+                    </div> */}
 
-                    {/* Order summary */}
-                    <div className="flex gap-3 items-start p-2 mt-3 w-full text-sm tracking-normal leading-none text-gray-400 rounded border border-solid bg-neutral-900 border-white border-opacity-10">
-                      <div className="flex flex-col flex-1 shrink justify-center w-full basis-0 min-w-[240px]">
-                        <div className="flex gap-10 justify-between items-center w-full">
-                          <div className="flex flex-col items-start self-stretch my-auto w-[91px]">
-                            <div>400 Yes</div>
-                          </div>
-                          <div className="flex flex-col self-stretch my-auto whitespace-nowrap">
-                            <div>$0.06</div>
-                          </div>
-                        </div>
-                        <div className="flex gap-10 justify-between items-center mt-1 w-full">
-                          <div className="flex flex-col items-start self-stretch my-auto w-[91px]">
-                            <div>600 Yes</div>
-                          </div>
-                          <div className="flex flex-col self-stretch my-auto whitespace-nowrap">
-                            <div>$0.05</div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                 
 
                     {/* Order details */}
-                    <div className="flex flex-col justify-center mt-3 w-full text-sm tracking-normal leading-none">
+                    {/* <div className="flex flex-col justify-center mt-3 w-full text-sm tracking-normal leading-none">
                       <div className="flex gap-10 justify-between items-center w-full text-gray-400">
                         <div className="flex flex-col items-start self-stretch my-auto w-[91px]">
                           <div>Avg. Price</div>
@@ -543,7 +563,7 @@ export const MarketDuel: React.FC<BetCardProps> = ({
                           <div>$2500(40%)</div>
                         </div>
                       </div>
-                    </div>
+                    </div> */}
                     {/* </div>  */}
                   </>
                 ) : (
@@ -581,24 +601,27 @@ export const MarketDuel: React.FC<BetCardProps> = ({
                           <h3 className="text-xl font-semibold text-white mb-4">
                             Your Bets:
                           </h3>
-                          {betsData.map((bet: any, index: number) => (
+                          {betsData.map((bet: OptionBetType, index: number) => (
                             <div
                               key={index}
                               onClick={() => {
                                 console.log(bet.id, "bet-status")
-                                if(betState === "NO" && bet.index === 1) {
-                                setBetAmount((bet.quantity * bet.price).toString());
-                                setPriceOfBet(bet.price);
-                                }
-                                else if(betState === "YES" && bet.index === 0) {
-                                  setBetAmount((bet.quantity * bet.price).toString());
+                                if (betState === "NO" && bet.index === 1) {
+                                  setBetAmount((Number(bet.quantity)).toString());
                                   setPriceOfBet(bet.price);
+                                  setBetOptionId(bet.id)
+
+                                }
+                                else if (betState === "YES" && bet.index === 0) {
+                                  setBetAmount((Number(bet.quantity)).toString());
+                                  setPriceOfBet(bet.price);
+                                  setBetOptionId(bet.id)
                                 }
                               }}
                               className="flex items-center justify-between py-2 px-4 mb-2 bg-gray-700 rounded-md hover:bg-gray-600 transition-all"
                             >
                               <div className="flex flex-col">
-                              <div className="text-white text-sm">
+                                <div className="text-white text-sm">
                                   Side:{" "}
                                   <span className="font-semibold">
                                     {bet.index === 0 ? "YES" : "NO"}
@@ -607,13 +630,19 @@ export const MarketDuel: React.FC<BetCardProps> = ({
                                 <div className="text-white text-sm">
                                   Prices:{" "}
                                   <span className="font-semibold">
-                                    {Number(bet.price).toFixed(2)}
+                                    {Number(bet.price)}
                                   </span>
                                 </div>
                                 <div className="text-white text-sm">
                                   Quantity:{" "}
                                   <span className="font-semibold">
-                                    {Number(bet.quantity * bet.price).toFixed(2)}
+                                    {Number(bet.quantity)}
+                                  </span>
+                                </div>
+                                <div className="text-white text-sm">
+                                  Amount:{" "}
+                                  <span className="font-semibold">
+                                    {Number(bet.amount)}
                                   </span>
                                 </div>
                               </div>
@@ -621,16 +650,10 @@ export const MarketDuel: React.FC<BetCardProps> = ({
                           ))}
                         </div>
                         {/* //sc interaction */}
-                        <PlaceBetButton
-                          betAmount={betAmount}
-                          duelId={duelId}
-                          duelType={duelType}
-                          bet={betState}
-                          asset={asset}
-                          triggerPrice={triggerPrice}
-                          endsIn={endsIn}
-                          setIsModalOpen={setIsModalOpen}
-                          markPrice={priceFormatted as number}
+                        <SellButton
+                          quantity={betAmount}
+                          price={priceOfBet}
+                          betOptionId={betOptionId}
                         />
                       </div>
                     </div>
