@@ -15,6 +15,7 @@ import { estConnection } from "@/utils/atoms";
 import usePopup from "@/app/providers/PopupProvider";
 import { apiClient } from "@/utils/apiClient";
 import { NEXT_PUBLIC_API } from "@/utils/consts";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 interface SellButtonProps {
   quantity: string;
@@ -26,7 +27,7 @@ interface SellButtonProps {
 const SellButton: React.FC<SellButtonProps> = ({
   quantity, price, betOptionId
 }) => {
-  const { address } = useAccount();
+  const { address, isConnected } = useAccount();
   const [establishConnection] = useAtom(estConnection)
  const {showPopup} = usePopup()
   const [notification, setNotification] = useAtom(GeneralNotificationAtom);
@@ -116,7 +117,7 @@ const SellButton: React.FC<SellButtonProps> = ({
 
   return (
     <div>
-   {establishConnection ?   <button
+   {!isConnected ? <ConnectButton/> : establishConnection ?   <button
    className="gap-2.5 self-stretch px-3 py-2.5 w-full rounded shadow-sm bg-[linear-gradient(180deg,#F19ED2_0%,#C87ECA_100%)]"
    onClick={showPopup}
    >

@@ -17,6 +17,8 @@ import { priceIds } from "@/utils/helper";
 import PriceModal from "../BettingModal/PriceModal";
 import { apiClient } from "@/utils/apiClient";
 import SellButton from "./SellButton";
+import { useAtom } from "jotai";
+import { GeneralNotificationAtom } from "../GeneralNotification";
 
 // const yesOrders = [
 //   { price: "$0.56", amount: "4000", type: "YES" },
@@ -57,6 +59,8 @@ export const MarketDuel: React.FC<BetCardProps> = ({
   const durationMs = endTime * 60 * 60 * 1000; // duration in hours converted to milliseconds
   const router = useRouter();
   const [betsData, setBetsData] = useState([]);
+    const [notification, setNotification] = useAtom(GeneralNotificationAtom);
+  
   // console.log(totalBetAmount, betsData, "bets-data-here");
 
   const [time, setTimeLeft] = React.useState("");
@@ -84,6 +88,7 @@ export const MarketDuel: React.FC<BetCardProps> = ({
 
     return remainingTimeMs;
   };
+  console.log(notification)
 
   // Function to format time in HH:MM:SS format
   const formatTime = (ms: number) => {
@@ -154,9 +159,19 @@ export const MarketDuel: React.FC<BetCardProps> = ({
       const data = response.data;
 
       console.log(data, "data-new")
+      setNotification({
+        isOpen: true,
+        success: true,
+        massage: data,
+      })
     
     } catch (error) {
       console.error("Error fetching bet:", error);
+      setNotification({
+        isOpen: true,
+        success: false,
+        massage: "Failed to Purchase Bet",
+      });
     }
   }
 

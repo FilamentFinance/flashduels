@@ -83,7 +83,6 @@ const postPricingData = async (markPrice: number, triggerPrice: number, asset: s
             symbol: `${asset}USDT`
         };
     }
-    console.log(data, "data-new")
     try {
         const response = await axios.post(
             'https://orderbookv3.filament.finance/pricing',

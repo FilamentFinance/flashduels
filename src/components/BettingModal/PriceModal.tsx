@@ -8,9 +8,12 @@ interface BetAmountProps {
 const PriceModal: React.FC<BetAmountProps> = ({ priceOfBet, setPriceOfBet }) => {
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^0-9]/g, "");
-    setPriceOfBet(value);
+    const value = e.target.value;
+    // Allow only numbers and a single decimal point
+    const formattedValue = value.replace(/[^0-9.]/g, "").replace(/(\..*?)\..*/g, "$1");
+    setPriceOfBet(formattedValue);
   };
+  
 
 
   return (
