@@ -10,7 +10,7 @@ interface PriceInputProps {
 
 const PriceInput: React.FC<PriceInputProps> = ({ label, placeholder, onChange, name, value }) => {
   return (
-    <div className="flex gap-1 items-center mt-4 w-full">
+    <div className="flex gap-1 items-center mt-4 w-full text-white">
       <label
         htmlFor={`${label.toLowerCase().replace(/\s/g, "-")}-input`}
         className="flex flex-1 shrink gap-1 items-center self-stretch my-auto text-base tracking-normal leading-none text-gray-400 basis-0"
@@ -25,7 +25,7 @@ const PriceInput: React.FC<PriceInputProps> = ({ label, placeholder, onChange, n
           id={`${label.toLowerCase().replace(/\s/g, "-")}-input`}
           name={name} value={value} onChange={onChange} 
           type="text"
-          className="flex flex-1 shrink gap-2.5 items-start self-stretch px-4 py-2 bg-neutral-800 my-auto w-full basis-0"
+          className="flex flex-1 text-white shrink gap-2.5 items-start self-stretch px-4 py-2 bg-neutral-800 my-auto w-full basis-0"
           placeholder={placeholder}
         />
       </div>

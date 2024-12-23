@@ -32,7 +32,7 @@ const DuelCategories = ({ specialCategoryIndex, setSpecialCategoryIndex }: { spe
     setSpecialCategoryIndex(specialCategoryIndex === index ? null : index);
   };
   return (
-    <main className="flex flex-wrap gap-4 mt-6 items-center px-[50px] text-4xl font-semibold text-zinc-700 max-md:px-5">
+    <main className="flex flex-row gap-3 mt-6 items-center px-[50px] max-md:px-5">
       {duelCategories.map((category, index) => (
         <DuelCategoryCard
           key={index}

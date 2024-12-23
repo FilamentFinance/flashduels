@@ -23,7 +23,7 @@ const MarketOption: React.FC<MarketOptionProps> = ({
       <button
         onClick={onSelect}
         className={`flex grow gap-2 items-start text-center text-gray-500 min-h-[142px] w-full ${
-          isSelected ? "ring-2 bg-[#F19ED233] text-white ring-pink-300" : ""
+          isSelected ? " bg-[#F19ED233] text-white rounded-xl" : ""
         }`}
       >
         <div className="flex flex-col flex-1 shrink w-full basis-0">

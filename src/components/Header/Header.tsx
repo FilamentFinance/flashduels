@@ -14,9 +14,10 @@ import { useAtom } from "jotai/react";
 import { setupInterceptors } from "@/utils/apiClient";
 import { isSigningKeyValid } from "@/utils/sign";
 import { estConnection } from "@/utils/atoms";
+import Navigation from "./Navigation";
 
 const Header: React.FC = () => {
-  const { address } = useAccount();
+  const { address, isConnected } = useAccount();
   const router = useRouter();
   const pathname = usePathname();
   const { disconnect } = useDisconnect();
@@ -84,37 +85,26 @@ const Header: React.FC = () => {
     };
   }, [address, config]);
 
-  // window.addEventListener('beforeunload', clearAllIndexedDBs);
-  // useEffect(() => {
-  //   if (!isConnected) return;
-
-  //   const handleAccountChange = async () => {
-  //     // Disconnect from Privy
-  //     await logout();
-
-  //     // Disconnect from Wagmi
-  //     disconnect();
-  //   };
-
-  //   // Check if the account has changed
-  //   const currentAccount = localStorage.getItem('connectedAccount');
-  //   if (currentAccount && currentAccount !== address) {
-  //     handleAccountChange();
-  //   }
-
-  //   // Save the current account to local storage
-  //   localStorage.setItem('connectedAccount', address as string);
-  // }, [address, isConnected, disconnect]);
   return (
     <header className="flex w-full h-[107px] px-[50px] justify-between items-center flex-shrink-0 border-b-2 border-gray-500 border-opacity-20">
-      <div className="flex flex-row gap-x-2">
-        <Logo />
-        <button onClick={() => router.push("/")} className={`text-[rgba(243,239,224,0.60)] ${isPath} ? "text-[var(--text-pink,#F19ED2)]" : "text-[rgba(243,239,224,0.60)]"`}>Home</button>
-        {/* <link href="/">Home</link> */}
-      </div>
-      <Navbar />
-      {/* <button onClick={async () => { await fundWallet(user?.wallet?.address as string); }}>hello</button> */}
-    </header>
+    <div className="flex flex-row gap-x-4 items-center">
+      <Logo />
+      <button
+        onClick={() => router.push("/")}
+        className={`text-base leading-5 font-normal ${
+          isPath
+            ? "text-[var(--text-pink,#F19ED2)]"
+            : "text-[rgba(243,239,224,0.60)]"
+        } cursor-pointer`}
+      >
+        Markets
+      </button>
+      <Navigation pathname={"leaderboard"} />
+      {isConnected && <Navigation pathname={"portfolio"} />}
+    </div>
+    <Navbar />
+  </header>
+  
   );
 };
 export default Header;

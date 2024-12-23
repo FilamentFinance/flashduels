@@ -19,6 +19,8 @@ import { apiClient } from "@/utils/apiClient";
 import SellButton from "./SellButton";
 import { useAtom } from "jotai";
 import { GeneralNotificationAtom } from "../GeneralNotification";
+import { OrdersTable } from "./orders/OrdersTable";
+import { DetailsModal } from "./details/DetailsModal";
 
 // const yesOrders = [
 //   { price: "$0.56", amount: "4000", type: "YES" },
@@ -59,8 +61,8 @@ export const MarketDuel: React.FC<BetCardProps> = ({
   const durationMs = endTime * 60 * 60 * 1000; // duration in hours converted to milliseconds
   const router = useRouter();
   const [betsData, setBetsData] = useState([]);
-    const [notification, setNotification] = useAtom(GeneralNotificationAtom);
-  
+  const [notification, setNotification] = useAtom(GeneralNotificationAtom);
+
   // console.log(totalBetAmount, betsData, "bets-data-here");
 
   const [time, setTimeLeft] = React.useState("");
@@ -117,8 +119,8 @@ export const MarketDuel: React.FC<BetCardProps> = ({
         `${NEXT_PUBLIC_API}/marketPlace/list/${duelId}`,
       );
       const data = response.data;
-      const yesBets = data.filter((bet:OptionBetType) => bet.betOption?.index === 0)
-      console.log(data[0].betOption , "Bet-Option", yesBets)
+      const yesBets = data.filter((bet: OptionBetType) => bet.betOption?.index === 0)
+      console.log(data[0].betOption, "Bet-Option", yesBets)
       const noBets = data.filter((bet: OptionBetType) => bet.betOption?.index === 1)
       setYesBets(yesBets);
       setNoBets(noBets);
@@ -150,11 +152,11 @@ export const MarketDuel: React.FC<BetCardProps> = ({
   const price = formattedId && prices[formattedId];
   const priceFormatted = Number(ethers.formatUnits(String(price || 0), 8));
 
-  const handleBuyOrders = async(betOptionMarketId: string) => {
+  const handleBuyOrders = async (betOptionMarketId: string) => {
     try {
       const response = await apiClient.post(
         `${NEXT_PUBLIC_API}/betOption/buy`,
-        {duelId, betOptionMarketId},
+        { duelId, betOptionMarketId },
       );
       const data = response.data;
 
@@ -164,7 +166,7 @@ export const MarketDuel: React.FC<BetCardProps> = ({
         success: true,
         massage: data,
       })
-    
+
     } catch (error) {
       console.error("Error fetching bet:", error);
       setNotification({
@@ -174,7 +176,10 @@ export const MarketDuel: React.FC<BetCardProps> = ({
       });
     }
   }
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
 
+  const handleOpenModal = () => setIsDetailsModalOpen(true);
+  const handleCloseModal = () => setIsDetailsModalOpen(false);
   React.useEffect(() => {
     const fetchPrices = async () => {
       if (asset) {
@@ -259,7 +264,7 @@ export const MarketDuel: React.FC<BetCardProps> = ({
   return (
     <div className="flex overflow-hidden flex-col pb-9">
       {/* Main content */}
-      <main className="flex flex-col px-12 mt-6 w-full max-md:px-5 max-md:max-w-full">
+      <main className="flex flex-col px-12 mt-6 gap-y-2 w-full max-md:px-5 max-md:max-w-full">
         <button
           className="flex gap-1 items-center self-start text-xl font-semibold tracking-normal leading-none text-center whitespace-nowrap text-stone-500"
           aria-label="Go back"
@@ -268,7 +273,7 @@ export const MarketDuel: React.FC<BetCardProps> = ({
           <img
             loading="lazy"
             src="https://cdn.builder.io/api/v1/image/assets/4bd09ea4570a4d12834637c604f75b6a/c0421d2e17b44204142803774498a75025c7bc02440d0c72f5b117e7c4737ad8?apiKey=0079b6be27434c51a81de1c6567570a7&"
-            className="object-contain shrink-0 self-stretch my-auto w-7 aspect-square"
+            className="object-contain shrink-0 self-stretch my-auto w-7 rounded-full"
             alt=""
           />
           <span className="self-stretch my-auto">Back</span>
@@ -283,11 +288,11 @@ export const MarketDuel: React.FC<BetCardProps> = ({
                 <div className="flex flex-wrap gap-2 items-start w-full max-md:max-w-full">
                   <div className="flex gap-2 min-h-[87px] w-[87px]">
                     <div className="flex flex-1 shrink basis-0 size-full">
-                      <div className="flex flex-1 shrink justify-center items-center bg-gray-500 rounded-lg border border-solid basis-0 border-white border-opacity-10 h-[87px] w-[87px]">
+                      <div className="flex flex-1 shrink justify-center items-center bg-gray-500 rounded-full border border-solid basis-0 border-white border-opacity-10 h-[87px] w-[87px]">
                         <img
                           loading="lazy"
                           src={imageUrl}
-                          className="object-contain flex-1 shrink rounded-lg aspect-square basis-0 w-[87px]"
+                          className="object-contain flex-1 shrink rounded-full w-[87px]"
                           alt="Market icon"
                         />
                       </div>
@@ -299,6 +304,7 @@ export const MarketDuel: React.FC<BetCardProps> = ({
                       {betTitle || "Hello"}
                     </h1>
                     <button
+                     onClick={handleOpenModal}
                       className="flex gap-1 items-center px-2 py-1 h-full text-xs tracking-normal leading-relaxed text-gray-400 rounded border border-solid bg-neutral-700 border-white border-opacity-10"
                       aria-label="View market details and rules"
                     >
@@ -312,6 +318,7 @@ export const MarketDuel: React.FC<BetCardProps> = ({
                     </button>
                   </div>
                 </div>
+                <DetailsModal isOpen={isDetailsModalOpen} onClose={handleCloseModal} />
 
                 {/* Market stats */}
                 <div className="flex flex-wrap gap-4 items-center mt-4 w-full max-md:mr-1 max-md:max-w-full">
@@ -350,6 +357,8 @@ export const MarketDuel: React.FC<BetCardProps> = ({
                 {/* Order book */}
                 <div className="flex overflow-hidden flex-wrap items-start py-1 mt-7 text-base tracking-normal rounded-xl border-2 border-solid bg-neutral-900 border-stone-900">
                   {/* Yes orders */}
+                 {yesBets.length === 0  && noBets.length === 0 ?    <span className="text-white flex items-center justify-center h-[441px] w-full">No Open Orders</span> :
+                 <>
                   <div className="flex flex-col flex-1 self-stretch mt-2">
                     <div className="flex items-center w-full whitespace-nowrap text-stone-200">
                       <div className="flex gap-2.5 items-start self-stretch py-2 pl-3.5 my-auto border-b-2 border-stone-900 w-[97px]">
@@ -372,7 +381,7 @@ export const MarketDuel: React.FC<BetCardProps> = ({
                       </div>
                     </div>
                     <div className="flex flex-col mt-1.5 w-full h-[388px]">
-                      {yesBets.map((order:OptionBetType, index) => (
+                      {yesBets.map((order: OptionBetType, index) => (
                         <OrderItem
                           key={index}
                           price={order.price}
@@ -409,7 +418,7 @@ export const MarketDuel: React.FC<BetCardProps> = ({
                       </div>
                     </div>
                     <div className="flex flex-col mt-1.5 w-full">
-                      {noBets.map((order:OptionBetType, index) => (
+                      {noBets.map((order: OptionBetType, index) => (
                         <OrderItem
                           key={index}
                           price={order.price}
@@ -421,6 +430,8 @@ export const MarketDuel: React.FC<BetCardProps> = ({
                       ))}
                     </div>
                   </div>
+                 </>
+                 }
                 </div>
               </div>
             </section>
@@ -432,8 +443,8 @@ export const MarketDuel: React.FC<BetCardProps> = ({
                 <div className="flex gap-5 items-start px-5 w-full text-xl font-semibold whitespace-nowrap border-b-2 border-white border-opacity-10">
                   <button
                     className={`flex flex-col justify-center ${side === "BUY"
-                        ? "text-pink-300 border-b-2 border-pink-300"
-                        : "rounded-lg text-zinc-700"
+                      ? "text-pink-300 border-b-2 border-pink-300"
+                      : "rounded-lg text-zinc-700"
                       }`}
                     aria-label="Switch to buy tab"
                     onClick={() => setSide("BUY")}
@@ -444,8 +455,8 @@ export const MarketDuel: React.FC<BetCardProps> = ({
                   </button>
                   <button
                     className={`flex flex-col justify-center ${side === "SELL"
-                        ? "text-pink-300 border-b-2 border-pink-300"
-                        : "rounded-lg text-zinc-700"
+                      ? "text-pink-300 border-b-2 border-pink-300"
+                      : "rounded-lg text-zinc-700"
                       } `}
                     aria-label="Switch to sell tab"
                     onClick={() => setSide("SELL")}
@@ -480,40 +491,36 @@ export const MarketDuel: React.FC<BetCardProps> = ({
                           availableAmount={availableAmount}
                           betAmount={betAmount}
                           setBetAmount={setBetAmount}
+                          text={"Amount"}
+                          showAvailable={true}
+                          showUSDC={true}
                         />
-                           {/* Order summary */}
-                    <div className="flex gap-3 items-start p-2 mt-3 w-full text-sm tracking-normal leading-none text-gray-400 rounded border border-solid bg-neutral-900 border-white border-opacity-10">
-                      <div className="flex flex-col flex-1 shrink justify-center w-full basis-0 min-w-[240px]">
-                        {/* <div className="flex gap-10 justify-between items-center w-full">
-                          <div className="flex flex-col items-start self-stretch my-auto w-[91px]">
-                            <div>400 Yes</div>
-                          </div>
-                          <div className="flex flex-col self-stretch my-auto whitespace-nowrap">
-                            <div>$0.06</div>
-                          </div>
-                        </div> */}
-                        <div className="flex gap-10 justify-between items-center mt-1 w-full">
-                          <div className="flex flex-col items-start self-stretch my-auto w-[91px]">
-                            <div>{betState === "YES" ? (Number(betAmount) * Number(yesPrice)).toFixed(2) : (Number(betAmount) * Number(noPrice)).toFixed(2)} {betState}</div>
-                          </div>
-                          <div className="flex flex-col self-stretch my-auto whitespace-nowrap">
-                            <div>${betState === "YES" ? (yesPrice)?.toFixed(2) : (noPrice)?.toFixed(2)}</div>
+                        {/* Order summary */}
+
+                      </div>
+                      <div className="flex gap-3 items-end p-2 mt-3 w-full text-sm tracking-normal leading-none text-gray-400 rounded border border-solid bg-neutral-900 border-white border-opacity-10">
+                        <div className="flex flex-col flex-1 shrink justify-center w-full basis-0 min-w-[240px]">
+                          <div className="flex gap-10 justify-between items-center mt-1 w-full">
+                            <div className="flex flex-col items-start self-stretch my-auto w-[91px]">
+                              <div>{betState === "YES" ? (Number(betAmount) * Number(yesPrice)).toFixed(2) : (Number(betAmount) * Number(noPrice)).toFixed(2)} {betState}</div>
+                            </div>
+                            <div className="flex flex-col self-stretch my-auto whitespace-nowrap">
+                              <div>${betState === "YES" ? (yesPrice)?.toFixed(2) : (noPrice)?.toFixed(2)}</div>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                        <PlaceBetButton
-                          betAmount={betAmount}
-                          duelId={duelId}
-                          duelType={duelType}
-                          bet={betState}
-                          asset={asset}
-                          triggerPrice={triggerPrice}
-                          endsIn={endsIn}
-                          setIsModalOpen={setIsModalOpen}
-                          markPrice={priceFormatted as number}
-                        />
-                      </div>
+                      <PlaceBetButton
+                        betAmount={betAmount}
+                        duelId={duelId}
+                        duelType={duelType}
+                        bet={betState}
+                        asset={asset}
+                        triggerPrice={triggerPrice}
+                        endsIn={endsIn}
+                        setIsModalOpen={setIsModalOpen}
+                        markPrice={priceFormatted as number}
+                      />
                     </div>
 
                     {/* Match market orders toggle */}
@@ -546,7 +553,7 @@ export const MarketDuel: React.FC<BetCardProps> = ({
                       </div>
                     </div> */}
 
-                 
+
 
                     {/* Order details */}
                     {/* <div className="flex flex-col justify-center mt-3 w-full text-sm tracking-normal leading-none">
@@ -605,6 +612,9 @@ export const MarketDuel: React.FC<BetCardProps> = ({
                           availableAmount={availableAmount}
                           betAmount={betAmount}
                           setBetAmount={setBetAmount}
+                          text={"Quantity"}
+                          showAvailable={false}
+                          showUSDC={false}
                         />
                         <PriceModal
                           priceOfBet={priceOfBet}
@@ -612,15 +622,15 @@ export const MarketDuel: React.FC<BetCardProps> = ({
                         />
                         {/* <TransactionOverview betAmount={betAmount} /> */}
 
-                        <div className="bg-gray-800 p-4 rounded-lg shadow-lg mt-2">
-                          <h3 className="text-xl font-semibold text-white mb-4">
-                            Your Bets:
+                        <div className="rounded-lg shadow-lg mt-2">
+                          <h3 className="text-gray-400">
+                            Your Bets
                           </h3>
                           {betsData.map((bet: OptionBetType, index: number) => (
-                            <div
+
+                            <button
                               key={index}
                               onClick={() => {
-                                console.log(bet.id, "bet-status")
                                 if (betState === "NO" && bet.index === 1) {
                                   setBetAmount((Number(bet.quantity)).toString());
                                   setPriceOfBet(bet.price);
@@ -633,35 +643,20 @@ export const MarketDuel: React.FC<BetCardProps> = ({
                                   setBetOptionId(bet.id)
                                 }
                               }}
-                              className="flex items-center justify-between py-2 px-4 mb-2 bg-gray-700 rounded-md hover:bg-gray-600 transition-all"
-                            >
-                              <div className="flex flex-col">
-                                <div className="text-white text-sm">
-                                  Side:{" "}
-                                  <span className="font-semibold">
-                                    {bet.index === 0 ? "YES" : "NO"}
-                                  </span>
-                                </div>
-                                <div className="text-white text-sm">
-                                  Prices:{" "}
-                                  <span className="font-semibold">
-                                    {Number(bet.price)}
-                                  </span>
-                                </div>
-                                <div className="text-white text-sm">
-                                  Quantity:{" "}
-                                  <span className="font-semibold">
-                                    {Number(bet.quantity)}
-                                  </span>
-                                </div>
-                                <div className="text-white text-sm">
-                                  Amount:{" "}
-                                  <span className="font-semibold">
-                                    {Number(bet.amount)}
-                                  </span>
+                              className="flex mt-1 items-end p-2 w-full text-sm tracking-normal leading-none text-gray-400 rounded border border-solid bg-neutral-900 border-white border-opacity-10">
+                              {/* <div className="flex gap-3 items-end p-2 mt-3 w-full text-sm tracking-normal leading-none text-gray-400 rounded border border-solid bg-neutral-900 border-white border-opacity-10"> */}
+                              <div className="flex flex-col flex-1 shrink justify-center w-full basis-0 min-w-[240px]">
+                                <div className="flex gap-10 justify-between items-center mt-1 w-full">
+                                  <div className="flex flex-col items-start self-stretch my-auto w-[91px]">
+                                    <div>{Number(bet.quantity).toFixed(3)} {bet.index === 0 ? "YES" : "NO"}</div>
+                                  </div>
+                                  <div className="flex flex-col self-stretch my-auto whitespace-nowrap">
+                                    <div>${Number(bet.price).toFixed(3)}</div>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
+                            </button>
+
                           ))}
                         </div>
                         {/* //sc interaction */}
@@ -677,8 +672,13 @@ export const MarketDuel: React.FC<BetCardProps> = ({
                 )}
               </div>
             </section>
+
           </div>
+
         </div>
+        {/* OpenOrders */}
+        <OrdersTable></OrdersTable>
+
       </main>
     </div>
   );

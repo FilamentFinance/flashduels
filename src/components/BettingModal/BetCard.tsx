@@ -122,7 +122,7 @@ const BetCard: React.FC<BetCardProps> = ({
           yesPrice={yesPrice}
         />
         <div className="flex flex-col h-full">
-        <BetAmount availableAmount={availableAmount} betAmount={betAmount} setBetAmount={setBetAmount} />
+        <BetAmount availableAmount={availableAmount} betAmount={betAmount} showUSDC={true} setBetAmount={setBetAmount} text={"Amount"} showAvailable={true} />
         <TransactionOverview betAmount={betAmount} />
         <PlaceBetButton betAmount={betAmount} duelId={duelId} duelType={duelType} bet={bet} asset={asset} triggerPrice={triggerPrice} endsIn={endsIn} setIsModalOpen={setIsModalOpen} markPrice={priceFormatted as number} />
       
