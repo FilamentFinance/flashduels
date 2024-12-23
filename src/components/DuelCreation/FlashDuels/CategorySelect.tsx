@@ -22,7 +22,7 @@ const CategorySelect: React.FC<CategorySelectProps> = ({ name, value, onChange }
             id="category"
             name={name} value={value} onChange={onChange} 
             required
-            className="flex flex-1 shrink items-center self-stretch my-auto p-2 text-base font-medium tracking-normal whitespace-nowrap basis-5 text-stone-500 bg-transparent appearance-none"
+            className="flex flex-1 text-white shrink items-center self-stretch my-auto p-2 text-base font-medium tracking-normal whitespace-nowrap basis-5 text-stone-500 bg-transparent appearance-none"
           >
             <option>Any</option>
             {/* <option>Crypto</option> */}

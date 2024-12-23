@@ -7,6 +7,10 @@ import { NewDuelItem, NEXT_PUBLIC_API } from "@/utils/consts";
 import { apiClient } from "@/utils/apiClient";
 import { shortenAddress } from "@/utils/helper";
 import { useSearchParams } from "next/navigation";
+// import { useAccount } from "wagmi";
+import { useBalance } from "@/blockchain/useBalance";
+import { useAccount } from "wagmi";
+import { ethers } from "ethers";
 
 const BetPage = () => {
   const searchParams = useSearchParams();
@@ -17,6 +21,11 @@ const BetPage = () => {
   const [duel, setDuel] = useState<NewDuelItem | null>(null); // Initialize as null to handle loading state
   const [loading, setLoading] = useState(true); // To track loading state
   const [error, setError] = useState<string | null>(null); // To track errors
+  const { address:accountAddress } = useAccount();
+  const { balance } = useBalance(accountAddress as string);
+  const balanceNum = (Number(ethers.formatUnits(balance ? balance.toString() : 0, 6)));
+
+
   console.log(isModalOpen);
 
   useEffect(() => {
@@ -44,7 +53,7 @@ const BetPage = () => {
     }
   }, [duelId]);
 
-  
+
   if (loading) {
     return <div>Loading duel details...</div>; // Show loading state while fetching
   }
@@ -59,8 +68,7 @@ const BetPage = () => {
 
   // Destructure duel object only after it's available
   const {
-    betString = `Will ${duel.token} be ${
-      duel.winCondition === 0 ? "ABOVE" : "BELOW"
+    betString = `Will ${duel.token} be ${duel.winCondition === 0 ? "ABOVE" : "BELOW"
     } ${duel.triggerPrice}`,
     betIcon = "empty-string",
     totalBetAmount = 0,
@@ -82,8 +90,8 @@ const BetPage = () => {
   const volume = `$${totalBetAmount}`;
   const endTime = endsIn; // Assuming `endsIn` is a timestamp or string; ensure it's formatted correctly
   const percentage = 50; // Adjust based on actual data if needed
-  const createdBy = twitterUsername || shortenAddress(address);
-  const availableAmount = 0; // Set according to your logic (balance or available funds)
+  const createdBy = twitterUsername || shortenAddress(address as string);
+
   const asset = token;
 
   return (
@@ -95,7 +103,7 @@ const BetPage = () => {
         endTime={endTime}
         percentage={percentage}
         createdBy={createdBy}
-        availableAmount={availableAmount}
+        availableAmount={balanceNum}
         onClose={() => setIsModalOpen(false)}
         duelId={duelId as string}
         duelType={duelType}

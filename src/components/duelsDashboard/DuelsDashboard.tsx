@@ -241,9 +241,9 @@ function DuelRow({
         <span>{duelName}</span>
       </div>
       <div className={`w-[15%] text-center ${direction === "Yes" ? 'text-green-500' : 'text-red-500'}`}>{direction}</div>
-      <div className="w-[15%] text-center">{(Number(avgPrice) * Number(value)).toFixed(3)}</div>
+      <div className="w-[15%] text-center">{(Number(value)).toFixed(3)}</div>
       <div className="w-[15%] text-center">${Number(avgPrice).toFixed(3)}</div>
-      <div className="w-[15%] text-center">${value}</div>
+      <div className="w-[15%] text-center">${(Number(value)/Number(avgPrice)).toFixed(2)}</div>
       <div className="w-[20%] text-center">{activeTab === "history" ? `$${pnl.toFixed(2)}` : time}</div>
     </div>
   );

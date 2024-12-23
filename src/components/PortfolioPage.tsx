@@ -16,6 +16,7 @@ import usePopup from "@/app/providers/PopupProvider";
 import { useAtom } from "jotai";
 import { estConnection } from "@/utils/atoms";
 import { apiClient } from "@/utils/apiClient";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 const PortfolioPage: React.FC = () => {
   const [establishConnection] = useAtom(estConnection);
@@ -23,9 +24,7 @@ const PortfolioPage: React.FC = () => {
 // console.log(setEstablishConnection, "establishConnection")
   const [activeButton, setActiveButton] = useState<string>("liveDuels");
   const [specialCategoryIndex, setSpecialCategoryIndex] = useState<number | null>(0);
-
-
-  const { address } = useAccount();
+  const { address, isConnected } = useAccount();
   const { balance } = useBalance(address as string);
   const balanceNum = (Number(ethers.formatUnits(balance   ? balance.toString() : 0, 6)));
 
@@ -61,12 +60,12 @@ const PortfolioPage: React.FC = () => {
   if (establishConnection) {
     return <div className="flex justify-center">
 
-      <button
+      {!isConnected ? <ConnectButton/> :<button
         className="gap-2.5 self-stretch px-3 py-2.5 my-auto text-base font-semibold leading-none text-gray-900 rounded shadow-sm bg-[linear-gradient(180deg,#F19ED2_0%,#C87ECA_100%)]"
         onClick={showPopup}
       >
         Enable Trading
-      </button>
+      </button>}
     </div>
   }
 

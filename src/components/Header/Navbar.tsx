@@ -1,6 +1,6 @@
 "use client"
 import React from "react";
-import Navigation from "./Navigation";
+// import Navigation from "./Navigation";
 import DepositButton from "./DepositButton";
 import CreateDuelButton from "./CreateDuelButton";
 import UserProfile from "./UserProfile";
@@ -36,8 +36,6 @@ const Navbar: React.FC = () => {
   return (
 
     <nav className="flex flex-row items-center gap-x-3">
-      <Navigation pathname={"leaderboard"} />
-      {isConnected && <Navigation pathname={"portfolio"} />}
      {isConnected && <RewardCard/>}
       {isConnected && <DepositButton onOpenModal={handleOpenModal} />}
       {/* {isModalOpen && <DepositModal onClose={handleCloseModal} />} */}

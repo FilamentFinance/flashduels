@@ -27,7 +27,7 @@ const DuelGrid = ({ activeButton, specialCategoryIndex }: { activeButton: string
 
   // WebSocket setup to get duels in real-time
   useEffect(() => {
-    const socket = new WebSocket(NEXT_PUBLIC_WS_URL);
+    const socket = new WebSocket(`${NEXT_PUBLIC_WS_URL}/ws`);
     
     socket.onopen = function() {
       console.log('Connected to the WebSocket server');

@@ -72,7 +72,7 @@ const postPricingData = async (markPrice: number, triggerPrice: number, asset: s
             total_yes_bets: 50,
             total_no_bets: 50,
             beta: 0.15,
-            symbol: `${asset}USD`
+            symbol: `${asset}USDT`
         };
     } else {
         data = {
@@ -82,10 +82,9 @@ const postPricingData = async (markPrice: number, triggerPrice: number, asset: s
             total_yes_bets: totalYesBets,
             total_no_bets: totalNobets,
             beta: 0.15,
-            symbol: `${asset}USD`
+            symbol: `${asset}USDT`
         };
     }
-    console.log(data, "data-new")
     try {
         const response = await axios.post(
             'https://orderbookv3.filament.finance/pricing',

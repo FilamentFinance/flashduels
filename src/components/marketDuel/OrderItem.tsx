@@ -13,7 +13,7 @@ export const OrderItem: React.FC<OrderItemProps> = ({
         <div className="flex gap-2 items-start w-[139px]">
           <div className="flex flex-col w-[139px]">
             <div className="gap-1 self-stretch w-full text-ellipsis">
-              {price}
+              {Number(price).toFixed(2)}
             </div>
           </div>
         </div>
@@ -26,7 +26,7 @@ export const OrderItem: React.FC<OrderItemProps> = ({
         <div className="flex gap-2 items-start w-[139px]">
           <div className="flex flex-col flex-1 shrink w-full basis-0">
             <div className="flex-1 shrink gap-1 self-stretch w-full text-ellipsis">
-              {amount} {type}
+              {Number(amount).toFixed(2)} {type}
             </div>
           </div>
         </div>

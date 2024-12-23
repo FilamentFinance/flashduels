@@ -41,6 +41,16 @@ export type NewDuelItem = {
     totalBetAmount:number
   };
 
+export type OptionBetType = {
+  id: string;
+  quantity: string;
+  amount: string;
+  index: number;
+  price: string;
+  betOption?:{index:number}
+}
+
+
 export type Duel = {
     title: string;
     status: number;

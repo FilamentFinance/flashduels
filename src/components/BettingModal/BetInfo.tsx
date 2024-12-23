@@ -154,8 +154,11 @@ const BetInfo: React.FC<BetInfoProps> = ({
         <div className="flex flex-1 gap-2 size-full">
           <button
             onClick={() => setBet("YES")}
-            className={`flex-1 shrink gap-2.5 self-stretch p-2.5 h-full rounded-lg border border-solid 
-        ${bet === "YES" ? "bg-lime-500 border-lime-500 text-black" : "bg-neutral-500 bg-opacity-30 border-lime-400 border-opacity-60 text-lime-300"}`}
+            className={`flex-1 shrink gap-2.5 self-stretch p-2.5 h-full rounded-lg 
+    border border-solid shadow-[inset_0px_0px_4px_0px_rgba(255,255,255,0.05)] 
+    ${bet === "YES" ?
+                "bg-[#95DE64] border-[rgba(255,255,255,0.20)] shadow-[0px_0px_6.5px_0px_rgba(152,239,42,0.70)] text-black" :
+                "bg-[rgba(75,249,15,0.05)] border-[rgba(152,239,42,0.20)] text-lime-300"}`}
           >
             YES
           </button>
@@ -163,10 +166,14 @@ const BetInfo: React.FC<BetInfoProps> = ({
           <button
             onClick={() => setBet("NO")}
             className={`flex-1 shrink gap-2.5 self-stretch p-2.5 h-full text-center rounded-lg 
-        ${bet === "NO" ? "bg-red-500 text-white" : "bg-zinc-600 bg-opacity-30 text-gray-400 text-opacity-40"}`}
+    border border-solid shadow-[inset_0px_0px_4px_0px_rgba(255,255,255,0.05)] 
+    ${bet === "NO" ?
+                "bg-[#E84749] border-[rgba(255,255,255,0.20)] shadow-[0px_0px_2.7px_0px_#E84749] " :
+                "bg-[rgba(248,20,22,0.10)] border-[rgba(248,20,22,0.10)] text-[#E84749]"}`}
           >
             NO
           </button>
+
         </div>
       </div>
       <div className="flex gap-2 items-start mt-3 w-full text-base text-center whitespace-nowrap text-stone-500">
@@ -202,9 +209,9 @@ const BetInfo: React.FC<BetInfoProps> = ({
                       </div>
                     </div>  */}
 
-                    {/* <div className="flex gap-3 items-start p-2 mt-3 w-full text-sm tracking-normal leading-none text-gray-400 rounded border border-solid bg-neutral-900 border-white border-opacity-10"> */}
-                    {/* <div className="flex flex-col flex-1 shrink justify-center w-full basis-0 min-w-[240px]"> */}
-                      {/* <div className="flex gap-10 justify-between items-center w-full">
+      {/* <div className="flex gap-3 items-start p-2 mt-3 w-full text-sm tracking-normal leading-none text-gray-400 rounded border border-solid bg-neutral-900 border-white border-opacity-10"> */}
+      {/* <div className="flex flex-col flex-1 shrink justify-center w-full basis-0 min-w-[240px]"> */}
+      {/* <div className="flex gap-10 justify-between items-center w-full">
                         <div className="flex flex-col items-start self-stretch my-auto w-[91px]">
                           <div>400 Yes</div>
                         </div>
@@ -212,7 +219,7 @@ const BetInfo: React.FC<BetInfoProps> = ({
                           <div>$0.06</div>
                         </div>
                       </div> */}
-                      {/* <div className="flex gap-10 justify-between items-center mt-1 w-full">
+      {/* <div className="flex gap-10 justify-between items-center mt-1 w-full">
                         <div className="flex flex-col items-start self-stretch my-auto w-[91px]">
                           <div>600 Yes</div>
                         </div>
@@ -220,8 +227,8 @@ const BetInfo: React.FC<BetInfoProps> = ({
                           <div>$0.05</div>
                         </div>
                       </div> */}
-                    {/* </div> */}
-                  {/* </div> */}
+      {/* </div> */}
+      {/* </div> */}
     </section>
   );
 };

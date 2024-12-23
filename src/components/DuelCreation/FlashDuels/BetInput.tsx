@@ -23,7 +23,7 @@ const BetInput: React.FC<BetInputProps> = ({ name, value, onChange }) => {
         name={name}
         value={value}
         onChange={onChange}
-        className="flex overflow-hidden mt-1 w-full text-xs tracking-normal leading-loose rounded-lg border border-solid shadow-sm  border-white border-opacity-10 bg-neutral-800 min-h-[69px] text-stone-500 p-4 pt-2"
+        className="flex overflow-hidden text-white mt-1 w-full text-xs tracking-normal leading-loose rounded-lg border border-solid shadow-sm  border-white border-opacity-10 bg-neutral-800 min-h-[69px] text-stone-500 p-4 pt-2"
         placeholder="Enter your Text Here"
       />
     </div>

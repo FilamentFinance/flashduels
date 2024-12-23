@@ -35,7 +35,7 @@ const DuelCard: React.FC<Duel> = ({
   const durationMs = timeLeft * 60 * 60 * 1000; // duration in hours converted to milliseconds
   console.log(percentage)
   const { totalBetYes, totalBetNo } = useTotalBets(duelId);
-  const calculatedPercentage = (totalBetYes as number / (Number(totalBetYes) + Number(totalBetNo))) * 100;                    
+  const calculatedPercentage = (totalBetYes as number / (Number(totalBetYes) + Number(totalBetNo))) * 100;
   const [time, setTimeLeft] = useState("");
   const calculateRemainingTime = () => {
     const currentTimeMs = Date.now();
@@ -78,7 +78,7 @@ const DuelCard: React.FC<Duel> = ({
 
     return () => clearInterval(interval); // Clear interval on component unmount
   }, [createdAt, startAt, timeLeft]);
-  
+
 
   const isPositive = calculatedPercentage || 50 >= 50;
   const colorClass = isPositive ? "text-lime-300" : "text-red-500";
@@ -139,13 +139,11 @@ const DuelCard: React.FC<Duel> = ({
               {[...Array(10)].map((_, index) => (
                 <div
                   key={index}
-                  className={`flex flex-1 shrink ${
-                    index < (calculatedPercentage || 50 )/ 10
+                  className={`flex flex-1 shrink ${index < (calculatedPercentage || 50) / 10
                       ? bgColorClass
                       : "bg-gray-500 bg-opacity-30"
-                  } rounded-xl basis-0 h-[13px] ${
-                    index % 3 === 0 ? "w-[5px]" : "w-1"
-                  }`}
+                    } rounded-xl basis-0 h-[13px] ${index % 3 === 0 ? "w-[5px]" : "w-1"
+                    }`}
                 />
               ))}
             </div>
@@ -154,12 +152,23 @@ const DuelCard: React.FC<Duel> = ({
       </div>
       <div className="flex flex-col mt-3 w-full text-base font-semibold leading-none whitespace-nowrap">
         <div className="flex gap-2 items-start w-full">
-          <button className="flex-1 shrink gap-2.5 self-stretch p-2.5 text-lime-300 rounded-lg shadow-sm bg-lime-500 bg-opacity-30">
+          <button
+            className="flex-1 shrink gap-2.5 self-stretch p-2.5 text-lime-300 rounded-lg shadow-sm 
+             bg-[rgba(75,249,15,0.05)] border border-[rgba(152,239,42,0.20)] 
+             shadow-[inset_0px_0px_4px_0px_rgba(255,255,255,0.05)]"
+          >
             YES
           </button>
-          <button className="flex-1 shrink gap-2.5 self-stretch p-2.5 text-center text-red-500 rounded-lg shadow-sm bg-red-600 bg-opacity-20 w-[29px]">
+
+          <button
+            className="flex-1 shrink gap-2.5 self-stretch p-2.5 text-center text-red-500 rounded-lg 
+             border border-[rgba(248,20,22,0.10)] bg-[rgba(248,20,22,0.10)] 
+             shadow-[inset_0px_0px_4px_0px_rgba(214,84,84,0.60)]"
+          >
             NO
           </button>
+
+
         </div>
       </div>
       <div className="flex gap-10 justify-between items-center mt-3 w-full">

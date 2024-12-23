@@ -15,7 +15,7 @@ const TokenSelect: React.FC<CategorySelectProps> = ({ name, value, onChange }) =
   ];
 
   return (
-    <div className="flex flex-col w-full">
+    <div className="flex flex-col w-full text-white">
       <label
         htmlFor={name} // Use name for the label association
         className="flex gap-1 items-center max-w-full text-base tracking-normal leading-none text-gray-400 whitespace-nowrap w-[254px] rounded-lg"
@@ -31,7 +31,7 @@ const TokenSelect: React.FC<CategorySelectProps> = ({ name, value, onChange }) =
             name={name}
             value={value}
             onChange={onChange}
-            className="flex-1 shrink items-center self-stretch my-auto text-base font-medium tracking-normal bg-neutral-800 text-gray-500 whitespace-nowrap basis-5 min-w-[240px] py-2.5 pr-2 pl-3 rounded-lg"
+            className="flex-1 text-white shrink items-center self-stretch my-auto text-base font-medium tracking-normal bg-neutral-800 text-gray-500 whitespace-nowrap basis-5 min-w-[240px] py-2.5 pr-2 pl-3 rounded-lg"
           >
             {options.map((option) => (
               <option key={option.value} value={option.value}>
