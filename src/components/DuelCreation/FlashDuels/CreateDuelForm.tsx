@@ -150,7 +150,7 @@ const CreateDuelForm = ({ closeDuelModal }: { closeDuelModal: () => void }) => {
       address: NEXT_PUBLIC_FLASH_USDC as `0x${string}`,
       functionName: "increaseAllowance",
       chainId: CHAIN_ID,
-      args: [NEXT_PUBLIC_FLASH_USDC, 5 * 10 ** 6],
+      args: [NEXT_PUBLIC_DIAMOND, 5 * 10 ** 6],
     });
 
   // Function to call the second contract function

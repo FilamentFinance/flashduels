@@ -664,6 +664,8 @@ export const MarketDuel: React.FC<BetCardProps> = ({
                           quantity={betAmount}
                           price={priceOfBet}
                           betOptionId={betOptionId}
+                          optionIndex={betState === "YES" ? 0 : 1}
+                          duelId={duelId}
                         />
                       </div>
                     </div>

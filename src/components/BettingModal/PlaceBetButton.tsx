@@ -13,7 +13,7 @@ import { useAtom } from "jotai";
 import { estConnection } from "@/utils/atoms";
 import usePopup from "@/app/providers/PopupProvider";
 import { apiClient } from "@/utils/apiClient";
-import { FLASHDUELS_CORE_ABI } from "@/abi/FlashDuelsCoreFacet";
+// import { FLASHDUELS_CORE_ABI } from "@/abi/FlashDuelsCoreFacet";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 interface PlaceBetButtonProps {
@@ -42,9 +42,9 @@ const PlaceBetButton: React.FC<PlaceBetButtonProps> = ({
   const {
     writeContractAsync: lpTokenApproveAsyncLocal,
   } = useWriteContract({});
-  const {
-    writeContractAsync: lpTokenSecondFunctionAsyncLocal,
-  } = useWriteContract({});
+  // const {
+  //   writeContractAsync: lpTokenSecondFunctionAsyncLocal,
+  // } = useWriteContract({});
 
   const lpTokenApproveAsync = (amount: number) =>
     lpTokenApproveAsyncLocal({
@@ -52,27 +52,27 @@ const PlaceBetButton: React.FC<PlaceBetButtonProps> = ({
       address: NEXT_PUBLIC_FLASH_USDC as `0x${string}`,
       functionName: "increaseAllowance", //@note - mainnet - approve
       chainId: CHAIN_ID,
-      args: [NEXT_PUBLIC_FLASH_USDC, amount],
+      args: [NEXT_PUBLIC_DIAMOND, amount],
     });
 
-  const joinCryptoDuel = async (duelId: string, option: string, asset: string, optionIndex: number, optionPrice: number, amount: number) => {
-    return lpTokenSecondFunctionAsyncLocal({
-      abi: FLASHDUELS_CORE_ABI,
-      address: NEXT_PUBLIC_DIAMOND as `0x${string}`,
-      functionName: "joinCryptoDuel",
-      chainId: CHAIN_ID,
-      args: [duelId, option, asset, optionIndex, optionPrice, amount],
-    });
-  };
+  // const joinCryptoDuel = async (duelId: string, option: string, asset: string, optionIndex: number, optionPrice: number, amount: number) => {
+  //   return lpTokenSecondFunctionAsyncLocal({
+  //     abi: FLASHDUELS_CORE_ABI,
+  //     address: NEXT_PUBLIC_DIAMOND as `0x${string}`,
+  //     functionName: "joinCryptoDuel",
+  //     chainId: CHAIN_ID,
+  //     args: [duelId, option, asset, optionIndex, optionPrice, amount],
+  //   });
+  // };
 
-  const joinFlashDuel = async (duelId: string, option: string, optionIndex: number, optionPrice: number, amount: number) =>
-    lpTokenSecondFunctionAsyncLocal({
-      abi: FLASHDUELS_CORE_ABI,
-      address: NEXT_PUBLIC_DIAMOND as `0x${string}`,
-      functionName: "joinDuel",
-      chainId: CHAIN_ID,
-      args: [duelId, option, optionIndex, optionPrice, amount],
-    });
+  // const joinFlashDuel = async (duelId: string, option: string, optionIndex: number, optionPrice: number, amount: number) =>
+  //   lpTokenSecondFunctionAsyncLocal({
+  //     abi: FLASHDUELS_CORE_ABI,
+  //     address: NEXT_PUBLIC_DIAMOND as `0x${string}`,
+  //     functionName: "joinDuel",
+  //     chainId: CHAIN_ID,
+  //     args: [duelId, option, optionIndex, optionPrice, amount],
+  //   });
 
   const handleClick = async () => {
     setLoading(true); // Start loading
@@ -87,7 +87,8 @@ const PlaceBetButton: React.FC<PlaceBetButtonProps> = ({
       const optionIndex = bet === "YES" ? 0 : 1;
       const timePeriod = endsIn && endsIn / (365 * 24);
 
-      let secondHash;
+      // let secondHash;
+      let contractQuantity;
       let backendValue;
       let indexValue;
 
@@ -102,19 +103,56 @@ const PlaceBetButton: React.FC<PlaceBetButtonProps> = ({
         );
         indexValue = bet === "YES" ? backendValue["Yes Price"] : backendValue["No Price"];
         const optionPrice = Math.floor(indexValue * 10 ** 6);
+        const response = await apiClient.post(
+          `${NEXT_PUBLIC_API}/blockchain/joinCryptoDuel`,
+          {
+            duelId,
+            bet,
+            optionIndex,
+            optionPrice,
+            amount,
+            address: address?.toLowerCase(),
+            asset
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            }
+          }
+        );
+        contractQuantity = response.data.quantity
 
-        secondHash = await joinCryptoDuel(duelId, bet, asset, optionIndex, optionPrice, amount);
+        // secondHash = await joinCryptoDuel(duelId, bet, asset, optionIndex, optionPrice, amount);
       } else {
         backendValue = calculateFlashDuelsOptionPrice(timePeriod || 0, totalBetNo || 0, totalBetYes || 0);
         indexValue = bet === "YES" ? backendValue["priceYes"] : backendValue["priceNo"];
         const optionPrice = Math.floor(indexValue * 10 ** 6);
+        
+        const response = await apiClient.post(
+          `${NEXT_PUBLIC_API}/blockchain/joinDuel`,
+          {
+            duelId,
+            bet,
+            optionIndex,
+            optionPrice,
+            amount,
+            address: address?.toLowerCase()
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            }
+          }
+        );
+        contractQuantity = response.data.quantity
 
-        secondHash = await joinFlashDuel(duelId, bet, optionIndex, optionPrice, amount);
+        // secondHash = await joinFlashDuel(duelId, bet, optionIndex, optionPrice, amount);
       }
 
-      const secondReceipt = await waitForTransactionReceipt(config, { hash: secondHash as `0x${string}` });
-      console.log(secondReceipt, "second-hash");
+      // const secondReceipt = await waitForTransactionReceipt(config, { hash: secondHash as `0x${string}` });
+      // console.log(secondReceipt, "second-hash");
 
+     
       await apiClient.post(
         `${NEXT_PUBLIC_API}/bets/create`,
         {
@@ -122,6 +160,7 @@ const PlaceBetButton: React.FC<PlaceBetButtonProps> = ({
           bet: bet,
           address: address?.toLowerCase(),
           betAmount: betAmount,
+          contractQuantity,
           optionIndex: optionIndex,
           optionPrice: indexValue.toString(),
           duelId: duelId,

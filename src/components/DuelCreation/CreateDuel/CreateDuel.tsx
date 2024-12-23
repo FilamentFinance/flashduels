@@ -117,10 +117,8 @@ const CreateDuel = ({ closeDuelModal }: { closeDuelModal: () => void }) => {
       address: NEXT_PUBLIC_FLASH_USDC as `0x${string}`,
       functionName: "increaseAllowance",
       chainId: CHAIN_ID,
-      args: [NEXT_PUBLIC_FLASH_USDC, 5 * 10 ** 6],
+      args: [NEXT_PUBLIC_DIAMOND, 5 * 10 ** 6],
     });
-
-    console.log(NEXT_PUBLIC_DIAMOND, "hello")
   // Function to call the second contract function
   const lpTokenSecondFunctionAsync = (symbol: string, options: string[], minWager: number, triggerValue: number, triggerType: number, triggerCondition: number, duration: number) =>
 
@@ -129,7 +127,7 @@ const CreateDuel = ({ closeDuelModal }: { closeDuelModal: () => void }) => {
       address: NEXT_PUBLIC_DIAMOND as `0x${string}`,
       functionName: "createCryptoDuel",
       chainId: CHAIN_ID,
-      args: ["BTC", options, triggerValue, triggerType, triggerCondition, duration],
+      args: [symbol, options, triggerValue, triggerType, triggerCondition, duration],
     });
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {

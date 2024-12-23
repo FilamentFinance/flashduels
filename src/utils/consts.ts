@@ -10,6 +10,8 @@ export const NEXT_PUBLIC_WS_URL = PRODUCTION === "false" ? process.env.NEXT_PUBL
 export const NEXT_PUBLIC_RPC_URL = process.env.NEXT_PUBLIC_RPC_URL as string
 export const NEXT_PUBLIC_DIAMOND = process.env.NEXT_PUBLIC_DIAMOND as string
 
+
+
 export type User = {
     id: string;
     twitterUsername?: string;

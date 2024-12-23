@@ -85,6 +85,8 @@ const Header: React.FC = () => {
     };
   }, [address, config]);
 
+  
+
   return (
     <header className="flex w-full h-[107px] px-[50px] justify-between items-center flex-shrink-0 border-b-2 border-gray-500 border-opacity-20">
     <div className="flex flex-row gap-x-4 items-center">

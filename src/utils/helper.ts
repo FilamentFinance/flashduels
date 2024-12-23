@@ -26,6 +26,7 @@ export enum DuelCategory {
   News
 }
 
+
 export const mapCategoryToEnum = (category: string): DuelCategory => {
   switch (category.toLowerCase()) {
     // case "crypto":

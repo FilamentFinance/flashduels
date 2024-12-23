@@ -7,25 +7,33 @@ import { useBalance } from "@/blockchain/useBalance";
 // import { calculateFlashDuelsOptionPrice } from "@/utils/flashDuelsOptionPricing";
 // import axios from "axios";
 import React, { useState } from "react";
-import { useAccount } from "wagmi";
+import { useAccount, useReadContract, useWriteContract } from "wagmi";
 // import { waitForTransactionReceipt } from "wagmi/actions";
 import { GeneralNotificationAtom } from "../GeneralNotification";
 import { useAtom } from "jotai";
 import { estConnection } from "@/utils/atoms";
 import usePopup from "@/app/providers/PopupProvider";
 import { apiClient } from "@/utils/apiClient";
-import { NEXT_PUBLIC_API } from "@/utils/consts";
+import { CHAIN_ID, NEXT_PUBLIC_API, NEXT_PUBLIC_DIAMOND } from "@/utils/consts";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { OPTION_TOKEN_ABI } from "@/abi/OptionToken";
+import { FLASHDUELS_VIEWFACET } from "@/abi/FlashDuelsViewFacet";
+import { FLASHDUELS_MARKETPLACE } from "@/abi/FlashDuelsMarketplaceFacet";
+// import { FLASHUSDCABI } from "@/abi/FLASHUSDC";
+import { waitForTransactionReceipt } from "@wagmi/core";
+import { config } from "@/app/config/wagmi";
 
 interface SellButtonProps {
   quantity: string;
   price: string;
-  betOptionId: string
+  betOptionId: string;
+  optionIndex: number;
+  duelId:string;
 //   setIsModalOpen: (arg0: boolean) => void;
 }
 
 const SellButton: React.FC<SellButtonProps> = ({
-  quantity, price, betOptionId
+  quantity, price, betOptionId, optionIndex, duelId
 }) => {
   const { address, isConnected } = useAccount();
   const [establishConnection] = useAtom(estConnection)
@@ -35,54 +43,56 @@ const SellButton: React.FC<SellButtonProps> = ({
 //   const { totalBetYes, totalBetNo } = useTotalBets(duelId);
   const [loading, setLoading] = useState(false); // Add loading state
   console.log(notification)
-//   const {
-//     writeContractAsync: lpTokenApproveAsyncLocal,
-//   } = useWriteContract({});
-//   const {
-//     writeContractAsync: lpTokenSecondFunctionAsyncLocal,
-//   } = useWriteContract({});
+  const {
+    writeContractAsync: lpTokenApproveAsyncLocal,
+  } = useWriteContract({});
+  const {
+    writeContractAsync: lpTokenSecondFunctionAsyncLocal,
+  } = useWriteContract({});
 
-//   const lpTokenApproveAsync = (amount: number) =>
-//     lpTokenApproveAsyncLocal({
-//       abi: FLASHUSDCABI,
-//       address: NEXT_PUBLIC_FLASH_USDC as `0x${string}`,
-//       functionName: "increaseAllowance",
-//       chainId: CHAIN_ID,
-//       args: [NEXT_PUBLIC_FLASH_DUELS, amount],
-//     });
+  const {
+    data: optionTokenAddress,
+} = useReadContract({
+    abi: FLASHDUELS_VIEWFACET,
+    functionName: "getOptionIndexToOptionToken",
+    address: NEXT_PUBLIC_DIAMOND as `0x${string}`,
+    chainId: CHAIN_ID,
+    args: [duelId, optionIndex],
+});
 
-//   const joinCryptoDuel = async (duelId: string, option: string, asset: string, optionIndex: number, optionPrice: number, amount: number) => {
-//     return lpTokenSecondFunctionAsyncLocal({
-//       abi: FLASHDUELSABI,
-//       address: NEXT_PUBLIC_FLASH_DUELS as `0x${string}`,
-//       functionName: "joinCryptoDuel",
-//       chainId: CHAIN_ID,
-//       args: [duelId, option, asset, optionIndex, optionPrice, amount],
-//     });
-//   };
 
-//   const joinFlashDuel = async (duelId: string, option: string, optionIndex: number, optionPrice: number, amount: number) =>
-//     lpTokenSecondFunctionAsyncLocal({
-//       abi: FLASHDUELSABI,
-//       address: NEXT_PUBLIC_FLASH_DUELS as `0x${string}`,
-//       functionName: "joinDuel",
-//       chainId: CHAIN_ID,
-//       args: [duelId, option, optionIndex, optionPrice, amount],
-//     });
+//sell
+
+  const lpTokenApproveAsync = () =>
+    lpTokenApproveAsyncLocal({
+      abi: OPTION_TOKEN_ABI,
+      address: optionTokenAddress as `0x${string}`,
+      functionName: "approve",
+      chainId: CHAIN_ID,
+      args: [NEXT_PUBLIC_DIAMOND, Number(quantity) * 10 ** 18],
+    });
+
+  const sellBet = async () => {
+    return lpTokenSecondFunctionAsyncLocal({
+      abi: FLASHDUELS_MARKETPLACE,
+      address: NEXT_PUBLIC_DIAMOND as `0x${string}`,
+      functionName: "sell",
+      chainId: CHAIN_ID,
+      args: [optionTokenAddress, duelId, optionIndex, Number(quantity) * 10 ** 18, (Number(price) * Number(quantity) * 10 ** 6)],
+    });
+  };
 
   const handleClick = async () => {
     setLoading(true); // Start loading
 
     try {
-    //   const amount = Number(betAmount) * 10 ** 6;
-    //   const hash = await lpTokenApproveAsync(amount);
-    //   const receipt = await waitForTransactionReceipt(config, { hash });
+      const hash = await lpTokenApproveAsync();
+      await waitForTransactionReceipt(config, { hash });
 
-    //   console.log(receipt, "approve-hash");
+      const sellHash = await sellBet()
+      await waitForTransactionReceipt(config, { hash: sellHash });
 
-    //   const optionIndex = bet === "YES" ? 0 : 1;
-    //   const timePeriod = endsIn && endsIn / (365 * 24);
-
+   
       await apiClient.post(
         `${NEXT_PUBLIC_API}/betOption/sell`,
         {
