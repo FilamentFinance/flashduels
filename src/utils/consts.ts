@@ -2,14 +2,12 @@ export const NEXT_PUBLIC_PRIVY_APP_ID=process.env.NEXT_PUBLIC_PRIVY_APP_ID as st
 export const PRODUCTION = process.env.NEXT_PUBLIC_PRODUCTION as string;
 export const NEXT_PUBLIC_API = PRODUCTION === "false" ? process.env.NEXT_PUBLIC_API as string : process.env.NEXT_PUBLIC_API_PRODUCTION as string;
 export const NEXT_PUBLIC_FLASH_USDC=process.env.NEXT_PUBLIC_FLASH_USDC as string
-export const NEXT_PUBLIC_FLASH_DUELS=process.env.NEXT_PUBLIC_FLASH_DUELS as string
-export const NEXT_PUBLIC_MARKETPLACE_FACET=process.env.NEXT_PUBLIC_MARKETPLACE_FACET as string
+// export const NEXT_PUBLIC_FLASH_DUELS=process.env.NEXT_PUBLIC_FLASH_DUELS as string
+// export const NEXT_PUBLIC_MARKETPLACE_FACET=process.env.NEXT_PUBLIC_MARKETPLACE_FACET as string
 export const CHAIN_ID=1328
 export const NEXT_PUBLIC_TIMER_BOT_URL = PRODUCTION === "false" ? process.env.NEXT_PUBLIC_TIMER_BOT_URL as string : process.env.NEXT_PUBLIC_TIMER_BOT_URL_PRODUCTION as string
 export const NEXT_PUBLIC_WS_URL = PRODUCTION === "false" ? process.env.NEXT_PUBLIC_API_WS as string : process.env.NEXT_PUBLIC_API_WS_PRODUCTION as string
 export const NEXT_PUBLIC_RPC_URL = process.env.NEXT_PUBLIC_RPC_URL as string
-export const NEXT_PUBLIC_CORE_FACET = process.env.NEXT_PUBLIC_CORE_FACET as string
-export const NEXT_PUBLIC_VIEW_FACET = process.env.NEXT_PUBLIC_VIEW_FACET as string
 export const NEXT_PUBLIC_DIAMOND = process.env.NEXT_PUBLIC_DIAMOND as string
 
 export type User = {

@@ -517,6 +517,35 @@ export const FLASHDUELS_VIEWFACET = [
         "type": "function"
     },
     {
+        "inputs": [
+            {
+                "internalType": "string",
+                "name": "_duelId",
+                "type": "string"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_optionsIndex",
+                "type": "uint256"
+            },
+            {
+                "internalType": "string",
+                "name": "_option",
+                "type": "string"
+            }
+        ],
+        "name": "getTotalBetsOnOption",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
         "inputs": [],
         "name": "getTotalProtocolFeesGenerated",
         "outputs": [
@@ -587,6 +616,25 @@ export const FLASHDUELS_VIEWFACET = [
                 "internalType": "uint256[]",
                 "name": "_wagerAmountsForOptions",
                 "type": "uint256[]"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "string",
+                "name": "_duelId",
+                "type": "string"
+            }
+        ],
+        "name": "isRefundInProgress",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
             }
         ],
         "stateMutability": "view",

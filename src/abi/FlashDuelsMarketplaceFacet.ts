@@ -207,6 +207,11 @@ export const FLASHDUELS_MARKETPLACE = [
             },
             {
                 "internalType": "uint256",
+                "name": "optionIndex",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
                 "name": "saleId",
                 "type": "uint256"
             }
@@ -322,19 +327,6 @@ export const FLASHDUELS_MARKETPLACE = [
             }
         ],
         "name": "updateFee",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "_newMaxStrikes",
-                "type": "uint256"
-            }
-        ],
-        "name": "updateMaxStrikes",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
