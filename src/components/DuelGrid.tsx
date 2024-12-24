@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import DuelCard from "./DuelCard";
+// import DuelCard from "./DuelCard";
+import { PredictionCard } from "./predictions/PredictionCard";
 import BettingModal from "./BettingModal/BettingModal";
 import { Duel, NewDuelItem, NEXT_PUBLIC_WS_URL } from "@/utils/consts";
 import { useAccount } from "wagmi";
@@ -109,9 +110,12 @@ const DuelGrid = ({ activeButton, specialCategoryIndex }: { activeButton: string
 
   return (
     <>
-      <div className="flex flex-wrap gap-4 items-center self-center px-[50px] w-full max-w-full w-full">
+      <div className="flex flex-col gap-4 self-center px-[50px] w-full max-w-full w-full">
         {duels && duels.map((duel, index) => (
-          <DuelCard key={index} {...duel} onClick={() => handleDuelClick(duel.duelId)} />
+          // <DuelCard key={index} {...duel} onClick={() => handleDuelClick(duel.duelId)} />
+          <PredictionCard
+          key={index} {...duel} onClick={() => handleDuelClick(duel.duelId)} 
+        />
         ))}
       </div>
       <BettingModal

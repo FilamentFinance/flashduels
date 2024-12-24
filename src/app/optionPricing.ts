@@ -18,7 +18,7 @@ const useTotalBets = (duelId: string) => {
         isLoading: isYesLoading,
     } = useReadContract({
         abi: FLASHDUELS_VIEWFACET,
-        functionName: "totalBetsOnOption",
+        functionName: "getTotalBetsOnOption",
         address: NEXT_PUBLIC_DIAMOND as `0x${string}`,
         chainId: CHAIN_ID,
         args: [duelId, 0, "YES"],
@@ -31,7 +31,7 @@ const useTotalBets = (duelId: string) => {
         isLoading: isNoLoading,
     } = useReadContract({
         abi: FLASHDUELS_VIEWFACET,
-        functionName: "totalBetsOnOption",
+        functionName: "getTotalBetsOnOption",
         address: NEXT_PUBLIC_DIAMOND as `0x${string}`,
         chainId: CHAIN_ID,
         args: [duelId, 1, "NO"],

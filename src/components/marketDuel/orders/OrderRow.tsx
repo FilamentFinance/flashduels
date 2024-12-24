@@ -40,7 +40,7 @@ export const OrderRow: React.FC<OrderRowProps> = ({ order }) => {
 
         {/* Price */}
         <div className="flex items-center justify-center w-[60px] text-xs font-medium">
-          {order.price}
+          {Number(order.price).toFixed(2)}
         </div>
 
         {/* Cancel Button */}

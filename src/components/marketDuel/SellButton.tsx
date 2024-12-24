@@ -1,14 +1,6 @@
-// import { FLASHUSDCABI } from "@/abi/FLASHUSDC";
-// import { FLASHDUELSABI } from "@/abi/FlashDuelsABI";
-// import { config } from "@/app/config/wagmi";
-// import { postPricingData, useTotalBets } from "@/app/optionPricing";
 import { useBalance } from "@/blockchain/useBalance";
-// import { CHAIN_ID, NEXT_PUBLIC_API, NEXT_PUBLIC_FLASH_DUELS, NEXT_PUBLIC_FLASH_USDC } from "@/utils/consts";
-// import { calculateFlashDuelsOptionPrice } from "@/utils/flashDuelsOptionPricing";
-// import axios from "axios";
 import React, { useState } from "react";
 import { useAccount, useReadContract, useWriteContract } from "wagmi";
-// import { waitForTransactionReceipt } from "wagmi/actions";
 import { GeneralNotificationAtom } from "../GeneralNotification";
 import { useAtom } from "jotai";
 import { estConnection } from "@/utils/atoms";
@@ -22,14 +14,15 @@ import { FLASHDUELS_MARKETPLACE } from "@/abi/FlashDuelsMarketplaceFacet";
 // import { FLASHUSDCABI } from "@/abi/FLASHUSDC";
 import { waitForTransactionReceipt } from "@wagmi/core";
 import { config } from "@/app/config/wagmi";
+// import { FLASHUSDCABI } from "@/abi/FLASHUSDC";
 
 interface SellButtonProps {
   quantity: string;
   price: string;
   betOptionId: string;
   optionIndex: number;
-  duelId:string;
-//   setIsModalOpen: (arg0: boolean) => void;
+  duelId: string;
+  //   setIsModalOpen: (arg0: boolean) => void;
 }
 
 const SellButton: React.FC<SellButtonProps> = ({
@@ -37,10 +30,10 @@ const SellButton: React.FC<SellButtonProps> = ({
 }) => {
   const { address, isConnected } = useAccount();
   const [establishConnection] = useAtom(estConnection)
- const {showPopup} = usePopup()
+  const { showPopup } = usePopup()
   const [notification, setNotification] = useAtom(GeneralNotificationAtom);
   const { refetch } = useBalance(address as string);
-//   const { totalBetYes, totalBetNo } = useTotalBets(duelId);
+  //   const { totalBetYes, totalBetNo } = useTotalBets(duelId);
   const [loading, setLoading] = useState(false); // Add loading state
   console.log(notification)
   const {
@@ -52,16 +45,49 @@ const SellButton: React.FC<SellButtonProps> = ({
 
   const {
     data: optionTokenAddress,
-} = useReadContract({
+  } = useReadContract({
     abi: FLASHDUELS_VIEWFACET,
     functionName: "getOptionIndexToOptionToken",
     address: NEXT_PUBLIC_DIAMOND as `0x${string}`,
     chainId: CHAIN_ID,
     args: [duelId, optionIndex],
-});
+  });
 
+//buy
 
-//sell
+// const lpTokenApproveAsync = () =>
+//   lpTokenApproveAsyncLocal({
+//     abi: FLASHUSDCABI,
+//     address: NEXT_PUBLIC_FLASH_USDC as `0x${string}`,
+//     functionName: "approve",
+//     chainId: CHAIN_ID,
+//     args: [NEXT_PUBLIC_DIAMOND, Number(quantityListed)*10**18],
+//   });
+
+// const buyBet = async () => {
+//   return lpTokenSecondFunctionAsyncLocal({
+//     abi: FLASHDUELS_MARKETPLACE,
+//     address: NEXT_PUBLIC_DIAMOND as `0x${string}`,
+//     functionName: "buy",
+//     chainId: CHAIN_ID,
+//     args: [optionTokenAddress, duelId, optionIndex, sellId],
+//   });
+// };
+
+//cancelsell
+// const cancelSell = async () => {
+//   return lpTokenSecondFunctionAsyncLocal({
+//     abi: FLASHDUELS_MARKETPLACE,
+//     address: NEXT_PUBLIC_DIAMOND as `0x${string}`,
+//     functionName: "cancelSell",
+//     chainId: CHAIN_ID,
+//     args: [optionTokenAddress, sellId],
+//   });
+// };
+// listen for sell event - to get the sellId
+// SellCreated[10]
+
+  //sell
 
   const lpTokenApproveAsync = () =>
     lpTokenApproveAsyncLocal({
@@ -73,12 +99,17 @@ const SellButton: React.FC<SellButtonProps> = ({
     });
 
   const sellBet = async () => {
+    const priceFinal = Number(price);
+    const quantityFinal = Number(quantity);
+    const result = ((priceFinal * quantityFinal) * 10 ** 6)
+    const finalResult = Math.trunc(result).toString();
+    console.log(optionTokenAddress, duelId, optionIndex, Number(quantity) * 10 ** 18, result, finalResult, "optionTokenAddress, duelId, optionIndex, Number(quantity) * 10 ** 18, (Number(price) * Number(quantity) * 10 ** 6)")
     return lpTokenSecondFunctionAsyncLocal({
       abi: FLASHDUELS_MARKETPLACE,
       address: NEXT_PUBLIC_DIAMOND as `0x${string}`,
       functionName: "sell",
       chainId: CHAIN_ID,
-      args: [optionTokenAddress, duelId, optionIndex, Number(quantity) * 10 ** 18, (Number(price) * Number(quantity) * 10 ** 6)],
+      args: [optionTokenAddress, duelId, optionIndex, Number(quantity) * 10 ** 18, finalResult],
     });
   };
 
@@ -88,17 +119,21 @@ const SellButton: React.FC<SellButtonProps> = ({
     try {
       const hash = await lpTokenApproveAsync();
       await waitForTransactionReceipt(config, { hash });
+      console.log(hash, "hash-success")
 
       const sellHash = await sellBet()
       await waitForTransactionReceipt(config, { hash: sellHash });
+      console.log(sellHash, "hash-2-success")
 
-   
+
+      console.log(betOptionId, quantity, price, "betOptionId, quantity, price")
+
       await apiClient.post(
         `${NEXT_PUBLIC_API}/betOption/sell`,
         {
-         betOptionId,
-         quantity,
-         price
+          betOptionId,
+          quantity,
+          price
         },
         {
           headers: {
@@ -120,32 +155,32 @@ const SellButton: React.FC<SellButtonProps> = ({
       console.error("Error placing bet:", error);
     } finally {
       setLoading(false); // Stop loading
-    //   setIsModalOpen(false);
+      //   setIsModalOpen(false);
       refetch()
     }
   };
 
   return (
     <div>
-   {!isConnected ? <ConnectButton/> : establishConnection ?   <button
-   className="gap-2.5 self-stretch px-3 py-2.5 w-full rounded shadow-sm bg-[linear-gradient(180deg,#F19ED2_0%,#C87ECA_100%)]"
-   onClick={showPopup}
-   >
-     Enable Trading
-   </button>:
-    <button
-      className="flex flex-col mt-4 w-full text-base font-semibold leading-none text-gray-900"
-    //   disabled={!betAmount}
-      onClick={handleClick}
-    >
-      <div className="gap-2.5 self-stretch px-3 py-2.5 w-full rounded shadow-sm bg-[linear-gradient(180deg,#F19ED2_0%,#C87ECA_100%)]">
-        {loading ? (
-          <div className="spinner"></div>  // Add the spinner here
-        ) : (
-          <span>Sell Bet</span>
-        )}
-      </div>
-    </button>}
+      {!isConnected ? <ConnectButton /> : establishConnection ? <button
+        className="gap-2.5 self-stretch px-3 py-2.5 w-full rounded shadow-sm bg-[linear-gradient(180deg,#F19ED2_0%,#C87ECA_100%)]"
+        onClick={showPopup}
+      >
+        Enable Trading
+      </button> :
+        <button
+          className="flex flex-col mt-4 w-full text-base font-semibold leading-none text-gray-900"
+          //   disabled={!betAmount}
+          onClick={handleClick}
+        >
+          <div className="gap-2.5 self-stretch px-3 py-2.5 w-full rounded shadow-sm bg-[linear-gradient(180deg,#F19ED2_0%,#C87ECA_100%)]">
+            {loading ? (
+              <div className="spinner"></div>  // Add the spinner here
+            ) : (
+              <span>Sell Bet</span>
+            )}
+          </div>
+        </button>}
     </div>
 
   );

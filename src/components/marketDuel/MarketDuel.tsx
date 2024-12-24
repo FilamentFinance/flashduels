@@ -349,7 +349,7 @@ export const MarketDuel: React.FC<BetCardProps> = ({
                           ))}
                         </div> */}
                       {/* </div> */}
-                      <ProbabilityBar probability={percentage || 50} />
+                      <ProbabilityBar probability={calculatedPercentage || percentage} />
                     </div>
                   </div>
                 </div>
