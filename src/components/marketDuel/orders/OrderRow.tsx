@@ -7,9 +7,10 @@ import { GeneralNotificationAtom } from "@/components/GeneralNotification";
 
 interface OrderRowProps {
   order: OrderData;
+  duelId: string;
 }
 
-export const OrderRow: React.FC<OrderRowProps> = ({ order }) => {
+export const OrderRow: React.FC<OrderRowProps> = ({ order, duelId }) => {
   const [notification, setNotification] = useAtom(GeneralNotificationAtom); // Move this inside the component
   console.log(notification)
   return (
@@ -25,12 +26,12 @@ export const OrderRow: React.FC<OrderRowProps> = ({ order }) => {
               className="object-contain rounded-md aspect-square"
             />
           </div> */}
-          <div className="text-xs font-semibold">{order.sellerId}</div>
+          <div className="text-xs font-semibold">{order.duelTitle}</div>
         </div>
 
         {/* Direction */}
-        <div className={`flex items-center justify-center w-[88px] text-xs font-medium ${order.betOption.index === 0 ? "text-lime-300" : "text-red-400"}`}>
-          {order.betOption.index === 0 ? "YES" : "NO"}
+        <div className={`flex items-center justify-center w-[88px] text-xs font-medium ${order.betOptionIndex === 0 ? "text-lime-300" : "text-red-400"}`}>
+          {order.betOptionIndex === 0 ? "YES" : "NO"}
         </div>
 
         {/* Quantity */}
@@ -52,6 +53,7 @@ export const OrderRow: React.FC<OrderRowProps> = ({ order }) => {
                 const response = await apiClient.delete(`${NEXT_PUBLIC_API}/betOption/cancel`, {
                   data: {
                     betOptionMarketId: order.id,
+                    duelId
                   },
                 });
                 

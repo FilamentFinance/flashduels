@@ -133,7 +133,8 @@ const SellButton: React.FC<SellButtonProps> = ({
         {
           betOptionId,
           quantity,
-          price
+          price,
+          duelId
         },
         {
           headers: {

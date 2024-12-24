@@ -6,10 +6,9 @@ import { NEXT_PUBLIC_WS_URL } from "@/utils/consts";
 import { useAccount } from "wagmi";
 
 
-export const OrdersTable: React.FC = () => {
+export const OrdersTable = ({duelId}: {duelId:string}) => {
   const [openOrders, setOpenOrders] = React.useState<OrderData[]>([]);
   const { address } = useAccount();
-  console.log(openOrders, "openOrders")
   React.useEffect(() => {
     const token = localStorage.getItem(`Bearer_${address!.toLowerCase()}`);
 
@@ -19,7 +18,7 @@ export const OrdersTable: React.FC = () => {
     }
 
     // Create a WebSocket connection with headers
-    const socket = new WebSocket(`${NEXT_PUBLIC_WS_URL}/betWebSocket?token=${token}`);
+    const socket = new WebSocket(`${NEXT_PUBLIC_WS_URL}/openOrdersWebSocket?token=${token}`);
 
     socket.onopen = function () {
       console.log('Connected to the WebSocket server');
@@ -63,14 +62,14 @@ export const OrdersTable: React.FC = () => {
       </div>
       <div className="flex flex-col w-full min-h-[250px]">
         {openOrders.length != 0 ? <> <div className="flex w-full text-xs font-medium tracking-normal leading-none whitespace-nowrap text-stone-300">
-          <TableHeader label="SellerId" width="w-[187px]" />
+          <TableHeader label="Bet" width="w-[187px]" />
           <TableHeader label="Direction" width="w-[88px]" />
           <TableHeader label="Quantity" width="w-[82px]" />
           <TableHeader label="Price" width="w-[112px]" />
         </div>
           <div className="flex flex-col w-full">
             {openOrders.map((order) => (
-              <OrderRow key={order.id} order={order} />
+              <OrderRow key={order.id} order={order} duelId={duelId} />
             ))}
           </div> </> : <span className="flex justify-center w-full text-xs font-medium tracking-normal leading-none text-stone-300">No open orders</span>
         }

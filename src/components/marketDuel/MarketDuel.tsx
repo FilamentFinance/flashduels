@@ -2,7 +2,7 @@ import * as React from "react";
 import { OrderItem } from "./OrderItem";
 import { MarketStats } from "./MarketStats";
 import ProbabilityBar from "../BettingModal/ProbabilityBar";
-import { BetCardProps, NEXT_PUBLIC_API, OptionBetType } from "@/utils/consts";
+import { BetCardProps, NEXT_PUBLIC_API, NEXT_PUBLIC_WS_URL, OptionBetType } from "@/utils/consts";
 import { useRouter } from "next/navigation";
 import BetInfo from "../BettingModal/BetInfo";
 import BetAmount from "../BettingModal/BetAmount";
@@ -22,18 +22,6 @@ import { GeneralNotificationAtom } from "../GeneralNotification";
 import { OrdersTable } from "./orders/OrdersTable";
 import { DetailsModal } from "./details/DetailsModal";
 
-// const yesOrders = [
-//   { price: "$0.56", amount: "4000", type: "YES" },
-//   { price: "$0.56", amount: "4000", type: "YES" },
-//   { price: "$0.56", amount: "4000", type: "YES" },
-//   { price: "$0.56", amount: "4000", type: "YES" },
-//   { price: "$0.56", amount: "4000", type: "YES" },
-// ];
-
-// const noOrders = [
-//   { price: "$0.245", amount: "4000", type: "NO" },
-//   { price: "$0.12", amount: "4000", type: "NO" },
-// ];
 
 export const MarketDuel: React.FC<BetCardProps> = ({
   betTitle,
@@ -113,24 +101,59 @@ export const MarketDuel: React.FC<BetCardProps> = ({
   // Assuming useTotalBets is defined elsewhere
   const { totalBetYes, totalBetNo } = useTotalBets(duelId);
 
-  const marketPlaceList = async () => {
-    try {
-      const response = await apiClient.get(
-        `${NEXT_PUBLIC_API}/marketPlace/list/${duelId}`,
-      );
-      const data = response.data;
-      const yesBets = data.filter((bet: OptionBetType) => bet.betOption?.index === 0)
-      console.log(data[0].betOption, "Bet-Option", yesBets)
-      const noBets = data.filter((bet: OptionBetType) => bet.betOption?.index === 1)
-      setYesBets(yesBets);
-      setNoBets(noBets);
-    } catch (error) {
-      console.error("Error fetching bet:", error);
-    }
-  };
-  console.log(yesBets, "yesBets", noBets, "noBets");
+  React.useEffect(() => {
 
-  React.useEffect(() => { marketPlaceList() }, [duelId])
+    const socket = new WebSocket(`${NEXT_PUBLIC_WS_URL}/betWebSocket?duelId=${duelId}`);
+
+    socket.onopen = function () {
+      console.log('Connected to the WebSocket server');
+    };
+
+    socket.onmessage = function (event) {
+      const message = JSON.parse(event.data);
+      const data = message.availableOptions;
+      console.log(data, "data")
+
+      if (data) {
+        const yesBets = data.filter((bet: OptionBetType) => bet.betOption?.index === 0)
+        const noBets = data.filter((bet: OptionBetType) => bet.betOption?.index === 1)
+        console.log(data, yesBets, noBets, "hello-hello")
+        setYesBets(yesBets);
+        setNoBets(noBets);
+      }
+    };
+
+    socket.onerror = function (error) {
+      console.log('WebSocket Error:', error);
+    };
+
+    socket.onclose = function () {
+      console.log('Disconnected from the WebSocket server');
+    };
+
+    // Cleanup WebSocket on unmount
+    return () => {
+      socket.close();
+    };
+  }, []);
+
+  // const marketPlaceList = async () => {
+  //   try {
+  //     const response = await apiClient.get(
+  //       `${NEXT_PUBLIC_API}/marketPlace/list/${duelId}`,
+  //     );
+  //     const data = response.data;
+  //     const yesBets = data.filter((bet: OptionBetType) => bet.betOption?.index === 0)
+  //     console.log(data[0].betOption, "Bet-Option", yesBets)
+  //     const noBets = data.filter((bet: OptionBetType) => bet.betOption?.index === 1)
+  //     setYesBets(yesBets);
+  //     setNoBets(noBets);
+  //   } catch (error) {
+  //     console.error("Error fetching bet:", error);
+  //   }
+  // };
+
+  // React.useEffect(() => { marketPlaceList() }, [duelId])
 
   const calculatedPercentage =
     ((totalBetYes as number) / ((totalBetYes as number) + Number(totalBetNo))) *
@@ -679,7 +702,7 @@ export const MarketDuel: React.FC<BetCardProps> = ({
 
         </div>
         {/* OpenOrders */}
-        <OrdersTable></OrdersTable>
+        <OrdersTable duelId={duelId}></OrdersTable>
 
       </main>
     </div>
