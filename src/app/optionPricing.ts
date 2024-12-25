@@ -2,7 +2,7 @@
 import { CHAIN_ID, NEXT_PUBLIC_DIAMOND } from '@/utils/consts';
 import axios from 'axios';
 import { useReadContract } from 'wagmi';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 // import { FLASHDUELS_CORE_ABI } from '@/abi/FlashDuelsCoreFacet';
 import { FLASHDUELS_VIEWFACET } from '@/abi/FlashDuelsViewFacet';
@@ -16,6 +16,7 @@ const useTotalBets = (duelId: string) => {
         data: yesData,
         error: yesError,
         isLoading: isYesLoading,
+        refetch: refetchYes,
     } = useReadContract({
         abi: FLASHDUELS_VIEWFACET,
         functionName: "getTotalBetsOnOption",
@@ -29,6 +30,7 @@ const useTotalBets = (duelId: string) => {
         data: noData,
         error: noError,
         isLoading: isNoLoading,
+        refetch: refetchNo,
     } = useReadContract({
         abi: FLASHDUELS_VIEWFACET,
         functionName: "getTotalBetsOnOption",
@@ -52,18 +54,23 @@ const useTotalBets = (duelId: string) => {
         if (noData) setTotalBetNo(noOption);
     }, [yesData, noData]);
 
+    const refetchTotalBets = useCallback(() => {
+        refetchYes();
+        refetchNo();
+    }, [refetchYes, refetchNo]);
+
     return { 
         totalBetYes: totalBetYes ?? 0, 
         totalBetNo: totalBetNo ?? 0, 
         yesError, 
         noError, 
         isYesLoading, 
-        isNoLoading 
+        isNoLoading ,
+        refetchTotalBets
     };}
 
 const postPricingData = async (markPrice: number, triggerPrice: number, asset: string, timePeriod: number, totalYesBets: number, totalNobets: number) => {
     let data;
-    console.log(triggerPrice, "triggerPrice-new")
     if (totalNobets === 0 && totalYesBets === 0) {
         data = {
             S_t: triggerPrice,

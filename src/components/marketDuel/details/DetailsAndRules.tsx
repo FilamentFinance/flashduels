@@ -15,8 +15,8 @@ export const DetailsAndRules: React.FC<DetailsAndRulesProps> = ({ onClose }) => 
   return (
     <div className="flex overflow-hidden flex-col text-white rounded-lg border border-solid shadow-2xl bg-zinc-900 border-zinc-800 max-w-[540px]">
       <div className="flex flex-col w-full max-md:max-w-full">
-        <div className="flex flex-col px-6 w-full max-md:px-5 max-md:max-w-full">
-          <div className="flex relative flex-col py-6 w-full text-2xl font-semibold tracking-normal text-center text-white border-b border-zinc-800 max-md:max-w-full">
+        <div className="flex flex-col px-6 pb-6 w-full max-md:px-5 max-md:max-w-full">
+          <div className="flex relative flex-col py-4 w-full text-2xl font-semibold tracking-normal text-center text-white border-b border-zinc-800 max-md:max-w-full">
             <div className="z-0 max-md:max-w-full">Details And Rules</div>
             <button
             onClick={onClose}

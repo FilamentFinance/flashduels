@@ -95,3 +95,7 @@ export const getAssetImage = (symbol: string) => {
   const asset = assetImages.find(item => item.symbol === symbol);
   return asset ? asset.image : null;
 };
+
+export const getAssetImageRoute = (symbol: string) => {
+  return symbol ? `/crypto-${symbol.toLowerCase()}-usd.inline.svg` : null;
+};

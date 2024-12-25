@@ -149,9 +149,6 @@ const CreateDuel = ({ closeDuelModal }: { closeDuelModal: () => void }) => {
       const triggerType = 0;
       const symbol = formData.tokenInput;
       const winCondition = formData.winCondition === "ABOVE" ? 0 : 1;
-      const markPrice = "66000";
-      console.log(symbol, typeof(symbol), "symbol")
-
       const secondHash = await lpTokenSecondFunctionAsync(symbol, options, minWager, triggerPrice, triggerType, winCondition, durationNumber);
       const secondReceipt = await waitForTransactionReceipt(config, { hash: secondHash });
 
@@ -167,7 +164,6 @@ const CreateDuel = ({ closeDuelModal }: { closeDuelModal: () => void }) => {
         duelId: result.duelId,
         type: "COIN_DUEL",
         token: symbol,
-        markPrice: markPrice,
         betIcon: getAssetImage(symbol),
         triggerPrice: formData.triggerPrice,
         minimumWager: formData.minWager,

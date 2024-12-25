@@ -8,11 +8,11 @@ import BetInfo from "../BettingModal/BetInfo";
 import BetAmount from "../BettingModal/BetAmount";
 // import TransactionOverview from "../BettingModal/TransactionOverview";
 import PlaceBetButton from "../BettingModal/PlaceBetButton";
-import { postPricingData, useTotalBets } from "@/app/optionPricing";
+import { useTotalBets } from "@/app/optionPricing";
 import { ethers } from "ethers";
 import { useState } from "react";
 import { usePrice } from "@/app/providers/PriceContextProvider";
-import { calculateFlashDuelsOptionPrice } from "@/utils/flashDuelsOptionPricing";
+// import { calculateFlashDuelsOptionPrice } from "@/utils/flashDuelsOptionPricing";
 import { priceIds } from "@/utils/helper";
 import PriceModal from "../BettingModal/PriceModal";
 import { apiClient } from "@/utils/apiClient";
@@ -52,7 +52,7 @@ export const MarketDuel: React.FC<BetCardProps> = ({
   const [notification, setNotification] = useAtom(GeneralNotificationAtom);
 
   // console.log(totalBetAmount, betsData, "bets-data-here");
-
+  const [ws, setWs] = useState<WebSocket | null>(null); // WebSocket state
   const [time, setTimeLeft] = React.useState("");
   const [priceOfBet, setPriceOfBet] = React.useState("0.00");
   const [betOptionId, setBetOptionId] = React.useState("");
@@ -100,7 +100,7 @@ export const MarketDuel: React.FC<BetCardProps> = ({
   const { prices } = usePrice();
   // Assuming useTotalBets is defined elsewhere
   const { totalBetYes, totalBetNo } = useTotalBets(duelId);
-
+// console.log(ws?.readyState, "ws-new")
   React.useEffect(() => {
 
     const socket = new WebSocket(`${NEXT_PUBLIC_WS_URL}/betWebSocket?duelId=${duelId}`);
@@ -112,12 +112,10 @@ export const MarketDuel: React.FC<BetCardProps> = ({
     socket.onmessage = function (event) {
       const message = JSON.parse(event.data);
       const data = message.availableOptions;
-      console.log(data, "data")
 
       if (data) {
         const yesBets = data.filter((bet: OptionBetType) => bet.betOption?.index === 0)
         const noBets = data.filter((bet: OptionBetType) => bet.betOption?.index === 1)
-        console.log(data, yesBets, noBets, "hello-hello")
         setYesBets(yesBets);
         setNoBets(noBets);
       }
@@ -137,35 +135,11 @@ export const MarketDuel: React.FC<BetCardProps> = ({
     };
   }, []);
 
-  // const marketPlaceList = async () => {
-  //   try {
-  //     const response = await apiClient.get(
-  //       `${NEXT_PUBLIC_API}/marketPlace/list/${duelId}`,
-  //     );
-  //     const data = response.data;
-  //     const yesBets = data.filter((bet: OptionBetType) => bet.betOption?.index === 0)
-  //     console.log(data[0].betOption, "Bet-Option", yesBets)
-  //     const noBets = data.filter((bet: OptionBetType) => bet.betOption?.index === 1)
-  //     setYesBets(yesBets);
-  //     setNoBets(noBets);
-  //   } catch (error) {
-  //     console.error("Error fetching bet:", error);
-  //   }
-  // };
-
-  // React.useEffect(() => { marketPlaceList() }, [duelId])
 
   const calculatedPercentage =
     ((totalBetYes as number) / ((totalBetYes as number) + Number(totalBetNo))) *
     100;
-  console.log(
-    calculatedPercentage,
-    percentage,
-    "calculated",
-    totalBetYes,
-    totalBetNo,
-    duelId
-  );
+
   const id = asset
     ? priceIds.find((obj) => obj[asset as keyof typeof obj])?.[
     asset as keyof (typeof priceIds)[0]
@@ -207,47 +181,90 @@ export const MarketDuel: React.FC<BetCardProps> = ({
     const fetchPrices = async () => {
       if (asset) {
         try {
-          // const price = await getCryptoPrices(asset);
-          const timePeriod = endsIn / (365 * 24);
-          console.log(
-            timePeriod,
-            triggerPrice,
-            priceFormatted,
-            asset,
-            totalBetNo,
-            totalBetYes,
-            "timePeriod"
-          );
-          const pricingValue = await postPricingData(
-            priceFormatted as number,
-            Number(triggerPrice),
-            asset,
-            timePeriod,
-            totalBetYes || 0,
-            totalBetNo || 0
-          );
-          setNoPrice(pricingValue["No Price"]);
-          setYesPrice(pricingValue["Yes Price"]);
-          console.log(
-            pricingValue,
-            triggerPrice,
-            "pricingValue",
-            pricingValue["No Value"],
-            pricingValue["Yes Value"]
-          );
+          // const timePeriod = endsIn / (365 * 24);
+          // const pricingValue = await postPricingData(
+          //   priceFormatted as number,
+          //   Number(triggerPrice),
+          //   asset,
+          //   timePeriod,
+          //   totalBetYes || 0,
+          //   totalBetNo || 0
+          // );
+          // setNoPrice(pricingValue["No Price"]);
+          // setYesPrice(pricingValue["Yes Price"]);
+
+          const websocket = new WebSocket(`${NEXT_PUBLIC_WS_URL}/cryptoduelsOptionPricingWebSocket`);
+
+          websocket.onopen = () => {
+            console.log("WebSocket connection established");
+          };
+  
+          websocket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            if (data.error) {
+              // setError(data.error);
+              return;
+            }
+            setNoPrice(data.result["No Price"]);
+            setYesPrice(data.result["Yes Price"]);
+          };
+  
+          websocket.onerror = (error) => {
+            console.error('WebSocket error:', error);
+            // setError('WebSocket connection failed');
+          };
+  
+          // Store WebSocket instance in the state
+          setWs(websocket);
+  
+          return () => {
+            // Cleanup WebSocket connection when component unmounts
+            websocket.close();
+          };
+  
+
         } catch (error) {
           console.error("Error fetching prices:", error);
         }
       } else {
-        const timePeriod = endsIn / 24;
-        console.log("no asset - its a flashduel");
-        const pricingValue = calculateFlashDuelsOptionPrice(
-          timePeriod < 1 ? 1 : timePeriod,
-          totalBetNo || 0,
-          totalBetYes || 0
-        );
-        setNoPrice(pricingValue["priceNo"]);
-        setYesPrice(pricingValue["priceYes"]);
+        // const timePeriod = endsIn / 24;
+
+        // const pricingValue = calculateFlashDuelsOptionPrice(
+        //   timePeriod < 1 ? 1 : timePeriod,
+        //   totalBetNo || 0,
+        //   totalBetYes || 0
+        // );
+        // setNoPrice(pricingValue["priceNo"]);
+        // setYesPrice(pricingValue["priceYes"]);
+        const websocket = new WebSocket(`${NEXT_PUBLIC_WS_URL}/flashduelsOptionPricingWebSocket`);
+
+        websocket.onopen = () => {
+          console.log("WebSocket connection established");
+        };
+
+        websocket.onmessage = (event) => {
+          const data = JSON.parse(event.data);
+          if (data.error) {
+            // setError(data.error);
+            return;
+          }
+          setNoPrice(data.priceNo);
+          setYesPrice(data.priceYes);
+        };
+
+        websocket.onerror = (error) => {
+          console.error('WebSocket error:', error);
+          // setError('WebSocket connection failed');
+        };
+
+        // Store WebSocket instance in the state
+        setWs(websocket);
+
+        return () => {
+          // Cleanup WebSocket connection when component unmounts
+          websocket.close();
+        };
+
       }
     };
 
@@ -260,15 +277,46 @@ export const MarketDuel: React.FC<BetCardProps> = ({
         `${NEXT_PUBLIC_API}/bets/getByUser`,
         { duelId: duelId }
       );
-      console.log("hello-getBets");
-      console.log(response, "response");
       const data = response.data;
-      console.log(data.bets[0].options, "optionsData");
       setBetsData(data.bets[0].options);
     } catch (error) {
       console.error("Error fetching bet:", error);
     }
   };
+
+  React.useEffect(() => {
+
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      if(asset){
+        const timePeriod = endsIn / (365 * 24); // Convert endsIn to time period in years for Crypto Duel
+        console.log('Sending data for cryptoDuels pricing calculation');
+        ws.send(
+          JSON.stringify({
+            markPrice: priceFormatted as number,
+            triggerPrice: Number(triggerPrice),
+            asset,
+            timePeriod,
+            totalYesBets: totalBetYes || 0,
+            totalNobets: totalBetNo || 0,
+          })
+        );
+      }else{
+        const timePeriod = endsIn / 24; // Convert endsIn to time period in days for Flash Duel
+        console.log('Sending data for flashDuels pricing calculation');
+
+        ws.send(
+          JSON.stringify({
+            T: timePeriod < 1 ? 1 : timePeriod, // Ensure a minimum value of 1 for T
+            totalYes: totalBetYes || 0,
+            totalNo: totalBetNo || 0,
+          })
+        );
+      } 
+      }else {
+        console.log('WebSocket connection is not open');
+      }
+     
+  }, [totalBetYes, totalBetNo, ws, ws?.readyState, priceFormatted]);
 
   React.useEffect(() => {
     if (side === "SELL") {
@@ -284,6 +332,7 @@ export const MarketDuel: React.FC<BetCardProps> = ({
 
     return () => clearInterval(interval); // Clear interval on component unmount
   }, [createdAt, startAt, endTime]);
+
   return (
     <div className="flex overflow-hidden flex-col pb-9">
       {/* Main content */}
@@ -327,7 +376,7 @@ export const MarketDuel: React.FC<BetCardProps> = ({
                       {betTitle || "Hello"}
                     </h1>
                     <button
-                     onClick={handleOpenModal}
+                      onClick={handleOpenModal}
                       className="flex gap-1 items-center px-2 py-1 h-full text-xs tracking-normal leading-relaxed text-gray-400 rounded border border-solid bg-neutral-700 border-white border-opacity-10"
                       aria-label="View market details and rules"
                     >
@@ -380,81 +429,81 @@ export const MarketDuel: React.FC<BetCardProps> = ({
                 {/* Order book */}
                 <div className="flex overflow-hidden flex-wrap items-start py-1 mt-7 text-base tracking-normal rounded-xl border-2 border-solid bg-neutral-900 border-stone-900">
                   {/* Yes orders */}
-                 {yesBets.length === 0  && noBets.length === 0 ?    <span className="text-white flex items-center justify-center h-[441px] w-full">No Open Orders</span> :
-                 <>
-                  <div className="flex flex-col flex-1 self-stretch mt-2">
-                    <div className="flex items-center w-full whitespace-nowrap text-stone-200">
-                      <div className="flex gap-2.5 items-start self-stretch py-2 pl-3.5 my-auto border-b-2 border-stone-900 w-[97px]">
-                        <div className="flex gap-2 items-start w-[139px]">
-                          <div className="flex flex-col w-[139px]">
-                            <div className="gap-1 self-stretch w-full text-ellipsis">
-                              Price
+                  {yesBets.length === 0 && noBets.length === 0 ? <span className="text-white flex items-center justify-center h-[441px] w-full">No Open Orders</span> :
+                    <>
+                      <div className="flex flex-col flex-1 self-stretch mt-2">
+                        <div className="flex items-center w-full whitespace-nowrap text-stone-200">
+                          <div className="flex gap-2.5 items-start self-stretch py-2 pl-3.5 my-auto border-b-2 border-stone-900 w-[97px]">
+                            <div className="flex gap-2 items-start w-[139px]">
+                              <div className="flex flex-col w-[139px]">
+                                <div className="gap-1 self-stretch w-full text-ellipsis">
+                                  Price
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex flex-1 shrink gap-2.5 items-start self-stretch py-2 my-auto border-b-2 basis-[13px] border-stone-900 min-w-[240px]">
+                            <div className="flex gap-2 items-start w-[139px]">
+                              <div className="flex flex-col flex-1 shrink w-full basis-0">
+                                <div className="flex-1 shrink gap-1 self-stretch w-full text-ellipsis">
+                                  Quantity
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                      <div className="flex flex-1 shrink gap-2.5 items-start self-stretch py-2 my-auto border-b-2 basis-[13px] border-stone-900 min-w-[240px]">
-                        <div className="flex gap-2 items-start w-[139px]">
-                          <div className="flex flex-col flex-1 shrink w-full basis-0">
-                            <div className="flex-1 shrink gap-1 self-stretch w-full text-ellipsis">
-                              Quantity
-                            </div>
-                          </div>
+                        <div className="flex flex-col mt-1.5 w-full h-[388px]">
+                          {yesBets.map((order: OptionBetType, index) => (
+                            <OrderItem
+                              key={index}
+                              price={order.price}
+                              amount={order.quantity}
+                              type={"YES"}
+                              onBuy={() => handleBuyOrders(order.id)}
+                            />
+                          ))}
                         </div>
                       </div>
-                    </div>
-                    <div className="flex flex-col mt-1.5 w-full h-[388px]">
-                      {yesBets.map((order: OptionBetType, index) => (
-                        <OrderItem
-                          key={index}
-                          price={order.price}
-                          amount={order.quantity}
-                          type={"YES"}
-                          onBuy={() => handleBuyOrders(order.id)}
-                        />
-                      ))}
-                    </div>
-                  </div>
 
-                  <div className="shrink-0 w-0.5 border-2 border-solid border-stone-900 h-[441px]" />
+                      <div className="shrink-0 w-0.5 border-2 border-solid border-stone-900 h-[441px]" />
 
-                  {/* No orders */}
-                  <div className="flex flex-col flex-1 mt-2">
-                    <div className="flex items-center w-full whitespace-nowrap text-stone-200">
-                      <div className="flex gap-2.5 items-start self-stretch py-2 pl-3.5 my-auto border-b-2 border-stone-900 w-[97px]">
-                        <div className="flex gap-2 items-start w-[139px]">
-                          <div className="flex flex-col w-[139px]">
-                            <div className="gap-1 self-stretch w-full text-ellipsis">
-                              Price
+                      {/* No orders */}
+                      <div className="flex flex-col flex-1 mt-2">
+                        <div className="flex items-center w-full whitespace-nowrap text-stone-200">
+                          <div className="flex gap-2.5 items-start self-stretch py-2 pl-3.5 my-auto border-b-2 border-stone-900 w-[97px]">
+                            <div className="flex gap-2 items-start w-[139px]">
+                              <div className="flex flex-col w-[139px]">
+                                <div className="gap-1 self-stretch w-full text-ellipsis">
+                                  Price
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex flex-1 shrink gap-2.5 items-start self-stretch py-2 my-auto border-b-2 basis-[13px] border-stone-900 min-w-[240px]">
+                            <div className="flex gap-2 items-start w-[139px]">
+                              <div className="flex flex-col flex-1 shrink w-full basis-0">
+                                <div className="flex-1 shrink gap-1 self-stretch w-full text-ellipsis">
+                                  Amount
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                      <div className="flex flex-1 shrink gap-2.5 items-start self-stretch py-2 my-auto border-b-2 basis-[13px] border-stone-900 min-w-[240px]">
-                        <div className="flex gap-2 items-start w-[139px]">
-                          <div className="flex flex-col flex-1 shrink w-full basis-0">
-                            <div className="flex-1 shrink gap-1 self-stretch w-full text-ellipsis">
-                              Amount
-                            </div>
-                          </div>
+                        <div className="flex flex-col mt-1.5 w-full">
+                          {noBets.map((order: OptionBetType, index) => (
+                            <OrderItem
+                              key={index}
+                              price={order.price}
+                              amount={order.quantity}
+                              type={"NO"}
+                              onBuy={() => handleBuyOrders(order.id)}
+
+                            />
+                          ))}
                         </div>
                       </div>
-                    </div>
-                    <div className="flex flex-col mt-1.5 w-full">
-                      {noBets.map((order: OptionBetType, index) => (
-                        <OrderItem
-                          key={index}
-                          price={order.price}
-                          amount={order.quantity}
-                          type={"NO"}
-                          onBuy={() => handleBuyOrders(order.id)}
-
-                        />
-                      ))}
-                    </div>
-                  </div>
-                 </>
-                 }
+                    </>
+                  }
                 </div>
               </div>
             </section>

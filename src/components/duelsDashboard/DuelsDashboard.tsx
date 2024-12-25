@@ -49,7 +49,7 @@ export function DuelsDashboard() {
   }, [activeTab, address]);
 
   const activeData = activeTab === "duels" ? duels : history;
-
+  console.log(activeData, "activeData")
   return (
     <div className="flex flex-col min-h-[291px] w-full rounded-lg border border-neutral-800 shadow-sm bg-neutral-900">
       {/* Header Section */}
@@ -91,8 +91,9 @@ export function DuelsDashboard() {
                     status={item.duelDetails.status}
                     createdAt={item.duelDetails.createdAt}
                     startAt={item.duelDetails.startAt}
-                    avgPrice={item.yesBet.price as string}
-                    value={item.yesBet.amount}
+                    avgPrice={item.yesBet.price as number}
+                    quantity={item.yesBet.quantity as number}
+                    amount={item.yesBet.amount as number}
                     resolvesIn={item.duelDetails.endsIn as number}
                     icon={item.duelDetails.betIcon}
                     pnl={item.pnl}
@@ -107,8 +108,9 @@ export function DuelsDashboard() {
                     createdAt={item.duelDetails.createdAt}
                     startAt={item.duelDetails.startAt}
                     direction={"No"}
-                    avgPrice={item.noBet.price as string}
-                    value={item.noBet.amount}
+                    avgPrice={item.noBet.price as number}
+                    quantity={item.noBet.quantity}
+                    amount={item.yesBet.amount as number}
                     resolvesIn={item.duelDetails.endsIn as number}
                     icon={item.duelDetails.betIcon}
                     pnl={item.pnl}
@@ -167,22 +169,24 @@ function DuelRow({
   duelName,
   direction,
   avgPrice,
-  value,
+  // value,
   resolvesIn,
   status,
   createdAt,
   startAt,
   icon,
   pnl,
-  activeTab
+  amount,
+  activeTab,
+  quantity
 }: {
   duelName: string;
   direction: string;
   activeTab: string;
-  // quantity: string;
-  avgPrice: string;
+  quantity: number;
+  avgPrice: number;
   status: number
-  value: string;
+  amount: number;
   resolvesIn: number;
   createdAt: number;
   startAt: number;
@@ -241,9 +245,9 @@ function DuelRow({
         <span>{duelName}</span>
       </div>
       <div className={`w-[15%] text-center ${direction === "Yes" ? 'text-green-500' : 'text-red-500'}`}>{direction}</div>
-      <div className="w-[15%] text-center">{(Number(value)).toFixed(3)}</div>
-      <div className="w-[15%] text-center">${Number(avgPrice).toFixed(3)}</div>
-      <div className="w-[15%] text-center">${(Number(value)/Number(avgPrice)).toFixed(2)}</div>
+      <div className="w-[15%] text-center">{(quantity).toFixed(3)}</div>
+      <div className="w-[15%] text-center">${(avgPrice).toFixed(3)}</div>
+      <div className="w-[15%] text-center">${(amount).toFixed(2)}</div>
       <div className="w-[20%] text-center">{activeTab === "history" ? `$${pnl.toFixed(2)}` : time}</div>
     </div>
   );

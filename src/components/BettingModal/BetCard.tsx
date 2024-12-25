@@ -4,7 +4,6 @@ import BetAmount from "./BetAmount";
 import TransactionOverview from "./TransactionOverview";
 import PlaceBetButton from "./PlaceBetButton";
 import { postPricingData, useTotalBets } from "@/app/optionPricing";
-// import { getCryptoPrices } from "@/utils/prices";
 import { priceIds } from "@/utils/helper";
 import { usePrice } from "@/app/providers/PriceContextProvider";
 import { ethers } from "ethers";
@@ -35,15 +34,13 @@ const BetCard: React.FC<BetCardProps> = ({
 }) => {
   const [betAmount, setBetAmount] = useState("1000");
   const [bet, setBet] = useState<string>("YES");
-  // const [markPrice, setMarkPrice] = useState<number | null>(null);
   const [noPrice, setNoPrice] = useState<number>();
   const [yesPrice, setYesPrice] = useState<number>();
   const { prices } = usePrice()
-  // Assuming useTotalBets is defined elsewhere
   const { totalBetYes, totalBetNo } = useTotalBets(duelId);
 
   const calculatedPercentage = (totalBetYes as number / (totalBetYes as number + Number(totalBetNo))) * 100;
-  console.log(calculatedPercentage, percentage, "calculated", totalBetYes, totalBetNo, duelId)
+
   const id = asset
     ? priceIds.find((obj) => obj[asset as keyof typeof obj])?.[asset as keyof typeof priceIds[0]]
     : undefined;
@@ -113,7 +110,7 @@ const BetCard: React.FC<BetCardProps> = ({
           imageUrl={imageUrl}
           volume={volume}
           endTime={endTime}
-          probability={calculatedPercentage}
+          probability={calculatedPercentage || percentage}
           createdBy={createdBy}
           startAt={startAt}
           createdAt={createdAt}

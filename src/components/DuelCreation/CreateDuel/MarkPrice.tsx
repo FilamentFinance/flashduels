@@ -6,18 +6,7 @@ import { usePrice } from "@/app/providers/PriceContextProvider";
 import { ethers } from "ethers";
 
 const MarkPriceComponent = ({ asset }: { asset: string }) => {
-    // const [markPrice, setMarkPrice] = useState<string | null>(null);
 
-    // useEffect(() => {
-    //     const fetchMarkPrice = async () => {
-
-    //         const price = await getCryptoPrices(asset);
-    //         setMarkPrice(price);
-
-    //     };
-
-    //     fetchMarkPrice();
-    // }, [asset]);
     const { prices } = usePrice()
     const id = asset
         ? priceIds.find((obj) => obj[asset as keyof typeof obj])?.[asset as keyof typeof priceIds[0]]
