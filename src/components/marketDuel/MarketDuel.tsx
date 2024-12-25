@@ -2,7 +2,7 @@ import * as React from "react";
 import { OrderItem } from "./OrderItem";
 import { MarketStats } from "./MarketStats";
 import ProbabilityBar from "../BettingModal/ProbabilityBar";
-import { BetCardProps, NEXT_PUBLIC_API, NEXT_PUBLIC_WS_URL, OptionBetType } from "@/utils/consts";
+import { BetCardProps, CHAIN_ID, NEXT_PUBLIC_API, NEXT_PUBLIC_DIAMOND, NEXT_PUBLIC_FLASH_USDC, NEXT_PUBLIC_WS_URL, OptionBetType } from "@/utils/consts";
 import { useRouter } from "next/navigation";
 import BetInfo from "../BettingModal/BetInfo";
 import BetAmount from "../BettingModal/BetAmount";
@@ -21,6 +21,11 @@ import { useAtom } from "jotai";
 import { GeneralNotificationAtom } from "../GeneralNotification";
 import { OrdersTable } from "./orders/OrdersTable";
 import { DetailsModal } from "./details/DetailsModal";
+import { FLASHDUELS_MARKETPLACE } from "@/abi/FlashDuelsMarketplaceFacet";
+import { FLASHUSDCABI } from "@/abi/FLASHUSDC";
+import { useAccount, useReadContract, useWriteContract } from "wagmi";
+import { FLASHDUELS_VIEWFACET } from "@/abi/FlashDuelsViewFacet";
+import { OPTION_TOKEN_ABI } from "@/abi/OptionToken";
 
 
 export const MarketDuel: React.FC<BetCardProps> = ({
@@ -54,8 +59,9 @@ export const MarketDuel: React.FC<BetCardProps> = ({
   // console.log(totalBetAmount, betsData, "bets-data-here");
   const [ws, setWs] = useState<WebSocket | null>(null); // WebSocket state
   const [time, setTimeLeft] = React.useState("");
-  const [priceOfBet, setPriceOfBet] = React.useState("0.00");
+  const [priceOfBet, setPriceOfBet] = React.useState('0.00');
   const [betOptionId, setBetOptionId] = React.useState("");
+  const {address} = useAccount()
   // console.log(percentage, "probability")
   // Function to calculate the remaining time
   const calculateRemainingTime = () => {
@@ -80,6 +86,35 @@ export const MarketDuel: React.FC<BetCardProps> = ({
   };
   console.log(notification)
 
+  const {
+    writeContractAsync: lpTokenApproveAsyncLocal,
+  } = useWriteContract({});
+  const {
+    writeContractAsync: lpTokenSecondFunctionAsyncLocal,
+  } = useWriteContract({});
+
+  const lpTokenApproveAsync = async(amount: number) =>
+
+    lpTokenApproveAsyncLocal({
+    abi: FLASHUSDCABI,
+    address: NEXT_PUBLIC_FLASH_USDC as `0x${string}`,
+    functionName: "increaseAllowance",
+    chainId: CHAIN_ID,
+    args: [NEXT_PUBLIC_DIAMOND, amount*10**18],
+  });
+
+const buyBet = async (sellId: number, optionTokenAddress: string, optionIndex:number) => {
+  return lpTokenSecondFunctionAsyncLocal({
+    abi: FLASHDUELS_MARKETPLACE,
+    address: NEXT_PUBLIC_DIAMOND as `0x${string}`,
+    functionName: "buy",
+    chainId: CHAIN_ID,
+    args: [optionTokenAddress, duelId, optionIndex, sellId],
+  });
+};
+
+
+
   // Function to format time in HH:MM:SS format
   const formatTime = (ms: number) => {
     const totalSeconds = Math.floor(ms / 1000);
@@ -100,6 +135,22 @@ export const MarketDuel: React.FC<BetCardProps> = ({
   const { prices } = usePrice();
   // Assuming useTotalBets is defined elsewhere
   const { totalBetYes, totalBetNo } = useTotalBets(duelId);
+  const [optionIndex, setOptionIndex] = useState<number | null>();
+  const [optionTokenAddress, setOptionTokenAddress] = useState<string | null>(null);
+  const { data: optionTokenAddressData, isLoading: isOptionLoading } = useReadContract({
+    abi: FLASHDUELS_VIEWFACET,
+    functionName: "getOptionIndexToOptionToken",
+    address: NEXT_PUBLIC_DIAMOND as `0x${string}`,
+    chainId: CHAIN_ID,
+    args: [duelId, optionIndex],
+  });
+
+
+  React.useEffect(() => {
+    if (optionTokenAddressData) {
+      setOptionTokenAddress(optionTokenAddressData as string);
+    }
+  }, [optionTokenAddressData]);
 // console.log(ws?.readyState, "ws-new")
   React.useEffect(() => {
 
@@ -149,7 +200,12 @@ export const MarketDuel: React.FC<BetCardProps> = ({
   const price = formattedId && prices[formattedId];
   const priceFormatted = Number(ethers.formatUnits(String(price || 0), 8));
 
-  const handleBuyOrders = async (betOptionMarketId: string) => {
+  const handleBuyOrders = async (betOptionMarketId: string, quantity:number, index:number, sellId: number, amount: number) => {
+    setOptionIndex(index)
+    console.log(amount, "amount")
+    await lpTokenApproveAsync(amount)
+    await buyBet(sellId, optionTokenAddress as string , index)
+
     try {
       const response = await apiClient.post(
         `${NEXT_PUBLIC_API}/betOption/buy`,
@@ -459,7 +515,7 @@ export const MarketDuel: React.FC<BetCardProps> = ({
                               price={order.price}
                               amount={order.quantity}
                               type={"YES"}
-                              onBuy={() => handleBuyOrders(order.id)}
+                              onBuy={() => handleBuyOrders(order.id, order.quantity, order.index, order.sellId, order.amount)}
                             />
                           ))}
                         </div>
@@ -496,7 +552,7 @@ export const MarketDuel: React.FC<BetCardProps> = ({
                               price={order.price}
                               amount={order.quantity}
                               type={"NO"}
-                              onBuy={() => handleBuyOrders(order.id)}
+                              onBuy={() => handleBuyOrders(order.id, order.quantity, order.index, order.sellId, order.amount)}
 
                             />
                           ))}
@@ -574,7 +630,7 @@ export const MarketDuel: React.FC<BetCardProps> = ({
                         <div className="flex flex-col flex-1 shrink justify-center w-full basis-0 min-w-[240px]">
                           <div className="flex gap-10 justify-between items-center mt-1 w-full">
                             <div className="flex flex-col items-start self-stretch my-auto w-[91px]">
-                              <div>{betState === "YES" ? (Number(betAmount) * Number(yesPrice)).toFixed(2) : (Number(betAmount) * Number(noPrice)).toFixed(2)} {betState}</div>
+                              <div>{betState === "YES" ? (Number(betAmount) / Number(yesPrice)).toFixed(2) : (Number(betAmount) / Number(noPrice)).toFixed(2)} {betState}</div>
                             </div>
                             <div className="flex flex-col self-stretch my-auto whitespace-nowrap">
                               <div>${betState === "YES" ? (yesPrice)?.toFixed(2) : (noPrice)?.toFixed(2)}</div>
@@ -689,7 +745,7 @@ export const MarketDuel: React.FC<BetCardProps> = ({
                           showUSDC={false}
                         />
                         <PriceModal
-                          priceOfBet={priceOfBet}
+                          priceOfBet={priceOfBet.toString()}
                           setPriceOfBet={setPriceOfBet}
                         />
                         {/* <TransactionOverview betAmount={betAmount} /> */}
@@ -705,13 +761,13 @@ export const MarketDuel: React.FC<BetCardProps> = ({
                               onClick={() => {
                                 if (betState === "NO" && bet.index === 1) {
                                   setBetAmount((Number(bet.quantity)).toString());
-                                  setPriceOfBet(bet.price);
+                                  setPriceOfBet((bet.price).toString());
                                   setBetOptionId(bet.id)
 
                                 }
                                 else if (betState === "YES" && bet.index === 0) {
                                   setBetAmount((Number(bet.quantity)).toString());
-                                  setPriceOfBet(bet.price);
+                                  setPriceOfBet((bet.price).toString());
                                   setBetOptionId(bet.id)
                                 }
                               }}
@@ -734,7 +790,7 @@ export const MarketDuel: React.FC<BetCardProps> = ({
                         {/* //sc interaction */}
                         <SellButton
                           quantity={betAmount}
-                          price={priceOfBet}
+                          price={priceOfBet.toString()}
                           betOptionId={betOptionId}
                           optionIndex={betState === "YES" ? 0 : 1}
                           duelId={duelId}

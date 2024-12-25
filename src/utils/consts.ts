@@ -43,10 +43,11 @@ export type NewDuelItem = {
 
 export type OptionBetType = {
   id: string;
-  quantity: string;
-  amount: string;
+  quantity: number;
+  amount: number;
   index: number;
-  price: string;
+  price: number;
+  sellId: number;
   betOption?:{index:number}
 }
 

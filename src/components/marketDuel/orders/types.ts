@@ -6,4 +6,5 @@ export interface OrderData {
   quantity: string;
   price: string;
   betOptionIndex: number;
+  sellId: number
 }

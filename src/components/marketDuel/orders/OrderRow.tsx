@@ -1,9 +1,12 @@
 import * as React from "react";
 import type { OrderData } from "./types";
 import { apiClient } from "@/utils/apiClient";
-import { NEXT_PUBLIC_API } from "@/utils/consts";
+import { CHAIN_ID, NEXT_PUBLIC_API, NEXT_PUBLIC_DIAMOND } from "@/utils/consts";
 import { useAtom } from "jotai";
 import { GeneralNotificationAtom } from "@/components/GeneralNotification";
+import { FLASHDUELS_MARKETPLACE } from "@/abi/FlashDuelsMarketplaceFacet";
+import { FLASHDUELS_VIEWFACET } from "@/abi/FlashDuelsViewFacet";
+import { useReadContract, useWriteContract } from "wagmi";
 
 interface OrderRowProps {
   order: OrderData;
@@ -13,6 +16,30 @@ interface OrderRowProps {
 export const OrderRow: React.FC<OrderRowProps> = ({ order, duelId }) => {
   const [notification, setNotification] = useAtom(GeneralNotificationAtom); // Move this inside the component
   console.log(notification)
+  const {
+    writeContractAsync: lpTokenSecondFunctionAsyncLocal,
+  } = useWriteContract({});
+
+  const {
+    data: optionTokenAddress,
+  } = useReadContract({
+    abi: FLASHDUELS_VIEWFACET,
+    functionName: "getOptionIndexToOptionToken",
+    address: NEXT_PUBLIC_DIAMOND as `0x${string}`,
+    chainId: CHAIN_ID,
+    args: [duelId, order.betOptionIndex],
+  });
+
+  const cancelSell = async (sellId: number) => {
+  return lpTokenSecondFunctionAsyncLocal({
+    abi: FLASHDUELS_MARKETPLACE,
+    address: NEXT_PUBLIC_DIAMOND as `0x${string}`,
+    functionName: "cancelSell",
+    chainId: CHAIN_ID,
+    args: [optionTokenAddress, sellId],
+  });
+};
+
   return (
     <div className="flex items-center w-full">
       <div className="flex text-white items-center border-b border-neutral-800">
@@ -50,6 +77,7 @@ export const OrderRow: React.FC<OrderRowProps> = ({ order, duelId }) => {
             className="gap-2.5 px-5 py-1 rounded-lg border border-red-500 border-solid bg-red-600 bg-opacity-10 text-xs font-bold text-red-500"
             onClick={async () => {
               try {
+                await cancelSell(order.sellId)
                 const response = await apiClient.delete(`${NEXT_PUBLIC_API}/betOption/cancel`, {
                   data: {
                     betOptionMarketId: order.id,

@@ -6,7 +6,7 @@ import { useAtom } from "jotai";
 import { estConnection } from "@/utils/atoms";
 import usePopup from "@/app/providers/PopupProvider";
 import { apiClient } from "@/utils/apiClient";
-import { CHAIN_ID, NEXT_PUBLIC_API, NEXT_PUBLIC_DIAMOND } from "@/utils/consts";
+import { CHAIN_ID, NEXT_PUBLIC_API, NEXT_PUBLIC_DIAMOND, NEXT_PUBLIC_RPC_URL } from "@/utils/consts";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { OPTION_TOKEN_ABI } from "@/abi/OptionToken";
 import { FLASHDUELS_VIEWFACET } from "@/abi/FlashDuelsViewFacet";
@@ -14,6 +14,7 @@ import { FLASHDUELS_MARKETPLACE } from "@/abi/FlashDuelsMarketplaceFacet";
 // import { FLASHUSDCABI } from "@/abi/FLASHUSDC";
 import { waitForTransactionReceipt } from "@wagmi/core";
 import { config } from "@/app/config/wagmi";
+import { ethers } from "ethers";
 // import { FLASHUSDCABI } from "@/abi/FLASHUSDC";
 
 interface SellButtonProps {
@@ -52,40 +53,93 @@ const SellButton: React.FC<SellButtonProps> = ({
     chainId: CHAIN_ID,
     args: [duelId, optionIndex],
   });
+  const {
+    data: balance,
+    isLoading,
+    isError,
+  } = useReadContract({
+    abi: OPTION_TOKEN_ABI,
+    functionName: "balanceOf",
+    address: optionTokenAddress as `0x${string}`,
+    chainId: CHAIN_ID,
+    args: [address],
+  });
 
-//buy
+  const provider = new ethers.JsonRpcProvider(NEXT_PUBLIC_RPC_URL);
+  async function fetchTransactionEvents(transactionHash: string) {
+    try {
+      const receipt = await provider!.getTransactionReceipt(transactionHash);
 
-// const lpTokenApproveAsync = () =>
-//   lpTokenApproveAsyncLocal({
-//     abi: FLASHUSDCABI,
-//     address: NEXT_PUBLIC_FLASH_USDC as `0x${string}`,
-//     functionName: "approve",
-//     chainId: CHAIN_ID,
-//     args: [NEXT_PUBLIC_DIAMOND, Number(quantityListed)*10**18],
-//   });
+      if (!receipt) {
+        console.error('Transaction receipt not found!');
+        return;
+      }
 
-// const buyBet = async () => {
-//   return lpTokenSecondFunctionAsyncLocal({
-//     abi: FLASHDUELS_MARKETPLACE,
-//     address: NEXT_PUBLIC_DIAMOND as `0x${string}`,
-//     functionName: "buy",
-//     chainId: CHAIN_ID,
-//     args: [optionTokenAddress, duelId, optionIndex, sellId],
-//   });
-// };
+      const contract = new ethers.Contract(NEXT_PUBLIC_DIAMOND, FLASHDUELS_MARKETPLACE, provider);
 
-//cancelsell
-// const cancelSell = async () => {
-//   return lpTokenSecondFunctionAsyncLocal({
-//     abi: FLASHDUELS_MARKETPLACE,
-//     address: NEXT_PUBLIC_DIAMOND as `0x${string}`,
-//     functionName: "cancelSell",
-//     chainId: CHAIN_ID,
-//     args: [optionTokenAddress, sellId],
-//   });
-// };
-// listen for sell event - to get the sellId
-// SellCreated[10]
+      // Use a regular loop to allow early return
+      for (const log of receipt.logs) {
+        // Check if the log was emitted by your contract
+        if (log.address.toLowerCase() === NEXT_PUBLIC_DIAMOND.toLowerCase()) {
+          try {
+            // Parse the log using the ABI
+            const parsedLog = contract.interface.parseLog(log);
+            const targetArray = parsedLog!.args; // Access the target array
+
+            console.log(targetArray, "targetArray", parsedLog, "parsedLog")
+
+            const sellId = targetArray[0];
+            const amount = targetArray[4];
+
+            const finalAmount = Number(ethers.formatUnits(amount, 6));
+            // Return the values
+            return { sellId, amount: finalAmount };
+          } catch (error) {
+            console.error('Error parsing log:', error);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching transaction receipt:', error);
+    }
+
+    // Return undefined if no logs are found
+    return;
+  }
+
+  //buy
+
+  // const lpTokenApproveAsync = () =>
+  //   lpTokenApproveAsyncLocal({
+  //     abi: FLASHUSDCABI,
+  //     address: NEXT_PUBLIC_FLASH_USDC as `0x${string}`,
+  //     functionName: "approve",
+  //     chainId: CHAIN_ID,
+  //     args: [NEXT_PUBLIC_DIAMOND, Number(quantityListed)*10**18],
+  //   });
+
+  // const buyBet = async () => {
+  //   return lpTokenSecondFunctionAsyncLocal({
+  //     abi: FLASHDUELS_MARKETPLACE,
+  //     address: NEXT_PUBLIC_DIAMOND as `0x${string}`,
+  //     functionName: "buy",
+  //     chainId: CHAIN_ID,
+  //     args: [optionTokenAddress, duelId, optionIndex, sellId],
+  //   });
+  // };
+
+  //cancelsell
+  // const cancelSell = async () => {
+  //   return lpTokenSecondFunctionAsyncLocal({
+  //     abi: FLASHDUELS_MARKETPLACE,
+  //     address: NEXT_PUBLIC_DIAMOND as `0x${string}`,
+  //     functionName: "cancelSell",
+  //     chainId: CHAIN_ID,
+  //     args: [optionTokenAddress, sellId],
+  //   });
+  // };
+  // listen for sell event - to get the sellId
+  // SellCreated[10]
 
   //sell
 
@@ -101,6 +155,7 @@ const SellButton: React.FC<SellButtonProps> = ({
   const sellBet = async () => {
     const priceFinal = Number(price);
     const quantityFinal = Number(quantity);
+    console.log(priceFinal, quantityFinal, "priceFinal, quantityFinal")
     const result = ((priceFinal * quantityFinal) * 10 ** 6)
     const finalResult = Math.trunc(result).toString();
     console.log(optionTokenAddress, duelId, optionIndex, Number(quantity) * 10 ** 18, result, finalResult, "optionTokenAddress, duelId, optionIndex, Number(quantity) * 10 ** 18, (Number(price) * Number(quantity) * 10 ** 6)")
@@ -117,24 +172,31 @@ const SellButton: React.FC<SellButtonProps> = ({
     setLoading(true); // Start loading
 
     try {
+      // console.log(optionTokenAddress,"optionTokenAddress")
+      // const { balance } = useBalance(address as string);
+      console.log(balance, "balance")
       const hash = await lpTokenApproveAsync();
       await waitForTransactionReceipt(config, { hash });
       console.log(hash, "hash-success")
 
       const sellHash = await sellBet()
-      await waitForTransactionReceipt(config, { hash: sellHash });
-      console.log(sellHash, "hash-2-success")
+      const sellReciept = await waitForTransactionReceipt(config, { hash: sellHash });
+      console.log(sellHash, "hash-2-success", sellReciept)
+      const result = await fetchTransactionEvents(sellReciept.logs[0].transactionHash)
+      console.log(result, "result")
 
 
-      console.log(betOptionId, quantity, price, "betOptionId, quantity, price")
+      console.log(betOptionId, quantity, price, parseFloat(quantity), "betOptionId, quantity, price")
 
       await apiClient.post(
         `${NEXT_PUBLIC_API}/betOption/sell`,
         {
           betOptionId,
-          quantity,
-          price,
-          duelId
+          quantity: parseFloat(quantity),
+          price: parseFloat(price),
+          duelId,
+          amount: result?.amount,
+          sellId: Number(result?.sellId)
         },
         {
           headers: {
