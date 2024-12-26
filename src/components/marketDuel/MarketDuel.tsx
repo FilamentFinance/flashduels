@@ -23,9 +23,10 @@ import { OrdersTable } from "./orders/OrdersTable";
 import { DetailsModal } from "./details/DetailsModal";
 import { FLASHDUELS_MARKETPLACE } from "@/abi/FlashDuelsMarketplaceFacet";
 import { FLASHUSDCABI } from "@/abi/FLASHUSDC";
-import { useAccount, useReadContract, useWriteContract } from "wagmi";
-import { FLASHDUELS_VIEWFACET } from "@/abi/FlashDuelsViewFacet";
-import { OPTION_TOKEN_ABI } from "@/abi/OptionToken";
+import {  useWriteContract } from "wagmi";
+// import { FLASHDUELS_VIEWFACET } from "@/abi/FlashDuelsViewFacet";
+import Decimal from "decimal.js";
+import { useOptionAddress } from "@/blockchain/useOptionAddress";
 
 
 export const MarketDuel: React.FC<BetCardProps> = ({
@@ -61,7 +62,6 @@ export const MarketDuel: React.FC<BetCardProps> = ({
   const [time, setTimeLeft] = React.useState("");
   const [priceOfBet, setPriceOfBet] = React.useState('0.00');
   const [betOptionId, setBetOptionId] = React.useState("");
-  const {address} = useAccount()
   // console.log(percentage, "probability")
   // Function to calculate the remaining time
   const calculateRemainingTime = () => {
@@ -93,25 +93,26 @@ export const MarketDuel: React.FC<BetCardProps> = ({
     writeContractAsync: lpTokenSecondFunctionAsyncLocal,
   } = useWriteContract({});
 
-  const lpTokenApproveAsync = async(amount: number) =>
+  const lpTokenApproveAsync = async (amount: string) =>
 
     lpTokenApproveAsyncLocal({
-    abi: FLASHUSDCABI,
-    address: NEXT_PUBLIC_FLASH_USDC as `0x${string}`,
-    functionName: "increaseAllowance",
-    chainId: CHAIN_ID,
-    args: [NEXT_PUBLIC_DIAMOND, amount*10**18],
-  });
+      abi: FLASHUSDCABI,
+      address: NEXT_PUBLIC_FLASH_USDC as `0x${string}`,
+      functionName: "increaseAllowance",
+      chainId: CHAIN_ID,
+      args: [NEXT_PUBLIC_DIAMOND, (new Decimal(amount).mul(10 ** 6)).toFixed(0)],
+    });
 
-const buyBet = async (sellId: number, optionTokenAddress: string, optionIndex:number) => {
-  return lpTokenSecondFunctionAsyncLocal({
-    abi: FLASHDUELS_MARKETPLACE,
-    address: NEXT_PUBLIC_DIAMOND as `0x${string}`,
-    functionName: "buy",
-    chainId: CHAIN_ID,
-    args: [optionTokenAddress, duelId, optionIndex, sellId],
-  });
-};
+  const buyBet = async (sellId: number) =>
+    //  console.log(sellId, optionTokenAddress, index, "buy-bet")
+    lpTokenSecondFunctionAsyncLocal({
+      abi: FLASHDUELS_MARKETPLACE,
+      address: NEXT_PUBLIC_DIAMOND as `0x${string}`,
+      functionName: "buy",
+      chainId: CHAIN_ID,
+      args: [optionTokenAddress, duelId, optionIndex, sellId],
+    });
+  ;
 
 
 
@@ -137,21 +138,17 @@ const buyBet = async (sellId: number, optionTokenAddress: string, optionIndex:nu
   const { totalBetYes, totalBetNo } = useTotalBets(duelId);
   const [optionIndex, setOptionIndex] = useState<number | null>();
   const [optionTokenAddress, setOptionTokenAddress] = useState<string | null>(null);
-  const { data: optionTokenAddressData, isLoading: isOptionLoading } = useReadContract({
-    abi: FLASHDUELS_VIEWFACET,
-    functionName: "getOptionIndexToOptionToken",
-    address: NEXT_PUBLIC_DIAMOND as `0x${string}`,
-    chainId: CHAIN_ID,
-    args: [duelId, optionIndex],
-  });
+  const { optionTokenAddressData } = useOptionAddress(duelId, optionIndex as number);
 
+  console.log(optionIndex, "optionIndex")
 
   React.useEffect(() => {
     if (optionTokenAddressData) {
+      console.log("Triggered address")
       setOptionTokenAddress(optionTokenAddressData as string);
     }
-  }, [optionTokenAddressData]);
-// console.log(ws?.readyState, "ws-new")
+  }, [optionTokenAddressData, optionIndex]);
+  // console.log(ws?.readyState, "ws-new")
   React.useEffect(() => {
 
     const socket = new WebSocket(`${NEXT_PUBLIC_WS_URL}/betWebSocket?duelId=${duelId}`);
@@ -200,18 +197,21 @@ const buyBet = async (sellId: number, optionTokenAddress: string, optionIndex:nu
   const price = formattedId && prices[formattedId];
   const priceFormatted = Number(ethers.formatUnits(String(price || 0), 8));
 
-  const handleBuyOrders = async (betOptionMarketId: string, quantity:number, index:number, sellId: number, amount: number) => {
+  const handleBuyOrders = async (betOptionMarketId: string, quantity: string, index: number, sellId: number, amount: string) => {
+    console.log(amount, "amount", index)
     setOptionIndex(index)
-    console.log(amount, "amount")
     await lpTokenApproveAsync(amount)
-    await buyBet(sellId, optionTokenAddress as string , index)
+    if (optionTokenAddress) {
+      await buyBet(sellId); // Ensure buyBet is called after token address is set
+    }
+    console.log("reached-here")
 
     try {
       const response = await apiClient.post(
         `${NEXT_PUBLIC_API}/betOption/buy`,
-        { duelId, betOptionMarketId },
+        { duelId, betOptionMarketId, amount },
       );
-      const data = response.data;
+      const data = response.data.message;
 
       console.log(data, "data-new")
       setNotification({
@@ -254,7 +254,7 @@ const buyBet = async (sellId: number, optionTokenAddress: string, optionIndex:nu
           websocket.onopen = () => {
             console.log("WebSocket connection established");
           };
-  
+
           websocket.onmessage = (event) => {
             const data = JSON.parse(event.data);
             if (data.error) {
@@ -264,20 +264,20 @@ const buyBet = async (sellId: number, optionTokenAddress: string, optionIndex:nu
             setNoPrice(data.result["No Price"]);
             setYesPrice(data.result["Yes Price"]);
           };
-  
+
           websocket.onerror = (error) => {
             console.error('WebSocket error:', error);
             // setError('WebSocket connection failed');
           };
-  
+
           // Store WebSocket instance in the state
           setWs(websocket);
-  
+
           return () => {
             // Cleanup WebSocket connection when component unmounts
             websocket.close();
           };
-  
+
 
         } catch (error) {
           console.error("Error fetching prices:", error);
@@ -343,7 +343,7 @@ const buyBet = async (sellId: number, optionTokenAddress: string, optionIndex:nu
   React.useEffect(() => {
 
     if (ws && ws.readyState === WebSocket.OPEN) {
-      if(asset){
+      if (asset) {
         const timePeriod = endsIn / (365 * 24); // Convert endsIn to time period in years for Crypto Duel
         console.log('Sending data for cryptoDuels pricing calculation');
         ws.send(
@@ -356,7 +356,7 @@ const buyBet = async (sellId: number, optionTokenAddress: string, optionIndex:nu
             totalNobets: totalBetNo || 0,
           })
         );
-      }else{
+      } else {
         const timePeriod = endsIn / 24; // Convert endsIn to time period in days for Flash Duel
         console.log('Sending data for flashDuels pricing calculation');
 
@@ -367,11 +367,11 @@ const buyBet = async (sellId: number, optionTokenAddress: string, optionIndex:nu
             totalNo: totalBetNo || 0,
           })
         );
-      } 
-      }else {
-        console.log('WebSocket connection is not open');
       }
-     
+    } else {
+      console.log('WebSocket connection is not open');
+    }
+
   }, [totalBetYes, totalBetNo, ws, ws?.readyState, priceFormatted]);
 
   React.useEffect(() => {
@@ -515,7 +515,7 @@ const buyBet = async (sellId: number, optionTokenAddress: string, optionIndex:nu
                               price={order.price}
                               amount={order.quantity}
                               type={"YES"}
-                              onBuy={() => handleBuyOrders(order.id, order.quantity, order.index, order.sellId, order.amount)}
+                              onBuy={() => handleBuyOrders(order.id, order.quantity, order.betOption?.index as number, order.sellId, order.amount)}
                             />
                           ))}
                         </div>
@@ -552,7 +552,7 @@ const buyBet = async (sellId: number, optionTokenAddress: string, optionIndex:nu
                               price={order.price}
                               amount={order.quantity}
                               type={"NO"}
-                              onBuy={() => handleBuyOrders(order.id, order.quantity, order.index, order.sellId, order.amount)}
+                              onBuy={() => handleBuyOrders(order.id, order.quantity, order.betOption?.index as number, order.sellId, order.amount)}
 
                             />
                           ))}
@@ -760,7 +760,7 @@ const buyBet = async (sellId: number, optionTokenAddress: string, optionIndex:nu
                               key={index}
                               onClick={() => {
                                 if (betState === "NO" && bet.index === 1) {
-                                  setBetAmount((Number(bet.quantity)).toString());
+                                  setBetAmount((bet.quantity));
                                   setPriceOfBet((bet.price).toString());
                                   setBetOptionId(bet.id)
 

@@ -91,9 +91,9 @@ export function DuelsDashboard() {
                     status={item.duelDetails.status}
                     createdAt={item.duelDetails.createdAt}
                     startAt={item.duelDetails.startAt}
-                    avgPrice={item.yesBet.price as number}
-                    quantity={item.yesBet.quantity as number}
-                    amount={item.yesBet.amount as number}
+                    avgPrice={item.yesBet.price as string}
+                    quantity={item.yesBet.quantity as string}
+                    amount={item.yesBet.amount as string}
                     resolvesIn={item.duelDetails.endsIn as number}
                     icon={item.duelDetails.betIcon}
                     pnl={item.pnl}
@@ -108,9 +108,9 @@ export function DuelsDashboard() {
                     createdAt={item.duelDetails.createdAt}
                     startAt={item.duelDetails.startAt}
                     direction={"No"}
-                    avgPrice={item.noBet.price as number}
+                    avgPrice={item.noBet.price as string}
                     quantity={item.noBet.quantity}
-                    amount={item.yesBet.amount as number}
+                    amount={item.yesBet.amount as string}
                     resolvesIn={item.duelDetails.endsIn as number}
                     icon={item.duelDetails.betIcon}
                     pnl={item.pnl}
@@ -183,10 +183,10 @@ function DuelRow({
   duelName: string;
   direction: string;
   activeTab: string;
-  quantity: number;
-  avgPrice: number;
+  quantity: string;
+  avgPrice: string;
   status: number
-  amount: number;
+  amount: string;
   resolvesIn: number;
   createdAt: number;
   startAt: number;
@@ -245,9 +245,9 @@ function DuelRow({
         <span>{duelName}</span>
       </div>
       <div className={`w-[15%] text-center ${direction === "Yes" ? 'text-green-500' : 'text-red-500'}`}>{direction}</div>
-      <div className="w-[15%] text-center">{(quantity).toFixed(3)}</div>
-      <div className="w-[15%] text-center">${(avgPrice).toFixed(3)}</div>
-      <div className="w-[15%] text-center">${(amount).toFixed(2)}</div>
+      <div className="w-[15%] text-center">{Number(quantity).toFixed(2)}</div>
+      <div className="w-[15%] text-center">${Number(avgPrice).toFixed(2)}</div>
+      <div className="w-[15%] text-center">${Number(amount).toFixed(2)}</div>
       <div className="w-[20%] text-center">{activeTab === "history" ? `$${pnl.toFixed(2)}` : time}</div>
     </div>
   );

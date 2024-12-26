@@ -43,10 +43,10 @@ export type NewDuelItem = {
 
 export type OptionBetType = {
   id: string;
-  quantity: number;
-  amount: number;
+  quantity: string;
+  amount: string;
   index: number;
-  price: number;
+  price: string;
   sellId: number;
   betOption?:{index:number}
 }
@@ -79,14 +79,14 @@ export type Duel = {
     duelType: string;
     totalBetAmount: string;
     yesBet: {
-      amount: number | null;
-      price: number | null;
-      quantity?: number; // optional, based on your data
+      amount: string;
+      price: string;
+      quantity: string; 
     };
     noBet: {
-      quantity: number;
-      amount: number | null;
-      price: number | null;
+      quantity: string;
+      amount: string;
+      price: string;
     };
     duelDetails: {
       id: string;

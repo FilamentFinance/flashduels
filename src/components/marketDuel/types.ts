@@ -1,6 +1,6 @@
 export interface OrderItemProps {
-  price: number;
-  amount: number;
+  price: string;
+  amount: string;
   type: string;
   onBuy: () => void;
 }

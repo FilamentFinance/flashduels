@@ -13,6 +13,7 @@ import { FLASHDUELS_VIEWFACET } from "@/abi/FlashDuelsViewFacet";
 import { FLASHDUELS_MARKETPLACE } from "@/abi/FlashDuelsMarketplaceFacet";
 // import { FLASHUSDCABI } from "@/abi/FLASHUSDC";
 import { waitForTransactionReceipt } from "@wagmi/core";
+import Decimal from 'decimal.js';
 import { config } from "@/app/config/wagmi";
 import { ethers } from "ethers";
 // import { FLASHUSDCABI } from "@/abi/FLASHUSDC";
@@ -55,8 +56,6 @@ const SellButton: React.FC<SellButtonProps> = ({
   });
   const {
     data: balance,
-    isLoading,
-    isError,
   } = useReadContract({
     abi: OPTION_TOKEN_ABI,
     functionName: "balanceOf",
@@ -143,28 +142,37 @@ const SellButton: React.FC<SellButtonProps> = ({
 
   //sell
 
-  const lpTokenApproveAsync = () =>
-    lpTokenApproveAsyncLocal({
+  const lpTokenApproveAsync = async () => {
+    const quantitys = '2231.417077353666855805';  // Pass quantity as a string
+    const decimals = '1000000000000000000'
+    const results = new Decimal(quantitys).mul(new Decimal(decimals)); // Multiply by 10^18
+
+    // Output the result as a string to avoid scientific notation
+    console.log(results.toFixed(0), "newnew", quantity);
+    // console.log(new Decimal(quantity).mul(new Decimal(10).pow(18)).toString(), "newnew", quantity)
+    return await lpTokenApproveAsyncLocal({
       abi: OPTION_TOKEN_ABI,
       address: optionTokenAddress as `0x${string}`,
       functionName: "approve",
       chainId: CHAIN_ID,
-      args: [NEXT_PUBLIC_DIAMOND, Number(quantity) * 10 ** 18],
+      args: [NEXT_PUBLIC_DIAMOND, (new Decimal(quantity).mul(10 ** 18)).toFixed(0)],
     });
+  }
+
 
   const sellBet = async () => {
-    const priceFinal = Number(price);
-    const quantityFinal = Number(quantity);
+    const priceFinal = new Decimal(price);
+    const quantityFinal = new Decimal(quantity);
     console.log(priceFinal, quantityFinal, "priceFinal, quantityFinal")
-    const result = ((priceFinal * quantityFinal) * 10 ** 6)
-    const finalResult = Math.trunc(result).toString();
-    console.log(optionTokenAddress, duelId, optionIndex, Number(quantity) * 10 ** 18, result, finalResult, "optionTokenAddress, duelId, optionIndex, Number(quantity) * 10 ** 18, (Number(price) * Number(quantity) * 10 ** 6)")
+    const result = ((priceFinal.times(quantityFinal)).times(10 ** 6))
+    const finalResult = result.toFixed(0);
+    console.log(optionTokenAddress, duelId, optionIndex, (new Decimal(quantity).mul(10 ** 18)).toString(), result, finalResult, "optionTokenAddress, duelId, optionIndex, Number(quantity) * 10 ** 18, (Number(price) * Number(quantity) * 10 ** 6)")
     return lpTokenSecondFunctionAsyncLocal({
       abi: FLASHDUELS_MARKETPLACE,
       address: NEXT_PUBLIC_DIAMOND as `0x${string}`,
       functionName: "sell",
       chainId: CHAIN_ID,
-      args: [optionTokenAddress, duelId, optionIndex, Number(quantity) * 10 ** 18, finalResult],
+      args: [optionTokenAddress, duelId, optionIndex, (new Decimal(quantity).mul(10 ** 18)).toFixed(0), finalResult ],
     });
   };
 
@@ -192,8 +200,8 @@ const SellButton: React.FC<SellButtonProps> = ({
         `${NEXT_PUBLIC_API}/betOption/sell`,
         {
           betOptionId,
-          quantity: parseFloat(quantity),
-          price: parseFloat(price),
+          quantity: quantity,
+          price: price,
           duelId,
           amount: result?.amount,
           sellId: Number(result?.sellId)
