@@ -13,25 +13,25 @@ export function AmountInput({
   return (
     <div className="flex flex-col w-full min-h-[128px]">
       <div className="flex justify-between w-full">
-        <div className="gap-1 self-stretch my-auto tracking-normal text-white whitespace-nowrap min-w-[240px] w-[284px]">
+        <div className="my-auto tracking-normal text-white whitespace-nowrap ">
           Amount
         </div>
-        <div className="flex items-center h-full text-gray-400 w-[139px]">
-          <div className="self-stretch my-auto tracking-normal w-[68px]">
+        <div className="flex h-full gap-x-1 text-gray-400">
+          <div className="my-auto tracking-normal">
             Available:{" "}
           </div>
-          <div className="self-stretch my-auto tracking-normal">
+          <div className="my-auto tracking-normal">
             {available.toFixed(2)}{" "}
           </div>
           <div className="flex gap-2 items-start self-stretch my-auto font-semibold leading-none text-center text-pink-300 whitespace-nowrap">
-            <div className="flex items-start">
+            {/* <div className="flex items-start"> */}
               <button
                 onClick={onMaxClick}
-                className="overflow-hidden gap-2 self-stretch px-2 py-1 rounded hover:opacity-80"
+                className="overflow-hidden gap-2 self-stretch py-1 rounded hover:opacity-80"
               >
                 Max
               </button>
-            </div>
+            {/* </div> */}
           </div>
         </div>
       </div>
