@@ -14,6 +14,7 @@ import usePopup from "@/app/providers/PopupProvider";
 import { apiClient } from "@/utils/apiClient";
 // import { FLASHDUELS_CORE_ABI } from "@/abi/FlashDuelsCoreFacet";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import useSwitchNetwork from "@/blockchain/useSwitchNetwork";
 
 interface PlaceBetButtonProps {
   betAmount: string;
@@ -30,9 +31,10 @@ interface PlaceBetButtonProps {
 const PlaceBetButton: React.FC<PlaceBetButtonProps> = ({
   betAmount, bet, duelId, duelType, asset,setIsModalOpen
 }) => {
-  const { address, isConnected } = useAccount();
+  const { address, isConnected, chainId } = useAccount();
   const [establishConnection] = useAtom(estConnection)
  const {showPopup} = usePopup()
+ const {handleNetworkChange} = useSwitchNetwork()
   const [notification, setNotification] = useAtom(GeneralNotificationAtom);
   const { refetch } = useBalance(address as string);
   const { refetchTotalBets } = useTotalBets(duelId);
@@ -41,7 +43,6 @@ const PlaceBetButton: React.FC<PlaceBetButtonProps> = ({
   const {
     writeContractAsync: lpTokenApproveAsyncLocal,
   } = useWriteContract({});
-
   const lpTokenApproveAsync = (amount: number) =>
     lpTokenApproveAsyncLocal({
       abi: FLASHUSDCABI,
@@ -138,25 +139,38 @@ const PlaceBetButton: React.FC<PlaceBetButtonProps> = ({
 
   return (
     <div>
-   {!isConnected ? <ConnectButton/> : establishConnection ?   <button
-   className="gap-2.5 self-stretch px-3 py-2.5 w-full rounded shadow-sm bg-[linear-gradient(180deg,#F19ED2_0%,#C87ECA_100%)]"
-   onClick={showPopup}
-   >
-     Enable Trading
-   </button>:
-    <button
-      className="flex flex-col mt-4 w-full text-base font-semibold leading-none text-gray-900"
-      disabled={!betAmount}
-      onClick={handleClick}
-    >
-      <div className="gap-2.5 self-stretch px-3 py-2.5 w-full rounded shadow-sm bg-[linear-gradient(180deg,#F19ED2_0%,#C87ECA_100%)]">
-        {loading ? (
-          <div className="spinner"></div>  // Add the spinner here
-        ) : (
-          <span>Join Duel</span>
-        )}
-      </div>
-    </button>}
+   {!isConnected ? (
+  <ConnectButton />
+) : establishConnection ? (
+  <button
+    className="gap-2.5 self-stretch px-3 py-2.5 w-full rounded shadow-sm bg-[linear-gradient(180deg,#F19ED2_0%,#C87ECA_100%)]"
+    onClick={showPopup}
+  >
+    Enable Trading
+  </button>
+) : chainId !== CHAIN_ID ? ( // Check if the user is on the correct network
+  <button
+  className="gap-2.5 self-stretch px-3 py-2.5 w-full rounded shadow-sm bg-[linear-gradient(180deg,#F19ED2_0%,#C87ECA_100%)]"
+  onClick={handleNetworkChange}
+>
+  Switch Network
+</button>
+) : (
+  <button
+    className="flex flex-col mt-4 w-full text-base font-semibold leading-none text-gray-900"
+    disabled={!betAmount}
+    onClick={handleClick}
+  >
+    <div className="gap-2.5 self-stretch px-3 py-2.5 w-full rounded shadow-sm bg-[linear-gradient(180deg,#F19ED2_0%,#C87ECA_100%)]">
+      {loading ? (
+        <div className="spinner"></div> // Add the spinner here
+      ) : (
+        <span>Join Duel</span>
+      )}
+    </div>
+  </button>
+)}
+
     </div>
 
   );

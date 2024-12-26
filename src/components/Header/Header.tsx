@@ -15,18 +15,20 @@ import { setupInterceptors } from "@/utils/apiClient";
 import { isSigningKeyValid } from "@/utils/sign";
 import { estConnection } from "@/utils/atoms";
 import Navigation from "./Navigation";
+import useSwitchNetwork from "@/blockchain/useSwitchNetwork";
 
 const Header: React.FC = () => {
-  const { address, isConnected } = useAccount();
+  const { address, isConnected, chainId } = useAccount();
   const router = useRouter();
+  // const { chain } = useNetwork()
   const pathname = usePathname();
   const { disconnect } = useDisconnect();
+  const { handleNetworkChange } = useSwitchNetwork();
 
   const isPath = pathname === `/`;
   // const { disconnect } = useDisconnect();
   // const { logout } = usePrivy();
   const { balance, refetch } = useBalance(address as string);
-
   const ids = priceIds.map(item => Object.values(item)[0]);
   usePriceStream(ids);
 
@@ -47,7 +49,7 @@ const Header: React.FC = () => {
       }
     }
   };
-
+// console.log(CHAIN_ID, "chain-id", chain, chain?.id)
   useEffect(() => {
     const unwatch = watchAccount(config, {
       onChange: async (newAccount, prevAccount) => {
@@ -102,9 +104,12 @@ const Header: React.FC = () => {
         Markets
       </button>
       <Navigation pathname={"leaderboard"} />
-      {isConnected && <Navigation pathname={"portfolio"} />}
+      {isConnected &&  <Navigation pathname={"portfolio"} />}
+     
     </div>
-    <Navbar />
+ 
+        
+    <Navbar chainId={chainId} handleNetworkChange={handleNetworkChange} />
   </header>
   
   );

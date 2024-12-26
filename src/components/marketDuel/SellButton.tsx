@@ -16,6 +16,7 @@ import { waitForTransactionReceipt } from "@wagmi/core";
 import Decimal from 'decimal.js';
 import { config } from "@/app/config/wagmi";
 import { ethers } from "ethers";
+import useSwitchNetwork from "@/blockchain/useSwitchNetwork";
 // import { FLASHUSDCABI } from "@/abi/FLASHUSDC";
 
 interface SellButtonProps {
@@ -30,7 +31,7 @@ interface SellButtonProps {
 const SellButton: React.FC<SellButtonProps> = ({
   quantity, price, betOptionId, optionIndex, duelId
 }) => {
-  const { address, isConnected } = useAccount();
+  const { address, isConnected, chainId } = useAccount();
   const [establishConnection] = useAtom(estConnection)
   const { showPopup } = usePopup()
   const [notification, setNotification] = useAtom(GeneralNotificationAtom);
@@ -38,6 +39,7 @@ const SellButton: React.FC<SellButtonProps> = ({
   //   const { totalBetYes, totalBetNo } = useTotalBets(duelId);
   const [loading, setLoading] = useState(false); // Add loading state
   console.log(notification)
+  const {handleNetworkChange} = useSwitchNetwork()
   const {
     writeContractAsync: lpTokenApproveAsyncLocal,
   } = useWriteContract({});
@@ -233,12 +235,23 @@ const SellButton: React.FC<SellButtonProps> = ({
 
   return (
     <div>
-      {!isConnected ? <ConnectButton /> : establishConnection ? <button
+      {!isConnected ? 
+      <ConnectButton />
+       : establishConnection ? 
+       <button
         className="gap-2.5 self-stretch px-3 py-2.5 w-full rounded shadow-sm bg-[linear-gradient(180deg,#F19ED2_0%,#C87ECA_100%)]"
         onClick={showPopup}
       >
         Enable Trading
       </button> :
+       chainId !== CHAIN_ID ? ( // Check if the user is on the correct network
+        <button
+        className="gap-2.5 self-stretch px-3 py-2.5 w-full rounded shadow-sm bg-[linear-gradient(180deg,#F19ED2_0%,#C87ECA_100%)]"
+        onClick={handleNetworkChange}
+      >
+        Switch Network
+      </button>
+      ) :
         <button
           className="flex flex-col mt-4 w-full text-base font-semibold leading-none text-gray-900"
           //   disabled={!betAmount}
