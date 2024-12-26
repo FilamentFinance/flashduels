@@ -27,7 +27,7 @@ const UserProfile = ({
   return (
     <div className="flex gap-[4px] items-center p-[4px] my-auto rounded-[8px] bg-[rgba(255,255,255,0.02)]">
       {isConnected ? (
-        chainId !== CHAIN_ID ? (
+        chainId === CHAIN_ID ? (
           <>
             <div
               className="flex items-start self-stretch my-auto w-[26px] cursor-pointer"
