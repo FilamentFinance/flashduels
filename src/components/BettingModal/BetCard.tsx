@@ -30,7 +30,8 @@ const BetCard: React.FC<BetCardProps> = ({
   status,
   endsIn,
   triggerPrice,
-  setIsModalOpen
+  setIsModalOpen,
+  winCondition
 }) => {
   const [betAmount, setBetAmount] = useState("1000");
   const [bet, setBet] = useState<string>("YES");
@@ -58,14 +59,15 @@ const BetCard: React.FC<BetCardProps> = ({
         try {
           // const price = await getCryptoPrices(asset);
           const timePeriod = endsIn / (365 * 24);
-          console.log(timePeriod, triggerPrice, priceFormatted, asset, totalBetNo, totalBetYes, "timePeriod")
+          console.log(winCondition, "timePeriod")
           const pricingValue = await postPricingData(
             priceFormatted as number,
             Number(triggerPrice),
             asset,
             timePeriod,
             totalBetYes || 0,
-            totalBetNo || 0
+            totalBetNo || 0,
+            winCondition as number
           );
           setNoPrice(pricingValue["No Price"]);
           setYesPrice(pricingValue["Yes Price"]);

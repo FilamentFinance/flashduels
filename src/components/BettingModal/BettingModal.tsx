@@ -13,13 +13,14 @@ interface BettingModalProps {
   availableAmount: number;
   duelType: string;
   duelId: string;
-  startAt:number;
+  startAt: number;
   createdAt: number;
   asset?: string;
   totalBetAmount: number;
   triggerPrice?: string;
   status: number;
-  setIsModalOpen: (arg0: boolean)=>void;
+  winCondition?: number;
+  setIsModalOpen: (arg0: boolean) => void;
 }
 
 const BettingModal: React.FC<BettingModalProps> = ({
@@ -40,7 +41,8 @@ const BettingModal: React.FC<BettingModalProps> = ({
   asset,
   totalBetAmount,
   triggerPrice,
-  setIsModalOpen
+  setIsModalOpen,
+  winCondition
 }) => {
   if (!isOpen) return null;
 
@@ -62,10 +64,11 @@ const BettingModal: React.FC<BettingModalProps> = ({
           status={status}
           createdAt={createdAt}
           asset={asset}
-          totalBetAmount={totalBetAmount} 
+          totalBetAmount={totalBetAmount}
           endsIn={timeLeft}
           triggerPrice={triggerPrice}
           setIsModalOpen={setIsModalOpen}
+          winCondition={winCondition}
         />
       </div>
     </div>

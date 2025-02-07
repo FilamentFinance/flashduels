@@ -81,6 +81,7 @@ const BetPage = () => {
     user: { twitterUsername, address },
     token,
     triggerPrice,
+    winCondition
   } = duel;
 
   console.log(category);
@@ -114,6 +115,7 @@ const BetPage = () => {
         totalBetAmount={totalBetAmount}
         endsIn={endTime} // Ensure this value is correct for display
         triggerPrice={triggerPrice}
+        winCondition={winCondition}
         setIsModalOpen={setIsModalOpen}
       />
     </div>

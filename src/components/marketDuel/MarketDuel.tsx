@@ -48,6 +48,7 @@ export const MarketDuel: React.FC<BetCardProps> = ({
   endsIn,
   triggerPrice,
   setIsModalOpen,
+  winCondition
 }) => {
   console.log(onClose, "onClose");
   const [side, setSide] = useState("BUY");
@@ -332,15 +333,15 @@ export const MarketDuel: React.FC<BetCardProps> = ({
 
     if (ws && ws.readyState === WebSocket.OPEN) {
       if (asset) {
-        console.log(endsIn)
+        console.log(winCondition, "winCondition")
         const timePeriod = endsIn / (365 * 24); // Convert endsIn to time period in years for Crypto Duel
-        console.log('Sending data for cryptoDuels pricing calculation');
         ws.send(
           JSON.stringify({
             markPrice: priceFormatted as number,
             triggerPrice: Number(triggerPrice),
             asset,
             timePeriod,
+            winCondition,
             totalYesBets: totalBetYes || 0,
             totalNobets: totalBetNo || 0,
           })

@@ -69,8 +69,9 @@ const useTotalBets = (duelId: string) => {
         refetchTotalBets
     };}
 
-const postPricingData = async (markPrice: number, triggerPrice: number, asset: string, timePeriod: number, totalYesBets: number, totalNobets: number) => {
+const postPricingData = async (markPrice: number, triggerPrice: number, asset: string, timePeriod: number, totalYesBets: number, totalNobets: number, winCondition: number) => {
     let data;
+    const condition = winCondition === 0 ? "above" : "below";
     if (totalNobets === 0 && totalYesBets === 0) {
         data = {
             S_t: triggerPrice,
@@ -78,6 +79,7 @@ const postPricingData = async (markPrice: number, triggerPrice: number, asset: s
             T: timePeriod,
             total_yes_bets: 50,
             total_no_bets: 50,
+            condition,
             beta: 0.15,
             symbol: `${asset}USDT`
         };
@@ -86,6 +88,7 @@ const postPricingData = async (markPrice: number, triggerPrice: number, asset: s
             S_t: triggerPrice,
             K: markPrice,
             T: timePeriod,
+            condition,
             total_yes_bets: totalYesBets,
             total_no_bets: totalNobets,
             beta: 0.15,

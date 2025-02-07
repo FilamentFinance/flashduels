@@ -67,6 +67,7 @@ export type Duel = {
     createdBy: string;
     onClick?: () => void;
     token?: string;
+    winCondition?: number;
     totalBetAmount: number;
     triggerPrice? : string
   };
@@ -143,6 +144,7 @@ export type Duel = {
     createdAt: number,
     asset?: string,
     totalBetAmount: number,
+    winCondition?: number,
     endsIn: number
     triggerPrice?: string,
     status: number;

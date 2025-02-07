@@ -76,7 +76,8 @@ const DuelGrid = ({ activeButton, specialCategoryIndex }: { activeButton: string
             createdBy: item.user.twitterUsername || shortenAddress(item.user.address),
             token: item.token,
             triggerPrice: item.triggerPrice,
-            totalBetAmount: item.totalBetAmount
+            totalBetAmount: item.totalBetAmount,
+            winCondition: item.winCondition
           }));
 
         setDuels(filteredDuels);
@@ -137,6 +138,7 @@ const DuelGrid = ({ activeButton, specialCategoryIndex }: { activeButton: string
         totalBetAmount={modalData?.totalBetAmount as number}
         triggerPrice={modalData?.triggerPrice as string}
         setIsModalOpen={setIsModalOpen}
+        winCondition = {modalData?.winCondition}
       />
     </>
   );
