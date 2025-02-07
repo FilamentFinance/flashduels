@@ -121,12 +121,12 @@ const BetCard: React.FC<BetCardProps> = ({
           yesPrice={yesPrice}
         />
         <div className="flex flex-col h-full">
-        <BetAmount availableAmount={availableAmount} betAmount={betAmount} showUSDC={true} setBetAmount={setBetAmount} text={"Amount"} showAvailable={true} />
-        <TransactionOverview betAmount={betAmount} />
-        <PlaceBetButton betAmount={betAmount} duelId={duelId} duelType={duelType} bet={bet} asset={asset} triggerPrice={triggerPrice} endsIn={endsIn} setIsModalOpen={setIsModalOpen} markPrice={priceFormatted as number} />
-      
+          <BetAmount availableAmount={availableAmount} betAmount={betAmount} showUSDC={true} setBetAmount={setBetAmount} text={"Amount"} showAvailable={true} />
+          <TransactionOverview betAmount={betAmount} />
+          <PlaceBetButton betAmount={betAmount} duelId={duelId} duelType={duelType} bet={bet} asset={asset} triggerPrice={triggerPrice} endsIn={endsIn} setIsModalOpen={setIsModalOpen} markPrice={priceFormatted as number} winCondition={winCondition as number} />
+
         </div>
-       </div>
+      </div>
       <GeneralNotification></GeneralNotification>
     </article>
   );

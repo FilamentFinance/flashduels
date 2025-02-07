@@ -26,10 +26,11 @@ interface PlaceBetButtonProps {
   endsIn?: number;
   markPrice: number;
   setIsModalOpen: (arg0: boolean) => void;
+  winCondition?:number
 }
 
 const PlaceBetButton: React.FC<PlaceBetButtonProps> = ({
-  betAmount, bet, duelId, duelType, asset,setIsModalOpen
+  betAmount, bet, duelId, duelType, asset,setIsModalOpen, winCondition
 }) => {
   const { address, isConnected, chainId } = useAccount();
   const [establishConnection] = useAtom(estConnection)
@@ -108,7 +109,8 @@ const PlaceBetButton: React.FC<PlaceBetButtonProps> = ({
           optionIndex,
           duelId,
           duelType,
-          asset
+          asset,
+          winCondition
         },
         {
           headers: {

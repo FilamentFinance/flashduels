@@ -638,6 +638,7 @@ export const MarketDuel: React.FC<BetCardProps> = ({
                         endsIn={endsIn}
                         setIsModalOpen={setIsModalOpen}
                         markPrice={priceFormatted as number}
+                        winCondition={winCondition}
                       />
                     </div>
 
