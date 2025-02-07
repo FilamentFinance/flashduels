@@ -237,18 +237,6 @@ export const MarketDuel: React.FC<BetCardProps> = ({
     const fetchPrices = async () => {
       if (asset) {
         try {
-          // const timePeriod = endsIn / (365 * 24);
-          // const pricingValue = await postPricingData(
-          //   priceFormatted as number,
-          //   Number(triggerPrice),
-          //   asset,
-          //   timePeriod,
-          //   totalBetYes || 0,
-          //   totalBetNo || 0
-          // );
-          // setNoPrice(pricingValue["No Price"]);
-          // setYesPrice(pricingValue["Yes Price"]);
-
           const websocket = new WebSocket(`${NEXT_PUBLIC_WS_URL}/cryptoduelsOptionPricingWebSocket`);
 
           websocket.onopen = () => {
@@ -344,6 +332,7 @@ export const MarketDuel: React.FC<BetCardProps> = ({
 
     if (ws && ws.readyState === WebSocket.OPEN) {
       if (asset) {
+        console.log(endsIn)
         const timePeriod = endsIn / (365 * 24); // Convert endsIn to time period in years for Crypto Duel
         console.log('Sending data for cryptoDuels pricing calculation');
         ws.send(
