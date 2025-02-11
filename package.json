@@ -7,17 +7,23 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "prepare": "husky install && lint-staged"
+    "lint": "eslint \"**/*.{ts,tsx}\" --fix",
+    "prepare": "husky install && lint-staged",
+    "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
+    "lint:fix": "pnpm lint && pnpm format"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
       "eslint --fix",
       "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
     ]
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.1.2",
+    "@tanstack/react-query": "^5.66.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.475.0",
@@ -25,15 +31,24 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tailwind-merge": "^3.0.1",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "viem": "^2.23.1",
+    "wagmi": "^2.14.11"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "eslint": "^9",
+    "@typescript-eslint/eslint-plugin": "^8.24.0",
+    "@typescript-eslint/parser": "^8.24.0",
+    "eslint": "^9.20.0",
     "eslint-config-next": "15.1.6",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-import-resolver-typescript": "^3.7.0",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-prettier": "^5.2.3",
+    "eslint-plugin-unused-imports": "^4.1.4",
     "husky": "^9.1.7",
     "lint-staged": "^15.4.3",
     "postcss": "^8",
