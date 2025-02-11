@@ -4,17 +4,16 @@ import { STATUS_CODES } from '@/constants/statusCodes';
 import { ERRORS } from '@/constants/error';
 
 const getEnvVar = (key: keyof EnvConfig): string => {
-  const value = process.env[key];
-  if (!value?.trim()) {
+  const value = process.env[key] || window?.__NEXT_DATA__?.props?.env?.[key];
+  if (!value?.toString()?.trim()) {
     throw new AppError({
       statusCode: STATUS_CODES.INTERNAL_SERVER_ERROR,
       type: ERRORS.MISSING_ENV_VARIABLE,
       message: `Missing required environment variable: ${key}`,
     });
   }
-  return value;
+  return value.toString();
 };
-
 const validateEnvVariables = (): void => {
   const requiredVars = Object.keys({} as EnvConfig) as Array<keyof EnvConfig>;
   const missingVars = requiredVars.filter((key) => !process.env[key]?.trim());

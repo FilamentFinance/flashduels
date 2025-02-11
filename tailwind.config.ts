@@ -15,9 +15,7 @@ export default {
         'gradient-pink': 'linear-gradient(180deg, #F19ED2 0%, #C87ECA 100%)',
       },
       colors: {
-        background: {
-          DEFAULT: '#141217',
-        },
+        background: '#141217',
         foreground: 'hsl(var(--foreground))',
         card: {
           DEFAULT: 'hsl(var(--card))',
@@ -61,6 +59,9 @@ export default {
           DEFAULT: 'rgba(255, 255, 255, 0.02)',
           hover: 'rgba(255, 255, 255, 0.05)',
         },
+        'nav-active': '#F19ED2',
+        'nav-inactive': 'rgba(243,239,224,0.60)',
+        'nav-hover': 'rgba(243,239,224,0.80)',
       },
       spacing: {
         'navbar-height': '107px',

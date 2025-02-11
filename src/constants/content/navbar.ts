@@ -7,8 +7,8 @@ export const NAVBAR = {
     ALT_TEXT: 'Flash Duels Logo',
   },
   NAVIGATION: {
-    HOME: 'Home',
-    TRADE: 'Trade',
+    MARKETS: 'Markets',
+    LEADERBOARD: 'Leaderboard',
     PORTFOLIO: 'Portfolio',
   },
   WALLET_MODAL: {
@@ -16,5 +16,8 @@ export const NAVBAR = {
     ADDRESS_LABEL: 'Address',
     BALANCE_LABEL: 'Balance',
     DISCONNECT_BUTTON: 'Disconnect',
+  },
+  ENABLE_TRADING: {
+    BUTTON_TEXT: 'Enable Trading',
   },
 } as const;
