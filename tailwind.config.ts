@@ -11,8 +11,13 @@ export default {
   ],
   theme: {
     extend: {
+      backgroundImage: {
+        'gradient-pink': 'linear-gradient(180deg, #F19ED2 0%, #C87ECA 100%)',
+      },
       colors: {
-        background: 'hsl(var(--background))',
+        background: {
+          DEFAULT: '#141217',
+        },
         foreground: 'hsl(var(--foreground))',
         card: {
           DEFAULT: 'hsl(var(--card))',
@@ -52,11 +57,24 @@ export default {
           '4': 'hsl(var(--chart-4))',
           '5': 'hsl(var(--chart-5))',
         },
+        glass: {
+          DEFAULT: 'rgba(255, 255, 255, 0.02)',
+          hover: 'rgba(255, 255, 255, 0.05)',
+        },
+      },
+      spacing: {
+        'navbar-height': '107px',
+        'navbar-padding': '50px',
       },
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
+        default: '8px',
+      },
+      fontFamily: {
+        sans: ['var(--font-geist)'],
+        mono: ['var(--font-geist-mono)'],
       },
     },
   },

@@ -33,6 +33,8 @@ body {
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
+    --navbar-height: 107px;
+    --navbar-padding: 50px;
   }
   .dark {
     --background: 0 0% 3.9%;

@@ -1,32 +1,36 @@
+import Navbar from '@/components/navbar';
+import { Providers } from '@/providers/wagmi';
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import localFont from 'next/font/local';
 import './globals.css';
-import { WagmiProvider } from '@/providers/wagmi';
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
+const geist = localFont({
+  src: '../../public/fonts/GeistVF.woff',
+  variable: '--font-geist',
+  weight: '100 900',
 });
 
-const geistMono = Geist_Mono({
+const geistMono = localFont({
+  src: '../../public/fonts/GeistMonoVF.woff',
   variable: '--font-geist-mono',
-  subsets: ['latin'],
+  weight: '100 900',
 });
 
 export const metadata: Metadata = {
   title: 'Flash Duels',
-  description: 'A decentralized trading game on Sei Network',
+  description: 'Flash Duels',
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <WagmiProvider>{children}</WagmiProvider>
+    <html lang="en" className={`h-full ${geist.variable} ${geistMono.variable}`}>
+      <body className="bg-background text-white min-h-full font-sans">
+        <Providers>
+          <div className="flex min-h-full flex-col">
+            <Navbar />
+            <main className="flex-1 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">{children}</main>
+          </div>
+        </Providers>
       </body>
     </html>
   );
