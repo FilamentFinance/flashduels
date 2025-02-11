@@ -1,5 +1,4 @@
 'use client';
-
 import { Dialog } from '@/components/ui/custom-modal';
 import { NAVBAR } from '@/constants/content/navbar';
 import { Button } from '@/shadcn/components/ui/button';
@@ -7,10 +6,12 @@ import { Checkbox } from '@/shadcn/components/ui/checkbox';
 import { useToast } from '@/shadcn/components/ui/use-toast';
 import { cn } from '@/shadcn/lib/utils';
 import { generatePrivateKey } from '@/utils/auth/generatePrivateKey';
-import { setupInterceptors } from '@/utils/auth/setupInterceptors';
+import { isUserAuthenticated, setupInterceptors } from '@/utils/auth/setupInterceptors';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { setAuthData, clearAuth } from '@/store/slices/authSlice';
 import Image from 'next/image';
 import Link from 'next/link';
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { privateKeyToAccount } from 'viem/accounts';
 import { useAccount, useDisconnect, useSignMessage } from 'wagmi';
 
@@ -25,7 +26,36 @@ const EnableTrading: FC = () => {
   const { disconnect } = useDisconnect();
   const { signMessageAsync } = useSignMessage();
   const [isLoading, setIsLoading] = useState(false);
+  const dispatch = useAppDispatch();
+  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (address) {
+      const authenticated = isUserAuthenticated(address);
+      if (authenticated) {
+        // Get stored values
+        const token = localStorage.getItem(`Bearer_${address.toLowerCase()}`);
+        const signingKey = localStorage.getItem(`signingKey_${address.toLowerCase()}`);
+        const signingKeyExpiry = localStorage.getItem(`signingKeyExpiry_${address.toLowerCase()}`);
+
+        if (token && signingKey && signingKeyExpiry) {
+          dispatch(
+            setAuthData({
+              address: address.toLowerCase(),
+              token,
+              signingKey,
+              signingKeyExpiry,
+            }),
+          );
+
+          // Setup interceptors if user is already authenticated
+          setupInterceptors(address, disconnect, () => dispatch(clearAuth()));
+        }
+      }
+    }
+  }, [address, dispatch, disconnect]);
+
   const handleAgree = async () => {
     if (!agreed || !address) return;
 
@@ -81,12 +111,20 @@ const EnableTrading: FC = () => {
         });
 
         const { result } = await response.json();
-
-        // Store bearer token
         localStorage.setItem(`Bearer_${address.toLowerCase()}`, result);
 
+        // Update Redux store
+        dispatch(
+          setAuthData({
+            address: address.toLowerCase(),
+            token: result,
+            signingKey: privateKey,
+            signingKeyExpiry: expiry,
+          }),
+        );
+
         // Setup interceptors
-        await setupInterceptors(address.toLowerCase(), disconnect);
+        await setupInterceptors(address.toLowerCase(), disconnect, () => dispatch(clearAuth()));
 
         toast({
           title: 'Success',
@@ -105,13 +143,13 @@ const EnableTrading: FC = () => {
     }
   };
 
+  // Don't render anything if user is already authenticated
+  if (isAuthenticated) {
+    return null;
+  }
+
   return (
     <Dialog
-      trigger={
-        <Button className="font-semibold bg-gradient-pink text-black">
-          {NAVBAR.ENABLE_TRADING.BUTTON_TEXT}
-        </Button>
-      }
       title={
         <div className="flex flex-col items-center gap-4">
           <Image
@@ -123,6 +161,11 @@ const EnableTrading: FC = () => {
           />
           <h2 className="text-xl font-semibold">Welcome to Flash Duels</h2>
         </div>
+      }
+      trigger={
+        <Button className="font-semibold bg-gradient-pink text-black">
+          {NAVBAR.ENABLE_TRADING.BUTTON_TEXT}
+        </Button>
       }
       maxWidth="max-w-xl"
     >

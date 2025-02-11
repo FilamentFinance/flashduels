@@ -1,15 +1,54 @@
+'use client';
+
 import axios from 'axios';
 
-export const setupInterceptors = async (address: string, disconnect: () => void) => {
-  // Create axios instance
-  const apiClient = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL,
-  });
+let requestInterceptor: number | null = null;
+let responseInterceptor: number | null = null;
 
-  // Add request interceptor
-  apiClient.interceptors.request.use(
+// Create a single axios instance
+const apiClient = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
+});
+
+export const isUserAuthenticated = (address: string): boolean => {
+  const token = localStorage.getItem(`Bearer_${address.toLowerCase()}`);
+  const signingKey = localStorage.getItem(`signingKey_${address.toLowerCase()}`);
+  const signingKeyExpiry = localStorage.getItem(`signingKeyExpiry_${address.toLowerCase()}`);
+
+  if (!token || !signingKey || !signingKeyExpiry) {
+    return false;
+  }
+
+  // Check if the signing key has expired
+  const expiryDate = new Date(signingKeyExpiry);
+  if (expiryDate < new Date()) {
+    // Clear the expired data
+    localStorage.removeItem(`Bearer_${address.toLowerCase()}`);
+    localStorage.removeItem(`signingKey_${address.toLowerCase()}`);
+    localStorage.removeItem(`signingKeyExpiry_${address.toLowerCase()}`);
+    return false;
+  }
+
+  return true;
+};
+
+export const setupInterceptors = async (
+  address: string,
+  disconnect: () => void,
+  onUnauthorized: () => void,
+) => {
+  // Clear any existing interceptors
+  if (requestInterceptor !== null) {
+    apiClient.interceptors.request.eject(requestInterceptor);
+  }
+  if (responseInterceptor !== null) {
+    apiClient.interceptors.response.eject(responseInterceptor);
+  }
+
+  // Set up request interceptor
+  requestInterceptor = apiClient.interceptors.request.use(
     (config) => {
-      const token = localStorage.getItem(`Bearer_${address}`);
+      const token = localStorage.getItem(`Bearer_${address.toLowerCase()}`);
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
@@ -20,15 +59,18 @@ export const setupInterceptors = async (address: string, disconnect: () => void)
     },
   );
 
-  // Add response interceptor
-  apiClient.interceptors.response.use(
+  // Set up response interceptor
+  responseInterceptor = apiClient.interceptors.response.use(
     (response) => response,
     async (error) => {
       if (error.response?.status === 401) {
         // Clear local storage
-        localStorage.removeItem(`signingKey_${address}`);
-        localStorage.removeItem(`signingKeyExpiry_${address}`);
-        localStorage.removeItem(`Bearer_${address}`);
+        localStorage.removeItem(`Bearer_${address.toLowerCase()}`);
+        localStorage.removeItem(`signingKey_${address.toLowerCase()}`);
+        localStorage.removeItem(`signingKeyExpiry_${address.toLowerCase()}`);
+
+        // Call onUnauthorized callback
+        onUnauthorized();
 
         // Disconnect wallet
         disconnect();
@@ -36,6 +78,6 @@ export const setupInterceptors = async (address: string, disconnect: () => void)
       return Promise.reject(error);
     },
   );
-
-  return apiClient;
 };
+
+export { apiClient };
