@@ -16,3 +16,8 @@ export const DUAL_STATUS = {
   BOOTSTRAPPING: 'Bootstrapping',
   COMPLETED: 'Completed',
 } as const;
+
+export const POSITION = {
+  YES: 'YES',
+  NO: 'NO',
+} as const;

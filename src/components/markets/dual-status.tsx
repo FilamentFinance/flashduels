@@ -4,11 +4,14 @@ import { DUAL_STATUS } from '@/constants/dual';
 import { Button } from '@/shadcn/components/ui/button';
 import { cn } from '@/shadcn/lib/utils';
 import { DualStatus as TDualStatus } from '@/types/dual';
-import { FC, useState } from 'react';
+import { FC } from 'react';
 
-const DualStatus: FC = () => {
-  const [activeStatus, setActiveStatus] = useState<TDualStatus>(DUAL_STATUS.LIVE);
+type Props = {
+  activeStatus: TDualStatus;
+  setActiveStatus: (status: TDualStatus) => void;
+};
 
+const DualStatus: FC<Props> = ({ activeStatus, setActiveStatus }) => {
   return (
     <div className="flex items-center gap-2 p-2 border border-zinc-800 w-fit rounded-2xl">
       {Object.entries(DUAL_STATUS).map(([key, status]) => {
