@@ -1,11 +1,11 @@
 "use client"
 import React, { useState } from "react";
 import { AccountCard } from "./accountCard";
-import { DuelsHeader } from "./duels/DuelsHeader";
+// import { DuelsHeader } from "./duels/DuelsHeader";
 import { DuelsDashboard } from "./duelsDashboard/DuelsDashboard";
 // import DuelGrid from "./DuelGrid";
 // import PorfolioGrid from "./PortfolioPageDuelCard";
-import PortfolioGrid from "./PortfolioPageDuelCard";
+import {PortfolioGrid} from "./PortfolioPageDuelCard";
 // import { useAccount } from "wagmi";
 import { useAccount } from "wagmi";
 import { shortenAddress } from "@/utils/helper";
@@ -76,8 +76,8 @@ const PortfolioPage: React.FC = () => {
     <div className="flex justify-center">
       {/* Parent container now a row */}
       {<div className="flex flex-row items-start justify-center max-w-full gap-x-[9px]">
-        <div className="flex flex-col max-w-[884px]">
-          <DuelsHeader activeButton={activeButton} setActiveButton={setActiveButton} />
+        <div className="flex flex-col w-[884px]">
+          {/* <DuelsHeader activeButton={activeButton} setActiveButton={setActiveButton} /> */}
           <div className="min-h-[227px] my-[12px]">
             <PortfolioGrid activeButton={activeButton} setActiveButton={setActiveButton} specialCategoryIndex={specialCategoryIndex} setSpecialCategoryIndex={setSpecialCategoryIndex} />
 

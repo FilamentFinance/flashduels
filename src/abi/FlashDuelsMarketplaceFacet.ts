@@ -211,9 +211,14 @@ export const FLASHDUELS_MARKETPLACE = [
                 "type": "uint256"
             },
             {
-                "internalType": "uint256",
-                "name": "saleId",
-                "type": "uint256"
+                "internalType": "uint256[]",
+                "name": "saleIds",
+                "type": "uint256[]"
+            },
+            {
+                "internalType": "uint256[]",
+                "name": "amounts",
+                "type": "uint256[]"
             }
         ],
         "name": "buy",
@@ -264,11 +269,6 @@ export const FLASHDUELS_MARKETPLACE = [
                     {
                         "internalType": "uint256",
                         "name": "quantity",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "strike",
                         "type": "uint256"
                     },
                     {

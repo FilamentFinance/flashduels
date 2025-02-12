@@ -41,6 +41,30 @@ export type NewDuelItem = {
     totalBetAmount:number
   };
 
+  export type ApproveDuelItem = {
+  
+    type: string;
+    userId: string;
+    user: User;
+    status: string ;
+    data: ApproveDuelItemData
+    
+  };
+
+export type ApproveDuelItemData = {
+  token?: string;
+  markPrice?: string;
+  triggerPrice?: string;
+  minimumWager?: number;
+  winner: number;
+  endsIn: number;
+  betString?: string;
+  betIcon?: string;
+  winCondition?: number;
+  category: string;
+
+} 
+
 export type OptionBetType = {
   id: string;
   quantity: string;
@@ -150,6 +174,17 @@ export type Duel = {
     status: number;
     setIsModalOpen: (arg0: boolean) => void;
   }
+
+  export interface DuelRowProps {
+    title: string;
+    imageSrc: string;
+    status: number;
+    createdAt: number | null;
+    duelType: string;
+    startAt: number | null;
+    timeLeft: number;
+  }
+  
 
   export type ActiveDuels = TableDuel[];
   

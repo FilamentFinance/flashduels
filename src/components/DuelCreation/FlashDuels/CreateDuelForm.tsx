@@ -7,16 +7,14 @@ import DurationSelect from "./DurationSelect";
 import InfoBox from "./InfoBox";
 import SubmitButton from "./SubmitButton";
 import { useAccount, useWriteContract } from "wagmi";
-import { CHAIN_ID, durations, NEXT_PUBLIC_API, NEXT_PUBLIC_DIAMOND, NEXT_PUBLIC_FLASH_USDC, NEXT_PUBLIC_RPC_URL, NEXT_PUBLIC_TIMER_BOT_URL } from "@/utils/consts";
+import { CHAIN_ID, durations, NEXT_PUBLIC_API, NEXT_PUBLIC_DIAMOND, NEXT_PUBLIC_FLASH_USDC } from "@/utils/consts";
 // import { FLASHUSDCABI } from "@/abi/FLASHUSDC";
 import { waitForTransactionReceipt } from "wagmi/actions";
 import { config } from "@/app/config/wagmi";
 // import { FLASHDUELSABI } from "@/abi/FLASHUSDC";
 import { mapCategoryToEnumIndex, mapDurationToNumber } from "@/utils/helper";
-import { getGasPrice } from '@wagmi/core'
 import axios from "axios";
 // import { usePrivy } from "@privy-io/react-auth";
-import { ethers } from "ethers";
 import { useBalance } from "@/blockchain/useBalance";
 import { GeneralNotificationAtom } from "@/components/GeneralNotification";
 import { useAtom } from "jotai";
@@ -33,45 +31,6 @@ const CreateDuelForm = ({ closeDuelModal }: { closeDuelModal: () => void }) => {
   const [loading, setLoading] = useState(false);
   console.log(notification)
 
-  const provider = new ethers.JsonRpcProvider(NEXT_PUBLIC_RPC_URL);
-  async function fetchTransactionEvents(transactionHash: string) {
-    try {
-      const receipt = await provider!.getTransactionReceipt(transactionHash);
-
-      if (!receipt) {
-        console.error('Transaction receipt not found!');
-        return;
-      }
-
-      const contract = new ethers.Contract(NEXT_PUBLIC_DIAMOND, FLASHDUELS_CORE_ABI, provider);
-
-      // Use a regular loop to allow early return
-      for (const log of receipt.logs) {
-        // Check if the log was emitted by your contract
-        if (log.address.toLowerCase() === NEXT_PUBLIC_DIAMOND.toLowerCase()) {
-          try {
-            // Parse the log using the ABI
-            const parsedLog = contract.interface.parseLog(log);
-            const targetArray = parsedLog!.args; // Access the target array
-
-            const duelId = targetArray[1];
-            const createTime = Number(targetArray[3]);
-
-            // Return the values
-            return { duelId, createTime };
-          } catch (error) {
-            console.error('Error parsing log:', error);
-          }
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching transaction receipt:', error);
-    }
-
-    // Return undefined if no logs are found
-    return;
-  }
-  // const { user } = usePrivy()
   const [formData, setFormData] = React.useState({
     category: "",
     betAmount: "",
@@ -158,7 +117,7 @@ const CreateDuelForm = ({ closeDuelModal }: { closeDuelModal: () => void }) => {
     lpTokenSecondFunctionAsyncLocal({
       abi: FLASHDUELS_CORE_ABI,
       address: NEXT_PUBLIC_DIAMOND as `0x${string}`,
-      functionName: "createDuel",
+      functionName: "requestCreateDuel",
       chainId: CHAIN_ID,
       args: [category, topic, options, duration],
     });
@@ -167,45 +126,40 @@ const CreateDuelForm = ({ closeDuelModal }: { closeDuelModal: () => void }) => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-    const gasPrice = await getGasPrice(config)
-    console.log("Form Data: ", formData);
-    console.log("gasPrice", gasPrice)
+    // const gasPrice = await getGasPrice(config)
 
     try {
       const hash = await lpTokenApproveAsync();
-      const receipt = await waitForTransactionReceipt(config, { hash });
-
-      // if (lpTokenApproveIsSuccess) {
-      console.log("Approval successful: ", receipt);
+      await waitForTransactionReceipt(config, { hash });
 
       const categoryEnumIndex = mapCategoryToEnumIndex(formData.category);
       const durationNumber = mapDurationToNumber(formData.duration);
       const options = ["YES", "NO"];
 
       const secondHash = await lpTokenSecondFunctionAsync(formData.betAmount, categoryEnumIndex, durationNumber, options);
-      const secondReceipt = await waitForTransactionReceipt(config, { hash: secondHash });
+      await waitForTransactionReceipt(config, { hash: secondHash });
 
       // if (lpTokenSecondFunctionIsSuccess) {
-      console.log("Second function successful: ", secondReceipt.logs[1].transactionHash);
+      // console.log("Second function successful: ", secondReceipt.logs[1].transactionHash);
 
-      const result = await fetchTransactionEvents(secondReceipt.logs[1].transactionHash)
+      // const result = await fetchTransactionEvents(secondReceipt.logs[1].transactionHash)
 
-      if (!result) {
-        console.error('Error fetching transaction events');
-        return;
-      }
+      // if (!result) {
+      //   console.error('Error fetching transaction events');
+      //   return;
+      // }
       const duelData = {
-        duelId: result.duelId,
+        // duelId: result.duelId,
         type: "FLASH_DUEL",
         category: formData.category === "" ? "Any" : formData.category,
         betString: formData.betAmount,
         betIcon: formData.betIcon,
         endsIn: durations[durationNumber],
-        createdAt: result.createTime,
+        // createdAt: result.createTime,
       };
       // Send request to your backend
       await apiClient.post(
-        `${NEXT_PUBLIC_API}/duels/create`,
+        `${NEXT_PUBLIC_API}/duels/approve`,
         {
           ...duelData,
           twitterUsername: "",
@@ -219,17 +173,17 @@ const CreateDuelForm = ({ closeDuelModal }: { closeDuelModal: () => void }) => {
       );
       console.log("making response to timerbot")
 
-      await axios.post(`${NEXT_PUBLIC_TIMER_BOT_URL}/startDuel`, {
-        duelId: result.duelId,
-        duelType: 'FLASH_DUEL',
-        duration: durations[durationNumber],
-        startTime: result.createTime,
-        category: categoryEnumIndex
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      // await axios.post(`${NEXT_PUBLIC_TIMER_BOT_URL}/startDuel`, {
+      //   duelId: result.duelId,
+      //   duelType: 'FLASH_DUEL',
+      //   duration: durations[durationNumber],
+      //   startTime: result.createTime,
+      //   category: categoryEnumIndex
+      // }, {
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      // });
       setNotification({
         isOpen: true,
         success: true,

@@ -5,14 +5,11 @@ import DurationSelect from "./DurationSelect";
 import InfoBox from "./InfoBox";
 import CreateDuelButton from "./CreateDuelButton";
 import TokenSelect from "./TokenInput";
-import { CHAIN_ID, durations, NEXT_PUBLIC_API, NEXT_PUBLIC_DIAMOND, NEXT_PUBLIC_FLASH_USDC, NEXT_PUBLIC_RPC_URL, NEXT_PUBLIC_TIMER_BOT_URL } from "@/utils/consts";
+import { CHAIN_ID, durations, NEXT_PUBLIC_API, NEXT_PUBLIC_DIAMOND, NEXT_PUBLIC_FLASH_USDC } from "@/utils/consts";
 import { getAssetImage, mapDurationToNumber } from "@/utils/helper";
 import { useAccount, useWriteContract } from "wagmi";
 import { waitForTransactionReceipt } from "wagmi/actions";
 import { config } from "@/app/config/wagmi";
-// import axios from "axios";
-// import { usePrivy } from "@privy-io/react-auth";
-import { ethers } from "ethers";
 import MarkPriceComponent from "./MarkPrice";
 import { useBalance } from "@/blockchain/useBalance";
 import { GeneralNotificationAtom } from "@/components/GeneralNotification";
@@ -35,45 +32,6 @@ const CreateDuel = ({ closeDuelModal }: { closeDuelModal: () => void }) => {
   const [notification, setNotification] = useAtom(GeneralNotificationAtom);
   const [loading, setLoading] = useState(false);
   console.log(notification)
-
-  const provider = new ethers.JsonRpcProvider(NEXT_PUBLIC_RPC_URL);
-  async function fetchTransactionEvents(transactionHash: string) {
-    try {
-      const receipt = await provider!.getTransactionReceipt(transactionHash);
-
-      if (!receipt) {
-        console.error('Transaction receipt not found!');
-        return;
-      }
-
-      const contract = new ethers.Contract(NEXT_PUBLIC_DIAMOND, FLASHDUELS_CORE_ABI, provider);
-
-      // Use a regular loop to allow early return
-      for (const log of receipt.logs) {
-        // Check if the log was emitted by your contract
-        if (log.address.toLowerCase() === NEXT_PUBLIC_DIAMOND.toLowerCase()) {
-          try {
-            // Parse the log using the ABI
-            const parsedLog = contract.interface.parseLog(log);
-            const targetArray = parsedLog!.args; // Access the target array
-
-            const duelId = targetArray[2];
-            const createTime = Number(targetArray[3]);
-
-            // Return the values
-            return { duelId, createTime };
-          } catch (error) {
-            console.error('Error parsing log:', error);
-          }
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching transaction receipt:', error);
-    }
-
-    // Return undefined if no logs are found
-    return;
-  }
 
   const [formData, setFormData] = React.useState<FormData>({
     tokenInput: "BTC",
@@ -125,7 +83,7 @@ const CreateDuel = ({ closeDuelModal }: { closeDuelModal: () => void }) => {
     lpTokenSecondFunctionAsyncLocal({
       abi: FLASHDUELS_CORE_ABI,
       address: NEXT_PUBLIC_DIAMOND as `0x${string}`,
-      functionName: "createCryptoDuel",
+      functionName: "requestCreateCryptoDuel",
       chainId: CHAIN_ID,
       args: [symbol, options, triggerValue, triggerType, triggerCondition, duration],
     });
@@ -136,12 +94,8 @@ const CreateDuel = ({ closeDuelModal }: { closeDuelModal: () => void }) => {
     console.log("Form Data new: ", formData);
     try {
       const hash = await lpTokenApproveAsync();
-      const receipt = await waitForTransactionReceipt(config, { hash });
+      await waitForTransactionReceipt(config, { hash });
 
-      // if (lpTokenApproveIsSuccess) {
-      console.log("Approval successful: ", receipt);
-
-      // const categoryEnum = mapCategoryToEnum(formData.category);
       const durationNumber = mapDurationToNumber(formData.durationSelect);
       const triggerPrice = Number(formData.triggerPrice) * 10 ** 8;
       const minWager = Number(formData.minWager) * 10 ** 6;
@@ -150,30 +104,23 @@ const CreateDuel = ({ closeDuelModal }: { closeDuelModal: () => void }) => {
       const symbol = formData.tokenInput;
       const winCondition = formData.winCondition === "ABOVE" ? 0 : 1;
       const secondHash = await lpTokenSecondFunctionAsync(symbol, options, minWager, triggerPrice, triggerType, winCondition, durationNumber);
-      const secondReceipt = await waitForTransactionReceipt(config, { hash: secondHash });
-
-      const result = await fetchTransactionEvents(secondReceipt.logs[1].transactionHash)
-
-      if (!result) {
-        console.error('Error fetching transaction events');
-        return;
-      }
-      console.log("Second function successful: ", secondReceipt, secondReceipt.logs[1].transactionHash);
+      await waitForTransactionReceipt(config, { hash: secondHash });
 
       const duelData = {
-        duelId: result.duelId,
+        // duelId: result.duelId,
         type: "COIN_DUEL",
         token: symbol,
+        category: "Crypto",
         betIcon: getAssetImage(symbol),
         triggerPrice: formData.triggerPrice,
         minimumWager: formData.minWager,
         winCondition: winCondition,
         endsIn: durations[durationNumber],
-        createdAt: result.createTime,
+        // createdAt: result.createTime,
       };
 
       await apiClient.post(
-        `${NEXT_PUBLIC_API}/duels/create`,
+        `${NEXT_PUBLIC_API}/duels/approve`,
         {
           ...duelData,
           twitterUsername: "",
@@ -186,18 +133,20 @@ const CreateDuel = ({ closeDuelModal }: { closeDuelModal: () => void }) => {
         }
       );
 
-      await apiClient.post(`${NEXT_PUBLIC_TIMER_BOT_URL}/startDuel`, {
-        duelId: result.duelId,
-        duelType: 'COIN_DUEL',
-        duration: durations[durationNumber],
-        startTime: result.createTime,
-        asset: symbol,
-        category: 1
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+
+
+      // await apiClient.post(`${NEXT_PUBLIC_TIMER_BOT_URL}/startDuel`, {
+      //   duelId: result.duelId,
+      //   duelType: 'COIN_DUEL',
+      //   duration: durations[durationNumber],
+      //   startTime: result.createTime,
+      //   asset: symbol,
+      //   category: 1
+      // }, {
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      // });
 
       setNotification({
         isOpen: true,
