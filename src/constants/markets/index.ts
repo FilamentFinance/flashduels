@@ -6,26 +6,26 @@ export const CATEGORIES: {
 } = {
   TRENDING: {
     title: 'Trending',
-    icon: '/logo/categories/trendings.svg',
+    icon: '⚡',
   },
   LIQUIDITY: {
     title: 'Liquidity',
-    icon: '/logo/categories/liquidity.svg',
+    icon: '💧',
   },
   ENDING_SOON: {
     title: 'Ending Soon',
-    icon: '/logo/categories/ending-soon.svg',
+    icon: '⌛',
   },
   COMPETITIVE: {
     title: 'Competitive',
-    icon: '/logo/categories/competitive.svg',
+    icon: '⚔️',
   },
   SPORTS: {
     title: 'Sports',
-    icon: '/logo/categories/sports.svg',
+    icon: '⚽',
   },
   CRYPTO: {
     title: 'Crypto',
-    icon: '/logo/categories/crypto.svg',
+    icon: '🪙',
   },
 } as const;

@@ -24,7 +24,7 @@ export default {
           'linear-gradient(180deg, var(--flashDualPink-from) 0%, var(--flashDualPink-to) 100%)',
       },
       colors: {
-        background: '#141217',
+        background: '#101010',
         foreground: 'hsl(var(--foreground))',
         flashDualPink: {
           DEFAULT: '#F19ED2',

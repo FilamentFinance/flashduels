@@ -21,7 +21,7 @@ const Navbar: FC = () => {
   const { isAuthenticated } = useSelector((state: RootState) => state.auth, shallowEqual);
   return (
     <nav className="w-full border-b border-gray-800 h-navbar-height px-navbar-padding flex items-center">
-      <div className="mx-auto w-full max-w-7xl flex items-center justify-between">
+      <div className="mx-auto w-full flex items-center justify-between">
         <div className="flex items-center gap-8">
           <Logo />
           <div className="flex items-center gap-6">

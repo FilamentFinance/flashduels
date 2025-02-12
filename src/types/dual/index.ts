@@ -1,4 +1,4 @@
-import { DUAL, DUAL_DURATION } from '@/constants/dual';
+import { DUAL, DUAL_DURATION, DUAL_STATUS } from '@/constants/dual';
 
 export type DualType = (typeof DUAL)[keyof typeof DUAL];
 export type DualDuration = (typeof DUAL_DURATION)[keyof typeof DUAL_DURATION];
@@ -18,3 +18,5 @@ export interface FlashDualFormData extends BaseDualFormData {
   duelText: string;
   betIcon: File | null;
 }
+
+export type DualStatus = (typeof DUAL_STATUS)[keyof typeof DUAL_STATUS];

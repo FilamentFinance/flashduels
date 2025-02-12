@@ -1,6 +1,6 @@
 import { sei, seiTestnet } from 'viem/chains';
 import { getPublicClient } from '@/utils/client';
-import { SERVER_CONFIG } from './serverConfig';
+import { SERVER_CONFIG } from './server-config';
 
 const SEI_RPC_URLS = ['https://evm-rpc.sei-apis.com/', 'https://sei-rpc.publicnode.com'];
 

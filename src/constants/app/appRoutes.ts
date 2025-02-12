@@ -12,13 +12,13 @@ export const APP_ROUTES: AppRoutes = {
     title: 'Markets',
     path: '/',
   },
-  PORTFOLIO: {
-    title: 'Portfolio',
-    path: '/portfolio',
-  },
   LEADERBOARD: {
     title: 'Leaderboard',
     path: '/leaderboard',
+  },
+  PORTFOLIO: {
+    title: 'Portfolio',
+    path: '/portfolio',
   },
 } as const;
 

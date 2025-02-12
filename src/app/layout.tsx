@@ -1,6 +1,6 @@
 import Navbar from '@/components/navbar';
-import { Providers } from '@/providers/wagmi';
 import { ReduxProvider } from '@/providers/redux';
+import { Providers } from '@/providers/wagmi';
 import { Toaster } from '@/shadcn/components/ui/toaster';
 import type { Metadata } from 'next';
 import { Cairo } from 'next/font/google';
@@ -31,9 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Providers>
             <div className="flex min-h-full flex-col">
               <Navbar />
-              <main className="flex-1 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-                {children}
-              </main>
+              <main className="flex-1 mx-auto w-full px-4 sm:px-6 lg:px-8">{children}</main>
               <Toaster />
             </div>
           </Providers>

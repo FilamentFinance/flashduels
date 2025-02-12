@@ -10,3 +10,9 @@ export const DUAL_DURATION = {
   TWENTY_FOUR_HOURS: '24H',
   FORTY_EIGHT_HOURS: '48H',
 } as const;
+
+export const DUAL_STATUS = {
+  LIVE: 'Live',
+  BOOTSTRAPPING: 'Bootstrapping',
+  COMPLETED: 'Completed',
+} as const;
