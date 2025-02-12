@@ -3,19 +3,13 @@ import { Providers } from '@/providers/wagmi';
 import { ReduxProvider } from '@/providers/redux';
 import { Toaster } from '@/shadcn/components/ui/toaster';
 import type { Metadata } from 'next';
-import localFont from 'next/font/local';
+import { Cairo } from 'next/font/google';
 import './globals.css';
 
-const geist = localFont({
-  src: '../../public/fonts/GeistVF.woff',
-  variable: '--font-geist',
-  weight: '100 900',
-});
-
-const geistMono = localFont({
-  src: '../../public/fonts/GeistMonoVF.woff',
-  variable: '--font-geist-mono',
-  weight: '100 900',
+const cairo = Cairo({
+  subsets: ['latin'],
+  weight: ['200', '300', '400', '500', '600', '700', '800', '900'],
+  variable: '--font-cairo',
 });
 
 export const metadata: Metadata = {
@@ -28,11 +22,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`h-full ${geist.variable} ${geistMono.variable}`}>
+    <html lang="en" className={`h-full ${cairo.variable}`}>
       <head>
         <link rel="preload" href="/logo/flash-dual.svg" as="image" type="image/svg+xml" />
       </head>
-      <body className="bg-background text-white min-h-full font-sans">
+      <body className="bg-background text-white min-h-full">
         <ReduxProvider>
           <Providers>
             <div className="flex min-h-full flex-col">

@@ -10,10 +10,15 @@ import Logo from './logo';
 import NavLink from './navLink';
 import { WalletModal } from './wallet-modal';
 import EnableTrading from './enableTrading';
+import { shallowEqual, useSelector } from 'react-redux';
+import { RootState } from '@/store';
+import CreateDual from '../create-dual';
+import ClaimFaucet from '../claim-faucet';
+import ClaimFunds from '../claim-funds';
 
 const Navbar: FC = () => {
   const { address, isConnected } = useAccount();
-
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth, shallowEqual);
   return (
     <nav className="w-full border-b border-gray-800 h-navbar-height px-navbar-padding flex items-center">
       <div className="mx-auto w-full max-w-7xl flex items-center justify-between">
@@ -32,7 +37,11 @@ const Navbar: FC = () => {
                 {truncateAddress(address)}
               </Button>
             </WalletModal>
+            <ClaimFunds />
+            <ClaimFaucet />
             <EnableTrading />
+
+            {isAuthenticated && <CreateDual />}
           </div>
         ) : (
           <ConnectButton />

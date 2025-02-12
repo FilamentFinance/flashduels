@@ -10,13 +10,27 @@ export default {
     './src/shadcn/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
+    container: {
+      center: true,
+      padding: '2rem',
+      screens: {
+        '2xl': '1400px',
+      },
+    },
     extend: {
       backgroundImage: {
         'gradient-pink': 'linear-gradient(180deg, #F19ED2 0%, #C87ECA 100%)',
+        'flashDualPink-gradient':
+          'linear-gradient(180deg, var(--flashDualPink-from) 0%, var(--flashDualPink-to) 100%)',
       },
       colors: {
         background: '#141217',
         foreground: 'hsl(var(--foreground))',
+        flashDualPink: {
+          DEFAULT: '#F19ED2',
+          from: '#F19ED2',
+          to: '#C87ECA',
+        },
         card: {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
@@ -74,8 +88,8 @@ export default {
         default: '8px',
       },
       fontFamily: {
-        sans: ['var(--font-geist)'],
-        mono: ['var(--font-geist-mono)'],
+        sans: ['var(--font-cairo)'],
+        cairo: ['var(--font-cairo)'],
       },
     },
   },
