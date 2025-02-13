@@ -128,29 +128,26 @@ const Bet: FC = () => {
 
       {/* Header */}
       {duel.betIcon && (
-        <Header
-          title={
-            duel.betString ??
-            `Will ${duel.token} be ${duel.winCondition === 0 ? 'ABOVE' : 'BELOW'} ${duel.triggerPrice}`
-          }
-          logo={duel.betIcon}
-          triggerPrice={duel.triggerPrice || '0'}
-          winCondition={duel.winCondition || 0}
-          token={duel.token}
-        />
+        <div className="flex justify-between items-stretch">
+          <Header
+            title={
+              duel.betString ??
+              `Will ${duel.token} be ${duel.winCondition === 0 ? 'ABOVE' : 'BELOW'} ${duel.triggerPrice}`
+            }
+            logo={duel.betIcon}
+            triggerPrice={duel.triggerPrice || '0'}
+            winCondition={duel.winCondition || 0}
+            token={duel.token}
+          />
+          <PlaceOrder
+            onPlaceOrder={handlePlaceOrder}
+            amount={amount}
+            setAmount={setAmount}
+            selectedPosition={selectedPosition}
+            setSelectedPosition={setSelectedPosition}
+          />
+        </div>
       )}
-
-      {/* Main Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">{/* Add your stats and charts here */}</div>
-        <PlaceOrder
-          onPlaceOrder={handlePlaceOrder}
-          amount={amount}
-          setAmount={setAmount}
-          selectedPosition={selectedPosition}
-          setSelectedPosition={setSelectedPosition}
-        />
-      </div>
     </div>
   );
 };

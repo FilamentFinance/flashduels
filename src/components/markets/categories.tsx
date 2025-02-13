@@ -8,7 +8,7 @@ const Categories: FC = () => {
   const [activeCategory, setActiveCategory] = useState('TRENDING');
 
   return (
-    <div className="flex items-center gap-4 p-4">
+    <div className="flex items-center gap-4 py-4">
       {Object.entries(CATEGORIES).map(([key, { title, icon }]) => {
         const isActive = key === activeCategory;
         return (

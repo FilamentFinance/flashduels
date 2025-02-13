@@ -1,5 +1,6 @@
 import { FC } from 'react';
 import DetailsAndRules from './details-and-rules';
+import PercentageBlocks from './percentage-blocks';
 
 type Props = {
   title: string;
@@ -11,16 +12,36 @@ type Props = {
 
 const Header: FC<Props> = ({ title, logo, triggerPrice, token }) => {
   return (
-    <div className="flex items-center gap-6 mb-8">
-      {/* Back Button and Logo */}
-      <div className="flex items-center gap-4">
-        <img src={logo || '/empty-string.png'} alt={title} className="w-12 h-12 rounded-full" />
+    <div className="flex flex-col items-center gap-6 mb-8 w-full">
+      <div className="flex justify-between items-stretch w-full">
+        {/* Back Button and Logo */}
+        <div className="flex items-center gap-4">
+          <div>
+            <img src={logo || '/empty-string.png'} alt={title} className="w-12 h-12 rounded-full" />
+          </div>
+        </div>
+
+        {/* Title and Details Button */}
+        <div className="flex flex-1 items-center justify-between">
+          <h1 className="text-2xl font-bold text-white">{title}</h1>
+          <DetailsAndRules triggerPrice={triggerPrice} token={token} />
+        </div>
       </div>
 
-      {/* Title and Details Button */}
-      <div className="flex flex-1 items-center justify-between">
-        <h1 className="text-2xl font-bold text-white">{title}</h1>
-        <DetailsAndRules triggerPrice={triggerPrice} token={token} />
+      <div className="w-full flex justify-between items-center  px-4 py-2 rounded-lg">
+        <div className="flex flex-col">
+          <span className="text-zinc-500 text-sm">Liquidity</span>
+          <span className="text-white font-medium">$50</span>
+        </div>
+
+        <div className="flex flex-col items-center">
+          <span className="text-zinc-500 text-sm">Ends in</span>
+          <span className="text-white font-medium">00:00:00</span>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <PercentageBlocks percentage={50} />
+        </div>
       </div>
     </div>
   );

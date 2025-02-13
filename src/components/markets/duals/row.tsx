@@ -1,71 +1,58 @@
-import { Duel } from '@/types/dual';
-import { Timer } from 'lucide-react';
-import { FC } from 'react';
+import PositionSelector from '@/components/position-selector';
+import { Duel, Position } from '@/types/dual';
+import { FC, useState } from 'react';
+import ChanceProgress from './chance-progress';
+import Image from 'next/image';
 
-type Props = {
+interface Props {
   data: Duel;
   onClick: () => void;
-};
+}
 
 const DualRow: FC<Props> = ({ data, onClick }) => {
-  const { title, imageSrc, volume, timeLeft, percentage, createdBy } = data;
+  const { title, volume, timeLeft } = data;
+  const [selectedPosition, setSelectedPosition] = useState<Position | null>(null);
 
-  // const handleButtonClick = (e: React.MouseEvent, action: 'YES' | 'NO') => {
-  //   e.stopPropagation(); // Prevent row click when clicking buttons
-  //   // Handle YES/NO actions here
-  //   console.log(`${action} clicked for duel ${duelId}`);
-  // };
-
+  const handlePositionSelect = (position: Position) => {
+    // Stop propagation to prevent row click
+    setSelectedPosition(position);
+  };
   return (
     <div
+      className="flex items-center justify-between p-2 rounded-lg bg-zinc-900 border border-zinc-800 hover:bg-zinc-900/60"
       onClick={onClick}
-      className="flex flex-col gap-4 p-4 rounded-2xl border border-zinc-800 bg-[#141217] hover:bg-zinc-900/30 cursor-pointer transition-colors"
     >
-      {/* Title Row */}
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex items-center gap-2.5">
-          <img
-            src={imageSrc || '/empty-string.png'}
-            alt={title}
-            width={24}
-            height={24}
-            className="rounded-full"
-          />
-          <h3 className="text-base font-semibold text-stone-200">{title}</h3>
+      <div className="flex justify-center items-center gap-3">
+        <img
+          src={data.imageSrc || '/empty-string.png'}
+          alt={title}
+          className="w-14 h-14 rounded-full"
+        />
+
+        <div className="flex flex-col">
+          <span className="text-white font-medium text-md">{title}</span>
+          <div className="flex items-center gap-2 text-sm">
+            <span className="text-zinc-400 flex items-center gap-1">
+              <Image src="/logo/markets/dollar.svg" alt="dollar" width={20} height={20} />
+              {volume}
+            </span>
+            <div className="flex items-center gap-1 text-zinc-400">
+              <span className="text-zinc-400 flex items-center gap-1">
+                <Image src="/logo/markets/timer.svg" alt="dollar" width={10} height={10} />
+                {timeLeft}
+              </span>
+            </div>
+          </div>
         </div>
-        <div className="flex items-center gap-1 text-sm text-zinc-400">
-          <Timer className="w-4 h-4" />
-          <span>{timeLeft}s</span>
-        </div>
+        <ChanceProgress percentage={60} size={30} strokeWidth={10} className="mx-2" />
       </div>
 
-      {/* Stats Row */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-6">
-          {/* Volume */}
-          <div className="flex flex-col gap-1">
-            <span className="text-xs text-zinc-400">Volume</span>
-            <span className="text-sm font-medium text-stone-200">{volume}</span>
-          </div>
-          {/* Created By */}
-          <div className="flex flex-col gap-1">
-            <span className="text-xs text-zinc-400">Created by</span>
-            <span className="text-sm font-medium text-stone-200">{createdBy}</span>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        {/* <PositionSelector
+      {/* Right Section - Position Selector */}
+      <div className="flex items-center">
+        <PositionSelector
           selectedPosition={selectedPosition}
-          onPositionSelect={setSelectedPosition}
-        /> */}
-      </div>
-
-      {/* Progress Bar */}
-      <div className="relative w-full h-1 bg-zinc-800 rounded-full overflow-hidden">
-        <div
-          className="absolute top-0 left-0 h-full bg-flashDualPink rounded-full"
-          style={{ width: `${percentage}%` }}
+          onPositionSelect={handlePositionSelect}
+          className="w-48" // Adjust width as needed
         />
       </div>
     </div>

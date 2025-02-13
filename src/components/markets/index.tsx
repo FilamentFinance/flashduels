@@ -103,7 +103,7 @@ const Markets: FC = () => {
   };
 
   return (
-    <div>
+    <div className="px-4">
       <Categories />
       <DualStatus activeStatus={activeStatus} setActiveStatus={setActiveStatus} />
       <Duals data={duels} handleDualRowClick={handleDualRowClick} />
