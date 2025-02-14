@@ -555,11 +555,6 @@ export const FLASHDUELS_CORE_ABI = [
                 "internalType": "string",
                 "name": "_winningOption",
                 "type": "string"
-            },
-            {
-                "internalType": "uint256",
-                "name": "_payout",
-                "type": "uint256"
             }
         ],
         "name": "continueWinningsDistribution",
