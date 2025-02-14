@@ -1,16 +1,16 @@
 'use client';
 
 import {
-  Dialog as DialogPrimitive,
+  DialogClose,
   DialogContent,
   DialogHeader,
+  Dialog as DialogPrimitive,
   DialogTitle,
   DialogTrigger,
-  DialogClose,
 } from '@/shadcn/components/ui/dialog';
 import { cn } from '@/shadcn/lib/utils';
-import { FC } from 'react';
 import { X } from 'lucide-react';
+import { FC } from 'react';
 
 interface DialogProps {
   trigger: React.ReactNode;

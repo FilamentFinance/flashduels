@@ -3,6 +3,7 @@ import { Duel, Position } from '@/types/dual';
 import { FC, useState } from 'react';
 import ChanceProgress from './chance-progress';
 import Image from 'next/image';
+import YesNoButton from './yes-no-button';
 
 interface Props {
   data: Duel;
@@ -48,11 +49,19 @@ const DualRow: FC<Props> = ({ data, onClick }) => {
       </div>
 
       {/* Right Section - Position Selector */}
-      <div className="flex items-center">
-        <PositionSelector
-          selectedPosition={selectedPosition}
-          onPositionSelect={handlePositionSelect}
-          className="w-48" // Adjust width as needed
+      {/* Right Section - Yes/No Buttons */}
+      <div className="flex gap-2" role="group" aria-label="Yes or No options">
+        <YesNoButton
+          text="YES"
+          color="lime"
+          onClick={() => handlePositionSelect('YES')}
+          isSelected={selectedPosition === 'YES'}
+        />
+        <YesNoButton
+          text="NO"
+          color="red"
+          onClick={() => handlePositionSelect('NO')}
+          isSelected={selectedPosition === 'NO'}
         />
       </div>
     </div>

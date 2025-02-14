@@ -15,6 +15,7 @@ import { RootState } from '@/store';
 import CreateDual from '../create-dual';
 import ClaimFaucet from '../claim-faucet';
 import ClaimFunds from '../claim-funds';
+import Balance from './balance';
 
 const Navbar: FC = () => {
   const { address, isConnected } = useAccount();
@@ -32,16 +33,18 @@ const Navbar: FC = () => {
         </div>
         {isConnected && address ? (
           <div className="flex gap-2">
-            <WalletModal>
-              <Button className="rounded-default bg-glass hover:bg-glass-hover transition-colors duration-200 hover:shadow-lg">
-                {truncateAddress(address)}
-              </Button>
-            </WalletModal>
+            
             <ClaimFunds />
+            <Balance/>
             <ClaimFaucet />
             <EnableTrading />
 
             {isAuthenticated && <CreateDual />}
+            <WalletModal>
+              <Button className="rounded-default bg-glass hover:bg-glass-hover border border-zinc-800 transition-colors duration-200 hover:shadow-lg">
+                {truncateAddress(address)}
+              </Button>
+            </WalletModal>
           </div>
         ) : (
           <ConnectButton />

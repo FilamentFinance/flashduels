@@ -16,7 +16,7 @@ const Categories: FC = () => {
             key={key}
             onClick={() => setActiveCategory(key)}
             className={cn(
-              'group flex items-center transition-all duration-200 rounded-md p-4',
+              'group flex items-center transition-all duration-200 rounded-md p-2 gap-1',
               isActive
                 ? 'bg-[#F19ED2]/20 border border-[#F19ED2]  '
                 : 'bg-[#44464933]  hover:bg-zinc-800/50',
@@ -24,13 +24,13 @@ const Categories: FC = () => {
           >
             <div
               className={cn(
-                'flex items-center justify-center w-8 h-8 rounded-md',
+                'flex items-center justify-center w-6 h-6 rounded-md',
                 isActive ? 'bg-[#F19ED2]' : 'bg-zinc-900',
               )}
             >
-              <span className="text-xl">{icon}</span>
+              <span className="text-md">{icon}</span>
             </div>
-            <span className="text-xl font-medium whitespace-nowrap ">{title}</span>
+            <span className="text-md font-medium whitespace-nowrap ">{title}</span>
           </button>
         );
       })}

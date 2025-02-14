@@ -8,6 +8,7 @@ import { FC, useEffect, useRef, useState } from 'react';
 import Categories from './categories';
 import DualStatus from './dual-status';
 import Duals from './duals';
+import SearchDuels from './search-dual';
 
 const Markets: FC = () => {
   const router = useRouter();
@@ -31,23 +32,15 @@ const Markets: FC = () => {
       wsRef.current.onmessage = function (event) {
         if (!isSubscribed) return;
 
-        console.log('Message received:', event.data);
         const message = JSON.parse(event.data);
-        console.log(message, 'message');
         if (message.allDuels) {
           const filteredDuels = message.allDuels
             .filter((item: NewDuelItem) => {
-              console.log(
-                `Filtering duel with status ${item.status} for activeButton: ${activeStatus}`,
-              );
               if (activeStatus === DUAL_STATUS.LIVE) {
-                console.log(`Live duels filter: ${item.status === 0}`);
                 return item.status === 0;
               } else if (activeStatus === DUAL_STATUS.BOOTSTRAPPING) {
-                console.log(`Bootstrapping duels filter: ${item.status === -1}`);
                 return item.status === -1; // Only bootstrapping duels
               } else if (activeStatus === DUAL_STATUS.COMPLETED) {
-                console.log(`Completed duels filter: ${item.status === 1}`);
                 return item.status === 1; // Only completed duels
               }
               return true;
@@ -105,7 +98,10 @@ const Markets: FC = () => {
   return (
     <div className="px-4">
       <Categories />
-      <DualStatus activeStatus={activeStatus} setActiveStatus={setActiveStatus} />
+      <div className="flex justify-between items-center">
+        <DualStatus activeStatus={activeStatus} setActiveStatus={setActiveStatus} />
+        <SearchDuels placeholder="Search Duels" />
+      </div>
       <Duals data={duels} handleDualRowClick={handleDualRowClick} />
     </div>
   );

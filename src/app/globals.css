@@ -2,6 +2,41 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --background: #141217;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #141217;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  position: relative;
+  min-height: 100vh;
+}
+
+/* Background Image Covering Half the Screen */
+body::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 50%; /* Cover half of the height */
+  background-image: url('https://flashduels.s3.ap-southeast-1.amazonaws.com/icons/grid.svg');
+  background-size: cover; /* Ensure the image covers the entire area */
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 10; /* Optional: Adjust opacity if needed */
+  z-index: -1; /* Keep it behind the content */
+}
+
 body {
   font-family: Arial, Helvetica, sans-serif;
 }

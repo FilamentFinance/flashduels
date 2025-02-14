@@ -29,3 +29,13 @@ export const CATEGORIES: {
     icon: '🪙',
   },
 } as const;
+
+export const FLASH_DUAL_CATEGORIES = {
+  ANY: 'any',
+  CRYPTO: 'crypto',
+  POLITICS: 'politics',
+  SPORTS: 'sports',
+  TWITTER: 'twitter',
+  NFTS: 'nfts',
+  NEWS: 'news',
+} as const;
