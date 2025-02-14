@@ -188,4 +188,4 @@ export type Duel = {
 
   export type ActiveDuels = TableDuel[];
   
-  export const durations = [3, 6, 12];
+  export const durations = [0.084, 0.25, 0.5, 1 ,3, 6, 12];
