@@ -98,7 +98,7 @@ export function DuelsDashboard() {
           {activeData.length > 0 ? (
             activeData.map((item, index) => (
               <>
-                {item.yesBet.amount && (
+                {item.yesBet && item.yesBet.amount && (
                   <DuelRow
                     duelName={
                       item.duelDetails.betString ||
@@ -120,7 +120,7 @@ export function DuelsDashboard() {
                     activeTab={activeTab}
                   />
                 )}
-                {item.noBet.amount && (
+                {item.noBet && item.noBet.amount && (
                   <DuelRow
                     duelName={
                       item.duelDetails.betString ||
@@ -135,7 +135,7 @@ export function DuelsDashboard() {
                     direction={"No"}
                     avgPrice={item.noBet.price as string}
                     quantity={item.noBet.quantity}
-                    amount={item.yesBet.amount as string}
+                    amount={item.noBet.amount as string}
                     resolvesIn={item.duelDetails.endsIn as number}
                     icon={item.duelDetails.betIcon}
                     pnl={item.pnl}
