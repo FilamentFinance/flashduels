@@ -145,6 +145,12 @@ const Bet: FC = () => {
             setAmount={setAmount}
             selectedPosition={selectedPosition}
             setSelectedPosition={setSelectedPosition}
+            asset={duel.token}
+            duelId={duel.id}
+            endsIn={duel.endsIn}
+            token={duel.token}
+            triggerPrice={duel.triggerPrice}
+            winCondition={duel.winCondition}
           />
         </div>
       )}

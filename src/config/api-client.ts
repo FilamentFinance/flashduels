@@ -11,6 +11,30 @@ class AxiosClient {
       baseURL,
     });
 
+    // Request interceptor to add auth token
+    this.axiosInstance.interceptors.request.use(
+      (config) => {
+        // Get the address from the request data if it exists
+        const address = config.data?.userAddress || '';
+        if (address) {
+          const token = localStorage.getItem(`Bearer_${address.toLowerCase()}`);
+          const signingKey = localStorage.getItem(`signingKey_${address.toLowerCase()}`);
+          
+          if (token) {
+            config.headers['Authorization'] = `Bearer ${token}`;
+          }
+          if (signingKey) {
+            config.headers['X-Signing-Key'] = signingKey;
+          }
+        }
+        return config;
+      },
+      (error) => {
+        return Promise.reject(error);
+      }
+    );
+
+    // Response interceptor for retrying failed requests
     this.axiosInstance.interceptors.response.use(
       (response) => response,
       async (error) => {

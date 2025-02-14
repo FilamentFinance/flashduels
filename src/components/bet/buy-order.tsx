@@ -15,6 +15,8 @@ interface BuyOrderProps {
   setAmount: Dispatch<SetStateAction<string>>;
   selectedPosition: Position | null;
   setSelectedPosition: Dispatch<SetStateAction<Position | null>>;
+  yesPrice: number | undefined;
+  noPrice: number | undefined;
 }
 
 const BuyOrder: FC<BuyOrderProps> = ({
@@ -24,6 +26,8 @@ const BuyOrder: FC<BuyOrderProps> = ({
   setAmount,
   selectedPosition,
   setSelectedPosition,
+  yesPrice,
+  noPrice,
 }) => {
   const { address } = useAccount();
   const { balance } = useBalance(address);
@@ -54,9 +58,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
           onClick={() => handlePositionSelect('YES')}
           className={cn(
             'flex-1 py-4 rounded-xl text-center font-medium text-lg transition-colors',
-            selectedPosition === 'YES'
-              ? 'bg-[#95DE64] text-black'
-              : 'bg-zinc-800 text-zinc-500'
+            selectedPosition === 'YES' ? 'bg-[#95DE64] text-black' : 'bg-zinc-800 text-zinc-500',
           )}
         >
           YES
@@ -65,9 +67,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
           onClick={() => handlePositionSelect('NO')}
           className={cn(
             'flex-1 py-4 rounded-xl text-center font-medium text-lg transition-colors',
-            selectedPosition === 'NO'
-              ? 'bg-[#E84749] text-white'
-              : 'bg-zinc-800 text-zinc-500'
+            selectedPosition === 'NO' ? 'bg-[#E84749] text-white' : 'bg-zinc-800 text-zinc-500',
           )}
         >
           NO
@@ -76,8 +76,8 @@ const BuyOrder: FC<BuyOrderProps> = ({
 
       {/* Price per share */}
       <div className="flex justify-between mb-6 px-1">
-        <span className="text-zinc-500 text-sm">$/share</span>
-        <span className="text-zinc-500 text-sm">$/share</span>
+        <span className="text-zinc-500 text-sm">${yesPrice?.toFixed(4)}/share</span>
+        <span className="text-zinc-500 text-sm">${noPrice?.toFixed(4)}/share</span>
       </div>
 
       {/* Amount Input */}
@@ -106,27 +106,25 @@ const BuyOrder: FC<BuyOrderProps> = ({
           </div>
         </div>
         <div className="flex items-center justify-between mt-2">
-          <span className="text-zinc-500 text-sm">
-            {calculateShares().toFixed(0)} Shares
-          </span>
+          <span className="text-zinc-500 text-sm">{calculateShares().toFixed(0)} Shares</span>
         </div>
       </div>
 
-      {/* Order Details */}
-      <div className="space-y-3 mb-6">
-        <div className="flex justify-between">
-          <span className="text-zinc-400">Avg. Price</span>
-          <span className="text-white">$0.56</span>
-        </div>
-        <div className="flex justify-between">
-          <span className="text-zinc-400">Order</span>
-          <span className="text-white">
-            {calculateShares().toFixed(0)} {selectedPosition}
-          </span>
-        </div>
-        <div className="flex justify-between">
-          <span className="text-zinc-400">Potential Return</span>
-          <span className="text-[#95DE64]">$2500(40%)</span>
+      <div className="flex gap-3 items-end p-2 mt-3 w-full text-sm tracking-normal leading-none text-gray-400 rounded border border-solid bg-neutral-900 border-white border-opacity-10 my-2">
+        <div className="flex flex-col flex-1 shrink justify-center w-full basis-0 min-w-[240px]">
+          <div className="flex gap-10 justify-between items-center mt-1 w-full">
+            <div className="flex flex-col items-start self-stretch my-auto w-[91px]">
+              <div>
+                {selectedPosition === 'YES'
+                  ? (Number(amount) / Number(yesPrice)).toFixed(2)
+                  : (Number(amount) / Number(noPrice)).toFixed(2)}{' '}
+                {selectedPosition}
+              </div>
+            </div>
+            <div className="flex flex-col self-stretch my-auto whitespace-nowrap">
+              <div>${selectedPosition === 'YES' ? yesPrice?.toFixed(2) : noPrice?.toFixed(2)}</div>
+            </div>
+          </div>
         </div>
       </div>
 
