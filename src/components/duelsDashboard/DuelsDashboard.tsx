@@ -11,28 +11,36 @@ export function DuelsDashboard() {
 
   const getDuelsData = async () => {
     try {
-      const response = await apiClient.post(`${NEXT_PUBLIC_API}/portfolio/table/duels`, {
-        userAddress: address?.toLowerCase(),
-      }, {
-        headers: {
-          "Content-Type": "application/json",
+      const response = await apiClient.post(
+        `${NEXT_PUBLIC_API}/portfolio/table/duels`,
+        {
+          userAddress: address?.toLowerCase(),
         },
-      });
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
       setDuels(response.data);
     } catch (error) {
       console.error("Error fetching duels data:", error);
     }
   };
-  
+
   const getHistoryData = async () => {
     try {
-      const response = await apiClient.post(`${NEXT_PUBLIC_API}/portfolio/table/history`, {
-        userAddress: address?.toLowerCase(),
-      }, {
-        headers: {
-          "Content-Type": "application/json",
+      const response = await apiClient.post(
+        `${NEXT_PUBLIC_API}/portfolio/table/history`,
+        {
+          userAddress: address?.toLowerCase(),
         },
-      });
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
       setHistory(response.data);
     } catch (error) {
       console.error("Error fetching history data:", error);
@@ -49,15 +57,23 @@ export function DuelsDashboard() {
   }, [activeTab, address]);
 
   const activeData = activeTab === "duels" ? duels : history;
-  console.log(activeData, "activeData")
+  console.log(activeData, "activeData");
   return (
     <div className="flex flex-col min-h-[291px] w-full rounded-lg border border-neutral-800 shadow-sm bg-neutral-900">
       {/* Header Section */}
       <div className="flex items-center w-full px-4 py-2 border-b border-neutral-800">
         <div className="flex items-center gap-4">
           {/* Tab Buttons */}
-          <TabButton label="Duels" active={activeTab === "duels"} onClick={() => setActiveTab("duels")} />
-          <TabButton label="History" active={activeTab === "history"} onClick={() => setActiveTab("history")} />
+          <TabButton
+            label="Duels"
+            active={activeTab === "duels"}
+            onClick={() => setActiveTab("duels")}
+          />
+          <TabButton
+            label="History"
+            active={activeTab === "history"}
+            onClick={() => setActiveTab("history")}
+          />
         </div>
       </div>
 
@@ -73,9 +89,8 @@ export function DuelsDashboard() {
           {activeTab === "history" ? (
             <TableHeader label="Profit/Loss" width="w-[20%]" align="center" />
           ) : (
-          <TableHeader label="Resolves in" width="w-[20%]" align="center" />
-          )
-        }
+            <TableHeader label="Resolves in" width="w-[20%]" align="center" />
+          )}
         </div>
 
         {/* Table Rows */}
@@ -85,7 +100,12 @@ export function DuelsDashboard() {
               <>
                 {item.yesBet.amount && (
                   <DuelRow
-                    duelName={item.duelDetails.betString || `Will ${item.duelDetails.token} be ${item.duelDetails.winCondition === 0 ? "ABOVE" : "BELOW"} ${item.duelDetails.triggerPrice}`}
+                    duelName={
+                      item.duelDetails.betString ||
+                      `Will ${item.duelDetails.token} be ${
+                        item.duelDetails.winCondition === 0 ? "ABOVE" : "BELOW"
+                      } ${item.duelDetails.triggerPrice}`
+                    }
                     key={`${index}-yes`}
                     direction={"Yes"}
                     status={item.duelDetails.status}
@@ -102,7 +122,12 @@ export function DuelsDashboard() {
                 )}
                 {item.noBet.amount && (
                   <DuelRow
-                    duelName={item.duelDetails.betString || `Will ${item.duelDetails.token} be ${item.duelDetails.winCondition === 0 ? "ABOVE" : "BELOW"} ${item.duelDetails.triggerPrice}`}
+                    duelName={
+                      item.duelDetails.betString ||
+                      `Will ${item.duelDetails.token} be ${
+                        item.duelDetails.winCondition === 0 ? "ABOVE" : "BELOW"
+                      } ${item.duelDetails.triggerPrice}`
+                    }
                     key={`${index}-no`}
                     status={item.duelDetails.status}
                     createdAt={item.duelDetails.createdAt}
@@ -122,7 +147,6 @@ export function DuelsDashboard() {
           ) : (
             <div className="text-center text-stone-400">No data available</div>
           )}
-
         </div>
       </div>
     </div>
@@ -130,13 +154,22 @@ export function DuelsDashboard() {
 }
 
 // Tab Button Component
-function TabButton({ label, active, onClick }: { label: string; active?: boolean; onClick: () => void }) {
+function TabButton({
+  label,
+  active,
+  onClick,
+}: {
+  label: string;
+  active?: boolean;
+  onClick: () => void;
+}) {
   return (
     <button
-      className={`px-2 py-1 rounded-lg ${active
+      className={`px-2 py-1 rounded-lg ${
+        active
           ? "bg-pink-300 text-neutral-900"
           : "text-stone-300 hover:bg-neutral-800"
-        }`}
+      }`}
       onClick={onClick}
     >
       {label}
@@ -156,8 +189,13 @@ function TableHeader({
 }) {
   return (
     <div
-      className={`px-2 py-1 ${width} ${align === "center" ? "text-center" : align === "right" ? "text-right" : ""
-        }`}
+      className={`px-2 py-1 ${width} ${
+        align === "center"
+          ? "text-center"
+          : align === "right"
+          ? "text-right"
+          : ""
+      }`}
     >
       {label}
     </div>
@@ -178,23 +216,23 @@ function DuelRow({
   pnl,
   amount,
   activeTab,
-  quantity
+  quantity,
 }: {
   duelName: string;
   direction: string;
   activeTab: string;
   quantity: string;
   avgPrice: string;
-  status: number
+  status: number;
   amount: string;
   resolvesIn: number;
   createdAt: number;
   startAt: number;
   icon: string;
-  pnl: number
+  pnl: number;
 }) {
   const thirtyMinutesMs = 30 * 60 * 1000;
-  const durationMs = resolvesIn * 60 * 60 * 1000; 
+  const durationMs = resolvesIn * 60 * 60 * 1000;
   const [time, setTimeLeft] = React.useState("");
   const calculateRemainingTime = () => {
     const currentTimeMs = Date.now();
@@ -224,7 +262,7 @@ function DuelRow({
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
 
-    const padTime = (time: number) => time.toString().padStart(2, '0');
+    const padTime = (time: number) => time.toString().padStart(2, "0");
     return `${padTime(hours)}:${padTime(minutes)}:${padTime(seconds)}`;
   };
 
@@ -237,18 +275,26 @@ function DuelRow({
 
     return () => clearInterval(interval); // Clear interval on component unmount
   }, [createdAt, startAt, resolvesIn]);
-  
+
   return (
     <div className="flex items-center px-4 py-2 text-sm text-stone-300 border-b border-neutral-800">
       <div className="w-[25%] flex items-center gap-2">
         <img src={icon} alt={duelName} className="w-6 h-6 rounded-full" />
         <span>{duelName}</span>
       </div>
-      <div className={`w-[15%] text-center ${direction === "Yes" ? 'text-green-500' : 'text-red-500'}`}>{direction}</div>
+      <div
+        className={`w-[15%] text-center ${
+          direction === "Yes" ? "text-green-500" : "text-red-500"
+        }`}
+      >
+        {direction}
+      </div>
       <div className="w-[15%] text-center">{Number(quantity).toFixed(2)}</div>
       <div className="w-[15%] text-center">${Number(avgPrice).toFixed(2)}</div>
       <div className="w-[15%] text-center">${Number(amount).toFixed(2)}</div>
-      <div className="w-[20%] text-center">{activeTab === "history" ? `$${pnl.toFixed(2)}` : time}</div>
+      <div className="w-[20%] text-center">
+        {activeTab === "history" ? `$${pnl}` : time}
+      </div>
     </div>
   );
 }
