@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const durations = ["3H", "6H", "12H"];
+const durations = ["5M", "15M", "30M", "1H", "3H", "6H", "12H"];
 
 interface DurationSelectProps {
   name: string;
@@ -8,9 +8,15 @@ interface DurationSelectProps {
   onChange: (duration: string) => void;
 }
 
-const DurationSelect: React.FC<DurationSelectProps> = ({ name, value, onChange }) => {
+const DurationSelect: React.FC<DurationSelectProps> = ({
+  name,
+  value,
+  onChange,
+}) => {
   // State to keep track of the selected duration
-  const [selectedDuration, setSelectedDuration] = useState<string | null>(value);
+  const [selectedDuration, setSelectedDuration] = useState<string | null>(
+    value
+  );
 
   const handleDurationSelect = (duration: string) => {
     setSelectedDuration(duration); // Update selected duration
@@ -45,7 +51,7 @@ const DurationSelect: React.FC<DurationSelectProps> = ({ name, value, onChange }
           </div>
         </div>
       </div>
-      <input type="hidden" name={name} value={selectedDuration || ''} />
+      <input type="hidden" name={name} value={selectedDuration || ""} />
     </div>
   );
 };
