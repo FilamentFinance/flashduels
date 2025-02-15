@@ -1,15 +1,5 @@
-import MainContent from "@/components/MainContent";
-// import { setupInterceptors } from "@/utils/apiClient";
-// import { useAccount } from "wagmi";
-export default function Home() {
-// const {address} = useAccount()
-// const disconnect = () => {}
-// setupInterceptors(address, disconnect)
-// console.log(address, "address")
+import Markets from '@/components/markets';
 
-  return (
-    <div>
-      <MainContent />
-    </div>
-  );
+export default function Home() {
+  return <Markets />;
 }
