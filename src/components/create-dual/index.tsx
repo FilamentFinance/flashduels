@@ -2,21 +2,20 @@
 
 import { Dialog } from '@/components/ui/custom-modal';
 import { DUAL_LOGOS } from '@/constants/app/logos';
+import { CREATE_DUAL } from '@/constants/content/create-dual';
 import { NAVBAR } from '@/constants/content/navbar';
 import { DUAL } from '@/constants/dual';
 import { Button } from '@/shadcn/components/ui/button';
-import { useToast } from '@/shadcn/components/ui/use-toast';
 import { cn } from '@/shadcn/lib/utils';
-import { DualDuration, DualType } from '@/types/dual';
+import { DualType } from '@/types/dual';
 import { FC, useState } from 'react';
-import CoinDualForm from './coin-dual';
+import CreateCoinDuel from './coin-dual';
 import Dual from './dual';
 import FlashDualForm from './flash-dual';
 
 const CreateDual: FC = () => {
   const [selectedDual, setSelectedDual] = useState<DualType | null>(null);
   const [showForm, setShowForm] = useState(false);
-  const { toast } = useToast();
 
   const handleDualSelect = (type: DualType) => {
     setSelectedDual(type);
@@ -30,43 +29,11 @@ const CreateDual: FC = () => {
     setShowForm(false);
   };
 
-  const handleSubmit = async (
-    formData:
-      | {
-          category: string;
-          duelText: string;
-          betIcon: File | null;
-          duration: DualDuration;
-        }
-      | {
-          token: string;
-          triggerPrice: string;
-          winCondition: 'above' | 'below';
-          duration: DualDuration;
-        },
-  ) => {
-    try {
-      console.log('Form submitted:', formData);
-      toast({
-        title: 'Success',
-        description: 'Dual created successfully',
-      });
-      handleBack();
-    } catch (error) {
-      console.error(error);
-      toast({
-        title: 'Error',
-        description: 'Failed to create dual',
-        variant: 'destructive',
-      });
-    }
-  };
-
   return (
     <Dialog
       title={
         <div className="flex flex-col items-center gap-4">
-          <h2 className="text-xl font-semibold">Create a Dual</h2>
+          <h2 className="text-xl font-semibold">{CREATE_DUAL.DIALOG.TITLE}</h2>
           <div className="flex w-full gap-2 px-6">
             <div
               className={cn(
@@ -92,15 +59,15 @@ const CreateDual: FC = () => {
     >
       {!showForm ? (
         <div className="space-y-2">
-          <h3 className="text-lg text-zinc-400">Choose a market</h3>
+          <h3 className="text-lg text-zinc-400">{CREATE_DUAL.MARKET_SECTION.HEADING}</h3>
           <div className="grid grid-cols-2 gap-4">
             <Dual
               logo={{
                 active: DUAL_LOGOS.COIN.active,
                 inactive: DUAL_LOGOS.COIN.inactive,
               }}
-              title="Coin Duel"
-              description="Create Battles Based on Token Prices, resolved by Oracle price from Pyth"
+              title={CREATE_DUAL.MARKET_SECTION.COIN_DUAL.TITLE}
+              description={CREATE_DUAL.MARKET_SECTION.COIN_DUAL.DESCRIPTION}
               isActive={selectedDual === DUAL.COIN}
               onClick={() => handleDualSelect(DUAL.COIN)}
             />
@@ -109,8 +76,8 @@ const CreateDual: FC = () => {
                 active: DUAL_LOGOS.FLASH.active,
                 inactive: DUAL_LOGOS.FLASH.inactive,
               }}
-              title="Flash Duel"
-              description="Create Duel Based on Sports, News, pop Culture, bets are settled by Flash Duels"
+              title={CREATE_DUAL.MARKET_SECTION.FLASH_DUAL.TITLE}
+              description={CREATE_DUAL.MARKET_SECTION.FLASH_DUAL.DESCRIPTION}
               isActive={selectedDual === DUAL.FLASH}
               onClick={() => handleDualSelect(DUAL.FLASH)}
             />
@@ -120,13 +87,13 @@ const CreateDual: FC = () => {
             onClick={handleNext}
             disabled={!selectedDual}
           >
-            Next
+            {CREATE_DUAL.BUTTONS.NEXT}
           </Button>
         </div>
       ) : (
         <div className="space-y-6">
-          {selectedDual === DUAL.COIN && <CoinDualForm onBack={handleBack} />}
-          {selectedDual === DUAL.FLASH && <FlashDualForm  onBack={handleBack} />}
+          {selectedDual === DUAL.COIN && <CreateCoinDuel onBack={handleBack} />}
+          {selectedDual === DUAL.FLASH && <FlashDualForm onBack={handleBack} />}
         </div>
       )}
     </Dialog>

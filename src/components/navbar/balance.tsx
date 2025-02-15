@@ -6,7 +6,7 @@ import { useAccount } from 'wagmi';
 const Balance: FC = () => {
   const { address } = useAccount();
 
-  const { balance, symbol, decimals, isLoading, isError } = useBalance(address);
+  const { balance, symbol, decimals } = useBalance(address);
   return (
     <div className="flex gap-5 items-center self-stretch py-1 pr-1 pl-2 my-auto whitespace-nowrap rounded-lg border-2 border-[rgba(255,255,255,0.05)] bg-[rgba(255,255,255,0.02)] shadow-[0px_2px_10.3px_rgba(0,0,0,0.25)]">
       <div className="flex gap-1 items-center self-stretch my-auto text-base text-stone-200">

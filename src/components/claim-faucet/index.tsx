@@ -2,8 +2,9 @@
 
 import { Dialog } from '@/components/ui/custom-modal';
 import { baseApiClient } from '@/config/api-client';
+import { SERVER_CONFIG } from '@/config/server-config';
 import { FAUCET_LOGOS } from '@/constants/app/logos';
-import { useBalance } from '@/hooks/useBalance';
+import { CLAIM_FAUCET } from '@/constants/content/claim-faucent';
 import { Button } from '@/shadcn/components/ui/button';
 import { useToast } from '@/shadcn/components/ui/use-toast';
 import CopyToClipboard from '@/utils/general/copy-to-clipboard';
@@ -14,8 +15,6 @@ import Image from 'next/image';
 import { FC, useState } from 'react';
 import { useAccount } from 'wagmi';
 
-const TOKEN_ADDRESS = '0x62A14B05Db18f4E12890905D359a6939712D0390';
-
 const ClaimFaucet: FC = () => {
   const [isCopied, setIsCopied] = useState(false);
   const [mintLoading, setMintLoading] = useState(false);
@@ -23,11 +22,10 @@ const ClaimFaucet: FC = () => {
   const { toast } = useToast();
 
   const handleCopy = async () => {
-    await CopyToClipboard(TOKEN_ADDRESS);
+    await CopyToClipboard(SERVER_CONFIG.FLASH_USDC);
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 2000); // Reset after 2 seconds
   };
-  const { balance, isLoading, isError, refetch ,symbol,decimals} = useBalance(address);
   const handleClaimFaucet = async () => {
     if (!address) {
       toast({
@@ -41,7 +39,7 @@ const ClaimFaucet: FC = () => {
     try {
       setMintLoading(true);
       const data = await baseApiClient.post('http://localhost:3000/api/mint', {
-        address:  address.toLowerCase(),
+        address: address.toLowerCase(),
       });
       console.log({ data });
       toast({
@@ -62,7 +60,7 @@ const ClaimFaucet: FC = () => {
 
   return (
     <Dialog
-      title="Claim Faucet"
+      title={CLAIM_FAUCET.DIALOG.TITLE}
       maxWidth="max-w-md"
       trigger={
         <Button className="bg-gradient-pink">
@@ -89,8 +87,8 @@ const ClaimFaucet: FC = () => {
         <div className="flex items-center justify-between w-full bg-[#1C1C1C] rounded-lg px-4 py-3">
           <div className="flex items-center gap-2">
             <Info className="w-4 h-4 text-zinc-400" />
-            <span className="text-zinc-400">Token Address:</span>
-            <span className="text-sm">{truncateAddress(TOKEN_ADDRESS)}</span>
+            <span className="text-zinc-400">{CLAIM_FAUCET.TOKEN_ADDRESS.LABEL}</span>
+            <span className="text-sm">{truncateAddress(SERVER_CONFIG.FLASH_USDC)}</span>
           </div>
           <button
             className="flex items-center justify-center hover:bg-zinc-800/50 rounded transition-colors"
@@ -118,14 +116,16 @@ const ClaimFaucet: FC = () => {
             onClick={handleClaimFaucet}
             disabled={mintLoading}
           >
-            {mintLoading ? 'Minting...' : 'Claim Faucet'}
+            {mintLoading
+              ? CLAIM_FAUCET.ACTION_BUTTONS.CLAIM_BUTTON.LOADING_TEXT
+              : CLAIM_FAUCET.ACTION_BUTTONS.CLAIM_BUTTON.TEXT}
           </Button>
           <Button
             variant="pinkOutline"
             className="flex-1 h-12 text-base font-medium"
-            onClick={() => openExternalLinkInNewTab('https://atlantic-2.app.sei.io/faucet/')}
+            onClick={() => openExternalLinkInNewTab(CLAIM_FAUCET.ACTION_BUTTONS.SEI_BUTTON.URL)}
           >
-            SEI Faucet
+            {CLAIM_FAUCET.ACTION_BUTTONS.SEI_BUTTON.TEXT}
             <ArrowUpRight className="w-4 h-4" />
           </Button>
         </div>
@@ -135,4 +135,3 @@ const ClaimFaucet: FC = () => {
 };
 
 export default ClaimFaucet;
-  

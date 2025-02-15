@@ -1,8 +1,7 @@
-import PositionSelector from '@/components/position-selector';
 import { Duel, Position } from '@/types/dual';
+import Image from 'next/image';
 import { FC, useState } from 'react';
 import ChanceProgress from './chance-progress';
-import Image from 'next/image';
 import YesNoButton from './yes-no-button';
 
 interface Props {

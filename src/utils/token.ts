@@ -5,7 +5,7 @@ import { useReadContract, useWriteContract } from 'wagmi';
 
 export const REQUIRED_ALLOWANCE = BigInt(5 * 10 ** 6);
 
-export const useTokenApproval = (address: `0x${string}` | undefined) => {
+export const useTokenApproval = (address: `0x${string}` | undefined, amount?: bigint) => {
   const { writeContractAsync } = useWriteContract();
 
   const { data: allowance } = useReadContract({
@@ -18,7 +18,7 @@ export const useTokenApproval = (address: `0x${string}` | undefined) => {
 
   const checkAllowance = async () => {
     const currentAllowance = allowance || BigInt(0);
-    return currentAllowance >= REQUIRED_ALLOWANCE;
+    return currentAllowance >= (amount || REQUIRED_ALLOWANCE);
   };
 
   const requestAllowance = async () => {
@@ -27,7 +27,7 @@ export const useTokenApproval = (address: `0x${string}` | undefined) => {
       address: SEI_TESTNET.FLASHUSDC as Hex,
       functionName: 'increaseAllowance',
       chainId: 1328,
-      args: [SEI_TESTNET.Diamond, REQUIRED_ALLOWANCE],
+      args: [SEI_TESTNET.Diamond, amount || REQUIRED_ALLOWANCE],
     });
 
     if (!tx) throw new Error('Failed to send approval transaction');

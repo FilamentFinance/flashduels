@@ -2,7 +2,7 @@
 
 import { baseApiClient } from '@/config/api-client';
 import { TRANSACTION_STATUS } from '@/constants/app';
-import { DUAL_DURATION } from '@/constants/dual';
+import { DUAL_DURATION, DUEL_TYPE, DURATIONS, OPTIONS } from '@/constants/dual';
 import { CATEGORIES, FLASH_DUAL_CATEGORIES } from '@/constants/markets';
 import useCreateFlashDuel from '@/hooks/useCreateFlashDuel';
 import { Button } from '@/shadcn/components/ui/button';
@@ -18,41 +18,16 @@ import {
 import { Textarea } from '@/shadcn/components/ui/textarea';
 import { cn } from '@/shadcn/lib/utils';
 import { DualDuration } from '@/types/dual';
-import { getTransactionStatusMessage, mapDurationToNumber } from '@/utils/transaction';
+import { mapCategoryToEnumIndex, mapDurationToNumber } from '@/utils/general/create-duels';
+import { getTransactionStatusMessage } from '@/utils/transaction';
 import { Trash2, Upload } from 'lucide-react';
 import Image from 'next/image';
 import { FC, useState } from 'react';
 import { useAccount } from 'wagmi';
 
 interface FlashDualFormProps {
-  // onSubmit: (data: FlashDualFormData) => void;
   onBack: () => void;
 }
-
-export interface FlashDualFormData {
-  category: string;
-  duelText: string;
-  betIcon: File | null;
-  duration: DualDuration;
-}
-const mapCategoryToEnumIndex = (category: string): number => {
-  switch (category.toLowerCase()) {
-    case 'crypto':
-      return 1;
-    case 'politics':
-      return 2;
-    case 'sports':
-      return 3;
-    case 'twitter':
-      return 4;
-    case 'nfts':
-      return 5;
-    case 'news':
-      return 6;
-    default:
-      return 0;
-  }
-};
 
 const FlashDualForm: FC<FlashDualFormProps> = ({ onBack }) => {
   const [selectedDuration, setSelectedDuration] = useState<DualDuration>(DUAL_DURATION.THREE_HOURS);
@@ -61,8 +36,7 @@ const FlashDualForm: FC<FlashDualFormProps> = ({ onBack }) => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const { address } = useAccount();
-  const { status, error, txHash, approvalHash, isApprovalMining, isDuelMining, createFlashDuel } =
-    useCreateFlashDuel();
+  const { status, error, isApprovalMining, isDuelMining, createFlashDuel } = useCreateFlashDuel();
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -70,7 +44,6 @@ const FlashDualForm: FC<FlashDualFormProps> = ({ onBack }) => {
 
     try {
       setIsUploading(true);
-      // Create preview URL
       const previewUrl = URL.createObjectURL(file);
       setImagePreview(previewUrl);
       setSelectedImage(file);
@@ -93,28 +66,25 @@ const FlashDualForm: FC<FlashDualFormProps> = ({ onBack }) => {
     try {
       const categoryEnumIndex = mapCategoryToEnumIndex(selectedCategory);
       const durationNumber = mapDurationToNumber(selectedDuration);
-      const options = ['YES', 'NO'];
       const duelText = (document.getElementById('duelText') as HTMLTextAreaElement)?.value || '';
 
-      const pk = {
+      const createDuelData = {
         topic: duelText,
         category: categoryEnumIndex,
         duration: durationNumber,
-        options,
+        options: OPTIONS,
       };
 
-      await createFlashDuel(pk);
+      await createFlashDuel(createDuelData);
 
       if (status === TRANSACTION_STATUS.DUEL_COMPLETE && address) {
-        const durations = [3, 6, 12];
-
         const duelData = {
-          type: 'FLASH_DUEL',
+          type: DUEL_TYPE.FLASH_DUEL,
           category: selectedCategory,
           betIcon: selectedImage,
           duelText: duelText,
           minimumWager: 0,
-          endsIn: durations[durationNumber],
+          endsIn: DURATIONS[durationNumber],
         };
 
         await baseApiClient.post('http://localhost:3004/flashduels/duels/approve', {

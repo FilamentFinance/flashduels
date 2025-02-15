@@ -27,10 +27,8 @@ const CONTRACT_ADDRESS = '0x82f8b57891C7EC3c93ABE194dB80e4d8FC931F09' as Hex;
 const useCreateCoinDuel = () => {
   const [status, setStatus] = useState<TransactionStatusType>(TRANSACTION_STATUS.IDLE);
   const [error, setError] = useState<string | null>(null);
-  const [txHash, setTxHash] = useState<`0x${string}` | undefined>(undefined);
-  const [approvalHash, setApprovalHash] = useState<`0x${string}` | undefined>(undefined);
-  const [pendingDuelParams, setPendingDuelParams] = useState<CreateCoinDuelParams | null>(null);
-
+  const [txHash, setTxHash] = useState<Hex | undefined>(undefined);
+  const [approvalHash, setApprovalHash] = useState<Hex | undefined>(undefined);
   const { toast } = useToast();
   const { address } = useAccount();
   const { writeContractAsync } = useWriteContract();
@@ -112,7 +110,6 @@ const useCreateCoinDuel = () => {
       setError(null);
       setTxHash(undefined);
       setApprovalHash(undefined);
-      setPendingDuelParams(params);
 
       const hasAllowance = await checkAllowance();
 
@@ -152,7 +149,6 @@ const useCreateCoinDuel = () => {
         title: 'Success',
         description: 'Duel created successfully',
       });
-      setPendingDuelParams(null);
     }
   }, [isDuelSuccess]);
 

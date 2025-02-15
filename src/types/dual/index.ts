@@ -1,4 +1,4 @@
-import { DUAL, DUAL_DURATION, DUAL_STATUS, POSITION } from '@/constants/dual';
+import { DUAL, DUAL_DURATION, DUAL_STATUS, POSITION, WIN_CONDITIONS } from '@/constants/dual';
 
 export type DualType = (typeof DUAL)[keyof typeof DUAL];
 export type DualDuration = (typeof DUAL_DURATION)[keyof typeof DUAL_DURATION];
@@ -71,3 +71,4 @@ export type Duel = {
 };
 
 export type Position = (typeof POSITION)[keyof typeof POSITION];
+export type WinCondition = (typeof WIN_CONDITIONS)[keyof typeof WIN_CONDITIONS];

@@ -1,59 +1,51 @@
-import { EnvConfig, ServerConfig } from '@/types/serverconfig';
-import { AppError } from '@/utils/error';
-import { STATUS_CODES } from '@/constants/statusCodes';
-import { ERRORS } from '@/constants/error';
+interface ServerConfig {
+  PRODUCTION: boolean;
+  RPC_URL: string;
+  API_URL: string;
+  API_WS_URL: string;
+  TIMER_BOT_URL: string;
+  DIAMOND: string;
+  FLASH_USDC: string;
+}
 
-const getEnvVar = (key: keyof EnvConfig): string => {
-  const value = process.env[key] || window?.__NEXT_DATA__?.props?.env?.[key];
-  if (!value?.toString()?.trim()) {
-    throw new AppError({
-      statusCode: STATUS_CODES.INTERNAL_SERVER_ERROR,
-      type: ERRORS.MISSING_ENV_VARIABLE,
-      message: `Missing required environment variable: ${key}`,
-    });
-  }
-  return value.toString();
-};
-const validateEnvVariables = (): void => {
-  const requiredVars = Object.keys({} as EnvConfig) as Array<keyof EnvConfig>;
-  const missingVars = requiredVars.filter((key) => !process.env[key]?.trim());
+const createConfig = (): ServerConfig => {
+  // Read values directly from .env
+  const production = process.env.NEXT_PUBLIC_PRODUCTION === 'true';
+  const rpcUrl = process.env.NEXT_PUBLIC_RPC_URL as string;
+  const apiProduction = process.env.NEXT_PUBLIC_API_PRODUCTION as string;
+  const apiWsProduction = process.env.NEXT_PUBLIC_API_WS_PRODUCTION as string;
+  const api = process.env.NEXT_PUBLIC_API as string;
+  const apiWs = process.env.NEXT_PUBLIC_API_WS as string;
+  const timerBotUrl = process.env.NEXT_PUBLIC_TIMER_BOT_URL as string;
+  const timerBotUrlProduction = process.env.NEXT_PUBLIC_TIMER_BOT_URL_PRODUCTION as string;
+  const diamond = process.env.NEXT_PUBLIC_DIAMOND as string;
+  const flashUsdc = process.env.NEXT_PUBLIC_FLASH_USDC as string;
+
+  // Validate required environment variables
+  const missingVars = [];
+  if (!rpcUrl) missingVars.push('NEXT_PUBLIC_RPC_URL');
+  if (!apiProduction) missingVars.push('NEXT_PUBLIC_API_PRODUCTION');
+  if (!apiWsProduction) missingVars.push('NEXT_PUBLIC_API_WS_PRODUCTION');
+  if (!api) missingVars.push('NEXT_PUBLIC_API');
+  if (!apiWs) missingVars.push('NEXT_PUBLIC_API_WS');
+  if (!timerBotUrl) missingVars.push('NEXT_PUBLIC_TIMER_BOT_URL');
+  if (!timerBotUrlProduction) missingVars.push('NEXT_PUBLIC_TIMER_BOT_URL_PRODUCTION');
+  if (!diamond) missingVars.push('NEXT_PUBLIC_DIAMOND');
+  if (!flashUsdc) missingVars.push('NEXT_PUBLIC_FLASH_USDC');
+
   if (missingVars.length > 0) {
-    throw new AppError({
-      statusCode: STATUS_CODES.INTERNAL_SERVER_ERROR,
-      type: ERRORS.MISSING_ENV_VARIABLE,
-      message: [
-        'Missing required environment variables:',
-        ...missingVars,
-        '\nPlease check your .env file and ensure all required variables are defined.',
-      ].join('\n'),
-    });
+    throw new Error(`Missing required environment variables: ${missingVars.join(', ')}`);
   }
+
+  return {
+    PRODUCTION: production,
+    RPC_URL: rpcUrl,
+    API_URL: production ? apiProduction : api,
+    API_WS_URL: production ? apiWsProduction : apiWs,
+    TIMER_BOT_URL: production ? timerBotUrlProduction : timerBotUrl,
+    DIAMOND: diamond,
+    FLASH_USDC: flashUsdc,
+  };
 };
 
-const configMapping: Record<keyof ServerConfig, keyof EnvConfig> = {
-  PRODUCTION: 'NEXT_PUBLIC_PRODUCTION',
-  PRIVATE_KEY: 'PRIVATE_KEY',
-  API_PRODUCTION: 'NEXT_PUBLIC_API_PRODUCTION',
-  API_WS_PRODUCTION: 'NEXT_PUBLIC_API_WS_PRODUCTION',
-  API: 'NEXT_PUBLIC_API',
-  API_WS: 'NEXT_PUBLIC_API_WS',
-  FLASH_USDC: 'NEXT_PUBLIC_FLASH_USDC',
-  TIMER_BOT_URL: 'NEXT_PUBLIC_TIMER_BOT_URL',
-  TIMER_BOT_URL_PRODUCTION: 'NEXT_PUBLIC_TIMER_BOT_URL_PRODUCTION',
-  RPC_URL: 'NEXT_PUBLIC_RPC_URL',
-  DIAMOND: 'NEXT_PUBLIC_DIAMOND',
-};
-
-const createServerConfig = (): Readonly<ServerConfig> => {
-  validateEnvVariables();
-
-  const config = {} as ServerConfig;
-  (Object.keys(configMapping) as Array<keyof ServerConfig>).forEach((key) => {
-    const envKey = configMapping[key];
-    config[key] = getEnvVar(envKey);
-  });
-
-  return Object.freeze(config);
-};
-
-export const SERVER_CONFIG = createServerConfig();
+export const SERVER_CONFIG = createConfig();

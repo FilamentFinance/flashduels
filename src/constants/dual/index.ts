@@ -45,3 +45,37 @@ export const COIN_DUAL_ASSETS: {
     address: '0xef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d',
   },
 };
+
+export const DURATIONS = [3, 6, 12];
+
+export const assetImages = [
+  {
+    symbol: 'BTC',
+    image: 'https://filamentimages.s3.ap-southeast-1.amazonaws.com/tokens/BTC.svg',
+  },
+  {
+    symbol: 'ETH',
+    image: 'https://filamentimages.s3.ap-southeast-1.amazonaws.com/tokens/ETH.svg',
+  },
+  {
+    symbol: 'SOL',
+    image: 'https://filamentimages.s3.ap-southeast-1.amazonaws.com/tokens/SOL.svg',
+  },
+];
+
+export const getAssetImage = (symbol: string) => {
+  const asset = assetImages.find((item) => item.symbol === symbol);
+  return asset ? asset.image : null;
+};
+
+export const OPTIONS = ['YES', 'NO'];
+
+export const WIN_CONDITIONS = {
+  ABOVE: 'above',
+  BELOW: 'below',
+} as const;
+
+export const DUEL_TYPE = {
+  COIN_DUEL: 'COIN_DUEL',
+  FLASH_DUEL: 'FLASH_DUEL',
+} as const;

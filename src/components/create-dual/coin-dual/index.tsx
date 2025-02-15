@@ -2,7 +2,15 @@
 
 import { baseApiClient } from '@/config/api-client';
 import { TRANSACTION_STATUS } from '@/constants/app';
-import { COIN_DUAL_ASSETS, DUAL_DURATION } from '@/constants/dual';
+import {
+  COIN_DUAL_ASSETS,
+  DUAL_DURATION,
+  DUEL_TYPE,
+  DURATIONS,
+  getAssetImage,
+  OPTIONS,
+  WIN_CONDITIONS,
+} from '@/constants/dual';
 import useCreateCoinDuel from '@/hooks/useCreateCoinDuel';
 import { Button } from '@/shadcn/components/ui/button';
 import { Input } from '@/shadcn/components/ui/input';
@@ -17,8 +25,9 @@ import {
 import { useToast } from '@/shadcn/components/ui/use-toast';
 import { cn } from '@/shadcn/lib/utils';
 import { RootState } from '@/store';
-import { DualDuration } from '@/types/dual';
-import { getTransactionStatusMessage, mapDurationToNumber } from '@/utils/transaction';
+import { DualDuration, WinCondition } from '@/types/dual';
+import { mapDurationToNumber } from '@/utils/general/create-duels';
+import { getTransactionStatusMessage } from '@/utils/transaction';
 import { FC, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useAccount } from 'wagmi';
@@ -28,21 +37,20 @@ interface CoinDualFormProps {
   onBack: () => void;
 }
 
-export interface CoinDualFormData {
+export interface CreateCoinDuelData {
   token: string;
   triggerPrice: string;
-  winCondition: 'above' | 'below';
+  winCondition: WinCondition;
   duration: DualDuration;
 }
 
-const CoinDualForm: FC<CoinDualFormProps> = ({ onBack }) => {
+const CreateCoinDuel: FC<CoinDualFormProps> = ({ onBack }) => {
   const [selectedDuration, setSelectedDuration] = useState<DualDuration>(DUAL_DURATION.THREE_HOURS);
   const [selectedToken, setSelectedToken] = useState<string>('');
   const { prices } = useSelector((state: RootState) => state.price);
-  const [formData, setFormData] = useState<CoinDualFormData | null>(null);
+  const [formData, setFormData] = useState<CreateCoinDuelData | null>(null);
   const { address } = useAccount();
-  const { createCoinDuel, status, error, txHash, isApprovalMining, isDuelMining, isDuelSuccess } =
-    useCreateCoinDuel();
+  const { createCoinDuel, status, error, isApprovalMining, isDuelMining } = useCreateCoinDuel();
   const { toast } = useToast();
   const isTransactionInProgress =
     status === TRANSACTION_STATUS.APPROVAL_PENDING ||
@@ -58,57 +66,33 @@ const CoinDualForm: FC<CoinDualFormProps> = ({ onBack }) => {
 
     const triggerPrice = Number(formData.triggerPrice) * 10 ** 8;
     const minWager = Number(formData.triggerPrice) * 10 ** 6;
-    const options = ['YES', 'NO'];
+
     const triggerType = 0;
     const symbol = formData.token;
-    const winCondition = formData.winCondition === 'above' ? 0 : 1;
+    const winCondition = formData.winCondition === WIN_CONDITIONS.ABOVE ? 0 : 1;
 
     const dualData = {
       symbol,
-      options,
+      options: OPTIONS,
       minWager,
       triggerPrice,
       triggerType,
       winCondition,
       durationNumber,
     };
-    console.log({symbol})
     try {
       const result = await createCoinDuel(dualData);
-      console.log({ result,selectedToken });
-      
-      // If the duel creation was successful, make the API call
+
       if (result.success) {
-        const durations = [3, 6, 12];
-        const assetImages = [
-          {
-            symbol: 'BTC',
-            image: 'https://filamentimages.s3.ap-southeast-1.amazonaws.com/tokens/BTC.svg',
-          },
-          {
-            symbol: 'ETH',
-            image: 'https://filamentimages.s3.ap-southeast-1.amazonaws.com/tokens/ETH.svg',
-          },
-          {
-            symbol: 'SOL',
-            image: 'https://filamentimages.s3.ap-southeast-1.amazonaws.com/tokens/SOL.svg',
-          },
-        ];
-
-        const getAssetImage = (symbol: string) => {
-          const asset = assetImages.find((item) => item.symbol === symbol);
-          return asset ? asset.image : null;
-        };
-
         const duelData = {
-          type: 'COIN_DUEL',
+          type: DUEL_TYPE.COIN_DUEL,
           token: selectedToken,
           category: 'Crypto',
           betIcon: getAssetImage(selectedToken),
           triggerPrice: formData.triggerPrice,
           minimumWager: 0,
           winCondition: winCondition,
-          endsIn: durations[durationNumber],
+          endsIn: DURATIONS[durationNumber],
         };
 
         try {
@@ -195,7 +179,7 @@ const CoinDualForm: FC<CoinDualFormProps> = ({ onBack }) => {
                   ...prevData,
                   triggerPrice: value,
                   token: prevData?.token || '',
-                  winCondition: prevData?.winCondition || 'above',
+                  winCondition: prevData?.winCondition || WIN_CONDITIONS.ABOVE,
                   duration: prevData?.duration || DUAL_DURATION.THREE_HOURS,
                 }));
               }
@@ -212,12 +196,15 @@ const CoinDualForm: FC<CoinDualFormProps> = ({ onBack }) => {
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="bg-[#1C1C1C] border-zinc-700">
-              <SelectItem value="above" className="text-white focus:bg-zinc-800 focus:text-white">
-                ABOVE
-              </SelectItem>
-              <SelectItem value="below" className="text-white focus:bg-zinc-800 focus:text-white">
-                BELOW
-              </SelectItem>
+              {Object.values(WIN_CONDITIONS).map((condition) => (
+                <SelectItem
+                  key={condition}
+                  value={condition}
+                  className="text-white focus:bg-zinc-800 focus:text-white capitalize"
+                >
+                  {condition}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -248,9 +235,9 @@ const CoinDualForm: FC<CoinDualFormProps> = ({ onBack }) => {
 
       {formData && (
         <p className="text-xs text-zinc-400">
-          {formData.winCondition === 'above' ? 'Yes' : 'No'} wins if mark price is{' '}
-          {formData.winCondition === 'above' ? 'above' : 'below'} $
-          {prices[formData.token as keyof typeof prices]} after {formData.duration}
+          {formData.winCondition === WIN_CONDITIONS.ABOVE ? 'Yes' : 'No'} wins if mark price is{' '}
+          {formData.winCondition} ${prices[formData.token as keyof typeof prices]} after{' '}
+          {formData.duration}
         </p>
       )}
 
@@ -285,4 +272,4 @@ const CoinDualForm: FC<CoinDualFormProps> = ({ onBack }) => {
   );
 };
 
-export default CoinDualForm;
+export default CreateCoinDuel;

@@ -1,37 +1,43 @@
+import { baseApiClient } from '@/config/api-client';
 import { LOGOS } from '@/constants/app/logos';
 import { useBalance } from '@/hooks/useBalance';
+import useJoinDuel from '@/hooks/useJoinDuel';
 import { Button } from '@/shadcn/components/ui/button';
 import { Input } from '@/shadcn/components/ui/input';
 import { cn } from '@/shadcn/lib/utils';
 import { Position } from '@/types/dual';
 import { Dispatch, FC, SetStateAction } from 'react';
-import { formatUnits } from 'viem/utils';
+import { formatUnits, parseUnits } from 'viem/utils';
 import { useAccount } from 'wagmi';
 
 interface BuyOrderProps {
-  availableBalance?: number;
-  onPlaceOrder: (position: Position, amount: string) => void;
   amount: string;
   setAmount: Dispatch<SetStateAction<string>>;
   selectedPosition: Position | null;
   setSelectedPosition: Dispatch<SetStateAction<Position | null>>;
   yesPrice: number | undefined;
   noPrice: number | undefined;
+  duelId: string;
+  duelType: string;
+  asset: string | undefined;
+  winCondition: number | undefined;
 }
 
 const BuyOrder: FC<BuyOrderProps> = ({
-  availableBalance = 1000,
-  onPlaceOrder,
   amount,
   setAmount,
   selectedPosition,
   setSelectedPosition,
   yesPrice,
   noPrice,
+  duelId,
+  duelType,
+  asset,
+  winCondition,
 }) => {
   const { address } = useAccount();
   const { balance } = useBalance(address);
-
+  const { joinDuel } = useJoinDuel();
   const handlePositionSelect = (position: Position) => {
     setSelectedPosition(position);
   };
@@ -40,14 +46,30 @@ const BuyOrder: FC<BuyOrderProps> = ({
     return Number(amount) / Number('0.15');
   };
 
-  const handlePlaceOrder = () => {
-    if (!selectedPosition) return;
-    onPlaceOrder(selectedPosition, amount);
-  };
-
   const handleMaxClick = () => {
     const maxAmount = formatUnits((balance ?? 0) as bigint, 6);
     setAmount(maxAmount);
+  };
+
+  const handleJoinDuel = async () => {
+    const parsedAmount = parseUnits(amount, 6);
+    const { success } = await joinDuel(parsedAmount);
+    console.log('Approval check result:', success);
+    if (success) {
+      // Now you can proceed with the actual join duel logic
+      const optionIndex = selectedPosition === 'YES' ? 0 : 1;
+      await baseApiClient.post('http://localhost:3004/flashduels/bets/create', {
+        twitterUsername: '',
+        bet: selectedPosition,
+        address: address?.toLowerCase(),
+        betAmount: Number(amount),
+        optionIndex,
+        duelId,
+        duelType,
+        asset,
+        winCondition,
+      });
+    }
   };
 
   return (
@@ -130,7 +152,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
 
       {/* Action Button */}
       <Button
-        onClick={handlePlaceOrder}
+        onClick={handleJoinDuel}
         disabled={!selectedPosition}
         className={cn(
           'w-full py-6 rounded-xl font-medium transition-colors text-lg',

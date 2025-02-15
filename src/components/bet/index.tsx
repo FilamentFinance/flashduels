@@ -71,24 +71,23 @@ const Bet: FC = () => {
   const [selectedPosition, setSelectedPosition] = useState<'YES' | 'NO' | null>(null);
   const [amount, setAmount] = useState('1000');
 
+  const fetchDuel = async () => {
+    try {
+      setLoading(true);
+      const response = await baseApiClient.get(
+        `${process.env.NEXT_PUBLIC_API}/duels/get-duel-by-id/${id}`,
+      );
+      setDuel(response.data);
+      setError(null);
+    } catch (error) {
+      console.error('Error fetching duel:', error);
+      setError('Failed to fetch duel details.');
+    } finally {
+      setLoading(false);
+    }
+  };
   useEffect(() => {
     if (id) {
-      const fetchDuel = async () => {
-        try {
-          setLoading(true);
-          const response = await baseApiClient.get(
-            `${process.env.NEXT_PUBLIC_API}/duels/get-duel-by-id/${id}`,
-          );
-          setDuel(response.data);
-          setError(null);
-        } catch (error) {
-          console.error('Error fetching duel:', error);
-          setError('Failed to fetch duel details.');
-        } finally {
-          setLoading(false);
-        }
-      };
-
       fetchDuel();
     } else {
       setError('Duel ID is missing from the query parameters.');
@@ -151,6 +150,7 @@ const Bet: FC = () => {
             token={duel.token}
             triggerPrice={duel.triggerPrice}
             winCondition={duel.winCondition}
+            duelType={duel.duelType}
           />
         </div>
       )}

@@ -1,19 +1,6 @@
 import { TRANSACTION_STATUS } from '@/constants/app';
 import { TransactionStatusType } from '@/types/app';
 
-export const mapDurationToNumber = (duration: string): number => {
-  switch (duration.toUpperCase()) {
-    case '3H':
-      return 0;
-    case '6H':
-      return 1;
-    case '12H':
-      return 2;
-    default:
-      throw new Error('Invalid duration');
-  }
-};
-
 export const getTransactionStatusMessage = (
   status: TransactionStatusType,
   error: string | null = null,

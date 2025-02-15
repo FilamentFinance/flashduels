@@ -4,8 +4,8 @@ import { COIN_DUAL_ASSETS } from '@/constants/dual';
 import { setPrices } from '@/store/slices/priceSlice';
 import React, { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { HermesPriceService } from '../config/price-client';
 import { formatUnits } from 'viem';
+import { HermesPriceService } from '../config/price-client';
 type MappedPrices = {
   BTC?: number; // Adjust type as necessary
   ETH?: number; // Adjust type as necessary
@@ -20,13 +20,15 @@ const PriceWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     const connect = async () => {
       await priceService.connect();
       const unsubscribe = priceService.subscribe((prices) => {
-        const mappedPrices: MappedPrices = Object.keys(prices).reduce((acc:MappedPrices, key) => {
+        const mappedPrices: MappedPrices = Object.entries(prices).reduce((acc, [key, rawPrice]) => {
           const token = COIN_DUAL_ASSETS[`0x${key}`];
           if (token) {
-            acc[token.symbol as keyof typeof MappedPrices] = formatUnits(prices[key],8); 
+            const bigIntPrice = BigInt(rawPrice);
+            const formattedPrice = formatUnits(bigIntPrice, 8);
+            acc[token.symbol as keyof MappedPrices] = Number(formattedPrice);
           }
           return acc;
-        }, {});
+        }, {} as MappedPrices);
         dispatch(
           setPrices({
             BTC: mappedPrices.BTC || 0,

@@ -13,8 +13,6 @@ export const SEI_TESTNET = {
   Goldsky_Subgraph: '',
 };
 
-
-
 export const TRANSACTION_STATUS = {
   IDLE: 'idle',
   CHECKING_ALLOWANCE: 'checking_allowance',
@@ -28,5 +26,7 @@ export const TRANSACTION_STATUS = {
   DUEL_COMPLETE: 'duel_complete',
   FAILED: 'failed',
   CONTENT_CREATED: 'content_created',
+  JOINING_DUEL: 'joining_duel',
+  JOIN_MINING: 'join_mining',
+  JOIN_COMPLETE: 'join_complete',
 } as const;
-

@@ -16,8 +16,18 @@ import { useAccount } from 'wagmi';
 import { DuelShimmer } from './duel-shimmer';
 import { DuelState } from './duel-state';
 
-type DuelStatus = 'pending' | 'approved' | 'rejected' | 'active' | 'completed';
-
+interface DuelResponseItem {
+  betString: string;
+  betIcon: string;
+  status: number;
+  duelType: string;
+  endsIn: number;
+  token: string;
+  createdAt: number;
+  startAt?: number;
+  winCondition: number;
+  triggerPrice: number;
+}
 interface DuelItem {
   title: string;
   imageSrc: string;
@@ -106,7 +116,7 @@ const Duels: FC = () => {
 
       // Add regular duels
       if (response.data.allDuels) {
-        const filteredDuels = response.data.allDuels.map((item: any) => ({
+        const filteredDuels = response.data.allDuels.map((item: DuelResponseItem) => ({
           title:
             item.betString ||
             `Will ${item.token} be ${item.winCondition === 0 ? 'ABOVE' : 'BELOW'} ${item.triggerPrice}`,
@@ -122,17 +132,33 @@ const Duels: FC = () => {
       }
 
       // Add pending duels
+      // if (response.data.pendingDuels) {
+      //   const filteredPendingDuels = response.data.pendingDuels.map((item: ) => ({
+      //     title:
+      //       item.data.betString ||
+      //       `Will ${item.data.token} be ${item.data.winCondition === 0 ? 'ABOVE' : 'BELOW'} ${item.data.triggerPrice}`,
+      //     imageSrc: item.data.betIcon || '',
+      //     status: item.status === 'pending' ? 2 : item.status === 'approved' ? 3 : 4,
+      //     duelType: item.type,
+      //     timeLeft: item.data.endsIn,
+      //     token: item.data.token,
+      //   }));
+      //   allDuels.push(...filteredPendingDuels);
+      // }
+
       if (response.data.pendingDuels) {
-        const filteredPendingDuels = response.data.pendingDuels.map((item: any) => ({
-          title:
-            item.data.betString ||
-            `Will ${item.data.token} be ${item.data.winCondition === 0 ? 'ABOVE' : 'BELOW'} ${item.data.triggerPrice}`,
-          imageSrc: item.data.betIcon || '',
-          status: item.status === 'pending' ? 2 : item.status === 'approved' ? 3 : 4,
-          duelType: item.type,
-          timeLeft: item.data.endsIn,
-          token: item.data.token,
-        }));
+        const filteredPendingDuels = response.data.pendingDuels.map(
+          (item: { data: DuelResponseItem; status: string; type: string }) => ({
+            title:
+              item.data.betString ||
+              `Will ${item.data.token} be ${item.data.winCondition === 0 ? 'ABOVE' : 'BELOW'} ${item.data.triggerPrice}`,
+            imageSrc: item.data.betIcon || '',
+            status: item.status === 'pending' ? 2 : item.status === 'approved' ? 3 : 4,
+            duelType: item.type,
+            timeLeft: item.data.endsIn,
+            token: item.data.token,
+          }),
+        );
         allDuels.push(...filteredPendingDuels);
       }
 
