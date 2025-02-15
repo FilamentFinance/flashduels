@@ -2,24 +2,27 @@
 
 import { CATEGORIES } from '@/constants/markets';
 import { cn } from '@/shadcn/lib/utils';
-import { FC, useState } from 'react';
+import { FC } from 'react';
 
-const Categories: FC = () => {
-  const [activeCategory, setActiveCategory] = useState('TRENDING');
+interface CategoriesProps {
+  activeCategory: string;
+  setActiveCategory: (category: string) => void;
+}
 
+const Categories: FC<CategoriesProps> = ({ activeCategory, setActiveCategory }) => {
   return (
     <div className="flex items-center gap-4 py-4">
       {Object.entries(CATEGORIES).map(([key, { title, icon }]) => {
-        const isActive = key === activeCategory;
+        const isActive = title === activeCategory;
         return (
           <button
             key={key}
-            onClick={() => setActiveCategory(key)}
+            onClick={() => setActiveCategory(title)}
             className={cn(
               'group flex items-center transition-all duration-200 rounded-md p-2 gap-1',
               isActive
-                ? 'bg-[#F19ED2]/20 border border-[#F19ED2]  '
-                : 'bg-[#44464933]  hover:bg-zinc-800/50',
+                ? 'bg-[#F19ED2]/20 border border-[#F19ED2]'
+                : 'bg-[#44464933] hover:bg-zinc-800/50',
             )}
           >
             <div
@@ -30,7 +33,7 @@ const Categories: FC = () => {
             >
               <span className="text-md">{icon}</span>
             </div>
-            <span className="text-md font-medium whitespace-nowrap ">{title}</span>
+            <span className="text-md font-medium whitespace-nowrap">{title}</span>
           </button>
         );
       })}

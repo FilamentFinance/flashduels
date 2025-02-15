@@ -6,6 +6,7 @@ interface ServerConfig {
   TIMER_BOT_URL: string;
   DIAMOND: string;
   FLASH_USDC: string;
+  WALLET_CONNECT_PROJECT_ID: string;
 }
 
 const createConfig = (): ServerConfig => {
@@ -20,6 +21,7 @@ const createConfig = (): ServerConfig => {
   const timerBotUrlProduction = process.env.NEXT_PUBLIC_TIMER_BOT_URL_PRODUCTION as string;
   const diamond = process.env.NEXT_PUBLIC_DIAMOND as string;
   const flashUsdc = process.env.NEXT_PUBLIC_FLASH_USDC as string;
+  const walletConnectProjectId = process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID as string;
 
   // Validate required environment variables
   const missingVars = [];
@@ -32,6 +34,7 @@ const createConfig = (): ServerConfig => {
   if (!timerBotUrlProduction) missingVars.push('NEXT_PUBLIC_TIMER_BOT_URL_PRODUCTION');
   if (!diamond) missingVars.push('NEXT_PUBLIC_DIAMOND');
   if (!flashUsdc) missingVars.push('NEXT_PUBLIC_FLASH_USDC');
+  if (!walletConnectProjectId) missingVars.push('NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID');
 
   if (missingVars.length > 0) {
     throw new Error(`Missing required environment variables: ${missingVars.join(', ')}`);
@@ -45,6 +48,7 @@ const createConfig = (): ServerConfig => {
     TIMER_BOT_URL: production ? timerBotUrlProduction : timerBotUrl,
     DIAMOND: diamond,
     FLASH_USDC: flashUsdc,
+    WALLET_CONNECT_PROJECT_ID: walletConnectProjectId,
   };
 };
 

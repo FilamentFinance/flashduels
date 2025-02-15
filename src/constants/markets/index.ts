@@ -4,22 +4,22 @@ export const CATEGORIES: {
     icon: string;
   };
 } = {
-  TRENDING: {
-    title: 'Trending',
+  ANY: {
+    title: 'Any',
     icon: '⚡',
   },
-  LIQUIDITY: {
-    title: 'Liquidity',
-    icon: '💧',
-  },
-  ENDING_SOON: {
-    title: 'Ending Soon',
-    icon: '⌛',
-  },
-  COMPETITIVE: {
-    title: 'Competitive',
-    icon: '⚔️',
-  },
+  // LIQUIDITY: {
+  //   title: 'Liquidity',
+  //   icon: '💧',
+  // },
+  // ENDING_SOON: {
+  //   title: 'Ending Soon',
+  //   icon: '⌛',
+  // },
+  // COMPETITIVE: {
+  //   title: 'Competitive',
+  //   icon: '⚔️',
+  // },
   SPORTS: {
     title: 'Sports',
     icon: '⚽',

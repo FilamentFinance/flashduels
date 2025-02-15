@@ -1,6 +1,7 @@
 'use client';
 
 import { DUAL_STATUS } from '@/constants/dual';
+import { CATEGORIES } from '@/constants/markets';
 import { Duel, NewDuelItem, DualStatus as TDualStatus } from '@/types/dual';
 import { truncateAddress } from '@/utils/general/getEllipsisTxt';
 import { useRouter } from 'next/navigation';
@@ -14,6 +15,8 @@ const Markets: FC = () => {
   const router = useRouter();
   const [duels, setDuels] = useState<Duel[]>([]);
   const [activeStatus, setActiveStatus] = useState<TDualStatus>(DUAL_STATUS.LIVE);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeCategory, setActiveCategory] = useState(CATEGORIES['ANY'].title); // Category state
   const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
@@ -90,6 +93,11 @@ const Markets: FC = () => {
       wsRef.current = null;
     };
   }, [activeStatus]);
+  const filteredDuels = duels.filter((duel) => {
+    const matchesSearch = duel.title.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = activeCategory === 'Any' ? true : duel.category === activeCategory;
+    return matchesSearch && matchesCategory;
+  });
 
   const handleDualRowClick = (duelId: string) => {
     router.push(`/bet?duelId=${duelId}`);
@@ -97,12 +105,12 @@ const Markets: FC = () => {
 
   return (
     <div className="px-4">
-      <Categories />
+      <Categories activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
       <div className="flex justify-between items-center">
         <DualStatus activeStatus={activeStatus} setActiveStatus={setActiveStatus} />
-        <SearchDuels placeholder="Search Duels" />
+        <SearchDuels placeholder="Search Duels" onSearch={setSearchQuery} />
       </div>
-      <Duals data={duels} handleDualRowClick={handleDualRowClick} />
+      <Duals data={filteredDuels} handleDualRowClick={handleDualRowClick} />
     </div>
   );
 };

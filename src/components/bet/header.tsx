@@ -8,14 +8,17 @@ type Props = {
   triggerPrice: string;
   winCondition: number;
   token?: string;
+  liquidity?: string;
+  endsIn?: number;
+  percentage?: number;
 };
 
-const Header: FC<Props> = ({ title, logo, triggerPrice, token }) => {
+const Header: FC<Props> = ({ title, logo, triggerPrice, token, liquidity, endsIn, percentage }) => {
   return (
     <div className="flex flex-col items-center gap-6 mb-8 w-full">
       <div className="flex justify-between items-stretch w-full">
         {/* Back Button and Logo */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 mx-2">
           <div>
             <img src={logo || '/empty-string.png'} alt={title} className="w-12 h-12 rounded-full" />
           </div>
@@ -31,16 +34,16 @@ const Header: FC<Props> = ({ title, logo, triggerPrice, token }) => {
       <div className="w-full flex justify-between items-center  px-4 py-2 rounded-lg">
         <div className="flex flex-col">
           <span className="text-zinc-500 text-sm">Liquidity</span>
-          <span className="text-white font-medium">$50</span>
+          <span className="text-white font-medium">${liquidity}</span>
         </div>
 
         <div className="flex flex-col items-center">
           <span className="text-zinc-500 text-sm">Ends in</span>
-          <span className="text-white font-medium">00:00:00</span>
+          <span className="text-white font-medium">{endsIn}h</span>
         </div>
 
         <div className="flex items-center gap-2">
-          <PercentageBlocks percentage={50} />
+          <PercentageBlocks percentage={percentage || 50} />
         </div>
       </div>
     </div>

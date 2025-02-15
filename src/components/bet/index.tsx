@@ -111,7 +111,7 @@ const Bet: FC = () => {
   if (error || !duel) {
     return <ErrorState error={error || 'Duel not found'} />;
   }
-
+  console.log({ duel });
   return (
     <div className="container max-w-screen-xl mx-auto p-4">
       {/* Back Button */}
@@ -127,7 +127,7 @@ const Bet: FC = () => {
 
       {/* Header */}
       {duel.betIcon && (
-        <div className="flex justify-between items-stretch">
+        <div className="flex justify-between items-stretch gap-4">
           <Header
             title={
               duel.betString ??
@@ -137,6 +137,9 @@ const Bet: FC = () => {
             triggerPrice={duel.triggerPrice || '0'}
             winCondition={duel.winCondition || 0}
             token={duel.token}
+            liquidity={duel.totalBetAmount.toString()}
+            endsIn={duel.endsIn}
+            // percentage={duel.percentage}
           />
           <PlaceOrder
             onPlaceOrder={handlePlaceOrder}
