@@ -1,5 +1,6 @@
 import { FlashDualCoreFaucetAbi } from '@/abi/FlashDualCoreFaucet';
-import { TRANSACTION_STATUS } from '@/constants/app';
+import { SERVER_CONFIG } from '@/config/server-config';
+import { SEI_TESTNET_CHAIN_ID, TRANSACTION_STATUS } from '@/constants/app';
 import { useToast } from '@/shadcn/components/ui/use-toast';
 import { TransactionStatusType } from '@/types/app';
 import { handleTransactionError, useTokenApproval } from '@/utils/token';
@@ -13,14 +14,12 @@ interface CreateFlashDuelParams {
   duration: number;
   options: string[];
 }
-const CONTRACT_ADDRESS = '0x82f8b57891C7EC3c93ABE194dB80e4d8FC931F09' as Hex;
 
-const CHAIN_ID = 1328;
 const useCreateFlashDuel = () => {
   const [status, setStatus] = useState<TransactionStatusType>(TRANSACTION_STATUS.IDLE);
   const [error, setError] = useState<string | null>(null);
-  const [txHash, setTxHash] = useState<`0x${string}` | undefined>(undefined);
-  const [approvalHash, setApprovalHash] = useState<`0x${string}` | undefined>(undefined);
+  const [txHash, setTxHash] = useState<Hex | undefined>(undefined);
+  const [approvalHash, setApprovalHash] = useState<Hex | undefined>(undefined);
   const [pendingDuelParams, setPendingDuelParams] = useState<CreateFlashDuelParams | null>(null);
 
   const { toast } = useToast();
@@ -32,13 +31,13 @@ const useCreateFlashDuel = () => {
   const { isLoading: isApprovalMining, isSuccess: isApprovalSuccess } =
     useWaitForTransactionReceipt({
       hash: approvalHash,
-      chainId: CHAIN_ID,
+      chainId: SEI_TESTNET_CHAIN_ID,
     });
 
   // Watch duel creation transaction
   const { isLoading: isDuelMining, isSuccess: isDuelSuccess } = useWaitForTransactionReceipt({
     hash: txHash,
-    chainId: CHAIN_ID,
+    chainId: SEI_TESTNET_CHAIN_ID,
   });
 
   // Handle approval success
@@ -82,9 +81,9 @@ const useCreateFlashDuel = () => {
       setStatus(TRANSACTION_STATUS.CREATING_DUEL);
       const tx = await writeContractAsync({
         abi: FlashDualCoreFaucetAbi,
-        address: CONTRACT_ADDRESS,
+        address: SERVER_CONFIG.DIAMOND as Hex,
         functionName: 'requestCreateDuel',
-        chainId: CHAIN_ID,
+        chainId: SEI_TESTNET_CHAIN_ID,
         args: [params.category, params.topic, params.options, params.duration],
       });
 

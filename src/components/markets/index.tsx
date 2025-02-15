@@ -1,5 +1,6 @@
 'use client';
 
+import { SERVER_CONFIG } from '@/config/server-config';
 import { DUAL_STATUS } from '@/constants/dual';
 import { CATEGORIES } from '@/constants/markets';
 import { Duel, NewDuelItem, DualStatus as TDualStatus } from '@/types/dual';
@@ -23,7 +24,7 @@ const Markets: FC = () => {
     let isSubscribed = true;
 
     const connectWebSocket = () => {
-      wsRef.current = new WebSocket(`ws://localhost:3004/flashduels/ws`);
+      wsRef.current = new WebSocket(`${SERVER_CONFIG.API_WS_URL}/ws`);
 
       wsRef.current.onopen = function () {
         console.log('Connected to the WebSocket server');

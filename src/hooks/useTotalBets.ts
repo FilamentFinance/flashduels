@@ -2,10 +2,9 @@ import { FlashDuelsViewFacetABI } from '@/abi/FlashDuelsViewFacet';
 import axios from 'axios';
 import { useCallback, useEffect, useState } from 'react';
 import { useReadContract } from 'wagmi';
-import { formatUnits } from 'viem';
-
-const NEXT_PUBLIC_DIAMOND = '0x82f8b57891C7EC3c93ABE194dB80e4d8FC931F09' as `0x${string}`;
-const CHAIN_ID = 1328;
+import { formatUnits, Hex } from 'viem';
+import { SEI_TESTNET_CHAIN_ID } from '@/constants/app';
+import { SERVER_CONFIG } from '@/config/server-config';
 
 const useTotalBets = (duelId: string) => {
   const [totalBetYes, setTotalBetYes] = useState<number | null>(null);
@@ -20,8 +19,8 @@ const useTotalBets = (duelId: string) => {
   } = useReadContract({
     abi: FlashDuelsViewFacetABI,
     functionName: 'getTotalBetsOnOption',
-    address: NEXT_PUBLIC_DIAMOND,
-    chainId: CHAIN_ID,
+    address: SERVER_CONFIG.DIAMOND as Hex,
+    chainId: SEI_TESTNET_CHAIN_ID,
     args: [duelId, 0, 'YES'],
   });
 
@@ -34,8 +33,8 @@ const useTotalBets = (duelId: string) => {
   } = useReadContract({
     abi: FlashDuelsViewFacetABI,
     functionName: 'getTotalBetsOnOption',
-    address: NEXT_PUBLIC_DIAMOND,
-    chainId: CHAIN_ID,
+    address: SERVER_CONFIG.DIAMOND as Hex,
+    chainId: SEI_TESTNET_CHAIN_ID,
     args: [duelId, 1, 'NO'],
   });
 

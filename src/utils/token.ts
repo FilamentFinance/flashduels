@@ -1,19 +1,20 @@
 import { FLASHUSDC } from '@/abi/FLASHUSDC';
-import { SEI_TESTNET } from '@/constants/app';
+import { SERVER_CONFIG } from '@/config/server-config';
+import { SEI_TESTNET_CHAIN_ID } from '@/constants/app';
 import { Hex } from 'viem';
 import { useReadContract, useWriteContract } from 'wagmi';
 
 export const REQUIRED_ALLOWANCE = BigInt(5 * 10 ** 6);
 
-export const useTokenApproval = (address: `0x${string}` | undefined, amount?: bigint) => {
+export const useTokenApproval = (address: Hex | undefined, amount?: bigint) => {
   const { writeContractAsync } = useWriteContract();
 
   const { data: allowance } = useReadContract({
     abi: FLASHUSDC,
-    address: SEI_TESTNET.FLASHUSDC as Hex,
+    address: SERVER_CONFIG.FLASH_USDC as Hex,
     functionName: 'allowance',
-    args: [address, SEI_TESTNET.Diamond],
-    chainId: 1328,
+    args: [address, SERVER_CONFIG.DIAMOND as Hex],
+    chainId: SEI_TESTNET_CHAIN_ID,
   }) as { data: bigint | undefined };
 
   const checkAllowance = async () => {
@@ -24,10 +25,10 @@ export const useTokenApproval = (address: `0x${string}` | undefined, amount?: bi
   const requestAllowance = async () => {
     const tx = await writeContractAsync({
       abi: FLASHUSDC,
-      address: SEI_TESTNET.FLASHUSDC as Hex,
+      address: SERVER_CONFIG.FLASH_USDC as Hex,
       functionName: 'increaseAllowance',
-      chainId: 1328,
-      args: [SEI_TESTNET.Diamond, amount || REQUIRED_ALLOWANCE],
+      chainId: SEI_TESTNET_CHAIN_ID,
+      args: [SERVER_CONFIG.DIAMOND as Hex, amount || REQUIRED_ALLOWANCE],
     });
 
     if (!tx) throw new Error('Failed to send approval transaction');

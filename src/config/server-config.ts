@@ -10,7 +10,6 @@ interface ServerConfig {
 }
 
 const createConfig = (): ServerConfig => {
-  // Read values directly from .env
   const production = process.env.NEXT_PUBLIC_PRODUCTION === 'true';
   const rpcUrl = process.env.NEXT_PUBLIC_RPC_URL as string;
   const apiProduction = process.env.NEXT_PUBLIC_API_PRODUCTION as string;

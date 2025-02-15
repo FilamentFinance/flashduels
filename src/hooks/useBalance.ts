@@ -1,40 +1,36 @@
 import { FLASHUSDC } from '@/abi/FLASHUSDC';
+import { SEI_TESTNET_CHAIN_ID } from '@/constants/app';
 import { Hex } from 'viem';
 import { useReadContracts } from 'wagmi';
 
 const TOKEN_ADDRESS = '0x542938B5c37d082159C0933EC982E3585c94BD62' as const;
 
 export const useBalance = (address: Hex | undefined) => {
-  const {
-    data,
-    isLoading,
-    isError,
-    refetch,
-  } = useReadContracts({
+  const { data, isLoading, isError, refetch } = useReadContracts({
     contracts: [
       {
         abi: FLASHUSDC,
         address: TOKEN_ADDRESS as Hex,
-        chainId: 1328,
+        chainId: SEI_TESTNET_CHAIN_ID,
         functionName: 'balanceOf',
         args: address ? [address] : undefined,
       },
       {
         abi: FLASHUSDC,
         address: TOKEN_ADDRESS as Hex,
-        chainId: 1328,
+        chainId: SEI_TESTNET_CHAIN_ID,
         functionName: 'symbol',
       },
       {
         abi: FLASHUSDC,
         address: TOKEN_ADDRESS as Hex,
-        chainId: 1328,
+        chainId: SEI_TESTNET_CHAIN_ID,
         functionName: 'decimals',
       },
       {
         abi: FLASHUSDC,
         address: TOKEN_ADDRESS as Hex,
-        chainId: 1328,
+        chainId: SEI_TESTNET_CHAIN_ID,
         functionName: 'name',
       },
     ],
@@ -52,6 +48,3 @@ export const useBalance = (address: Hex | undefined) => {
     refetch,
   };
 };
-
-
-

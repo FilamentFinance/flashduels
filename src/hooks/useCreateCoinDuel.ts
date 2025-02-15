@@ -1,5 +1,6 @@
 import { FlashDualCoreFaucetAbi } from '@/abi/FlashDualCoreFaucet';
-import { TRANSACTION_STATUS } from '@/constants/app';
+import { SERVER_CONFIG } from '@/config/server-config';
+import { SEI_TESTNET_CHAIN_ID, TRANSACTION_STATUS } from '@/constants/app';
 import { useToast } from '@/shadcn/components/ui/use-toast';
 import { TransactionStatusType } from '@/types/app';
 import { handleTransactionError, useTokenApproval } from '@/utils/token';
@@ -22,8 +23,6 @@ interface CreateCoinDuelResult {
   error?: string;
 }
 
-const CONTRACT_ADDRESS = '0x82f8b57891C7EC3c93ABE194dB80e4d8FC931F09' as Hex;
-
 const useCreateCoinDuel = () => {
   const [status, setStatus] = useState<TransactionStatusType>(TRANSACTION_STATUS.IDLE);
   const [error, setError] = useState<string | null>(null);
@@ -39,13 +38,13 @@ const useCreateCoinDuel = () => {
   const { isLoading: isApprovalMining, isSuccess: isApprovalSuccess } =
     useWaitForTransactionReceipt({
       hash: approvalHash,
-      chainId: 1328,
+      chainId: SEI_TESTNET_CHAIN_ID,
     });
 
   // Watch duel creation transaction
   const { isLoading: isDuelMining, isSuccess: isDuelSuccess } = useWaitForTransactionReceipt({
     hash: txHash,
-    chainId: 1328,
+    chainId: SEI_TESTNET_CHAIN_ID,
   });
 
   const handleError = (error: unknown) => {
@@ -78,7 +77,7 @@ const useCreateCoinDuel = () => {
     try {
       setStatus(TRANSACTION_STATUS.CREATING_DUEL);
       const tx = await writeContractAsync({
-        address: CONTRACT_ADDRESS,
+        address: SERVER_CONFIG.DIAMOND as Hex,
         abi: FlashDualCoreFaucetAbi,
         functionName: 'requestCreateCryptoDuel',
         args: [

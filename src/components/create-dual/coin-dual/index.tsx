@@ -32,6 +32,7 @@ import { FC, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useAccount } from 'wagmi';
 import DuelInfo from '../dual-info';
+import { SERVER_CONFIG } from '@/config/server-config';
 
 interface CoinDualFormProps {
   onBack: () => void;
@@ -96,7 +97,7 @@ const CreateCoinDuel: FC<CoinDualFormProps> = ({ onBack }) => {
         };
 
         try {
-          await baseApiClient.post('http://localhost:3004/flashduels/duels/approve', {
+          await baseApiClient.post(`${SERVER_CONFIG.API_URL}/duels/approve`, {
             ...duelData,
             twitterUsername: '',
             address: address?.toLowerCase(),

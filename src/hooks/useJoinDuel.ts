@@ -1,4 +1,4 @@
-import { TRANSACTION_STATUS } from '@/constants/app';
+import { SEI_TESTNET_CHAIN_ID, TRANSACTION_STATUS } from '@/constants/app';
 import { useToast } from '@/shadcn/components/ui/use-toast';
 import { TransactionStatusType } from '@/types/app';
 import { handleTransactionError, useTokenApproval } from '@/utils/token';
@@ -21,7 +21,7 @@ const useJoinDuel = () => {
   const { isLoading: isApprovalMining, isSuccess: isApprovalSuccess } =
     useWaitForTransactionReceipt({
       hash: approvalHash,
-      chainId: 1328,
+      chainId: SEI_TESTNET_CHAIN_ID,
     });
 
   const handleError = (error: unknown) => {

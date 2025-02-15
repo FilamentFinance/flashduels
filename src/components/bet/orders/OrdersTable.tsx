@@ -1,9 +1,8 @@
+import { OrderData } from '@/types/dual';
 import * as React from 'react';
+import { useAccount } from 'wagmi';
 import { OrderRow } from './OrderRow';
 import { TableHeader } from './TableHeader';
-import type { OrderData } from './types';
-// import { NEXT_PUBLIC_WS_URL } from "@/utils/consts";
-import { useAccount } from 'wagmi';
 
 export const OrdersTable = ({ duelId }: { duelId: string }) => {
   const [openOrders, setOpenOrders] = React.useState<OrderData[]>([]);

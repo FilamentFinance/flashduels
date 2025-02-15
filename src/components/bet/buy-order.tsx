@@ -1,4 +1,5 @@
 import { baseApiClient } from '@/config/api-client';
+import { SERVER_CONFIG } from '@/config/server-config';
 import { LOGOS } from '@/constants/app/logos';
 import { useBalance } from '@/hooks/useBalance';
 import useJoinDuel from '@/hooks/useJoinDuel';
@@ -69,7 +70,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
         asset,
         winCondition,
       });
-      await baseApiClient.post('http://localhost:3004/flashduels/bets/create', {
+      await baseApiClient.post(`${SERVER_CONFIG.API_URL}/bets/create`, {
         twitterUsername: '',
         bet: selectedPosition,
         address: address?.toLowerCase(),

@@ -1,6 +1,7 @@
 import { MAX_RETRY_ATTEMPTS, RETRY_DELAY_MS } from '@/constants/app/api-client';
 import { ExtendedAxiosRequestConfig } from '@/types/general/api-client';
 import axios, { AxiosInstance } from 'axios';
+import { SERVER_CONFIG } from './server-config';
 
 class AxiosClient {
   private static instance: AxiosClient | null = null;
@@ -65,4 +66,4 @@ class AxiosClient {
   }
 }
 
-export const baseApiClient = AxiosClient.getInstance('http://localhost:3004');
+export const baseApiClient = AxiosClient.getInstance(SERVER_CONFIG.API_URL);

@@ -1,6 +1,7 @@
 'use client';
 
 import { baseApiClient } from '@/config/api-client';
+import { SERVER_CONFIG } from '@/config/server-config';
 import { TRANSACTION_STATUS } from '@/constants/app';
 import { DUAL_DURATION, DUEL_TYPE, DURATIONS, OPTIONS } from '@/constants/dual';
 import { CATEGORIES, FLASH_DUAL_CATEGORIES } from '@/constants/markets';
@@ -87,7 +88,7 @@ const FlashDualForm: FC<FlashDualFormProps> = ({ onBack }) => {
           endsIn: DURATIONS[durationNumber],
         };
 
-        await baseApiClient.post('http://localhost:3004/flashduels/duels/approve', {
+        await baseApiClient.post(`${SERVER_CONFIG.API_URL}/duels/approve`, {
           ...duelData,
           twitterUsername: '',
           address: address?.toLowerCase(),

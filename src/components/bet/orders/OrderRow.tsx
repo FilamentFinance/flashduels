@@ -1,43 +1,51 @@
+import { baseApiClient } from '@/config/api-client';
+import useOrder from '@/hooks/useOrders';
+import { useToast } from '@/shadcn/components/ui/use-toast';
+import { OrderData } from '@/types/dual';
 import * as React from 'react';
-import type { OrderData } from './types';
-// import { apiClient } from "@/utils/apiClient";
-// import { CHAIN_ID, NEXT_PUBLIC_API, NEXT_PUBLIC_DIAMOND } from "@/utils/consts";
-// import { useAtom } from "jotai";
-// import { GeneralNotificationAtom } from "@/components/GeneralNotification";
-// import { FLASHDUELS_MARKETPLACE } from "@/abi/FlashDuelsMarketplaceFacet";
-// import { FLASHDUELS_VIEWFACET } from "@/abi/FlashDuelsViewFacet";
 
 interface OrderRowProps {
   order: OrderData;
   duelId: string;
 }
 
-export const OrderRow: React.FC<OrderRowProps> = ({ order }) => {
-  // const [notification, setNotification] = useAtom(GeneralNotificationAtom); // Move this inside the component
-  // console.log(notification)
-  //   const {
-  //     writeContractAsync: lpTokenSecondFunctionAsyncLocal,
-  //   } = useWriteContract({});
+export const OrderRow: React.FC<OrderRowProps> = ({ order, duelId }) => {
+  const { cancelSell } = useOrder(duelId, order.betOptionIndex);
 
-  //   const {
-  //     data: optionTokenAddress,
-  //   } = useReadContract({
-  //     abi: FLASHDUELS_VIEWFACET,
-  //     functionName: "getOptionIndexToOptionToken",
-  //     address: NEXT_PUBLIC_DIAMOND as `0x${string}`,
-  //     chainId: CHAIN_ID,
-  //     args: [duelId, order.betOptionIndex],
-  //   });
+  const { toast } = useToast();
 
-  //   const cancelSell = async (sellId: number) => {
-  //   return lpTokenSecondFunctionAsyncLocal({
-  //     abi: FLASHDUELS_MARKETPLACE,
-  //     address: NEXT_PUBLIC_DIAMOND as `0x${string}`,
-  //     functionName: "cancelSell",
-  //     chainId: CHAIN_ID,
-  //     args: [optionTokenAddress, sellId],
-  //   });
-  // };
+  const handleCancel = async () => {
+    if (order.sellId === undefined) {
+      toast({
+        title: 'Error',
+        description: 'Sell ID is not available',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const result = await cancelSell(order.sellId);
+    const response = await baseApiClient.delete(`${process.env.NEXT_PUBLIC_API}/betOption/cancel`, {
+      data: {
+        betOptionMarketId: order.id,
+        duelId,
+      },
+    });
+
+    if (response.data.message && result) {
+      toast({
+        title: 'Success',
+        description: 'Order cancelled successfully',
+      });
+      // Optionally, you can add additional logic to update your UI here.
+    } else {
+      toast({
+        title: 'Error',
+        description: result.error || 'Failed to cancel order',
+        variant: 'destructive',
+      });
+    }
+  };
 
   return (
     <div className="flex items-center w-full">
@@ -76,33 +84,7 @@ export const OrderRow: React.FC<OrderRowProps> = ({ order }) => {
         <div className="flex items-center justify-center w-[318px]">
           <button
             className="gap-2.5 px-5 py-1 rounded-lg border border-red-500 border-solid bg-red-600 bg-opacity-10 text-xs font-bold text-red-500"
-            // onClick={async () => {
-            //   try {
-            //     await cancelSell(order.sellId)
-            //     const response = await baseApiClient.delete(`${NEXT_PUBLIC_API}/betOption/cancel`, {
-            //       data: {
-            //         betOptionMarketId: order.id,
-            //         duelId
-            //       },
-            //     });
-
-            //     if (response.data.message) {
-            //       console.log("Order cancelled successfully");
-            //       // setNotification({
-            //       //   isOpen: true,
-            //       //   success: true,
-            //       //   massage: response.data.message,
-            //       // });
-            //     }
-            //   } catch (error) {
-            //     console.error("Error fetching account data:", error);
-            //     // setNotification({
-            //     //   isOpen: true,
-            //     //   success: false,
-            //     //   massage: "Failed to Cancel Bet",
-            //     // });
-            //   }
-            // }}
+            onClick={handleCancel}
           >
             Cancel
           </button>

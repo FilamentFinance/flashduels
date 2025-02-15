@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { SERVER_CONFIG } from '@/config/server-config';
+import { useEffect, useState } from 'react';
 
 interface PriceData {
   yesPrice: number | undefined;
@@ -26,8 +27,8 @@ export const useWebSocketPrices = (asset: string | undefined): PriceData => {
 
     const connectWebSocket = () => {
       const wsUrl = asset
-        ? 'ws://localhost:3004/flashduels/cryptoduelsOptionPricingWebSocket'
-        : `${process.env.NEXT_PUBLIC_API_WS}/flashduelsOptionPricingWebSocket`;
+        ? `${SERVER_CONFIG.API_WS_URL}/cryptoduelsOptionPricingWebSocket`
+        : `${SERVER_CONFIG.API_WS_URL}/flashduelsOptionPricingWebSocket`;
 
       websocket = new WebSocket(wsUrl);
 
