@@ -58,6 +58,17 @@ const BuyOrder: FC<BuyOrderProps> = ({
     if (success) {
       // Now you can proceed with the actual join duel logic
       const optionIndex = selectedPosition === 'YES' ? 0 : 1;
+      console.log({
+        twitterUsername: '',
+        bet: selectedPosition,
+        address: address?.toLowerCase(),
+        betAmount: Number(amount),
+        optionIndex,
+        duelId,
+        duelType,
+        asset,
+        winCondition,
+      });
       await baseApiClient.post('http://localhost:3004/flashduels/bets/create', {
         twitterUsername: '',
         bet: selectedPosition,

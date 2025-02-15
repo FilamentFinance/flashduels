@@ -83,7 +83,7 @@ const FlashDualForm: FC<FlashDualFormProps> = ({ onBack }) => {
           category: selectedCategory,
           betIcon: selectedImage,
           duelText: duelText,
-          minimumWager: 0,
+          minimumWager: '',
           endsIn: DURATIONS[durationNumber],
         };
 

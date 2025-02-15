@@ -90,7 +90,7 @@ const CreateCoinDuel: FC<CoinDualFormProps> = ({ onBack }) => {
           category: 'Crypto',
           betIcon: getAssetImage(selectedToken),
           triggerPrice: formData.triggerPrice,
-          minimumWager: 0,
+          minimumWager: '',
           winCondition: winCondition,
           endsIn: DURATIONS[durationNumber],
         };

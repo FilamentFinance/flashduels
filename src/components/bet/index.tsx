@@ -1,11 +1,13 @@
 'use client';
 
 import { baseApiClient } from '@/config/api-client';
-import { NewDuelItem } from '@/types/dual';
+import { NewDuelItem, OptionBetType } from '@/types/dual';
 import { ArrowLeft } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { FC, useEffect, useState } from 'react';
 import Header from './header';
+import OrderBook from './order-book';
+import { OrdersTable } from './orders/OrdersTable';
 import PlaceOrder from './place-order';
 
 const LoadingSkeleton = () => (
@@ -70,6 +72,40 @@ const Bet: FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedPosition, setSelectedPosition] = useState<'YES' | 'NO' | null>(null);
   const [amount, setAmount] = useState('1000');
+  const [yesBets, setYesBets] = useState<OptionBetType[]>([]);
+  const [noBets, setNoBets] = useState<OptionBetType[]>([]);
+  useEffect(() => {
+    const socket = new WebSocket(`${process.env.NEXT_PUBLIC_WS_URL}/betWebSocket?duelId=${id}`);
+
+    socket.onopen = function () {
+      console.log('Connected to the WebSocket server');
+    };
+
+    socket.onmessage = function (event) {
+      const message = JSON.parse(event.data);
+      const data = message.availableOptions;
+
+      if (data) {
+        const yesBets = data.filter((bet: OptionBetType) => bet.betOption?.index === 0);
+        const noBets = data.filter((bet: OptionBetType) => bet.betOption?.index === 1);
+        setYesBets(yesBets);
+        setNoBets(noBets);
+      }
+    };
+
+    socket.onerror = function (error) {
+      console.log('WebSocket Error:', error);
+    };
+
+    socket.onclose = function () {
+      console.log('Disconnected from the WebSocket server');
+    };
+
+    // Cleanup WebSocket on unmount
+    return () => {
+      socket.close();
+    };
+  }, []);
 
   const fetchDuel = async () => {
     try {
@@ -112,6 +148,44 @@ const Bet: FC = () => {
     return <ErrorState error={error || 'Duel not found'} />;
   }
   console.log({ duel });
+  const handleBuyOrders = async (
+    betOptionMarketId: string,
+    quantity: string,
+    index: number,
+    sellId: number,
+    amount: string,
+  ) => {
+    console.log(amount, 'amount', index);
+    // setOptionIndex(index)
+    // await lpTokenApproveAsync(amount)
+    // if (optionTokenAddress) {
+    //   await buyBet(sellId); // Ensure buyBet is called after token address is set
+    // }
+    // console.log("reached-here")
+
+    // try {
+    //   const response = await apiClient.post(
+    //     `${NEXT_PUBLIC_API}/betOption/buy`,
+    //     { duelId, betOptionMarketId, amount },
+    //   );
+    //   const data = response.data.message;
+
+    //   console.log(data, "data-new")
+    //   setNotification({
+    //     isOpen: true,
+    //     success: true,
+    //     massage: data,
+    //   })
+
+    // } catch (error) {
+    //   console.error("Error fetching bet:", error);
+    //   setNotification({
+    //     isOpen: true,
+    //     success: false,
+    //     massage: "Failed to Purchase Bet",
+    //   });
+    // }
+  };
   return (
     <div className="container max-w-screen-xl mx-auto p-4">
       {/* Back Button */}
@@ -128,19 +202,23 @@ const Bet: FC = () => {
       {/* Header */}
       {duel.betIcon && (
         <div className="flex justify-between items-stretch gap-4">
-          <Header
-            title={
-              duel.betString ??
-              `Will ${duel.token} be ${duel.winCondition === 0 ? 'ABOVE' : 'BELOW'} ${duel.triggerPrice}`
-            }
-            logo={duel.betIcon}
-            triggerPrice={duel.triggerPrice || '0'}
-            winCondition={duel.winCondition || 0}
-            token={duel.token}
-            liquidity={duel.totalBetAmount.toString()}
-            endsIn={duel.endsIn}
-            // percentage={duel.percentage}
-          />
+          <div className="flex w-full flex-col">
+            <Header
+              title={
+                duel.betString ??
+                `Will ${duel.token} be ${duel.winCondition === 0 ? 'ABOVE' : 'BELOW'} ${duel.triggerPrice}`
+              }
+              logo={duel.betIcon}
+              triggerPrice={duel.triggerPrice || '0'}
+              winCondition={duel.winCondition || 0}
+              token={duel.token}
+              liquidity={duel.totalBetAmount.toString()}
+              endsIn={duel.endsIn}
+              // percentage={duel.percentage}
+            />
+            <OrderBook yesBets={yesBets} noBets={noBets} handleBuyOrders={handleBuyOrders} />
+            <OrdersTable duelId={duel.duelId} />
+          </div>
           <PlaceOrder
             onPlaceOrder={handlePlaceOrder}
             amount={amount}
@@ -148,7 +226,7 @@ const Bet: FC = () => {
             selectedPosition={selectedPosition}
             setSelectedPosition={setSelectedPosition}
             asset={duel.token}
-            duelId={duel.id}
+            duelId={duel.duelId}
             endsIn={duel.endsIn}
             token={duel.token}
             triggerPrice={duel.triggerPrice}

@@ -26,7 +26,7 @@ interface PlaceOrderProps {
   asset: string | undefined;
   triggerPrice?: string;
   endsIn: number;
-  winCondition?: number;
+  winCondition: number | undefined;
   token: string | undefined;
   duelType: string;
 }
@@ -68,7 +68,7 @@ const PlaceOrder: FC<PlaceOrderProps> = ({
   });
 
   return (
-    <div className="bg-zinc-900 rounded-xl w-full max-w-md p-6 border border-zinc-800">
+    <div className="bg-zinc-900 rounded-xl w-full max-w-md p-6 border border-zinc-800 max-h-[500px]">
       {/* Buy/Sell Tabs */}
       <div className="flex items-center border-b border-zinc-800 mb-6">
         <button

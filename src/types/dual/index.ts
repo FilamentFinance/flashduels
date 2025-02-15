@@ -72,3 +72,13 @@ export type Duel = {
 
 export type Position = (typeof POSITION)[keyof typeof POSITION];
 export type WinCondition = (typeof WIN_CONDITIONS)[keyof typeof WIN_CONDITIONS];
+
+export type OptionBetType = {
+  id: string;
+  quantity: string;
+  amount: string;
+  index: number;
+  price: string;
+  sellId: number;
+  betOption?: { index: number };
+};
