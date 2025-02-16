@@ -1,4 +1,6 @@
+import { baseApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
+import useCancelOrder from '@/hooks/useCancelOrders';
 import { Button } from '@/shadcn/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/shadcn/components/ui/card';
 import {
@@ -10,51 +12,67 @@ import {
   TableRow,
 } from '@/shadcn/components/ui/table';
 import { useToast } from '@/shadcn/components/ui/use-toast';
-import { OrderData } from '@/types/dual';
 import { useCallback, useEffect, useState } from 'react';
 import { useAccount } from 'wagmi';
+// import { baseApiClient } from '@/lib/axios';
 
 interface OrdersTableProps {
   duelId: string;
 }
 
-export const OrdersTable = ({}: OrdersTableProps) => {
+interface OrderData {
+  sellId: number;
+  betOptionIndex: number;
+  price: number;
+  amount: number;
+  duelTitle: string;
+  id: string;
+  quantity: number;
+}
+
+export const OrdersTable = ({ duelId }: OrdersTableProps) => {
   const [openOrders, setOpenOrders] = useState<OrderData[]>([]);
   const { address } = useAccount();
   const { toast } = useToast();
+  const { cancelSell } = useCancelOrder();
 
   const handleCancel = async (order: OrderData) => {
     if (order.sellId === undefined) {
       toast({
         title: 'Error',
-        description: 'Sell ID is not available',
+        description: 'Invalid order ID',
         variant: 'destructive',
       });
       return;
     }
 
-    // const { cancelSell } = useOrder(duelId, order.betOptionIndex);
-    // const result = await cancelSell(order.sellId);
+    const result = await cancelSell(duelId, order.betOptionIndex, order.sellId);
 
-    // const response = await baseApiClient.delete(`${SERVER_CONFIG.API_URL}/betOption/cancel`, {
-    //   data: {
-    //     betOptionMarketId: order.id,
-    //     duelId,
-    //   },
-    // });
+    if (result.success) {
+      // Update backend
+      await baseApiClient.delete(`${SERVER_CONFIG.API_URL}/betOption/cancel`, {
+        data: {
+          duelId,
+          address,
+          position: order.betOptionIndex,
+          sellId: order.sellId,
+        },
+      });
 
-    // if (response.data.message && result) {
-    //   toast({
-    //     title: 'Success',
-    //     description: 'Order cancelled successfully',
-    //   });
-    // } else {
-    //   toast({
-    //     title: 'Error',
-    //     description: result.error || 'Failed to cancel order',
-    //     variant: 'destructive',
-    //   });
-    // }
+      // Remove the cancelled order from the UI
+      setOpenOrders((prevOrders) => prevOrders.filter((o) => o.sellId !== order.sellId));
+
+      toast({
+        title: 'Success',
+        description: 'Order cancelled successfully',
+      });
+    } else {
+      toast({
+        title: 'Error',
+        description: result.error || 'Failed to cancel order',
+        variant: 'destructive',
+      });
+    }
   };
 
   const setupWebSocket = useCallback(() => {

@@ -1,16 +1,19 @@
-import { baseApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
 import { POSITION_TYPE } from '@/constants/dual';
+import useSellOrder from '@/hooks/useSellOrder';
 import { Button } from '@/shadcn/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shadcn/components/ui/card';
 import { Input } from '@/shadcn/components/ui/input';
 import { Label } from '@/shadcn/components/ui/label';
-// import { PositionSelector } from '@/shadcn/components/ui/position-selector';
+import { useToast } from '@/shadcn/components/ui/use-toast';
 import { cn } from '@/shadcn/lib/utils';
 import { PositionType } from '@/types/dual';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { useAccount } from 'wagmi';
+import { baseApiClient } from '@/config/api-client';
 import PositionSelector from './position-selector';
+import { TRANSACTION_STATUS } from '@/constants/app';
+// import { TRANSACTION_STATUS } from '@/constants/transaction-status';
 
 interface SellOrderProps {
   duelId: string;
@@ -36,6 +39,14 @@ const SellOrder: FC<SellOrderProps> = ({ duelId }) => {
   const [betOptionId, setBetOptionId] = useState('');
   const [selectedBet, setSelectedBet] = useState<OptionBetType | null>(null);
   const [error, setError] = useState('');
+  const { toast } = useToast();
+
+  const { sellOrder, status, isApprovalMining, isSellMining } = useSellOrder(
+    duelId,
+    selectedBet?.index ?? 0,
+    amount,
+    price,
+  );
 
   const handlePositionSelect = useCallback((position: PositionType) => {
     setSelectedPosition(position);
@@ -132,15 +143,23 @@ const SellOrder: FC<SellOrderProps> = ({ duelId }) => {
     }
 
     try {
-      const response = await baseApiClient.post(`${SERVER_CONFIG.API_URL}/bets/sell`, {
+      const result = await sellOrder();
+      console.log('Sell order result:', result);
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to place sell order');
+      }
+
+      // Update backend
+      await baseApiClient.post(`${SERVER_CONFIG.API_URL}/betOption/sell`, {
         duelId,
         address,
         position: selectedPosition,
         amount,
         price,
         betOptionId,
+        // amount: result.amount,
+        sellId: result.sellId,
       });
-      console.log('Sell order placed:', response.data);
 
       setAmount('');
       setPrice('0');
@@ -151,11 +170,30 @@ const SellOrder: FC<SellOrderProps> = ({ duelId }) => {
       setBetOptionId('');
 
       getBets();
+
+      toast({
+        title: 'Success',
+        description: 'Sell order placed successfully',
+      });
     } catch (error) {
       console.error('Error placing sell order:', error);
-      setError('Failed to place sell order');
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to place sell order',
+        variant: 'destructive',
+      });
     }
-  }, [selectedPosition, selectedBet, amount, price, betOptionId, duelId, address]);
+  }, [
+    selectedPosition,
+    selectedBet,
+    amount,
+    price,
+    betOptionId,
+    duelId,
+    address,
+    sellOrder,
+    toast,
+  ]);
 
   const getBets = useCallback(async () => {
     try {
@@ -166,8 +204,13 @@ const SellOrder: FC<SellOrderProps> = ({ duelId }) => {
       setBetsData(response.data.bets[0].options);
     } catch (error) {
       console.error('Error fetching bet:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to fetch your bets',
+        variant: 'destructive',
+      });
     }
-  }, [duelId, address]);
+  }, [duelId, address, toast]);
 
   const handleBetSelect = useCallback((bet: OptionBetType) => {
     const position = bet.index === 0 ? POSITION_TYPE.YES : POSITION_TYPE.NO;
@@ -192,19 +235,16 @@ const SellOrder: FC<SellOrderProps> = ({ duelId }) => {
   return (
     <Card className="bg-transparent border-none space-y-6">
       <CardContent className="p-0 space-y-6">
-        {/* YES/NO Buttons */}
         <PositionSelector
           selectedPosition={selectedPosition}
           onPositionSelect={handlePositionSelect}
         />
 
-        {/* Price per share */}
         <div className="flex justify-between px-1">
           <Label className="text-zinc-500 text-sm">$/share</Label>
           <Label className="text-zinc-500 text-sm">$/share</Label>
         </div>
 
-        {/* Form Inputs */}
         <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="quantity" className="text-zinc-400">
@@ -247,7 +287,6 @@ const SellOrder: FC<SellOrderProps> = ({ duelId }) => {
           </div>
         </div>
 
-        {/* Your Bets */}
         <Card className="bg-transparent border-none">
           <CardHeader className="px-0 py-2">
             <CardTitle className="text-gray-400 text-base font-normal">Your Bets</CardTitle>
@@ -275,19 +314,43 @@ const SellOrder: FC<SellOrderProps> = ({ duelId }) => {
           </CardContent>
         </Card>
 
-        {/* Action Button */}
         <Button
           onClick={handlePlaceOrder}
-          disabled={!isFormValid}
+          disabled={!isFormValid || status !== TRANSACTION_STATUS.IDLE}
           className={cn(
             'w-full py-6 text-lg font-medium',
-            isFormValid
+            isFormValid && status === TRANSACTION_STATUS.IDLE
               ? 'bg-[#F19ED2] hover:bg-[#F19ED2]/90 text-white'
               : 'bg-zinc-800 text-zinc-400',
           )}
         >
-          Sell Bet
+          {status === TRANSACTION_STATUS.CHECKING_ALLOWANCE && 'Checking Allowance...'}
+          {status === TRANSACTION_STATUS.APPROVAL_NEEDED && 'Approval Needed...'}
+          {status === TRANSACTION_STATUS.APPROVAL_MINING && 'Approving...'}
+          {status === TRANSACTION_STATUS.APPROVAL_COMPLETE && 'Approved! Creating Order...'}
+          {status === TRANSACTION_STATUS.CREATING_DUEL && 'Creating Order...'}
+          {status === TRANSACTION_STATUS.DUEL_MINING && 'Confirming Order...'}
+          {status === TRANSACTION_STATUS.DUEL_COMPLETE && 'Order Complete!'}
+          {status === TRANSACTION_STATUS.FAILED && 'Failed - Try Again'}
+          {status === TRANSACTION_STATUS.IDLE && 'Sell Bet'}
         </Button>
+
+        {/* Loading Indicators */}
+        {(isApprovalMining || isSellMining) && (
+          <div className="text-center text-sm text-gray-400">
+            {isApprovalMining && (
+              <p>Approving token transfer... Please wait for the transaction to be confirmed.</p>
+            )}
+            {isSellMining && (
+              <p>Creating sell order... Please wait for the transaction to be confirmed.</p>
+            )}
+          </div>
+        )}
+
+        {/* Error Display */}
+        {status === TRANSACTION_STATUS.FAILED && error && (
+          <p className="text-center text-sm text-red-500 mt-2">{error}</p>
+        )}
       </CardContent>
     </Card>
   );

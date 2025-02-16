@@ -27,7 +27,13 @@ export const OrderItem: React.FC<OrderItemProps> = ({ price, amount, type, onBuy
           onClick={onBuy}
           variant="outline"
           size="sm"
-          className="h-7 px-4 hover:bg-white/5 hover:text-white"
+          className={cn(
+            'h-7 px-4 bg-transparent border border-neutral-700',
+            'text-neutral-300 hover:text-white',
+            'hover:bg-neutral-800 hover:border-neutral-600',
+            'transition-colors duration-200',
+            type === 'YES' ? 'hover:border-[#95DE64]/50' : 'hover:border-red-500/50',
+          )}
         >
           BUY
         </Button>

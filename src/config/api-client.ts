@@ -12,24 +12,29 @@ class AxiosClient {
       baseURL,
     });
 
-    // Request interceptor to add auth token on every POST request.
+    // Request interceptor to add auth token for all requests
     this.axiosInstance.interceptors.request.use(
       (config) => {
-        if (config.method?.toLowerCase() === 'post') {
-          const address = (config.data?.userAddress as string) || (config.data?.address as string);
+        // Get address from request data or params
+        let address: string | undefined;
 
-          if (address) {
-            // Retrieve and set the bearer token
-            const token = localStorage.getItem(`Bearer_${address.toLowerCase()}`);
-            if (token) {
-              config.headers['Authorization'] = `Bearer ${token}`;
-            }
+        if (config.method?.toLowerCase() === 'get') {
+          address = config.params?.address || config.params?.userAddress;
+        } else {
+          address = config.data?.address || config.data?.userAddress;
+        }
 
-            // Set the signing key if available
-            const signingKey = localStorage.getItem(`signingKey_${address.toLowerCase()}`);
-            if (signingKey) {
-              config.headers['X-Signing-Key'] = signingKey;
-            }
+        if (address) {
+          // Retrieve and set the bearer token
+          const token = localStorage.getItem(`Bearer_${address.toLowerCase()}`);
+          if (token) {
+            config.headers['Authorization'] = `Bearer ${token}`;
+          }
+
+          // Set the signing key if available
+          const signingKey = localStorage.getItem(`signingKey_${address.toLowerCase()}`);
+          if (signingKey) {
+            config.headers['X-Signing-Key'] = signingKey;
           }
         }
         return config;

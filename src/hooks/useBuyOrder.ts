@@ -5,37 +5,45 @@ import { SEI_TESTNET_CHAIN_ID, TRANSACTION_STATUS } from '@/constants/app';
 import { useToast } from '@/shadcn/components/ui/use-toast';
 import { useState } from 'react';
 import { Hex } from 'viem';
-import { usePublicClient, useReadContract, useWriteContract } from 'wagmi';
+import { usePublicClient, useWriteContract } from 'wagmi';
 
 interface UseBuyOrderReturn {
-  buyOrder: (sellId: number) => Promise<{ success: boolean; error?: string }>;
+  buyOrder: (
+    sellId: number,
+    index: number,
+    betOptionIndex: number,
+  ) => Promise<{ success: boolean; error?: string }>;
   txHash?: Hex;
   status: string;
   error: string | null;
   isReading: boolean;
 }
 
-const useBuyOrder = (duelId: string, betOptionIndex: number): UseBuyOrderReturn => {
+const useBuyOrder = (duelId: string): UseBuyOrderReturn => {
   const [txHash, setTxHash] = useState<Hex | undefined>(undefined);
   const [status, setStatus] = useState<string>(TRANSACTION_STATUS.IDLE);
   const [error, setError] = useState<string | null>(null);
 
   const { toast } = useToast();
   const publicClient = usePublicClient();
-
-  const { data: optionTokenAddress, isLoading: isReading } = useReadContract({
-    abi: FlashDuelsViewFacetABI,
-    functionName: 'getOptionIndexToOptionToken',
-    address: SERVER_CONFIG.DIAMOND as Hex,
-    chainId: SEI_TESTNET_CHAIN_ID,
-    args: [duelId, betOptionIndex],
-  });
-
   const { writeContractAsync } = useWriteContract();
-  const buyOrder = async (sellId: number): Promise<{ success: boolean; error?: string }> => {
+
+  const buyOrder = async (
+    sellId: number,
+    index: number,
+    betOptionIndex: number,
+  ): Promise<{ success: boolean; error?: string }> => {
     try {
       setStatus(TRANSACTION_STATUS.PENDING);
       setError(null);
+
+      // Get option token address using publicClient instead of hook
+      const optionTokenAddress = await publicClient?.readContract({
+        abi: FlashDuelsViewFacetABI,
+        functionName: 'getOptionIndexToOptionToken',
+        address: SERVER_CONFIG.DIAMOND as Hex,
+        args: [duelId, index],
+      });
 
       if (!optionTokenAddress) {
         throw new Error('Option token address not available');
@@ -46,7 +54,13 @@ const useBuyOrder = (duelId: string, betOptionIndex: number): UseBuyOrderReturn 
         address: SERVER_CONFIG.DIAMOND as Hex,
         functionName: 'buy',
         chainId: SEI_TESTNET_CHAIN_ID,
-        args: [optionTokenAddress, duelId, betOptionIndex, sellId],
+        args: [
+          optionTokenAddress,
+          duelId,
+          betOptionIndex,
+          [sellId], // Array of sale IDs
+          [1], // Array of amounts (assuming 1 for now, adjust as needed)
+        ],
       });
 
       if (!tx) {
@@ -89,7 +103,7 @@ const useBuyOrder = (duelId: string, betOptionIndex: number): UseBuyOrderReturn 
     txHash,
     status,
     error,
-    isReading,
+    isReading: false,
   };
 };
 

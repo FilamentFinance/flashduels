@@ -3,6 +3,7 @@
 import { baseApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
 import useBuyOrder from '@/hooks/useBuyOrder';
+import { useTotalBets } from '@/hooks/useTotalBets';
 import { useToast } from '@/shadcn/components/ui/use-toast';
 import { NewDuelItem, OptionBetType } from '@/types/dual';
 import { ArrowLeft } from 'lucide-react';
@@ -12,7 +13,6 @@ import Header from './header';
 import OrderBook from './order-book';
 import { OrdersTable } from './orders/OrdersTable';
 import PlaceOrder from './place-order';
-import { useTotalBets } from '@/hooks/useTotalBets';
 
 const LoadingSkeleton = () => (
   <div className=" mx-auto p-4 animate-pulse">
@@ -77,7 +77,7 @@ const Bet: FC = () => {
   const [yesBets, setYesBets] = useState<OptionBetType[]>([]);
   const [noBets, setNoBets] = useState<OptionBetType[]>([]);
 
-  const { buyOrder, txHash } = useBuyOrder(id ?? '', 0);
+  const { buyOrder, txHash } = useBuyOrder(id ?? '');
   const { toast } = useToast();
 
   const fetchDuel = async () => {
@@ -161,10 +161,10 @@ const Bet: FC = () => {
     sellId: number,
     amount: string,
   ) => {
-    const result = await buyOrder(sellId);
+    const result = await buyOrder(sellId, index, index);
+
     if (result.success) {
       console.log('Buy order successful!', txHash);
-      // Optionally refresh your order book or notify the user.
 
       const response = await baseApiClient.post(`${SERVER_CONFIG.API_URL}/betOption/buy`, {
         duelId: id,

@@ -1,29 +1,40 @@
-import { useToast } from '@/shadcn/components/ui/use-toast';
-import { useState } from 'react';
-import { decodeEventLog, formatUnits, Hex, Log, parseUnits } from 'viem';
-import { usePublicClient, useReadContract, useWriteContract } from 'wagmi';
-
 import { FlashDuelsMarketplaceFacet } from '@/abi/FlashDuelsMarketplaceFacet';
 import { FlashDuelsViewFacetABI } from '@/abi/FlashDuelsViewFacet';
+import { OptionTokenABI } from '@/abi/OptionToken';
 import { SERVER_CONFIG } from '@/config/server-config';
 import { SEI_TESTNET_CHAIN_ID, TRANSACTION_STATUS } from '@/constants/app';
+import { useToast } from '@/shadcn/components/ui/use-toast';
+import { TransactionStatusType } from '@/types/app';
+import { useState } from 'react';
+import type { Hex } from 'viem';
+import { decodeEventLog, formatUnits, parseUnits } from 'viem';
+import {
+  useAccount,
+  usePublicClient,
+  useReadContract,
+  useWaitForTransactionReceipt,
+  useWriteContract,
+} from 'wagmi';
 
 interface UseSellOrderReturn {
   sellOrder: () => Promise<{ success: boolean; sellId?: number; amount?: number; error?: string }>;
   txHash?: Hex;
-  status: string;
+  status: TransactionStatusType;
   error: string | null;
   isReading: boolean;
+  approvalHash?: Hex;
+  isApprovalMining: boolean;
+  isSellMining: boolean;
 }
 
-type SaleCreatedEventArgs = [
-  saleId: bigint,
-  seller: Hex,
-  token: Hex,
-  quantity: bigint,
-  totalPrice: bigint,
-  saleTime: bigint,
-];
+type SaleCreatedEventArgs = {
+  saleId: bigint;
+  seller: Hex;
+  token: Hex;
+  quantity: bigint;
+  totalPrice: bigint;
+  saleTime: bigint;
+};
 
 const useSellOrder = (
   duelId: string,
@@ -32,9 +43,11 @@ const useSellOrder = (
   price: string,
 ): UseSellOrderReturn => {
   const [txHash, setTxHash] = useState<Hex | undefined>(undefined);
-  const [status, setStatus] = useState<string>(TRANSACTION_STATUS.IDLE);
+  const [approvalHash, setApprovalHash] = useState<Hex | undefined>(undefined);
+  const [status, setStatus] = useState<TransactionStatusType>(TRANSACTION_STATUS.IDLE);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+  const { address } = useAccount();
   const publicClient = usePublicClient();
 
   const { data: optionTokenAddress, isLoading: isReading } = useReadContract({
@@ -45,7 +58,60 @@ const useSellOrder = (
     args: [duelId, optionIndex],
   });
 
+  const { writeContractAsync: approveAsync } = useWriteContract();
   const { writeContractAsync: sellAsync } = useWriteContract();
+
+  // Watch approval transaction
+  const { isLoading: isApprovalMining } = useWaitForTransactionReceipt({
+    hash: approvalHash,
+    chainId: SEI_TESTNET_CHAIN_ID,
+  });
+
+  // Watch sell transaction
+  const { isLoading: isSellMining } = useWaitForTransactionReceipt({
+    hash: txHash,
+    chainId: SEI_TESTNET_CHAIN_ID,
+  });
+
+  const handleError = (error: unknown) => {
+    let message: string;
+    let type: string = 'unknown';
+
+    if (error instanceof Error) {
+      message = error.message;
+      // Check for user rejection
+      if (message.includes('User rejected') || message.includes('User denied')) {
+        type = 'user_rejected';
+      }
+    } else if (typeof error === 'string') {
+      message = error;
+    } else {
+      message = 'An unknown error occurred';
+    }
+
+    console.error('Sell order error:', { message, type });
+    setError(message);
+    setStatus(TRANSACTION_STATUS.FAILED);
+    toast({
+      title: type === 'user_rejected' ? 'Transaction rejected' : 'Error',
+      description: message,
+      variant: 'destructive',
+    });
+    return { success: false, error: message };
+  };
+
+  const waitForTransaction = async (hash: Hex): Promise<boolean> => {
+    try {
+      const receipt = await publicClient?.waitForTransactionReceipt({
+        hash,
+        confirmations: 1,
+      });
+      return receipt?.status === 'success';
+    } catch (error) {
+      console.error('Error waiting for transaction:', error);
+      return false;
+    }
+  };
 
   const sellOrder = async (): Promise<{
     success: boolean;
@@ -56,78 +122,136 @@ const useSellOrder = (
     try {
       setStatus(TRANSACTION_STATUS.PENDING);
       setError(null);
-      if (!optionTokenAddress) {
-        throw new Error('Option token address not available');
+      setTxHash(undefined);
+      setApprovalHash(undefined);
+
+      if (!optionTokenAddress || !address) {
+        throw new Error('Option token address or user address not available');
       }
-      const quantityInWei = parseUnits(quantity, 18).toString();
-      const totalValue = Number(price) * Number(quantity);
-      const totalUSDCFormatted = parseUnits(totalValue.toString(), 6).toString();
-      const tx = await sellAsync({
+
+      // Convert quantity to wei (18 decimals)
+      const quantityInWei = parseUnits(quantity, 18);
+
+      // Calculate total value in USDC (6 decimals)
+      const totalValue = parseUnits((Number(price) * Number(quantity)).toString(), 6);
+
+      // Check current allowance
+      const allowanceResult = await publicClient?.readContract({
+        address: optionTokenAddress as Hex,
+        abi: OptionTokenABI,
+        functionName: 'allowance',
+        args: [address, SERVER_CONFIG.DIAMOND],
+      });
+
+      if (!allowanceResult) {
+        throw new Error('Failed to check token allowance');
+      }
+
+      const allowance = BigInt(allowanceResult.toString());
+
+      // Only request approval if current allowance is insufficient
+      if (allowance < quantityInWei) {
+        setStatus(TRANSACTION_STATUS.APPROVAL_NEEDED);
+        const approveTx = await approveAsync({
+          abi: OptionTokenABI,
+          address: optionTokenAddress as Hex,
+          functionName: 'approve',
+          chainId: SEI_TESTNET_CHAIN_ID,
+          args: [SERVER_CONFIG.DIAMOND, quantityInWei],
+        });
+
+        if (!approveTx) {
+          throw new Error('Failed to approve token transfer');
+        }
+
+        setApprovalHash(approveTx);
+        setStatus(TRANSACTION_STATUS.APPROVAL_MINING);
+
+        const isApprovalSuccess = await waitForTransaction(approveTx);
+        if (!isApprovalSuccess) {
+          throw new Error('Token approval failed');
+        }
+
+        setStatus(TRANSACTION_STATUS.APPROVAL_COMPLETE);
+        toast({
+          title: 'Approval Successful',
+          description: 'Creating sell order...',
+        });
+      }
+
+      // Execute the sell
+      setStatus(TRANSACTION_STATUS.CREATING_DUEL);
+      const sellTx = await sellAsync({
         abi: FlashDuelsMarketplaceFacet,
         address: SERVER_CONFIG.DIAMOND as Hex,
         functionName: 'sell',
         chainId: SEI_TESTNET_CHAIN_ID,
-        args: [optionTokenAddress, duelId, optionIndex, quantityInWei, totalUSDCFormatted],
+        args: [optionTokenAddress, duelId, optionIndex, quantityInWei, totalValue],
       });
-      if (!tx) {
+
+      if (!sellTx) {
         throw new Error('Transaction failed to send');
       }
-      setTxHash(tx);
+
+      setTxHash(sellTx);
+      setStatus(TRANSACTION_STATUS.DUEL_MINING);
+
       const receipt = await publicClient?.waitForTransactionReceipt({
-        hash: tx,
+        hash: sellTx,
         confirmations: 1,
       });
+
       if (receipt?.status !== 'success') {
         throw new Error('Transaction did not succeed');
       }
 
-      let sellId: number | undefined;
-      let amountFilled: number | undefined;
-
-      const saleCreatedEvent = receipt.logs.find((log: Log) => {
+      // Find and decode the SaleCreated event
+      for (const log of receipt.logs) {
         try {
-          const event = decodeEventLog({
-            abi: FlashDuelsMarketplaceFacet,
-            data: log.data,
-            topics: log.topics,
-          });
-          return event.eventName === 'SaleCreated';
-        } catch {
-          return false;
-        }
-      });
+          // Check if this log is from our contract
+          if (log.address.toLowerCase() === SERVER_CONFIG.DIAMOND.toLowerCase()) {
+            const decodedEvent = decodeEventLog({
+              abi: FlashDuelsMarketplaceFacet,
+              data: log.data,
+              topics: log.topics,
+            });
 
-      if (saleCreatedEvent) {
-        const decodedEvent = decodeEventLog({
-          abi: FlashDuelsMarketplaceFacet,
-          data: saleCreatedEvent.data,
-          topics: saleCreatedEvent.topics,
-        });
+            if (decodedEvent.eventName === 'SaleCreated') {
+              console.log('Found SaleCreated event:', decodedEvent);
 
-        if (decodedEvent.eventName === 'SaleCreated') {
-          const [saleIdBigInt, , , , totalPriceBigInt] = decodedEvent.args as SaleCreatedEventArgs;
-          sellId = Number(saleIdBigInt);
-          amountFilled = Number(formatUnits(totalPriceBigInt, 6));
+              // Cast the event args to our expected type
+              const args = decodedEvent.args as unknown as SaleCreatedEventArgs;
+              const { saleId, totalPrice } = args;
+
+              if (!saleId || !totalPrice) {
+                console.error('Required event args are missing:', { saleId, totalPrice });
+                continue;
+              }
+
+              const amountFilled = Number(formatUnits(totalPrice, 6));
+
+              setStatus(TRANSACTION_STATUS.DUEL_COMPLETE);
+              toast({
+                title: 'Success',
+                description: 'Sell order placed successfully.',
+              });
+
+              return {
+                success: true,
+                sellId: Number(saleId),
+                amount: amountFilled,
+              };
+            }
+          }
+        } catch (error) {
+          console.error('Error decoding log:', error);
+          continue;
         }
       }
 
-      setStatus(TRANSACTION_STATUS.SUCCESS);
-      toast({
-        title: 'Sell Order Placed',
-        description: 'Sell order placed successfully.',
-      });
-      return { success: true, sellId, amount: amountFilled };
+      throw new Error('SaleCreated event not found in transaction logs');
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
-      console.error(errorMessage);
-      setError(errorMessage);
-      setStatus(TRANSACTION_STATUS.FAILED);
-      toast({
-        title: 'Error',
-        description: errorMessage,
-        variant: 'destructive',
-      });
-      return { success: false, error: errorMessage };
+      return handleError(err);
     }
   };
 
@@ -137,6 +261,9 @@ const useSellOrder = (
     status,
     error,
     isReading,
+    approvalHash,
+    isApprovalMining,
+    isSellMining,
   };
 };
 

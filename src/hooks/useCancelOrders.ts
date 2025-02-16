@@ -1,43 +1,48 @@
+import { FlashDuelsMarketplaceFacet } from '@/abi/FlashDuelsMarketplaceFacet';
+import { FlashDuelsViewFacetABI } from '@/abi/FlashDuelsViewFacet';
+import { SERVER_CONFIG } from '@/config/server-config';
 import { SEI_TESTNET_CHAIN_ID, TRANSACTION_STATUS } from '@/constants/app';
 import { useToast } from '@/shadcn/components/ui/use-toast';
 import { useState } from 'react';
 import { Hex } from 'viem';
-import { usePublicClient, useReadContract, useWriteContract } from 'wagmi';
-import { FlashDuelsMarketplaceFacet } from '@/abi/FlashDuelsMarketplaceFacet';
-import { FlashDuelsViewFacetABI } from '@/abi/FlashDuelsViewFacet';
-import { SERVER_CONFIG } from '@/config/server-config';
+import { usePublicClient, useWriteContract } from 'wagmi';
 
 interface UseOrderReturn {
-  cancelSell: (sellId: number) => Promise<{ success: boolean; error?: string }>;
+  cancelSell: (
+    duelId: string,
+    betOptionIndex: number,
+    sellId: number,
+  ) => Promise<{ success: boolean; error?: string }>;
   txHash?: Hex;
   status: string;
   error: string | null;
-  isReading: boolean;
 }
 
-const useOrder = (duelId: string, betOptionIndex: number): UseOrderReturn => {
+const useCancelOrder = (): UseOrderReturn => {
   const [txHash, setTxHash] = useState<Hex | undefined>(undefined);
   const [status, setStatus] = useState<string>(TRANSACTION_STATUS.IDLE);
   const [error, setError] = useState<string | null>(null);
 
   const { toast } = useToast();
   const publicClient = usePublicClient();
-
-  // Read the option token address for this duel and bet option.
-  const { data: optionTokenAddress, isLoading: isReading } = useReadContract({
-    abi: FlashDuelsViewFacetABI,
-    functionName: 'getOptionIndexToOptionToken',
-    address: SERVER_CONFIG.DIAMOND as Hex,
-    chainId: SEI_TESTNET_CHAIN_ID,
-    args: [duelId, betOptionIndex],
-  });
-
   const { writeContractAsync } = useWriteContract();
 
-  const cancelSell = async (sellId: number): Promise<{ success: boolean; error?: string }> => {
+  const cancelSell = async (
+    duelId: string,
+    betOptionIndex: number,
+    sellId: number,
+  ): Promise<{ success: boolean; error?: string }> => {
     try {
       setStatus(TRANSACTION_STATUS.PENDING);
       setError(null);
+
+      // Get the option token address
+      const optionTokenAddress = await publicClient?.readContract({
+        abi: FlashDuelsViewFacetABI,
+        address: SERVER_CONFIG.DIAMOND as Hex,
+        functionName: 'getOptionIndexToOptionToken',
+        args: [duelId, betOptionIndex],
+      });
 
       if (!optionTokenAddress) {
         throw new Error('Option token address not available');
@@ -93,8 +98,7 @@ const useOrder = (duelId: string, betOptionIndex: number): UseOrderReturn => {
     txHash,
     status,
     error,
-    isReading,
   };
 };
 
-export default useOrder;
+export default useCancelOrder;
