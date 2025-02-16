@@ -93,3 +93,43 @@ export interface OrderData {
   betOptionIndex: number;
   sellId: number;
 }
+
+type TableDuel = {
+  pnl: number;
+  betId: string | null;
+  duelId: string;
+  duelType: string;
+  totalBetAmount: string;
+  yesBet: {
+    amount: string;
+    price: string;
+    quantity: string;
+  };
+  noBet: {
+    quantity: string;
+    amount: string;
+    price: string;
+  };
+  duelDetails: {
+    id: string;
+    createdAt: number;
+    startAt: number;
+    betString?: string;
+    token: string;
+    category: string;
+    markPrice: string;
+    status: number;
+    triggerPrice: string;
+    minimumWager: string;
+    winCondition: number;
+    duelType: string;
+    endsIn: number;
+    duelId: string;
+    betIcon: string;
+    winner: number; // -1 indicates no winner yet
+    betId: string | null;
+    userId: string;
+  };
+};
+
+export type ActiveDuels = TableDuel[];

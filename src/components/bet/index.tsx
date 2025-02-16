@@ -9,6 +9,7 @@ import Header from './header';
 import OrderBook from './order-book';
 import { OrdersTable } from './orders/OrdersTable';
 import PlaceOrder from './place-order';
+import { SERVER_CONFIG } from '@/config/server-config';
 
 const LoadingSkeleton = () => (
   <div className="container max-w-screen-xl mx-auto p-4 animate-pulse">
@@ -75,7 +76,7 @@ const Bet: FC = () => {
   const [yesBets, setYesBets] = useState<OptionBetType[]>([]);
   const [noBets, setNoBets] = useState<OptionBetType[]>([]);
   useEffect(() => {
-    const socket = new WebSocket(`${process.env.NEXT_PUBLIC_WS_URL}/betWebSocket?duelId=${id}`);
+    const socket = new WebSocket(`${SERVER_CONFIG.API_WS_URL}/betWebSocket?duelId=${id}`);
 
     socket.onopen = function () {
       console.log('Connected to the WebSocket server');
@@ -111,7 +112,7 @@ const Bet: FC = () => {
     try {
       setLoading(true);
       const response = await baseApiClient.get(
-        `${process.env.NEXT_PUBLIC_API}/duels/get-duel-by-id/${id}`,
+        `${SERVER_CONFIG.API_URL}/duels/get-duel-by-id/${id}`,
       );
       setDuel(response.data);
       setError(null);

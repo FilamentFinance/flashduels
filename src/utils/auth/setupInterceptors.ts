@@ -1,5 +1,6 @@
 'use client';
 
+import { SERVER_CONFIG } from '@/config/server-config';
 import axios from 'axios';
 
 let requestInterceptor: number | null = null;
@@ -7,7 +8,7 @@ let responseInterceptor: number | null = null;
 
 // Create a single axios instance
 const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: SERVER_CONFIG.API_URL,
 });
 
 export const isUserAuthenticated = (address: string): boolean => {

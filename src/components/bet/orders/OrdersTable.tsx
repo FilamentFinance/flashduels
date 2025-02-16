@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useAccount } from 'wagmi';
 import { OrderRow } from './OrderRow';
 import { TableHeader } from './TableHeader';
+import { SERVER_CONFIG } from '@/config/server-config';
 
 export const OrdersTable = ({ duelId }: { duelId: string }) => {
   const [openOrders, setOpenOrders] = React.useState<OrderData[]>([]);
@@ -16,9 +17,7 @@ export const OrdersTable = ({ duelId }: { duelId: string }) => {
     }
 
     // Create a WebSocket connection with headers
-    const socket = new WebSocket(
-      `${process.env.NEXT_PUBLIC_API_WS}/openOrdersWebSocket?token=${token}`,
-    );
+    const socket = new WebSocket(`${SERVER_CONFIG.API_WS_URL}/openOrdersWebSocket?token=${token}`);
 
     socket.onopen = function () {
       console.log('Connected to the WebSocket server');

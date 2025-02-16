@@ -18,7 +18,7 @@ const Leaderboard: FC = () => {
       setIsLoading(true);
       setIsError(false);
       const response = await baseApiClient.get(
-        `flashduels/leaderboard/${activeTab === LEADERBOARD_TABS.CREATORS ? 'creators' : 'traders'}`,
+        `/leaderboard/${activeTab === LEADERBOARD_TABS.CREATORS ? 'creators' : 'traders'}`,
       );
       setData(response.data.userProfits);
     } catch (error) {

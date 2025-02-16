@@ -1,4 +1,5 @@
 import { baseApiClient } from '@/config/api-client';
+import { SERVER_CONFIG } from '@/config/server-config';
 import useOrder from '@/hooks/useOrders';
 import { useToast } from '@/shadcn/components/ui/use-toast';
 import { OrderData } from '@/types/dual';
@@ -25,7 +26,7 @@ export const OrderRow: React.FC<OrderRowProps> = ({ order, duelId }) => {
     }
 
     const result = await cancelSell(order.sellId);
-    const response = await baseApiClient.delete(`${process.env.NEXT_PUBLIC_API}/betOption/cancel`, {
+    const response = await baseApiClient.delete(`${SERVER_CONFIG.API_URL}/betOption/cancel`, {
       data: {
         betOptionMarketId: order.id,
         duelId,

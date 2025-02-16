@@ -108,7 +108,7 @@ const Duels: FC = () => {
     setError(null);
 
     try {
-      const response = await baseApiClient.post(`/flashduels/portfolio/duels`, {
+      const response = await baseApiClient.post(`/portfolio/duels`, {
         userAddress: address.toLowerCase(),
       });
 
@@ -192,35 +192,38 @@ const Duels: FC = () => {
   }
 
   return (
-    <div className="w-full rounded-lg border border-gray-800 bg-zinc-900">
-      <div className="max-h-[500px] overflow-auto">
-        <Table>
-          <TableHeader className="sticky top-0 bg-zinc-900 z-10">
-            <TableRow className="hover:bg-transparent border-gray-800">
-              <TableHead className="text-gray-400 font-medium">Duel</TableHead>
-              <TableHead className="text-gray-400 font-medium">Type</TableHead>
-              <TableHead className="text-gray-400 font-medium">Status</TableHead>
-              <TableHead className="text-gray-400 font-medium">Time Left</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {duels.map((duel, index) => (
-              <TableRow key={index} className="border-gray-800 hover:bg-gray-900/50">
-                <TableCell className="flex items-center gap-3 font-medium text-gray-100">
-                  <TokenIcon token={duel.token} imageSrc={duel.imageSrc} />
-                  {duel.title}
-                </TableCell>
-                <TableCell className="text-gray-300">{duel.duelType}</TableCell>
-                <TableCell>
-                  <StatusBadge status={duel.status} />
-                </TableCell>
-                <TableCell className="text-gray-300 font-mono">
-                  {formatDuration(duel.timeLeft)}
-                </TableCell>
+    <div className="w-full">
+      <h1>Your Duels</h1>
+      <div className="w-full rounded-lg border border-gray-800 bg-zinc-900">
+        <div className="max-h-[500px] overflow-auto">
+          <Table>
+            <TableHeader className="sticky top-0 bg-zinc-900 z-10">
+              <TableRow className="hover:bg-transparent border-gray-800">
+                <TableHead className="text-gray-400 font-medium">Duel</TableHead>
+                <TableHead className="text-gray-400 font-medium">Type</TableHead>
+                <TableHead className="text-gray-400 font-medium">Status</TableHead>
+                <TableHead className="text-gray-400 font-medium">Time Left</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {duels.map((duel, index) => (
+                <TableRow key={index} className="border-gray-800 hover:bg-gray-900/50">
+                  <TableCell className="flex items-center gap-3 font-medium text-gray-100">
+                    <TokenIcon token={duel.token} imageSrc={duel.imageSrc} />
+                    {duel.title}
+                  </TableCell>
+                  <TableCell className="text-gray-300">{duel.duelType}</TableCell>
+                  <TableCell>
+                    <StatusBadge status={duel.status} />
+                  </TableCell>
+                  <TableCell className="text-gray-300 font-mono">
+                    {formatDuration(duel.timeLeft)}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </div>
     </div>
   );

@@ -14,6 +14,7 @@ import Link from 'next/link';
 import { FC, useEffect, useState } from 'react';
 import { privateKeyToAccount } from 'viem/accounts';
 import { useAccount, useDisconnect, useSignMessage } from 'wagmi';
+import { SERVER_CONFIG } from '@/config/server-config';
 
 interface WalletError extends Error {
   code: number;
@@ -97,7 +98,7 @@ const EnableTrading: FC = () => {
         localStorage.setItem(`signingKeyExpiry_${address.toLowerCase()}`, expiry);
 
         // Make API call to backend
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API}/users/auth`, {
+        const response = await fetch(`${SERVER_CONFIG.API_URL}/users/auth`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
