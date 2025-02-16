@@ -193,12 +193,12 @@ const Duels: FC = () => {
 
   return (
     <div className="w-full">
-      <h1>Your Duels</h1>
-      <div className="w-full rounded-lg border border-gray-800 bg-zinc-900">
+      <h1 className="text-xl p-2">Your Duels</h1>
+      <div className="w-full rounded-lg border border-neutral-800 shadow-sm bg-neutral-900">
         <div className="max-h-[500px] overflow-auto">
           <Table>
-            <TableHeader className="sticky top-0 bg-zinc-900 z-10">
-              <TableRow className="hover:bg-transparent border-gray-800">
+            <TableHeader className="sticky top-0 bg-neutral-900 z-10">
+              <TableRow className="hover:bg-transparent border-neutral-800">
                 <TableHead className="text-gray-400 font-medium">Duel</TableHead>
                 <TableHead className="text-gray-400 font-medium">Type</TableHead>
                 <TableHead className="text-gray-400 font-medium">Status</TableHead>
@@ -207,7 +207,7 @@ const Duels: FC = () => {
             </TableHeader>
             <TableBody>
               {duels.map((duel, index) => (
-                <TableRow key={index} className="border-gray-800 hover:bg-gray-900/50">
+                <TableRow key={index} className="border-neutral-800 hover:bg-neutral-800/50">
                   <TableCell className="flex items-center gap-3 font-medium text-gray-100">
                     <TokenIcon token={duel.token} imageSrc={duel.imageSrc} />
                     {duel.title}

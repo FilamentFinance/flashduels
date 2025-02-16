@@ -3,11 +3,6 @@ import { useToast } from '@/shadcn/components/ui/use-toast';
 import { useState } from 'react';
 import { Hex } from 'viem';
 import { usePublicClient, useReadContract, useWriteContract } from 'wagmi';
-
-// Replace these imports with your actual ABI files and constants.
-// import { FLASHDUELS_VIEWFACET } from '@/abi/FlashDuelsViewFacet';
-// import { FLASHDUELS_MARKETPLACE } from '@/abi/FlashDuelsMarketplaceFacet';
-// import { NEXT_PUBLIC_DIAMOND, CHAIN_ID } from '@/constants';
 import { FlashDuelsMarketplaceFacet } from '@/abi/FlashDuelsMarketplaceFacet';
 import { FlashDuelsViewFacetABI } from '@/abi/FlashDuelsViewFacet';
 import { SERVER_CONFIG } from '@/config/server-config';

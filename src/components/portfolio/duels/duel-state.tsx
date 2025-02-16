@@ -20,7 +20,7 @@ const stateConfig: Record<
   empty: {
     icon: Ban,
     defaultMessage: 'No duels available',
-    className: 'text-gray-500 bg-gray-500/10',
+    className: 'text-neutral-500 bg-neutral-500/10',
   },
   'no-wallet': {
     icon: Wallet,
@@ -33,12 +33,12 @@ export const DuelState: FC<DuelStateProps> = ({ type, message }) => {
   const { icon: Icon, defaultMessage, className } = stateConfig[type];
 
   return (
-    <div className="w-full rounded-lg border border-gray-800 bg-black">
+    <div className="w-full rounded-lg border border-neutral-800 shadow-sm bg-neutral-900">
       <div className="flex flex-col items-center justify-center p-8 text-center">
         <div className={`p-3 rounded-full mb-4 ${className}`}>
           <Icon className="w-6 h-6" />
         </div>
-        <p className="text-gray-400 text-sm">{message || defaultMessage}</p>
+        <p className="text-neutral-400 text-sm">{message || defaultMessage}</p>
       </div>
     </div>
   );

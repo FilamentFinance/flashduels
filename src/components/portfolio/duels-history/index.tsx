@@ -1,25 +1,33 @@
 'use client';
 
-import React, { FC } from 'react';
 import { baseApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
 import { ActiveDuels } from '@/types/dual';
+import React, { FC } from 'react';
 import { useAccount } from 'wagmi';
+import { DuelRow } from './duel-row';
 import { TabButton } from './tab-button';
 import { TableHeader } from './tab-header';
-import { DuelRow } from './duel-row';
+import { DuelState } from '../duels/duel-state';
+import { DuelShimmer } from '../duels/duel-shimmer';
 
 const DuelsHistory: FC = () => {
   const [activeTab, setActiveTab] = React.useState('duels');
   const [duels, setDuels] = React.useState<ActiveDuels>([]);
   const [history, setHistory] = React.useState<ActiveDuels>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
   const { address } = useAccount();
 
   const getDuelsData = async () => {
+    if (!address) return;
+
     try {
+      setLoading(true);
+      setError(null);
       const response = await baseApiClient.post(
         `${SERVER_CONFIG.API_URL}/portfolio/table/duels`,
-        { userAddress: address?.toLowerCase() },
+        { userAddress: address.toLowerCase() },
         {
           headers: {
             'Content-Type': 'application/json',
@@ -29,14 +37,21 @@ const DuelsHistory: FC = () => {
       setDuels(response.data);
     } catch (error) {
       console.error('Error fetching duels data:', error);
+      setError('Failed to fetch duels data. Please try again later.');
+    } finally {
+      setLoading(false);
     }
   };
 
   const getHistoryData = async () => {
+    if (!address) return;
+
     try {
+      setLoading(true);
+      setError(null);
       const response = await baseApiClient.post(
         `${SERVER_CONFIG.API_URL}/portfolio/table/history`,
-        { userAddress: address?.toLowerCase() },
+        { userAddress: address.toLowerCase() },
         {
           headers: {
             'Content-Type': 'application/json',
@@ -46,11 +61,18 @@ const DuelsHistory: FC = () => {
       setHistory(response.data);
     } catch (error) {
       console.error('Error fetching history data:', error);
+      setError('Failed to fetch history data. Please try again later.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Fetch data when activeTab changes or when address is available
   React.useEffect(() => {
+    if (!address) {
+      setLoading(false);
+      return;
+    }
+
     if (activeTab === 'duels') {
       getDuelsData();
     } else if (activeTab === 'history') {
@@ -59,6 +81,18 @@ const DuelsHistory: FC = () => {
   }, [activeTab, address]);
 
   const activeData = activeTab === 'duels' ? duels : history;
+
+  if (!address) {
+    return <DuelState type="no-wallet" />;
+  }
+
+  if (loading) {
+    return <DuelShimmer />;
+  }
+
+  if (error) {
+    return <DuelState type="error" message={error} />;
+  }
 
   return (
     <div className="flex flex-col min-h-[291px] w-full rounded-lg border border-neutral-800 shadow-sm bg-neutral-900">
@@ -144,11 +178,12 @@ const DuelsHistory: FC = () => {
               </React.Fragment>
             ))
           ) : (
-            <div className="text-center text-stone-400">No data available</div>
+            <DuelState type="empty" />
           )}
         </div>
       </div>
     </div>
   );
 };
+
 export default DuelsHistory;
