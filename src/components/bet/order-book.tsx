@@ -1,8 +1,10 @@
+import { Card, CardContent } from '@/shadcn/components/ui/card';
+import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/shadcn/components/ui/table';
 import { OptionBetType } from '@/types/dual';
 import { FC } from 'react';
 import { OrderItem } from './OrderItem';
 
-type Props = {
+interface OrderBookProps {
   yesBets: OptionBetType[];
   noBets: OptionBetType[];
   handleBuyOrders: (
@@ -12,102 +14,67 @@ type Props = {
     sellId: number,
     amount: string,
   ) => void;
-};
-const OrderBook: FC<Props> = ({ yesBets, noBets, handleBuyOrders }) => {
-  return (
-    <div className="flex overflow-hidden flex-wrap items-start py-1 mt-7 text-base tracking-normal rounded-xl border-2 border-solid bg-neutral-900 border-stone-900">
-      {/* Yes orders */}
-      {yesBets.length === 0 && noBets.length === 0 ? (
-        <span className="text-white flex items-center justify-center h-[441px] w-full">
-          No Open Orders
-        </span>
-      ) : (
-        <>
-          <div className="flex flex-col flex-1 self-stretch mt-2">
-            <div className="flex items-center w-full whitespace-nowrap text-stone-200">
-              <div className="flex gap-2.5 items-start self-stretch py-2 pl-3.5 my-auto border-b-2 border-stone-900 w-[97px]">
-                <div className="flex gap-2 items-start w-[139px]">
-                  <div className="flex flex-col w-[139px]">
-                    <div className="gap-1 self-stretch w-full text-ellipsis">Price</div>
-                  </div>
-                </div>
-              </div>
-              <div className="flex flex-1 shrink gap-2.5 items-start self-stretch py-2 my-auto border-b-2 basis-[13px] border-stone-900 min-w-[240px]">
-                <div className="flex gap-2 items-start w-[139px]">
-                  <div className="flex flex-col flex-1 shrink w-full basis-0">
-                    <div className="flex-1 shrink gap-1 self-stretch w-full text-ellipsis">
-                      Quantity
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="flex flex-col mt-1.5 w-full h-[388px]">
-              {yesBets.map((order: OptionBetType, index: number) => (
-                <OrderItem
-                  key={index}
-                  price={order.price}
-                  amount={order.quantity}
-                  type={'YES'}
-                  onBuy={() =>
-                    handleBuyOrders(
-                      order.id,
-                      order.quantity,
-                      order.betOption?.index as number,
-                      order.sellId,
-                      order.amount,
-                    )
-                  }
-                />
-              ))}
-            </div>
-          </div>
+}
 
-          <div className="shrink-0 w-0.5 border-2 border-solid border-stone-900 h-[441px]" />
+const OrderBook: FC<OrderBookProps> = ({ yesBets, noBets, handleBuyOrders }) => {
+  const renderOrders = (orders: OptionBetType[], type: 'YES' | 'NO') => (
+    <TableBody className="overflow-y-auto">
+      {orders.map((order, index) => (
+        <OrderItem
+          key={`${type}-${index}`}
+          price={order.price}
+          amount={order.quantity}
+          type={type}
+          onBuy={() =>
+            handleBuyOrders(
+              order.id,
+              order.quantity,
+              order.betOption?.index as number,
+              order.sellId,
+              order.amount,
+            )
+          }
+        />
+      ))}
+    </TableBody>
+  );
 
-          {/* No orders */}
-          <div className="flex flex-col flex-1 mt-2">
-            <div className="flex items-center w-full whitespace-nowrap text-stone-200">
-              <div className="flex gap-2.5 items-start self-stretch py-2 pl-3.5 my-auto border-b-2 border-stone-900 w-[97px]">
-                <div className="flex gap-2 items-start w-[139px]">
-                  <div className="flex flex-col w-[139px]">
-                    <div className="gap-1 self-stretch w-full text-ellipsis">Price</div>
-                  </div>
-                </div>
-              </div>
-              <div className="flex flex-1 shrink gap-2.5 items-start self-stretch py-2 my-auto border-b-2 basis-[13px] border-stone-900 min-w-[240px]">
-                <div className="flex gap-2 items-start w-[139px]">
-                  <div className="flex flex-col flex-1 shrink w-full basis-0">
-                    <div className="flex-1 shrink gap-1 self-stretch w-full text-ellipsis">
-                      Amount
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="flex flex-col mt-1.5 w-full">
-              {noBets.map((order: OptionBetType, index) => (
-                <OrderItem
-                  key={index}
-                  price={order.price}
-                  amount={order.quantity}
-                  type={'NO'}
-                  onBuy={() =>
-                    handleBuyOrders(
-                      order.id,
-                      order.quantity,
-                      order.betOption?.index as number,
-                      order.sellId,
-                      order.amount,
-                    )
-                  }
-                />
-              ))}
-            </div>
-          </div>
-        </>
-      )}
+  const OrderTable = ({ orders, type }: { orders: OptionBetType[]; type: 'YES' | 'NO' }) => (
+    <div className="flex-1">
+      <Table>
+        <TableHeader>
+          <TableRow className="border-b-2 border-stone-900 hover:bg-transparent">
+            <TableHead className="w-24 text-stone-200">Price</TableHead>
+            <TableHead className="text-stone-200">
+              {type === 'YES' ? 'Quantity' : 'Amount'}
+            </TableHead>
+            <TableHead className="w-24" />
+          </TableRow>
+        </TableHeader>
+        {renderOrders(orders, type)}
+      </Table>
     </div>
+  );
+
+  return (
+    <Card className="mt-7 bg-neutral-900 border-2 border-stone-900">
+      <CardContent className="p-0">
+        {yesBets.length === 0 && noBets.length === 0 ? (
+          <div className="flex items-center justify-center h-[441px] text-white">
+            No Open Orders
+          </div>
+        ) : (
+          <div className="flex h-[441px] divide-x-2 divide-stone-900">
+            <div className="flex-1 h-full overflow-y-auto scrollbar-thin scrollbar-thumb-stone-700 scrollbar-track-transparent">
+              <OrderTable orders={yesBets} type="YES" />
+            </div>
+            <div className="flex-1 h-full overflow-y-auto scrollbar-thin scrollbar-thumb-stone-700 scrollbar-track-transparent">
+              <OrderTable orders={noBets} type="NO" />
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 };
 

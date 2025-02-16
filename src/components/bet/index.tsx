@@ -15,7 +15,7 @@ import PlaceOrder from './place-order';
 import { useTotalBets } from '@/hooks/useTotalBets';
 
 const LoadingSkeleton = () => (
-  <div className="container max-w-screen-xl mx-auto p-4 animate-pulse">
+  <div className=" mx-auto p-4 animate-pulse">
     <div className="flex items-center gap-4 mb-6">
       <div className="h-6 w-20 bg-zinc-800 rounded" />
       <div className="h-6 w-24 bg-zinc-800 rounded ml-auto" />
@@ -50,7 +50,7 @@ const LoadingSkeleton = () => (
 );
 
 const ErrorState = ({ error }: { error: string }) => (
-  <div className="container max-w-screen-xl mx-auto p-4">
+  <div className="mx-auto p-4">
     <div className="flex items-center gap-4 mb-6">
       <button
         onClick={() => window.history.back()}
@@ -187,7 +187,7 @@ const Bet: FC = () => {
   };
 
   return (
-    <div className="container max-w-screen-xl mx-auto p-4">
+    <div className=" mx-auto p-4">
       {/* Back Button */}
       <div className="flex items-center gap-4 mb-6">
         <button

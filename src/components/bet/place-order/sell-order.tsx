@@ -1,14 +1,16 @@
 import { baseApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
-import { POSITION_COLORS, POSITION_TYPE } from '@/constants/dual';
+import { POSITION_TYPE } from '@/constants/dual';
 import { Button } from '@/shadcn/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shadcn/components/ui/card';
 import { Input } from '@/shadcn/components/ui/input';
 import { Label } from '@/shadcn/components/ui/label';
+// import { PositionSelector } from '@/shadcn/components/ui/position-selector';
 import { cn } from '@/shadcn/lib/utils';
 import { PositionType } from '@/types/dual';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { useAccount } from 'wagmi';
+import PositionSelector from './position-selector';
 
 interface SellOrderProps {
   duelId: string;
@@ -191,23 +193,10 @@ const SellOrder: FC<SellOrderProps> = ({ duelId }) => {
     <Card className="bg-transparent border-none space-y-6">
       <CardContent className="p-0 space-y-6">
         {/* YES/NO Buttons */}
-        <div className="flex gap-2">
-          {Object.values(POSITION_TYPE).map((position) => (
-            <Button
-              key={position}
-              onClick={() => handlePositionSelect(position)}
-              variant="ghost"
-              className={cn(
-                'flex-1 py-6 text-lg font-medium transition-colors rounded-2xl border-0',
-                selectedPosition === position
-                  ? POSITION_COLORS[position].active
-                  : POSITION_COLORS[position].inactive,
-              )}
-            >
-              {position}
-            </Button>
-          ))}
-        </div>
+        <PositionSelector
+          selectedPosition={selectedPosition}
+          onPositionSelect={handlePositionSelect}
+        />
 
         {/* Price per share */}
         <div className="flex justify-between px-1">
