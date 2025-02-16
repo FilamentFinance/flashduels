@@ -1,33 +1,28 @@
-import React from 'react';
+import { Button } from '@/shadcn/components/ui/button';
+import { cn } from '@/shadcn/lib/utils';
+import { FC } from 'react';
 
 interface YesNoButtonProps {
-  text: string;
-  color: 'lime' | 'red';
-  onClick: () => void;
+  position: 'YES' | 'NO';
   isSelected: boolean;
+  onClick: () => void;
 }
 
-const YesNoButton: React.FC<YesNoButtonProps> = ({ text, color, onClick, isSelected }) => {
-  const baseClasses =
-    'flex-1 shrink gap-2.5 p-2.5 rounded-lg border border-solid focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-200 w-48';
-  const colorClasses = {
-    lime: 'text-lime-300 bg-lime-500 bg-opacity-10 border-lime-400 border-opacity-20 hover:bg-lime-500 hover:bg-opacity-20 focus:ring-lime-500',
-    red: 'text-red-500 bg-red-600 bg-opacity-10 border-red-600 border-opacity-10 hover:bg-red-600 hover:bg-opacity-20 focus:ring-red-500',
-  };
-  const selectedClasses = {
-    lime: 'bg-lime-500 bg-opacity-20 text-lime-100',
-    red: 'bg-red-600 bg-opacity-20 text-red-100',
-  };
-
+const YesNoButton: FC<YesNoButtonProps> = ({ position, isSelected, onClick }) => {
   return (
-    <button
-      className={`${baseClasses} ${colorClasses[color]} ${isSelected ? selectedClasses[color] : ''}`}
+    <Button
+      variant="ghost"
       onClick={onClick}
-      aria-label={`Select ${text}`}
-      aria-pressed={isSelected}
+      className={cn(
+        'w-24 py-4 text-base font-medium transition-all duration-200 rounded-xl border-0',
+        position === 'YES' && !isSelected && 'text-[#95DE64] bg-[#95DE64]/10 hover:bg-[#95DE64]/20',
+        position === 'YES' && isSelected && 'text-white bg-[#95DE64]/20 hover:bg-[#95DE64]/30',
+        position === 'NO' && !isSelected && 'text-red-500 bg-red-500/10 hover:bg-red-500/20',
+        position === 'NO' && isSelected && 'text-white bg-red-500/20 hover:bg-red-500/30',
+      )}
     >
-      {text}
-    </button>
+      {position}
+    </Button>
   );
 };
 

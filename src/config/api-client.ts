@@ -16,16 +16,16 @@ class AxiosClient {
     this.axiosInstance.interceptors.request.use(
       (config) => {
         if (config.method?.toLowerCase() === 'post') {
-          const address =
-            (config.data?.userAddress as string) || (config.data?.address as string) || '';
+          const address = (config.data?.userAddress as string) || (config.data?.address as string);
 
           if (address) {
-            // Retrieve the token using your key format.
+            // Retrieve and set the bearer token
             const token = localStorage.getItem(`Bearer_${address.toLowerCase()}`);
             if (token) {
               config.headers['Authorization'] = `Bearer ${token}`;
             }
-            // Optionally attach the signing key if stored with a similar key format.
+
+            // Set the signing key if available
             const signingKey = localStorage.getItem(`signingKey_${address.toLowerCase()}`);
             if (signingKey) {
               config.headers['X-Signing-Key'] = signingKey;

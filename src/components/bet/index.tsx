@@ -12,6 +12,7 @@ import Header from './header';
 import OrderBook from './order-book';
 import { OrdersTable } from './orders/OrdersTable';
 import PlaceOrder from './place-order';
+import { useTotalBets } from '@/hooks/useTotalBets';
 
 const LoadingSkeleton = () => (
   <div className="container max-w-screen-xl mx-auto p-4 animate-pulse">
@@ -73,13 +74,28 @@ const Bet: FC = () => {
   const [duel, setDuel] = useState<NewDuelItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedPosition, setSelectedPosition] = useState<'YES' | 'NO' | null>(null);
-  const [amount, setAmount] = useState('1000');
   const [yesBets, setYesBets] = useState<OptionBetType[]>([]);
   const [noBets, setNoBets] = useState<OptionBetType[]>([]);
 
   const { buyOrder, txHash } = useBuyOrder(id ?? '', 0);
   const { toast } = useToast();
+
+  const fetchDuel = async () => {
+    try {
+      setLoading(true);
+      const response = await baseApiClient.get(
+        `${SERVER_CONFIG.API_URL}/duels/get-duel-by-id/${id}`,
+      );
+      setDuel(response.data);
+      setError(null);
+    } catch (error) {
+      console.error('Error fetching duel:', error);
+      setError('Failed to fetch duel details.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     const socket = new WebSocket(`${SERVER_CONFIG.API_WS_URL}/betWebSocket?duelId=${id}`);
 
@@ -111,23 +127,8 @@ const Bet: FC = () => {
     return () => {
       socket.close();
     };
-  }, []);
+  }, [id]);
 
-  const fetchDuel = async () => {
-    try {
-      setLoading(true);
-      const response = await baseApiClient.get(
-        `${SERVER_CONFIG.API_URL}/duels/get-duel-by-id/${id}`,
-      );
-      setDuel(response.data);
-      setError(null);
-    } catch (error) {
-      console.error('Error fetching duel:', error);
-      setError('Failed to fetch duel details.');
-    } finally {
-      setLoading(false);
-    }
-  };
   useEffect(() => {
     if (id) {
       fetchDuel();
@@ -137,13 +138,7 @@ const Bet: FC = () => {
     }
   }, [id]);
 
-  const handlePlaceOrder = async (position: 'YES' | 'NO', amount: string) => {
-    try {
-      console.log(position, amount);
-    } catch (error) {
-      console.error('Error placing order:', error);
-    }
-  };
+  const { totalBetYes, totalBetNo } = useTotalBets(id ?? '');
 
   if (loading) {
     return <LoadingSkeleton />;
@@ -152,6 +147,13 @@ const Bet: FC = () => {
   if (error || !duel) {
     return <ErrorState error={error || 'Duel not found'} />;
   }
+
+  const calculatedPercentage =
+    ((totalBetYes as number) / (Number(totalBetYes) + Number(totalBetNo))) * 100;
+  const displayPercentage = isNaN(calculatedPercentage)
+    ? 50
+    : Number(calculatedPercentage.toFixed(2));
+
   const handleBuyOrders = async (
     betOptionMarketId: string,
     quantity: string,
@@ -159,7 +161,6 @@ const Bet: FC = () => {
     sellId: number,
     amount: string,
   ) => {
-    console.log({ betOptionMarketId, quantity, index, sellId, amount });
     const result = await buyOrder(sellId);
     if (result.success) {
       console.log('Buy order successful!', txHash);
@@ -184,6 +185,7 @@ const Bet: FC = () => {
       });
     }
   };
+
   return (
     <div className="container max-w-screen-xl mx-auto p-4">
       {/* Back Button */}
@@ -212,17 +214,12 @@ const Bet: FC = () => {
               token={duel.token}
               liquidity={duel.totalBetAmount.toString()}
               endsIn={duel.endsIn}
-              // percentage={duel.percentage}
+              percentage={displayPercentage}
             />
             <OrderBook yesBets={yesBets} noBets={noBets} handleBuyOrders={handleBuyOrders} />
             <OrdersTable duelId={duel.duelId} />
           </div>
           <PlaceOrder
-            onPlaceOrder={handlePlaceOrder}
-            amount={amount}
-            setAmount={setAmount}
-            selectedPosition={selectedPosition}
-            setSelectedPosition={setSelectedPosition}
             asset={duel.token}
             duelId={duel.duelId}
             endsIn={duel.endsIn}

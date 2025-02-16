@@ -79,3 +79,29 @@ export const DUEL_TYPE = {
   COIN_DUEL: 'COIN_DUEL',
   FLASH_DUEL: 'FLASH_DUEL',
 } as const;
+
+export const ORDER_TYPE = {
+  BUY: 'buy',
+  SELL: 'sell',
+} as const;
+
+export const POSITION_TYPE = {
+  YES: 'YES',
+  NO: 'NO',
+} as const;
+
+export const ORDER_LABELS = {
+  [ORDER_TYPE.BUY]: 'Buy',
+  [ORDER_TYPE.SELL]: 'Sell',
+} as const;
+
+export const POSITION_COLORS = {
+  [POSITION_TYPE.YES]: {
+    active: 'bg-[#95DE64] text-black hover:bg-[#95DE64]/90',
+    inactive: 'bg-[#1C2A1C] text-[#95DE64] hover:bg-[#1C2A1C]/80',
+  },
+  [POSITION_TYPE.NO]: {
+    active: 'bg-[#E84749] text-white hover:bg-[#E84749]/90',
+    inactive: 'bg-[#2A1C1C] text-[#E84749] hover:bg-[#2A1C1C]/80',
+  },
+} as const;

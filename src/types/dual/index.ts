@@ -1,4 +1,12 @@
-import { DUAL, DUAL_DURATION, DUAL_STATUS, POSITION, WIN_CONDITIONS } from '@/constants/dual';
+import {
+  DUAL,
+  DUAL_DURATION,
+  DUAL_STATUS,
+  ORDER_TYPE,
+  POSITION,
+  POSITION_TYPE,
+  WIN_CONDITIONS,
+} from '@/constants/dual';
 
 export type DualType = (typeof DUAL)[keyof typeof DUAL];
 export type DualDuration = (typeof DUAL_DURATION)[keyof typeof DUAL_DURATION];
@@ -133,3 +141,6 @@ type TableDuel = {
 };
 
 export type ActiveDuels = TableDuel[];
+
+export type OrderType = (typeof ORDER_TYPE)[keyof typeof ORDER_TYPE];
+export type PositionType = (typeof POSITION_TYPE)[keyof typeof POSITION_TYPE];

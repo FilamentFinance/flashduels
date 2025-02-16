@@ -37,17 +37,28 @@ const toastVariants = cva(
   },
 );
 
+interface ToastProgressProps {
+  variant?: VariantProps<typeof toastVariants>['variant'];
+}
+
+const ToastProgress: React.FC<ToastProgressProps> = ({ variant = 'default' }) => {
+  return (
+    <div className="absolute bottom-0 left-0 right-0 h-[2px] w-full bg-border/20">
+      <div
+        className={cn(
+          'h-full w-full',
+          variant === 'destructive' ? 'bg-destructive' : 'bg-[#F19ED2]',
+          'toast-progress',
+        )}
+      />
+    </div>
+  );
+};
+
 const Toast = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Root>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitives.Root> & VariantProps<typeof toastVariants>
 >(({ className, variant, children, ...props }, ref) => {
-  const [mounted, setMounted] = React.useState(false);
-
-  React.useEffect(() => {
-    setMounted(true);
-    return () => setMounted(false);
-  }, []);
-
   return (
     <ToastPrimitives.Root
       ref={ref}
@@ -63,22 +74,7 @@ const Toast = React.forwardRef<
       >
         <X className="h-4 w-4" />
       </ToastPrimitives.Close>
-      {mounted && (
-        <div className="absolute bottom-0 left-0 right-0 h-[2px] w-full bg-border/20">
-          <div
-            className={cn(
-              'h-full w-full transition-transform duration-[3000ms] ease-linear',
-              variant === 'destructive' ? 'bg-destructive' : 'bg-foreground/50',
-              'origin-left transform-gpu',
-            )}
-            style={{
-              transform: 'scaleX(0)',
-              transformOrigin: 'left',
-              transition: 'transform 3s linear',
-            }}
-          />
-        </div>
-      )}
+      <ToastProgress variant={variant} />
     </ToastPrimitives.Root>
   );
 });
@@ -152,3 +148,24 @@ export {
   ToastClose,
   ToastAction,
 };
+
+// Add keyframes for the progress bar animation
+if (typeof document !== 'undefined') {
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes progress {
+      from {
+        transform: scaleX(1);
+      }
+      to {
+        transform: scaleX(0);
+      }
+    }
+    
+    .toast-progress {
+      transform-origin: left;
+      animation: progress 3s linear forwards;
+    }
+  `;
+  document.head.appendChild(style);
+}

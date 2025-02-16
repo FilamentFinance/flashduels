@@ -1,4 +1,6 @@
+import { useTotalBets } from '@/hooks/useTotalBets';
 import { Duel, Position } from '@/types/dual';
+import { Card } from '@/shadcn/components/ui/card';
 import Image from 'next/image';
 import { FC, useState } from 'react';
 import ChanceProgress from './chance-progress';
@@ -12,58 +14,63 @@ interface Props {
 const DualRow: FC<Props> = ({ data, onClick }) => {
   const { title, volume, timeLeft } = data;
   const [selectedPosition, setSelectedPosition] = useState<Position | null>(null);
+  const { totalBetYes, totalBetNo } = useTotalBets(data.duelId);
 
   const handlePositionSelect = (position: Position) => {
-    // Stop propagation to prevent row click
     setSelectedPosition(position);
   };
+
+  const calculatedPercentage =
+    ((totalBetYes as number) / (Number(totalBetYes) + Number(totalBetNo))) * 100;
+  const displayPercentage = isNaN(calculatedPercentage)
+    ? data.percentage
+    : Number(calculatedPercentage.toFixed(2));
+
   return (
-    <div
-      className="flex items-center justify-between p-2 rounded-lg bg-zinc-900 border border-zinc-800 hover:bg-zinc-900/60"
+    <Card
+      className="flex items-center justify-between p-3 bg-zinc-900 border-zinc-800 hover:bg-zinc-900/90 transition-colors cursor-pointer"
       onClick={onClick}
     >
-      <div className="flex justify-center items-center gap-3">
-        <img
-          src={data.imageSrc || '/empty-string.png'}
-          alt={title}
-          className="w-14 h-14 rounded-full"
-        />
+      <div className="flex items-center gap-4">
+        <div className="relative w-14 h-14">
+          <Image
+            src={data.imageSrc || '/empty-string.png'}
+            alt={title}
+            fill
+            className="rounded-full object-cover"
+          />
+        </div>
 
         <div className="flex flex-col">
-          <span className="text-white font-medium text-md">{title}</span>
-          <div className="flex items-center gap-2 text-sm">
-            <span className="text-zinc-400 flex items-center gap-1">
-              <Image src="/logo/markets/dollar.svg" alt="dollar" width={20} height={20} />
-              {volume}
-            </span>
-            <div className="flex items-center gap-1 text-zinc-400">
-              <span className="text-zinc-400 flex items-center gap-1">
-                <Image src="/logo/markets/timer.svg" alt="dollar" width={10} height={10} />
-                {timeLeft}
-              </span>
+          <span className="text-white font-medium text-base">{title}</span>
+          <div className="flex items-center gap-3 mt-1">
+            <div className="flex items-center gap-1.5 text-zinc-400 text-sm">
+              <Image src="/logo/markets/dollar.svg" alt="Volume" width={16} height={16} />
+              <span>{volume}</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-zinc-400 text-sm">
+              <Image src="/logo/markets/timer.svg" alt="Time" width={14} height={14} />
+              <span>{timeLeft}h</span>
             </div>
           </div>
         </div>
-        <ChanceProgress percentage={60} size={30} strokeWidth={10} className="mx-2" />
+
+        <ChanceProgress percentage={displayPercentage} className="ml-4" />
       </div>
 
-      {/* Right Section - Position Selector */}
-      {/* Right Section - Yes/No Buttons */}
-      <div className="flex gap-2" role="group" aria-label="Yes or No options">
+      <div className="flex gap-2">
         <YesNoButton
-          text="YES"
-          color="lime"
+          position="YES"
           onClick={() => handlePositionSelect('YES')}
           isSelected={selectedPosition === 'YES'}
         />
         <YesNoButton
-          text="NO"
-          color="red"
+          position="NO"
           onClick={() => handlePositionSelect('NO')}
           isSelected={selectedPosition === 'NO'}
         />
       </div>
-    </div>
+    </Card>
   );
 };
 
