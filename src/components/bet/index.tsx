@@ -1,6 +1,9 @@
 'use client';
 
 import { baseApiClient } from '@/config/api-client';
+import { SERVER_CONFIG } from '@/config/server-config';
+import useBuyOrder from '@/hooks/useBuyOrder';
+import { useToast } from '@/shadcn/components/ui/use-toast';
 import { NewDuelItem, OptionBetType } from '@/types/dual';
 import { ArrowLeft } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -9,7 +12,6 @@ import Header from './header';
 import OrderBook from './order-book';
 import { OrdersTable } from './orders/OrdersTable';
 import PlaceOrder from './place-order';
-import { SERVER_CONFIG } from '@/config/server-config';
 
 const LoadingSkeleton = () => (
   <div className="container max-w-screen-xl mx-auto p-4 animate-pulse">
@@ -75,6 +77,9 @@ const Bet: FC = () => {
   const [amount, setAmount] = useState('1000');
   const [yesBets, setYesBets] = useState<OptionBetType[]>([]);
   const [noBets, setNoBets] = useState<OptionBetType[]>([]);
+
+  const { buyOrder, txHash } = useBuyOrder(id ?? '', 0);
+  const { toast } = useToast();
   useEffect(() => {
     const socket = new WebSocket(`${SERVER_CONFIG.API_WS_URL}/betWebSocket?duelId=${id}`);
 
@@ -95,7 +100,7 @@ const Bet: FC = () => {
     };
 
     socket.onerror = function (error) {
-      console.log('WebSocket Error:', error);
+      console.error('WebSocket Error:', error);
     };
 
     socket.onclose = function () {
@@ -134,8 +139,7 @@ const Bet: FC = () => {
 
   const handlePlaceOrder = async (position: 'YES' | 'NO', amount: string) => {
     try {
-      // Add your order placement logic here
-      console.log('Placing order:', { duelId: id, position, amount });
+      console.log(position, amount);
     } catch (error) {
       console.error('Error placing order:', error);
     }
@@ -148,7 +152,6 @@ const Bet: FC = () => {
   if (error || !duel) {
     return <ErrorState error={error || 'Duel not found'} />;
   }
-  console.log({ duel });
   const handleBuyOrders = async (
     betOptionMarketId: string,
     quantity: string,
@@ -156,36 +159,30 @@ const Bet: FC = () => {
     sellId: number,
     amount: string,
   ) => {
-    console.log(amount, 'amount', index);
-    // setOptionIndex(index)
-    // await lpTokenApproveAsync(amount)
-    // if (optionTokenAddress) {
-    //   await buyBet(sellId); // Ensure buyBet is called after token address is set
-    // }
-    // console.log("reached-here")
+    console.log({ betOptionMarketId, quantity, index, sellId, amount });
+    const result = await buyOrder(sellId);
+    if (result.success) {
+      console.log('Buy order successful!', txHash);
+      // Optionally refresh your order book or notify the user.
 
-    // try {
-    //   const response = await apiClient.post(
-    //     `${NEXT_PUBLIC_API}/betOption/buy`,
-    //     { duelId, betOptionMarketId, amount },
-    //   );
-    //   const data = response.data.message;
-
-    //   console.log(data, "data-new")
-    //   setNotification({
-    //     isOpen: true,
-    //     success: true,
-    //     massage: data,
-    //   })
-
-    // } catch (error) {
-    //   console.error("Error fetching bet:", error);
-    //   setNotification({
-    //     isOpen: true,
-    //     success: false,
-    //     massage: "Failed to Purchase Bet",
-    //   });
-    // }
+      const response = await baseApiClient.post(`${SERVER_CONFIG.API_URL}/betOption/buy`, {
+        duelId: id,
+        betOptionMarketId,
+        amount,
+      });
+      const data = response.data.message;
+      toast({
+        title: 'Success',
+        description: data,
+      });
+    } else {
+      console.error('Buy order failed:', result.error);
+      toast({
+        title: 'Error',
+        description: result.error || 'Failed to place order',
+        variant: 'destructive',
+      });
+    }
   };
   return (
     <div className="container max-w-screen-xl mx-auto p-4">

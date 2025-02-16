@@ -55,27 +55,13 @@ const BuyOrder: FC<BuyOrderProps> = ({
   const handleJoinDuel = async () => {
     const parsedAmount = parseUnits(amount, 6);
     const { success } = await joinDuel(parsedAmount);
-    console.log('Approval check result:', success);
     if (success) {
-      // Now you can proceed with the actual join duel logic
-      const optionIndex = selectedPosition === 'YES' ? 0 : 1;
-      console.log({
-        twitterUsername: '',
-        bet: selectedPosition,
-        address: address?.toLowerCase(),
-        betAmount: Number(amount),
-        optionIndex,
-        duelId,
-        duelType,
-        asset,
-        winCondition,
-      });
       await baseApiClient.post(`${SERVER_CONFIG.API_URL}/bets/create`, {
         twitterUsername: '',
         bet: selectedPosition,
         address: address?.toLowerCase(),
         betAmount: Number(amount),
-        optionIndex,
+        optionIndex: selectedPosition === 'YES' ? 0 : 1,
         duelId,
         duelType,
         asset,
