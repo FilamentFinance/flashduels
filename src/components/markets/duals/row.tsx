@@ -1,6 +1,6 @@
 import { useTotalBets } from '@/hooks/useTotalBets';
-import { Duel, Position } from '@/types/dual';
 import { Card } from '@/shadcn/components/ui/card';
+import { Duel, Position } from '@/types/dual';
 import Image from 'next/image';
 import { FC, useState } from 'react';
 import ChanceProgress from './chance-progress';

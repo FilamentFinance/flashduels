@@ -9,63 +9,12 @@ import { NewDuelItem, OptionBetType } from '@/types/dual';
 import { ArrowLeft } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { FC, useEffect, useState } from 'react';
+import ErrorState from './error-state';
 import Header from './header';
+import LoadingSkeleton from './loading-skeleton';
 import OrderBook from './order-book';
-import { OrdersTable } from './orders/OrdersTable';
+import { OrdersHistory } from './orders-history';
 import PlaceOrder from './place-order';
-
-const LoadingSkeleton = () => (
-  <div className=" mx-auto p-4 animate-pulse">
-    <div className="flex items-center gap-4 mb-6">
-      <div className="h-6 w-20 bg-zinc-800 rounded" />
-      <div className="h-6 w-24 bg-zinc-800 rounded ml-auto" />
-    </div>
-
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div className="lg:col-span-2 space-y-6">
-        <div className="flex items-start gap-4">
-          <div className="w-12 h-12 bg-zinc-800 rounded-full" />
-          <div className="flex-1">
-            <div className="h-8 bg-zinc-800 rounded w-3/4" />
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-[#141217] p-6 rounded-xl space-y-6">
-        <div className="h-12 bg-zinc-800 rounded-xl" />
-        <div className="space-y-4">
-          <div className="h-8 bg-zinc-800 rounded-xl" />
-          <div className="h-8 bg-zinc-800 rounded-xl" />
-          <div className="space-y-2">
-            <div className="flex justify-between">
-              <div className="h-4 bg-zinc-800 rounded w-20" />
-              <div className="h-4 bg-zinc-800 rounded w-16" />
-            </div>
-          </div>
-          <div className="h-12 bg-zinc-800 rounded-xl" />
-        </div>
-      </div>
-    </div>
-  </div>
-);
-
-const ErrorState = ({ error }: { error: string }) => (
-  <div className="mx-auto p-4">
-    <div className="flex items-center gap-4 mb-6">
-      <button
-        onClick={() => window.history.back()}
-        className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors"
-      >
-        <ArrowLeft className="w-5 h-5" />
-        Back
-      </button>
-    </div>
-    <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-6 text-center">
-      <h2 className="text-xl font-semibold text-red-500 mb-2">Error Loading Duel</h2>
-      <p className="text-zinc-400">{error}</p>
-    </div>
-  </div>
-);
 
 const Bet: FC = () => {
   const searchParams = useSearchParams();
@@ -217,7 +166,7 @@ const Bet: FC = () => {
               percentage={displayPercentage}
             />
             <OrderBook yesBets={yesBets} noBets={noBets} handleBuyOrders={handleBuyOrders} />
-            <OrdersTable duelId={duel.duelId} />
+            <OrdersHistory duelId={duel.duelId} />
           </div>
           <PlaceOrder
             asset={duel.token}

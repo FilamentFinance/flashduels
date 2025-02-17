@@ -15,7 +15,7 @@ type Props = {
 
 const Header: FC<Props> = ({ title, logo, triggerPrice, token, liquidity, endsIn, percentage }) => {
   return (
-    <div className="flex flex-col items-center gap-6 mb-8 w-full">
+    <div className="flex flex-col items-center gap-6 w-full">
       <div className="flex justify-between items-stretch w-full">
         {/* Back Button and Logo */}
         <div className="flex items-center gap-4 mx-2">

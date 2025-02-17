@@ -1,6 +1,7 @@
 import { Duel } from '@/types/dual';
 import { FC } from 'react';
 import DualRow from './row';
+import NoDuels from './no-duels'; // Assuming the NoDuels component is in the same directory
 
 type Props = {
   data: Duel[];
@@ -9,11 +10,7 @@ type Props = {
 
 const Duals: FC<Props> = ({ data, handleDualRowClick }) => {
   if (!data.length) {
-    return (
-      <div className="flex flex-col items-center justify-center py-12">
-        <p className="text-zinc-400">No duels available</p>
-      </div>
-    );
+    return <NoDuels />;
   }
 
   return (

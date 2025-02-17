@@ -1,8 +1,9 @@
 import { Card, CardContent } from '@/shadcn/components/ui/card';
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/shadcn/components/ui/table';
-import { OptionBetType } from '@/types/dual';
+import { OptionBetType, PositionType } from '@/types/dual';
 import { FC } from 'react';
 import { OrderItem } from './OrderItem';
+import { POSITION_TYPE } from '@/constants/dual';
 
 interface OrderBookProps {
   yesBets: OptionBetType[];
@@ -17,8 +18,8 @@ interface OrderBookProps {
 }
 
 const OrderBook: FC<OrderBookProps> = ({ yesBets, noBets, handleBuyOrders }) => {
-  const renderOrders = (orders: OptionBetType[], type: 'YES' | 'NO') => (
-    <TableBody className="overflow-y-auto">
+  const renderOrders = (orders: OptionBetType[], type: PositionType) => (
+    <TableBody>
       {orders.map((order, index) => (
         <OrderItem
           key={`${type}-${index}`}
@@ -39,16 +40,16 @@ const OrderBook: FC<OrderBookProps> = ({ yesBets, noBets, handleBuyOrders }) => 
     </TableBody>
   );
 
-  const OrderTable = ({ orders, type }: { orders: OptionBetType[]; type: 'YES' | 'NO' }) => (
-    <div className="flex-1">
+  const OrderTable = ({ orders, type }: { orders: OptionBetType[]; type: PositionType }) => (
+    <div className="h-full">
       <Table>
-        <TableHeader>
+        <TableHeader className="sticky top-0 bg-neutral-900 z-10">
           <TableRow className="border-b-2 border-stone-900 hover:bg-transparent">
-            <TableHead className="w-24 text-stone-200">Price</TableHead>
-            <TableHead className="text-stone-200">
-              {type === 'YES' ? 'Quantity' : 'Amount'}
+            <TableHead className="w-24 text-stone-200 py-3">Price</TableHead>
+            <TableHead className="text-stone-200 py-3">
+              {type === POSITION_TYPE.YES ? 'Quantity' : 'Amount'}
             </TableHead>
-            <TableHead className="w-24" />
+            <TableHead className="w-24 py-3" />
           </TableRow>
         </TableHeader>
         {renderOrders(orders, type)}
@@ -57,19 +58,19 @@ const OrderBook: FC<OrderBookProps> = ({ yesBets, noBets, handleBuyOrders }) => 
   );
 
   return (
-    <Card className="mt-7 bg-neutral-900 border-2 border-stone-900">
+    <Card className="mt-4 bg-neutral-900 border-2 border-stone-900">
       <CardContent className="p-0">
         {yesBets.length === 0 && noBets.length === 0 ? (
-          <div className="flex items-center justify-center h-[441px] text-white">
+          <div className="flex items-center justify-center h-[300px] text-white">
             No Open Orders
           </div>
         ) : (
-          <div className="flex h-[441px] divide-x-2 divide-stone-900">
-            <div className="flex-1 h-full overflow-y-auto scrollbar-thin scrollbar-thumb-stone-700 scrollbar-track-transparent">
-              <OrderTable orders={yesBets} type="YES" />
+          <div className="flex h-[300px] divide-x-2 divide-stone-900">
+            <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-stone-700 scrollbar-track-transparent">
+              <OrderTable orders={yesBets} type={POSITION_TYPE.YES} />
             </div>
-            <div className="flex-1 h-full overflow-y-auto scrollbar-thin scrollbar-thumb-stone-700 scrollbar-track-transparent">
-              <OrderTable orders={noBets} type="NO" />
+            <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-stone-700 scrollbar-track-transparent">
+              <OrderTable orders={noBets} type={POSITION_TYPE.NO} />
             </div>
           </div>
         )}

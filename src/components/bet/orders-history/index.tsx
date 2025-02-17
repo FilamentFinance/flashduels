@@ -14,7 +14,6 @@ import {
 import { useToast } from '@/shadcn/components/ui/use-toast';
 import { useCallback, useEffect, useState } from 'react';
 import { useAccount } from 'wagmi';
-// import { baseApiClient } from '@/lib/axios';
 
 interface OrdersTableProps {
   duelId: string;
@@ -30,7 +29,7 @@ interface OrderData {
   quantity: number;
 }
 
-export const OrdersTable = ({ duelId }: OrdersTableProps) => {
+export const OrdersHistory = ({ duelId }: OrdersTableProps) => {
   const [openOrders, setOpenOrders] = useState<OrderData[]>([]);
   const { address } = useAccount();
   const { toast } = useToast();
@@ -107,7 +106,7 @@ export const OrdersTable = ({ duelId }: OrdersTableProps) => {
   }, [setupWebSocket]);
 
   return (
-    <Card className="bg-neutral-900 border-2 border-neutral-800">
+    <Card className="mt-4 bg-neutral-900 border-2 border-neutral-800">
       <CardHeader className="p-0 space-y-0">
         <div className="flex border-b border-zinc-800">
           <div className="relative">
@@ -117,15 +116,15 @@ export const OrdersTable = ({ duelId }: OrdersTableProps) => {
         </div>
       </CardHeader>
       <CardContent className="p-0">
-        <div className="min-h-[250px]">
+        <div className="h-[200px]">
           {openOrders.length === 0 ? (
-            <div className="flex items-center justify-center h-[250px]">
+            <div className="flex items-center justify-center h-full">
               <span className="text-xs font-medium text-stone-300">No open orders</span>
             </div>
           ) : (
-            <div className="max-h-[400px] overflow-y-auto scrollbar-thin scrollbar-thumb-stone-700 scrollbar-track-transparent">
+            <div className="h-full overflow-y-auto scrollbar-thin scrollbar-thumb-stone-700 scrollbar-track-transparent">
               <Table>
-                <TableHeader>
+                <TableHeader className="sticky top-0 bg-neutral-900 z-10">
                   <TableRow className="hover:bg-transparent border-b border-neutral-800">
                     <TableHead className="text-xs font-medium text-stone-500 py-2">Bet</TableHead>
                     <TableHead className="text-xs font-medium text-stone-500 text-center py-2">
@@ -148,24 +147,24 @@ export const OrdersTable = ({ duelId }: OrdersTableProps) => {
                       key={order.id}
                       className="hover:bg-neutral-800/50 border-b border-neutral-800"
                     >
-                      <TableCell className="py-4 text-xs font-medium text-white">
+                      <TableCell className="py-3 text-xs font-medium text-white">
                         <div className="flex items-center gap-2">
-                          <div className=" px-2 py-1 rounded text-[10px]">{order.duelTitle}</div>
+                          <div className="px-2 py-1 rounded text-[10px]">{order.duelTitle}</div>
                         </div>
                       </TableCell>
                       <TableCell
-                        className={`py-4 text-xs font-medium text-center
+                        className={`py-3 text-xs font-medium text-center
                           ${order.betOptionIndex === 0 ? 'text-lime-300' : 'text-red-400'}`}
                       >
                         {order.betOptionIndex === 0 ? 'YES' : 'NO'}
                       </TableCell>
-                      <TableCell className="py-4 text-xs font-medium text-white text-center">
+                      <TableCell className="py-3 text-xs font-medium text-white text-center">
                         {Number(order.quantity).toFixed(2)}
                       </TableCell>
-                      <TableCell className="py-4 text-xs font-medium text-white text-center">
+                      <TableCell className="py-3 text-xs font-medium text-white text-center">
                         {Number(order.price).toFixed(2)}
                       </TableCell>
-                      <TableCell className="py-4 text-center">
+                      <TableCell className="py-3 text-center">
                         <Button
                           variant="outline"
                           className="px-5 py-1 text-xs font-bold text-red-500 border-red-500 bg-red-600/10 hover:bg-red-600/20 hover:text-red-400"
