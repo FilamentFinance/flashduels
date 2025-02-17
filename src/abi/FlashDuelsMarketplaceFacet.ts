@@ -197,6 +197,11 @@ export const FLASHDUELS_MARKETPLACE = [
         "inputs": [
             {
                 "internalType": "address",
+                "name": "buyer",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
                 "name": "token",
                 "type": "address"
             },
