@@ -1,5 +1,7 @@
+import { baseApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
-import { POSITION_TYPE } from '@/constants/dual';
+import { TRANSACTION_STATUS } from '@/constants/app';
+import { OPTIONS_TYPE } from '@/constants/dual';
 import useSellOrder from '@/hooks/useSellOrder';
 import { Button } from '@/shadcn/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shadcn/components/ui/card';
@@ -7,12 +9,10 @@ import { Input } from '@/shadcn/components/ui/input';
 import { Label } from '@/shadcn/components/ui/label';
 import { useToast } from '@/shadcn/components/ui/use-toast';
 import { cn } from '@/shadcn/lib/utils';
-import { PositionType } from '@/types/dual';
+import { OptionsType } from '@/types/dual';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { useAccount } from 'wagmi';
-import { baseApiClient } from '@/config/api-client';
 import PositionSelector from './position-selector';
-import { TRANSACTION_STATUS } from '@/constants/app';
 // import { TRANSACTION_STATUS } from '@/constants/transaction-status';
 
 interface SellOrderProps {
@@ -30,7 +30,7 @@ type OptionBetType = {
 };
 
 const SellOrder: FC<SellOrderProps> = ({ duelId }) => {
-  const [selectedPosition, setSelectedPosition] = useState<PositionType | null>(null);
+  const [selectedPosition, setSelectedPosition] = useState<OptionsType | null>(null);
   const [amount, setAmount] = useState('');
   const [price, setPrice] = useState('0');
   const [priceError, setPriceError] = useState('');
@@ -48,7 +48,7 @@ const SellOrder: FC<SellOrderProps> = ({ duelId }) => {
     price,
   );
 
-  const handlePositionSelect = useCallback((position: PositionType) => {
+  const handlePositionSelect = useCallback((position: OptionsType) => {
     setSelectedPosition(position);
     setError('');
     setAmount('');
@@ -213,7 +213,7 @@ const SellOrder: FC<SellOrderProps> = ({ duelId }) => {
   }, [duelId, address, toast]);
 
   const handleBetSelect = useCallback((bet: OptionBetType) => {
-    const position = bet.index === 0 ? POSITION_TYPE.YES : POSITION_TYPE.NO;
+    const position = bet.index === 0 ? OPTIONS_TYPE.YES : OPTIONS_TYPE.NO;
     setSelectedPosition(position);
     setAmount(bet.quantity);
     setPrice(bet.price);
@@ -306,7 +306,7 @@ const SellOrder: FC<SellOrderProps> = ({ duelId }) => {
               >
                 <span>
                   {Number(bet.quantity).toFixed(4)}{' '}
-                  {bet.index === 0 ? POSITION_TYPE.YES : POSITION_TYPE.NO}
+                  {bet.index === 0 ? OPTIONS_TYPE.YES : OPTIONS_TYPE.NO}
                 </span>
                 <span>${bet.price}</span>
               </Button>

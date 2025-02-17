@@ -1,6 +1,7 @@
 import { baseApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
 import useCancelOrder from '@/hooks/useCancelOrders';
+import WebSocketManager from '@/hooks/useWebSocket';
 import { Button } from '@/shadcn/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/shadcn/components/ui/card';
 import {
@@ -19,7 +20,7 @@ interface OrdersTableProps {
   duelId: string;
 }
 
-interface OrderData {
+export interface OrderData {
   sellId: number;
   betOptionIndex: number;
   price: number;
@@ -29,11 +30,17 @@ interface OrderData {
   quantity: number;
 }
 
+// The message type now expects openOrders as an array of OrderData
+interface OpenOrdersMessage {
+  openOrders?: OrderData[];
+}
+
 export const OrdersHistory = ({ duelId }: OrdersTableProps) => {
   const [openOrders, setOpenOrders] = useState<OrderData[]>([]);
   const { address } = useAccount();
   const { toast } = useToast();
   const { cancelSell } = useCancelOrder();
+  // const [wsManager, setWsManager] = useState<WebSocketManager<OpenOrdersMessage> | null>(null);
 
   const handleCancel = async (order: OrderData) => {
     if (order.sellId === undefined) {
@@ -75,32 +82,36 @@ export const OrdersHistory = ({ duelId }: OrdersTableProps) => {
   };
 
   const setupWebSocket = useCallback(() => {
-    const token = localStorage.getItem(`Bearer_${address?.toLowerCase()}`);
-    if (!token) {
-      console.error('Authorization token is missing');
+    if (!address) {
       return null;
     }
 
-    const socket = new WebSocket(`${SERVER_CONFIG.API_WS_URL}/openOrdersWebSocket?token=${token}`);
+    // Create an instance of WebSocketManager by passing the address.
+    const manager = new WebSocketManager<OpenOrdersMessage>({
+      address, // The manager will retrieve the token automatically.
+      url: `${SERVER_CONFIG.API_WS_URL}/openOrdersWebSocket`,
+      onMessage: (message: OpenOrdersMessage) => {
+        if (message.openOrders) {
+          setOpenOrders(message.openOrders);
+        }
+      },
+      onOpen: () => console.info('Connected to the WebSocket server'),
+      onError: (error) => console.error('WebSocket Error:', error),
+      onClose: () => console.info('Disconnected from the WebSocket server'),
+    });
 
-    socket.onopen = () => console.log('Connected to the WebSocket server');
-    socket.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-      if (message.openOrders) {
-        setOpenOrders(message.openOrders);
-      }
-    };
-    socket.onerror = (error) => console.log('WebSocket Error:', error);
-    socket.onclose = () => console.log('Disconnected from the WebSocket server');
-
-    return socket;
+    manager.connect();
+    return manager;
   }, [address]);
 
   useEffect(() => {
-    const socket = setupWebSocket();
+    const manager = setupWebSocket();
+    // setWsManager(manager);
+
+    // Cleanup on component unmount: close the WebSocket connection
     return () => {
-      if (socket) {
-        socket.close();
+      if (manager) {
+        manager.close();
       }
     };
   }, [setupWebSocket]);

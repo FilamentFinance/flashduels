@@ -1,7 +1,7 @@
 import { baseApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
 import { LOGOS } from '@/constants/app/logos';
-import { POSITION_TYPE } from '@/constants/dual';
+import { OPTIONS_TYPE } from '@/constants/dual';
 import { useBalance } from '@/hooks/useBalance';
 import useJoinDuel from '@/hooks/useJoinDuel';
 import { usePriceCalculation } from '@/hooks/usePriceCalculation';
@@ -14,12 +14,12 @@ import { Label } from '@/shadcn/components/ui/label';
 import { useToast } from '@/shadcn/components/ui/use-toast';
 import { cn } from '@/shadcn/lib/utils';
 import { RootState } from '@/store';
-import { PositionType } from '@/types/dual';
+import { OptionsType } from '@/types/dual';
+import Image from 'next/image';
 import { FC, useCallback, useMemo, useState } from 'react';
 import { shallowEqual, useSelector } from 'react-redux';
 import { formatUnits, parseUnits } from 'viem/utils';
 import { useAccount } from 'wagmi';
-import Image from 'next/image';
 import PositionSelector from './position-selector';
 // import { PositionSelector } from './PositionSelector';
 
@@ -42,7 +42,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
   triggerPrice,
   token,
 }) => {
-  const [selectedPosition, setSelectedPosition] = useState<PositionType | null>(null);
+  const [selectedPosition, setSelectedPosition] = useState<OptionsType | null>(null);
   const [amount, setAmount] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -66,7 +66,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
     totalBetNo,
   });
 
-  const handlePositionSelect = useCallback((position: PositionType) => {
+  const handlePositionSelect = useCallback((position: OptionsType) => {
     setSelectedPosition(position);
     setError('');
   }, []);
@@ -105,7 +105,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
 
   const calculateShares = useCallback(() => {
     if (!selectedPosition || !amount) return 0;
-    const price = selectedPosition === POSITION_TYPE.YES ? yesPrice : noPrice;
+    const price = selectedPosition === OPTIONS_TYPE.YES ? yesPrice : noPrice;
     return Number(amount) / Number(price || 0.15);
   }, [amount, selectedPosition, yesPrice, noPrice]);
 
@@ -131,7 +131,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
           bet: selectedPosition,
           address: address?.toLowerCase(),
           betAmount: Number(amount),
-          optionIndex: selectedPosition === POSITION_TYPE.YES ? 0 : 1,
+          optionIndex: selectedPosition === OPTIONS_TYPE.YES ? 0 : 1,
           duelId,
           duelType,
           asset,
@@ -241,9 +241,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
               </div>
               <div className="text-sm text-gray-400">
                 $
-                {selectedPosition === POSITION_TYPE.YES
-                  ? yesPrice?.toFixed(2)
-                  : noPrice?.toFixed(2)}
+                {selectedPosition === OPTIONS_TYPE.YES ? yesPrice?.toFixed(2) : noPrice?.toFixed(2)}
               </div>
             </div>
           </CardContent>

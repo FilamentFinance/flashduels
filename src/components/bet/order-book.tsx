@@ -1,9 +1,9 @@
+import { OPTIONS_TYPE } from '@/constants/dual';
 import { Card, CardContent } from '@/shadcn/components/ui/card';
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/shadcn/components/ui/table';
-import { OptionBetType, PositionType } from '@/types/dual';
+import { OptionBetType, OptionsType } from '@/types/dual';
 import { FC } from 'react';
 import { OrderItem } from './OrderItem';
-import { POSITION_TYPE } from '@/constants/dual';
 
 interface OrderBookProps {
   yesBets: OptionBetType[];
@@ -18,7 +18,7 @@ interface OrderBookProps {
 }
 
 const OrderBook: FC<OrderBookProps> = ({ yesBets, noBets, handleBuyOrders }) => {
-  const renderOrders = (orders: OptionBetType[], type: PositionType) => (
+  const renderOrders = (orders: OptionBetType[], type: OptionsType) => (
     <TableBody>
       {orders.map((order, index) => (
         <OrderItem
@@ -40,14 +40,14 @@ const OrderBook: FC<OrderBookProps> = ({ yesBets, noBets, handleBuyOrders }) => 
     </TableBody>
   );
 
-  const OrderTable = ({ orders, type }: { orders: OptionBetType[]; type: PositionType }) => (
+  const OrderTable = ({ orders, type }: { orders: OptionBetType[]; type: OptionsType }) => (
     <div className="h-full">
       <Table>
         <TableHeader className="sticky top-0 bg-neutral-900 z-10">
           <TableRow className="border-b-2 border-stone-900 hover:bg-transparent">
             <TableHead className="w-24 text-stone-200 py-3">Price</TableHead>
             <TableHead className="text-stone-200 py-3">
-              {type === POSITION_TYPE.YES ? 'Quantity' : 'Amount'}
+              {type === OPTIONS_TYPE.YES ? 'Quantity' : 'Amount'}
             </TableHead>
             <TableHead className="w-24 py-3" />
           </TableRow>
@@ -67,10 +67,10 @@ const OrderBook: FC<OrderBookProps> = ({ yesBets, noBets, handleBuyOrders }) => 
         ) : (
           <div className="flex h-[300px] divide-x-2 divide-stone-900">
             <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-stone-700 scrollbar-track-transparent">
-              <OrderTable orders={yesBets} type={POSITION_TYPE.YES} />
+              <OrderTable orders={yesBets} type={OPTIONS_TYPE.YES} />
             </div>
             <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-stone-700 scrollbar-track-transparent">
-              <OrderTable orders={noBets} type={POSITION_TYPE.NO} />
+              <OrderTable orders={noBets} type={OPTIONS_TYPE.NO} />
             </div>
           </div>
         )}

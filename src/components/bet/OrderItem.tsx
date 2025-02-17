@@ -1,12 +1,14 @@
+import { OPTIONS_TYPE } from '@/constants/dual';
 import { Button } from '@/shadcn/components/ui/button';
 import { TableCell, TableRow } from '@/shadcn/components/ui/table';
 import { cn } from '@/shadcn/lib/utils';
+import { OptionsType } from '@/types/dual';
 import * as React from 'react';
 
 interface OrderItemProps {
   price: string;
   amount: string;
-  type: 'YES' | 'NO';
+  type: OptionsType;
   onBuy: () => void;
 }
 
@@ -32,7 +34,7 @@ export const OrderItem: React.FC<OrderItemProps> = ({ price, amount, type, onBuy
             'text-neutral-300 hover:text-white',
             'hover:bg-neutral-800 hover:border-neutral-600',
             'transition-colors duration-200',
-            type === 'YES' ? 'hover:border-[#95DE64]/50' : 'hover:border-red-500/50',
+            type === OPTIONS_TYPE.YES ? 'hover:border-[#95DE64]/50' : 'hover:border-red-500/50',
           )}
         >
           BUY

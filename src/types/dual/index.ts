@@ -2,9 +2,9 @@ import {
   DUAL,
   DUAL_DURATION,
   DUAL_STATUS,
+  OPTIONS_TYPE,
   ORDER_TYPE,
   POSITION,
-  POSITION_TYPE,
   WIN_CONDITIONS,
 } from '@/constants/dual';
 
@@ -143,4 +143,4 @@ type TableDuel = {
 export type ActiveDuels = TableDuel[];
 
 export type OrderType = (typeof ORDER_TYPE)[keyof typeof ORDER_TYPE];
-export type PositionType = (typeof POSITION_TYPE)[keyof typeof POSITION_TYPE];
+export type OptionsType = (typeof OPTIONS_TYPE)[keyof typeof OPTIONS_TYPE];
