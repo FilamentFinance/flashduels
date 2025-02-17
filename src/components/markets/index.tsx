@@ -17,7 +17,7 @@ const Markets: FC = () => {
   const [duels, setDuels] = useState<Duel[]>([]);
   const [activeStatus, setActiveStatus] = useState<TDualStatus>(DUAL_STATUS.LIVE);
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeCategory, setActiveCategory] = useState(CATEGORIES['ANY'].title); // Category state
+  const [activeCategory, setActiveCategory] = useState(CATEGORIES['ALL_DUELS'].title); // Category state
   const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
@@ -96,7 +96,8 @@ const Markets: FC = () => {
   }, [activeStatus]);
   const filteredDuels = duels.filter((duel) => {
     const matchesSearch = duel.title.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = activeCategory === 'Any' ? true : duel.category === activeCategory;
+    const matchesCategory =
+      activeCategory === 'All Duels' ? true : duel.category === activeCategory;
     return matchesSearch && matchesCategory;
   });
 

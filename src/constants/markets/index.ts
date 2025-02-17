@@ -4,29 +4,21 @@ export const CATEGORIES: {
     icon: string;
   };
 } = {
-  ANY: {
-    title: 'Any',
+  ALL_DUELS: {
+    title: 'All Duels',
     icon: '⚡',
-  },
-  // LIQUIDITY: {
-  //   title: 'Liquidity',
-  //   icon: '💧',
-  // },
-  // ENDING_SOON: {
-  //   title: 'Ending Soon',
-  //   icon: '⌛',
-  // },
-  // COMPETITIVE: {
-  //   title: 'Competitive',
-  //   icon: '⚔️',
-  // },
-  SPORTS: {
-    title: 'Sports',
-    icon: '⚽',
   },
   CRYPTO: {
     title: 'Crypto',
     icon: '🪙',
+  },
+  US_ELECTION: {
+    title: 'US Election',
+    icon: '🇺🇸',
+  },
+  SPORTS: {
+    title: 'Sports',
+    icon: '⚽',
   },
 } as const;
 
