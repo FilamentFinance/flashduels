@@ -21,12 +21,10 @@ import { useAtom } from "jotai";
 import { GeneralNotificationAtom } from "../GeneralNotification";
 import { OrdersTable } from "./orders/OrdersTable";
 import { DetailsModal } from "./details/DetailsModal";
-import { FLASHDUELS_MARKETPLACE } from "@/abi/FlashDuelsMarketplaceFacet";
 import { FLASHUSDCABI } from "@/abi/FLASHUSDC";
 import {  useWriteContract } from "wagmi";
 // import { FLASHDUELS_VIEWFACET } from "@/abi/FlashDuelsViewFacet";
 import Decimal from "decimal.js";
-import { useOptionAddress } from "@/blockchain/useOptionAddress";
 
 
 export const MarketDuel: React.FC<BetCardProps> = ({
@@ -90,9 +88,9 @@ export const MarketDuel: React.FC<BetCardProps> = ({
   const {
     writeContractAsync: lpTokenApproveAsyncLocal,
   } = useWriteContract({});
-  const {
-    writeContractAsync: lpTokenSecondFunctionAsyncLocal,
-  } = useWriteContract({});
+  // const {
+  //   writeContractAsync: lpTokenSecondFunctionAsyncLocal,
+  // } = useWriteContract({});
 
   const lpTokenApproveAsync = async (amount: string) =>
 
@@ -104,16 +102,16 @@ export const MarketDuel: React.FC<BetCardProps> = ({
       args: [NEXT_PUBLIC_DIAMOND, (new Decimal(amount).mul(10 ** 6)).toFixed(0)],
     });
 
-  const buyBet = async (sellId: number) =>
-    //  console.log(sellId, optionTokenAddress, index, "buy-bet")
-    lpTokenSecondFunctionAsyncLocal({
-      abi: FLASHDUELS_MARKETPLACE,
-      address: NEXT_PUBLIC_DIAMOND as `0x${string}`,
-      functionName: "buy",
-      chainId: CHAIN_ID,
-      args: [optionTokenAddress, duelId, optionIndex, sellId],
-    });
-  ;
+  // const buyBet = async (sellId: number) =>
+  //   //  console.log(sellId, optionTokenAddress, index, "buy-bet")
+  //   lpTokenSecondFunctionAsyncLocal({
+  //     abi: FLASHDUELS_MARKETPLACE,
+  //     address: NEXT_PUBLIC_DIAMOND as `0x${string}`,
+  //     functionName: "buy",
+  //     chainId: CHAIN_ID,
+  //     args: [optionTokenAddress, duelId, optionIndex, sellId],
+  //   });
+  // ;
 
 
 
@@ -137,19 +135,8 @@ export const MarketDuel: React.FC<BetCardProps> = ({
   const { prices } = usePrice();
   // Assuming useTotalBets is defined elsewhere
   const { totalBetYes, totalBetNo } = useTotalBets(duelId);
-  const [optionIndex, setOptionIndex] = useState<number | null>();
-  const [optionTokenAddress, setOptionTokenAddress] = useState<string | null>(null);
-  const { optionTokenAddressData } = useOptionAddress(duelId, optionIndex as number);
+  // const [optionIndex, setOptionIndex] = useState<number | null>();
 
-  console.log(optionIndex, "optionIndex")
-
-  React.useEffect(() => {
-    if (optionTokenAddressData) {
-      console.log("Triggered address")
-      setOptionTokenAddress(optionTokenAddressData as string);
-    }
-  }, [optionTokenAddressData, optionIndex]);
-  // console.log(ws?.readyState, "ws-new")
   React.useEffect(() => {
 
     const socket = new WebSocket(`${NEXT_PUBLIC_WS_URL}/betWebSocket?duelId=${duelId}`);
@@ -200,17 +187,16 @@ export const MarketDuel: React.FC<BetCardProps> = ({
 
   const handleBuyOrders = async (betOptionMarketId: string, quantity: string, index: number, sellId: number, amount: string) => {
     console.log(amount, "amount", index)
-    setOptionIndex(index)
+    // setOptionIndex(index)
     await lpTokenApproveAsync(amount)
-    if (optionTokenAddress) {
-      await buyBet(sellId); // Ensure buyBet is called after token address is set
-    }
-    console.log("reached-here")
+    // if (optionTokenAddress) {
+    //   await buyBet(sellId); 
+    // }
 
     try {
       const response = await apiClient.post(
         `${NEXT_PUBLIC_API}/betOption/buy`,
-        { duelId, betOptionMarketId, amount },
+        { duelId, betOptionMarketId, amount, index },
       );
       const data = response.data.message;
 
@@ -228,6 +214,9 @@ export const MarketDuel: React.FC<BetCardProps> = ({
         success: false,
         massage: "Failed to Purchase Bet",
       });
+    }finally{
+      getBets();
+
     }
   }
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
@@ -272,15 +261,7 @@ export const MarketDuel: React.FC<BetCardProps> = ({
           console.error("Error fetching prices:", error);
         }
       } else {
-        // const timePeriod = endsIn / 24;
 
-        // const pricingValue = calculateFlashDuelsOptionPrice(
-        //   timePeriod < 1 ? 1 : timePeriod,
-        //   totalBetNo || 0,
-        //   totalBetYes || 0
-        // );
-        // setNoPrice(pricingValue["priceNo"]);
-        // setYesPrice(pricingValue["priceYes"]);
         const websocket = new WebSocket(`${NEXT_PUBLIC_WS_URL}/flashduelsOptionPricingWebSocket`);
 
         websocket.onopen = () => {
@@ -611,7 +592,7 @@ export const MarketDuel: React.FC<BetCardProps> = ({
                           setBetAmount={setBetAmount}
                           text={"Amount"}
                           showAvailable={true}
-                          showUSDC={true}
+                          showUSDC={false}
                         />
                         {/* Order summary */}
 
@@ -642,70 +623,7 @@ export const MarketDuel: React.FC<BetCardProps> = ({
                       />
                     </div>
 
-                    {/* Match market orders toggle */}
-                    {/* <div className="flex items-center mt-3 w-full">
-                      <div className="flex flex-1 shrink gap-2 items-center self-stretch my-auto w-full rounded-lg basis-0 min-w-[240px]">
-                        <label className="flex gap-2.5 items-center self-stretch my-auto w-4">
-                          <input
-                            type="checkbox"
-                            className="hidden"
-                            aria-label="Match market orders"
-                          />
-                          <div className="flex overflow-hidden justify-center items-center self-stretch my-auto w-4 h-4 bg-pink-300 rounded border border-solid border-pink-300 border-opacity-60 min-h-[16px]">
-                            <img
-                              loading="lazy"
-                              src="https://cdn.builder.io/api/v1/image/assets/4bd09ea4570a4d12834637c604f75b6a/2d84382d7a37b16c1d5e2a3a2db49814b8cbc0e8a36a591e566745fc640a27ef?apiKey=0079b6be27434c51a81de1c6567570a7&"
-                              className="object-contain self-stretch my-auto w-3.5 aspect-square"
-                              alt=""
-                            />
-                          </div>
-                        </label>
-                        <div className="self-stretch pt-0.5 my-auto w-36 text-sm font-medium tracking-normal leading-none text-white">
-                          Match Market Orders
-                        </div>
-                        <img
-                          loading="lazy"
-                          src="https://cdn.builder.io/api/v1/image/assets/4bd09ea4570a4d12834637c604f75b6a/a57915f697782d6642a6220d20312f1518adeeed663a49a5b001ab1e95e81fd8?apiKey=0079b6be27434c51a81de1c6567570a7&"
-                          className="object-contain shrink-0 self-stretch my-auto w-4 aspect-square"
-                          alt=""
-                        />
-                      </div>
-                    </div> */}
-
-
-
-                    {/* Order details */}
-                    {/* <div className="flex flex-col justify-center mt-3 w-full text-sm tracking-normal leading-none">
-                      <div className="flex gap-10 justify-between items-center w-full text-gray-400">
-                        <div className="flex flex-col items-start self-stretch my-auto w-[91px]">
-                          <div>Avg. Price</div>
-                        </div>
-                        <div className="flex flex-col self-stretch my-auto whitespace-nowrap">
-                          <div>$0.56</div>
-                        </div>
-                      </div>
-                      <div className="flex justify-between items-center mt-1 w-full">
-                        <div className="flex gap-1 items-center self-stretch my-auto text-gray-400 whitespace-nowrap min-w-[240px] w-[326px]">
-                          <div className="flex flex-col items-start self-stretch my-auto w-[91px]">
-                            <div>Order</div>
-                          </div>
-                        </div>
-                        <div className="flex flex-col self-stretch my-auto text-gray-400">
-                          <div>
-                            2000 <span className="text-gray-400">YES</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex gap-10 justify-between items-center mt-1 w-full">
-                        <div className="flex flex-col items-start self-stretch my-auto text-gray-400 w-[91px]">
-                          <div>Potential Return</div>
-                        </div>
-                        <div className="flex flex-col self-stretch my-auto text-lime-300 whitespace-nowrap">
-                          <div>$2500(40%)</div>
-                        </div>
-                      </div>
-                    </div> */}
-                    {/* </div>  */}
+                 
                   </>
                 ) : (
                   <>
@@ -733,7 +651,7 @@ export const MarketDuel: React.FC<BetCardProps> = ({
                           setBetAmount={setBetAmount}
                           text={"Quantity"}
                           showAvailable={false}
-                          showUSDC={false}
+                          showUSDC={true}
                         />
                         <PriceModal
                           priceOfBet={priceOfBet.toString()}

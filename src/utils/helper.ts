@@ -27,6 +27,21 @@ export enum DuelCategory {
 }
 
 
+export function multiplyBy10Power(numStr: string, power: number) {
+  const [integerPart, fractionalPart = ""] = numStr.split(".");
+
+  if (fractionalPart.length === power) {
+    return integerPart + fractionalPart;
+  }
+
+  if (fractionalPart.length > power) {
+    return integerPart + fractionalPart.slice(0, power);
+  }
+  const zerosToPad = "0".repeat(power - fractionalPart.length);
+  return integerPart + fractionalPart + zerosToPad;
+}
+
+
 export const mapCategoryToEnum = (category: string): DuelCategory => {
   switch (category.toLowerCase()) {
     // case "crypto":

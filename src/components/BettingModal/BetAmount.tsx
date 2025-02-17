@@ -53,7 +53,7 @@ const BetAmount: React.FC<BetAmountProps> = ({ availableAmount, betAmount, setBe
               <input
                 type="text"
                 id="betAmount"
-                value={`$${betAmount}`}
+                value={`${!showUSDC ? `$${betAmount}` : betAmount}`}
                 onChange={handleAmountChange}
                 aria-label="Duel amount"
                 className="text-xl font-medium tracking-normal leading-none text-stone-200 bg-transparent border-none"
