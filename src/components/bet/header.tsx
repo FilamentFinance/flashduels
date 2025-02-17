@@ -1,6 +1,7 @@
 import { FC } from 'react';
 import DetailsAndRules from './details-and-rules';
 import PercentageBlocks from './percentage-blocks';
+import Image from 'next/image';
 
 type Props = {
   title: string;
@@ -20,7 +21,13 @@ const Header: FC<Props> = ({ title, logo, triggerPrice, token, liquidity, endsIn
         {/* Back Button and Logo */}
         <div className="flex items-center gap-4 mx-2">
           <div>
-            <img src={logo || '/empty-string.png'} alt={title} className="w-12 h-12 rounded-full" />
+            <Image
+              src={logo || '/empty-string.png'}
+              alt={title}
+              width={48}
+              height={48}
+              className="rounded-full object-cover"
+            />
           </div>
         </div>
 

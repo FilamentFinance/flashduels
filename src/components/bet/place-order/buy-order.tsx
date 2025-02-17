@@ -19,6 +19,7 @@ import { FC, useCallback, useMemo, useState } from 'react';
 import { shallowEqual, useSelector } from 'react-redux';
 import { formatUnits, parseUnits } from 'viem/utils';
 import { useAccount } from 'wagmi';
+import Image from 'next/image';
 import PositionSelector from './position-selector';
 // import { PositionSelector } from './PositionSelector';
 
@@ -215,7 +216,13 @@ const BuyOrder: FC<BuyOrderProps> = ({
               autoComplete="off"
             />
             <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
-              <img src={LOGOS.USDC.icon} alt="USDC" className="w-7 h-7" />
+              <Image
+                src={LOGOS.USDC.icon}
+                alt="USDC"
+                width={28}
+                height={28}
+                className="rounded-full object-cover"
+              />
               <span className="text-white text-lg font-medium">USDC</span>
             </div>
           </div>

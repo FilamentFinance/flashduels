@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 
 interface DuelRowProps {
   duelName: string;
@@ -70,7 +71,13 @@ export const DuelRow: React.FC<DuelRowProps> = ({
   return (
     <div className="flex items-center px-4 py-2 text-sm text-stone-300 border-b border-neutral-800">
       <div className="w-[25%] flex items-center gap-2">
-        <img src={icon} alt={duelName} className="w-6 h-6 rounded-full" />
+        <Image
+          src={icon || '/empty-string.png'}
+          alt={duelName}
+          width={24}
+          height={24}
+          className="rounded-full object-cover"
+        />
         <span>{duelName}</span>
       </div>
       <div
