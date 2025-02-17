@@ -2,7 +2,7 @@ export interface OrderItemProps {
   price: string;
   amount: string;
   type: string;
-  onBuy: () => void;
+  // onBuy: () => void;
 }
 
 export interface MarketStatsProps {

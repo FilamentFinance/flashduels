@@ -117,6 +117,7 @@ export const MarketDuel: React.FC<BetCardProps> = ({
   //   });
   // ;
 
+
   // Function to format time in HH:MM:SS format
   const formatTime = (ms: number) => {
     const totalSeconds = Math.floor(ms / 1000);
@@ -191,24 +192,14 @@ export const MarketDuel: React.FC<BetCardProps> = ({
   const price = formattedId && prices[formattedId];
   const priceFormatted = Number(ethers.formatUnits(String(price || 0), 8));
 
-  const handleBuyOrders = async (
-    betOptionMarketId: string,
-    quantity: string,
-    index: number,
-    sellId: number,
-    amount: string
-  ) => {
-    console.log(amount, "amount", index);
-    // setOptionIndex(index)
-    await lpTokenApproveAsync(amount);
-    // if (optionTokenAddress) {
-    //   await buyBet(sellId);
-    // }
-
+  const handleBuyOrders = async () => {
+    const index = betState === "YES" ? 0 : 1;
+    console.log(betAmount, "amount", index);
+    await lpTokenApproveAsync(betAmount);
     try {
       const response = await apiClient.post(
         `${NEXT_PUBLIC_API}/betOption/buy`,
-        { duelId, betOptionMarketId, amount, index }
+        { duelId, amount: betAmount, index }
       );
       const data = response.data.message;
 
@@ -225,8 +216,6 @@ export const MarketDuel: React.FC<BetCardProps> = ({
         success: false,
         massage: "Failed to Purchase Bet",
       });
-    } finally {
-      getBets();
     }
   };
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
@@ -484,15 +473,15 @@ export const MarketDuel: React.FC<BetCardProps> = ({
                               price={order.price}
                               amount={order.quantity}
                               type={"YES"}
-                              onBuy={() =>
-                                handleBuyOrders(
-                                  order.id,
-                                  order.quantity,
-                                  order.betOption?.index as number,
-                                  order.sellId,
-                                  order.amount
-                                )
-                              }
+                              // onBuy={() =>
+                              //   handleBuyOrders(
+                              //     order.id,
+                              //     order.quantity,
+                              //     order.betOption?.index as number,
+                              //     order.sellId,
+                              //     order.amount
+                              //   )
+                              // }
                             />
                           ))}
                         </div>
@@ -516,7 +505,7 @@ export const MarketDuel: React.FC<BetCardProps> = ({
                             <div className="flex gap-2 items-start w-[139px]">
                               <div className="flex flex-col flex-1 shrink w-full basis-0">
                                 <div className="flex-1 shrink gap-1 self-stretch w-full text-ellipsis">
-                                  Amount
+                                  Quantity
                                 </div>
                               </div>
                             </div>
@@ -529,15 +518,15 @@ export const MarketDuel: React.FC<BetCardProps> = ({
                               price={order.price}
                               amount={order.quantity}
                               type={"NO"}
-                              onBuy={() =>
-                                handleBuyOrders(
-                                  order.id,
-                                  order.quantity,
-                                  order.betOption?.index as number,
-                                  order.sellId,
-                                  order.amount
-                                )
-                              }
+                              // onBuy={() =>
+                              //   handleBuyOrders(
+                              //     order.id,
+                              //     order.quantity,
+                              //     order.betOption?.index as number,
+                              //     order.sellId,
+                              //     order.amount
+                              //   )
+                              // }
                             />
                           ))}
                         </div>
@@ -649,6 +638,14 @@ export const MarketDuel: React.FC<BetCardProps> = ({
                         markPrice={priceFormatted as number}
                         winCondition={winCondition}
                       />
+                      <button
+                        onClick={handleBuyOrders}
+                        className="flex flex-col mt-4 w-full text-base font-semibold leading-none text-gray-900"
+                      >
+                        <div className="gap-2.5 self-stretch px-3 py-2.5 w-full rounded shadow-sm bg-[linear-gradient(180deg,#F19ED2_0%,#C87ECA_100%)]">
+                          Market Buy
+                        </div>
+                      </button>
                     </div>
                   </>
                 ) : (

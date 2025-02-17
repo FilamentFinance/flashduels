@@ -64,41 +64,7 @@ const PlaceBetButton: React.FC<PlaceBetButtonProps> = ({
       console.log(receipt, "approve-hash");
 
       const optionIndex = bet === "YES" ? 0 : 1;
-      // const timePeriod = endsIn && endsIn / (365 * 24);
-
-      // let secondHash;
-      // let backendValue;
-      // let indexValue;
-
-      // if (duelType === "COIN_DUEL" && asset) {
-        // backendValue = await postPricingData(
-        //   markPrice,
-        //   Number(triggerPrice),
-        //   asset,
-        //   timePeriod as number,
-        //   totalBetYes || 0,
-        //   totalBetNo || 0
-        // );
-        // indexValue = bet === "YES" ? backendValue["Yes Price"] : backendValue["No Price"];
-        // const optionPrice = Math.floor(indexValue * 10 ** 6);
-        // await apiClient.post(
-        //   `${NEXT_PUBLIC_API}/blockchain/joinCryptoDuel`,
-        //   {
-        //     duelId,
-        //     bet,
-        //     optionIndex,
-        //     amount,
-        //     address: address?.toLowerCase(),
-        //     asset
-        //   },
-        //   {
-        //     headers: {
-        //       "Content-Type": "application/json",
-        //     }
-        //   }
-        // );
-          //  } 
-     
+    
       await apiClient.post(
         `${NEXT_PUBLIC_API}/bets/create`,
         {
@@ -172,6 +138,7 @@ const PlaceBetButton: React.FC<PlaceBetButtonProps> = ({
     </div>
   </button>
 )}
+
 
     </div>
 

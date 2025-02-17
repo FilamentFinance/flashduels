@@ -5,7 +5,7 @@ export const OrderItem: React.FC<OrderItemProps> = ({
   price,
   amount,
   type,
-  onBuy,
+  // onBuy,
 }) => {
   return (
     <div className="flex pr-3 w-full">
@@ -31,13 +31,13 @@ export const OrderItem: React.FC<OrderItemProps> = ({
           </div>
         </div>
       </div>
-      <button
+      {/* <button
         onClick={onBuy}
         className="gap-2.5 self-stretch px-5 py-1 my-auto text-xs font-bold tracking-normal leading-relaxed whitespace-nowrap rounded-lg border border-solid bg-white bg-opacity-0 border-zinc-700 min-h-[24px] text-zinc-700"
         aria-label={`Buy ${amount} ${type} at ${price}`}
       >
         BUY
-      </button>
+      </button> */}
     </div>
   );
 };
