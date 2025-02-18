@@ -1,3 +1,4 @@
+import InviteGate from '@/components/invite-only/invite-gate';
 import Navbar from '@/components/navbar';
 import { ReduxProvider } from '@/providers/redux';
 import { Providers } from '@/providers/wagmi';
@@ -5,7 +6,6 @@ import { Toaster } from '@/shadcn/components/ui/toaster';
 import type { Metadata } from 'next';
 import { Cairo } from 'next/font/google';
 import './globals.css';
-import PriceWrapper from '@/providers/price-wrapper';
 
 const cairo = Cairo({
   subsets: ['latin'],
@@ -30,13 +30,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="bg-background text-white min-h-full">
         <ReduxProvider>
           <Providers>
-            <PriceWrapper>
+            <InviteGate>
               <div className="flex min-h-full flex-col">
                 <Navbar />
                 <main className="flex-1 mx-auto w-full px-4 sm:px-6 lg:px-8">{children}</main>
                 <Toaster />
               </div>
-            </PriceWrapper>
+            </InviteGate>
           </Providers>
         </ReduxProvider>
       </body>

@@ -2,20 +2,21 @@
 
 import { APP_ROUTES } from '@/constants/app/appRoutes';
 import { Button } from '@/shadcn/components/ui/button';
+import { RootState } from '@/store';
 import { truncateAddress } from '@/utils/general/getEllipsisTxt';
 import { FC } from 'react';
+import { shallowEqual, useSelector } from 'react-redux';
 import { useAccount } from 'wagmi';
+import ClaimFaucet from '../claim-faucet';
+import ClaimFunds from '../claim-funds';
+import CreateDual from '../create-dual';
+import Balance from './balance';
 import { ConnectButton } from './connectButton';
+import EnableTrading from './enableTrading';
+import GenerateInvite from '../invite-only/generate-invite';
 import Logo from './logo';
 import NavLink from './navLink';
 import { WalletModal } from './wallet-modal';
-import EnableTrading from './enableTrading';
-import { shallowEqual, useSelector } from 'react-redux';
-import { RootState } from '@/store';
-import CreateDual from '../create-dual';
-import ClaimFaucet from '../claim-faucet';
-import ClaimFunds from '../claim-funds';
-import Balance from './balance';
 
 const Navbar: FC = () => {
   const { address, isConnected } = useAccount();
@@ -44,6 +45,7 @@ const Navbar: FC = () => {
                 {truncateAddress(address)}
               </Button>
             </WalletModal>
+            <GenerateInvite />
           </div>
         ) : (
           <ConnectButton />
