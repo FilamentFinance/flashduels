@@ -1,11 +1,11 @@
 // components/invite-gate.tsx
 'use client';
 
+import { SERVER_CONFIG } from '@/config/server-config';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useAccount } from 'wagmi';
 import InviteOnly from './invite-only';
-import { SERVER_CONFIG } from '@/config/server-config';
 
 interface InviteValidationResponse {
   success: boolean;
@@ -55,7 +55,7 @@ const InviteGate: React.FC<InviteGateProps> = ({ children }) => {
     try {
       const response = await axios.post<InviteValidationResponse>(
         `${SERVER_CONFIG.INVITE_ONLY_URL}/join`,
-        { address, code },
+        { address, code, appType: 'flash-duels' },
         { headers: { 'Content-Type': 'application/json' } },
       );
       const result = response.data;
