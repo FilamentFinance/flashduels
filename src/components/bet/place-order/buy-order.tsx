@@ -165,7 +165,6 @@ const BuyOrder: FC<BuyOrderProps> = ({
     () => selectedPosition && amount && Number(amount) > 0 && !error,
     [selectedPosition, amount, error],
   );
-
   return (
     <Card className="bg-transparent border-none space-y-6">
       <CardContent className="p-0 space-y-6">

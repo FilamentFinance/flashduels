@@ -4,6 +4,10 @@ export const DUAL = {
 } as const;
 
 export const DUAL_DURATION = {
+  FIVE_MINUTES: '5M',
+  FIFTEEN_MINUTES: '15M',
+  THIRTY_MINUTES: '30M',
+  ONE_HOUR: '1H',
   THREE_HOURS: '3H',
   SIX_HOURS: '6H',
   TWELVE_HOURS: '12H',

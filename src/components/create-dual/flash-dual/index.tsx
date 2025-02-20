@@ -17,7 +17,6 @@ import {
   SelectValue,
 } from '@/shadcn/components/ui/select';
 import { Textarea } from '@/shadcn/components/ui/textarea';
-import { cn } from '@/shadcn/lib/utils';
 import { DualDuration } from '@/types/dual';
 import { mapCategoryToEnumIndex, mapDurationToNumber } from '@/utils/general/create-duels';
 import { getTransactionStatusMessage } from '@/utils/transaction';
@@ -32,7 +31,7 @@ interface FlashDualFormProps {
 
 const FlashDualForm: FC<FlashDualFormProps> = ({ onBack }) => {
   const [selectedDuration, setSelectedDuration] = useState<DualDuration>(DUAL_DURATION.THREE_HOURS);
-  const [selectedCategory, setSelectedCategory] = useState<string>(CATEGORIES.TRENDING.title);
+  const [selectedCategory, setSelectedCategory] = useState<string>(CATEGORIES['ALL_DUELS'].title);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -205,24 +204,27 @@ const FlashDualForm: FC<FlashDualFormProps> = ({ onBack }) => {
         </div>
 
         <div className="flex items-center justify-between gap-4">
-          <Label className="text-zinc-400 ">Ends in</Label>
-          <div className="inline-flex bg-[#1C1C1C] rounded-lg w-64 p-1 gap-1">
-            {Object.values(DUAL_DURATION).map((duration) => (
-              <Button
-                key={duration}
-                type="button"
-                onClick={() => setSelectedDuration(duration)}
-                variant="ghost"
-                className={cn(
-                  'flex-1 h-8 rounded-md text-sm font-medium transition-colors',
-                  selectedDuration === duration
-                    ? 'bg-[#F19ED2] text-black hover:bg-[#F19ED2]/90'
-                    : 'text-white hover:bg-zinc-800',
-                )}
-              >
-                {duration}
-              </Button>
-            ))}
+          <Label className="text-zinc-400">Ends in</Label>
+          <div className="w-32">
+            <Select
+              value={selectedDuration}
+              onValueChange={(value) => setSelectedDuration(value as DualDuration)}
+            >
+              <SelectTrigger className="bg-zinc-900 border-zinc-700">
+                <SelectValue placeholder="Select duration" />
+              </SelectTrigger>
+              <SelectContent className="bg-[#1C1C1C] border-zinc-700">
+                {Object.values(DUAL_DURATION).map((duration) => (
+                  <SelectItem
+                    key={duration}
+                    value={duration}
+                    className="text-white focus:bg-zinc-800 focus:text-white"
+                  >
+                    {duration}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </form>

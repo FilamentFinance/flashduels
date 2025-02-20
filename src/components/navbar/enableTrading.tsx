@@ -15,6 +15,8 @@ import { FC, useEffect, useState } from 'react';
 import { privateKeyToAccount } from 'viem/accounts';
 import { useAccount, useDisconnect, useSignMessage } from 'wagmi';
 import { SERVER_CONFIG } from '@/config/server-config';
+import { RootState } from '@/store';
+import { shallowEqual } from 'react-redux';
 
 interface WalletError extends Error {
   code: number;
@@ -28,7 +30,10 @@ const EnableTrading: FC = () => {
   const { signMessageAsync } = useSignMessage();
   const [isLoading, setIsLoading] = useState(false);
   const dispatch = useAppDispatch();
-  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
+  const isAuthenticated = useAppSelector(
+    (state: RootState) => state.auth.isAuthenticated,
+    shallowEqual,
+  );
   const { toast } = useToast();
 
   useEffect(() => {
