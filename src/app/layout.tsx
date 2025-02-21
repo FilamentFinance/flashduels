@@ -1,5 +1,6 @@
 import InviteGate from '@/components/invite-only/invite-gate';
 import Navbar from '@/components/navbar';
+import PriceWrapper from '@/providers/price-wrapper';
 import { ReduxProvider } from '@/providers/redux';
 import { Providers } from '@/providers/wagmi';
 import { Toaster } from '@/shadcn/components/ui/toaster';
@@ -31,11 +32,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ReduxProvider>
           <Providers>
             <InviteGate>
-              <div className="flex min-h-full flex-col">
-                <Navbar />
-                <main className="flex-1 mx-auto w-full px-4 sm:px-6 lg:px-8">{children}</main>
-                <Toaster />
-              </div>
+              <PriceWrapper>
+                <div className="flex min-h-full flex-col">
+                  <Navbar />
+                  <main className="flex-1 mx-auto w-full px-4 sm:px-6 lg:px-8">{children}</main>
+                  <Toaster />
+                </div>
+              </PriceWrapper>
             </InviteGate>
           </Providers>
         </ReduxProvider>
