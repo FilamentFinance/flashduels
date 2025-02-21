@@ -120,7 +120,7 @@ const CreateDuel = ({ closeDuelModal }: { closeDuelModal: () => void }) => {
       };
 
       await apiClient.post(
-        `${NEXT_PUBLIC_API}/duels/approve`,
+        `${NEXT_PUBLIC_API}/user/duels/approve`,
         {
           ...duelData,
           twitterUsername: "",

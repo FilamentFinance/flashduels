@@ -78,7 +78,7 @@ export const OrderRow: React.FC<OrderRowProps> = ({ order, duelId }) => {
             onClick={async () => {
               try {
                 await cancelSell(order.sellId)
-                const response = await apiClient.delete(`${NEXT_PUBLIC_API}/betOption/cancel`, {
+                const response = await apiClient.delete(`${NEXT_PUBLIC_API}/user/betOption/cancel`, {
                   data: {
                     betOptionMarketId: order.id,
                     duelId

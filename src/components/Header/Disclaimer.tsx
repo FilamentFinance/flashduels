@@ -73,7 +73,7 @@ const DisclaimerPopup: React.FC<DisclaimerPopupProps> = ({ onClose }) => {
       }
       if (signature) {
         console.log(hashMessage, "hashMessage", hashMsg);
-        const response = await apiClient.post(`${NEXT_PUBLIC_API}/users/auth`, {
+        const response = await apiClient.post(`${NEXT_PUBLIC_API}/user/auth`, {
           account: address?.toLowerCase(),
           signature: signature,
           publicKey: publicKey.toLowerCase(),

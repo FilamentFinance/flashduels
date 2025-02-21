@@ -12,7 +12,7 @@ export function DuelsDashboard() {
   const getDuelsData = async () => {
     try {
       const response = await apiClient.post(
-        `${NEXT_PUBLIC_API}/portfolio/table/duels`,
+        `${NEXT_PUBLIC_API}/user/portfolio/table/duels`,
         {
           userAddress: address?.toLowerCase(),
         },
@@ -31,7 +31,7 @@ export function DuelsDashboard() {
   const getHistoryData = async () => {
     try {
       const response = await apiClient.post(
-        `${NEXT_PUBLIC_API}/portfolio/table/history`,
+        `${NEXT_PUBLIC_API}/user/portfolio/table/history`,
         {
           userAddress: address?.toLowerCase(),
         },

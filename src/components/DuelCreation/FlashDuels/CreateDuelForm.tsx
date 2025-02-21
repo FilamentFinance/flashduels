@@ -69,7 +69,7 @@ const CreateDuelForm = ({ closeDuelModal }: { closeDuelModal: () => void }) => {
       // Fetch pre-signed URL from the backend
       setUploading(true);
       try {
-        const { data } = await apiClient.post(`${NEXT_PUBLIC_API}/aws/generate-presigned-url`, {
+        const { data } = await apiClient.post(`${NEXT_PUBLIC_API}/user/aws/generate-presigned-url`, {
           fileName: file.name,
           fileType: file.type,
         });
@@ -160,7 +160,7 @@ const CreateDuelForm = ({ closeDuelModal }: { closeDuelModal: () => void }) => {
       };
       // Send request to your backend
       await apiClient.post(
-        `${NEXT_PUBLIC_API}/duels/approve`,
+        `${NEXT_PUBLIC_API}/user/duels/approve`,
         {
           ...duelData,
           twitterUsername: "",

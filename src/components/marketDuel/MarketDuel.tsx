@@ -198,7 +198,7 @@ export const MarketDuel: React.FC<BetCardProps> = ({
     await lpTokenApproveAsync(betAmount);
     try {
       const response = await apiClient.post(
-        `${NEXT_PUBLIC_API}/betOption/buy`,
+        `${NEXT_PUBLIC_API}/user/betOption/buy`,
         { duelId, amount: betAmount, index }
       );
       const data = response.data.message;
@@ -300,7 +300,7 @@ export const MarketDuel: React.FC<BetCardProps> = ({
   const getBets = async () => {
     try {
       const response = await apiClient.post(
-        `${NEXT_PUBLIC_API}/bets/getByUser`,
+        `${NEXT_PUBLIC_API}/user/bets/getByUser`,
         { duelId: duelId }
       );
       const data = response.data;

@@ -34,7 +34,7 @@ const BetPage = () => {
         try {
           setLoading(true); // Start loading
           const response = await apiClient.get(
-            `${NEXT_PUBLIC_API}/duels/get-duel-by-id/${duelId}`
+            `${NEXT_PUBLIC_API}/user/duels/get-duel-by-id/${duelId}`
           );
           setDuel(response.data);
           setError(null); // Clear any previous errors

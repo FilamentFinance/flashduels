@@ -148,7 +148,7 @@ const SellButton: React.FC<SellButtonProps> = ({
       console.log(betOptionId, quantity, price, parseFloat(quantity), "betOptionId, quantity, price")
 
       await apiClient.post(
-        `${NEXT_PUBLIC_API}/betOption/sell`,
+        `${NEXT_PUBLIC_API}/user/betOption/sell`,
         {
           betOptionId,
           quantity: quantity,

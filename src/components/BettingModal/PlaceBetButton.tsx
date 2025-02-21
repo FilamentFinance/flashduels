@@ -66,7 +66,7 @@ const PlaceBetButton: React.FC<PlaceBetButtonProps> = ({
       const optionIndex = bet === "YES" ? 0 : 1;
     
       await apiClient.post(
-        `${NEXT_PUBLIC_API}/bets/create`,
+        `${NEXT_PUBLIC_API}/user/bets/create`,
         {
           twitterUsername: "",
           bet,

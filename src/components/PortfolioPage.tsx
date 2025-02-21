@@ -41,7 +41,7 @@ const PortfolioPage: React.FC = () => {
   React.useEffect(() => {
     const fetchAccountData = async () => {
       try {
-        const response = await apiClient.post(`${NEXT_PUBLIC_API}/portfolio/accountDetails`, {
+        const response = await apiClient.post(`${NEXT_PUBLIC_API}/user/portfolio/accountDetails`, {
           userAddress: address?.toLowerCase(),
         }, {
           headers: {

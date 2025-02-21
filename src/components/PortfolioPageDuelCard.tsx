@@ -16,7 +16,7 @@ export const PortfolioGrid = ({ activeButton, specialCategoryIndex }: { activeBu
     const fetchDuels = async () => {
       setLoading(true); // Set loading to true when fetching data
       try {
-        const response = await apiClient.post(`${NEXT_PUBLIC_API}/portfolio/duels`, {
+        const response = await apiClient.post(`${NEXT_PUBLIC_API}/user/portfolio/duels`, {
           userAddress: address?.toLowerCase(),
         }, {
           headers: {
