@@ -56,12 +56,11 @@ export const OrdersHistory = ({ duelId }: OrdersTableProps) => {
 
     if (result.success) {
       // Update backend
-      await baseApiClient.delete(`${SERVER_CONFIG.API_URL}/betOption/cancel`, {
+      await baseApiClient.delete(`${SERVER_CONFIG.API_URL}/user/betOption/cancel`, {
         data: {
           duelId,
-          address,
-          position: order.betOptionIndex,
-          sellId: order.sellId,
+          betOptionMarketId: order.id,
+          userAddress: address?.toLowerCase(),
         },
       });
 
@@ -85,7 +84,7 @@ export const OrdersHistory = ({ duelId }: OrdersTableProps) => {
     if (!address) {
       return null;
     }
-
+    const token = localStorage.getItem(`Bearer_${address!.toLowerCase()}`);
     // Create an instance of WebSocketManager by passing the address.
     const manager = new WebSocketManager<OpenOrdersMessage>({
       address, // The manager will retrieve the token automatically.

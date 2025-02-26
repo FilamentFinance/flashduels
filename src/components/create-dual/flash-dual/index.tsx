@@ -87,7 +87,7 @@ const FlashDualForm: FC<FlashDualFormProps> = ({ onBack }) => {
           endsIn: DURATIONS[durationNumber],
         };
 
-        await baseApiClient.post(`${SERVER_CONFIG.API_URL}/duels/approve`, {
+        await baseApiClient.post(`${SERVER_CONFIG.API_URL}/user/duels/approve`, {
           ...duelData,
           twitterUsername: '',
           address: address?.toLowerCase(),

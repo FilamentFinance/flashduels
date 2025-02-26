@@ -103,7 +103,7 @@ const EnableTrading: FC = () => {
         localStorage.setItem(`signingKeyExpiry_${address.toLowerCase()}`, expiry);
 
         // Make API call to backend
-        const response = await fetch(`${SERVER_CONFIG.API_URL}/users/auth`, {
+        const response = await fetch(`${SERVER_CONFIG.API_URL}/user/auth`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

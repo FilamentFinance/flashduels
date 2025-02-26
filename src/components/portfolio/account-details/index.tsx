@@ -36,7 +36,7 @@ const AccountDetails: FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await baseApiClient.post('/portfolio/accountDetails', {
+      const response = await baseApiClient.post('user/portfolio/accountDetails', {
         userAddress: address.toLowerCase(),
       });
       setAccountData(response.data.portfolioData);

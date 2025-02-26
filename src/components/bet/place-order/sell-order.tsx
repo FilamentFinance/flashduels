@@ -48,13 +48,27 @@ const SellOrder: FC<SellOrderProps> = ({ duelId }) => {
     price,
   );
 
-  const handlePositionSelect = useCallback((position: OptionsType) => {
-    setSelectedPosition(position);
-    setError('');
-    setAmount('');
-    setPrice('0');
-    setSelectedBet(null);
-  }, []);
+  const handlePositionSelect = useCallback(
+    (position: OptionsType) => {
+      setSelectedPosition(position);
+      setError('');
+      setAmount('');
+      setPrice('0');
+      setSelectedBet(null);
+
+      // Auto-select the first bet that matches the position
+      const matchingBets = betsData.filter(
+        (bet) =>
+          (position === OPTIONS_TYPE.YES && bet.index === 0) ||
+          (position === OPTIONS_TYPE.NO && bet.index === 1),
+      );
+
+      if (matchingBets.length > 0) {
+        handleBetSelect(matchingBets[0]);
+      }
+    },
+    [betsData],
+  );
 
   const validateAndSetAmount = useCallback(
     (value: string) => {
@@ -89,6 +103,13 @@ const SellOrder: FC<SellOrderProps> = ({ duelId }) => {
     },
     [selectedBet],
   );
+
+  const setMaxAmount = useCallback(() => {
+    if (selectedBet) {
+      setAmount(selectedBet.quantity);
+      setError('');
+    }
+  }, [selectedBet]);
 
   const validateAndSetPrice = useCallback((value: string) => {
     setPriceError('');
@@ -148,9 +169,7 @@ const SellOrder: FC<SellOrderProps> = ({ duelId }) => {
       if (!result.success) {
         throw new Error(result.error || 'Failed to place sell order');
       }
-
-      // Update backend
-      await baseApiClient.post(`${SERVER_CONFIG.API_URL}/betOption/sell`, {
+      console.log({
         duelId,
         address,
         position: selectedPosition,
@@ -160,6 +179,24 @@ const SellOrder: FC<SellOrderProps> = ({ duelId }) => {
         // amount: result.amount,
         sellId: result.sellId,
       });
+      // Update backend
+      await baseApiClient.post(
+        `${SERVER_CONFIG.API_URL}/user/betOption/sell`,
+        {
+          betOptionId,
+          quantity: amount,
+          price: price,
+          duelId,
+          amount: result?.amount,
+          sellId: Number(result?.sellId),
+          userAddress: address?.toLowerCase(),
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem(`Bearer_${address?.toLowerCase()}`)}`,
+          },
+        },
+      );
 
       setAmount('');
       setPrice('0');
@@ -197,10 +234,18 @@ const SellOrder: FC<SellOrderProps> = ({ duelId }) => {
 
   const getBets = useCallback(async () => {
     try {
-      const response = await baseApiClient.post(`${SERVER_CONFIG.API_URL}/bets/getByUser`, {
-        duelId,
-        address,
-      });
+      const response = await baseApiClient.post(
+        `${SERVER_CONFIG.API_URL}/user/bets/getByUser`,
+        {
+          duelId,
+          address,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem(`Bearer_${address?.toLowerCase()}`)}`,
+          },
+        },
+      );
       setBetsData(response.data.bets[0].options);
     } catch (error) {
       console.error('Error fetching bet:', error);
@@ -228,6 +273,9 @@ const SellOrder: FC<SellOrderProps> = ({ duelId }) => {
     [selectedPosition, amount, price, error, priceError],
   );
 
+  const yesBets = useMemo(() => betsData.filter((bet) => bet.index === 0), [betsData]);
+  const noBets = useMemo(() => betsData.filter((bet) => bet.index === 1), [betsData]);
+
   useEffect(() => {
     getBets();
   }, [getBets]);
@@ -247,9 +295,20 @@ const SellOrder: FC<SellOrderProps> = ({ duelId }) => {
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="quantity" className="text-zinc-400">
-              Quantity
-            </Label>
+            <div className="flex justify-between">
+              <Label htmlFor="quantity" className="text-zinc-400">
+                Quantity
+              </Label>
+              {selectedBet && (
+                <Button
+                  variant="link"
+                  className="text-[#F19ED2] p-0 h-auto text-sm"
+                  onClick={setMaxAmount}
+                >
+                  MAX
+                </Button>
+              )}
+            </div>
             <Input
               id="quantity"
               type="text"
@@ -291,26 +350,58 @@ const SellOrder: FC<SellOrderProps> = ({ duelId }) => {
           <CardHeader className="px-0 py-2">
             <CardTitle className="text-gray-400 text-base font-normal">Your Bets</CardTitle>
           </CardHeader>
-          <CardContent className="p-0 space-y-2">
-            {betsData.map((bet, index) => (
-              <Button
-                key={index}
-                onClick={() => handleBetSelect(bet)}
-                variant="outline"
-                className={cn(
-                  'w-full justify-between h-auto p-3 text-sm hover:bg-neutral-800 border border-neutral-700',
-                  selectedBet?.id === bet.id
-                    ? 'bg-neutral-800 border-[#F19ED2] text-white'
-                    : 'bg-neutral-900 text-gray-400',
-                )}
-              >
-                <span>
-                  {Number(bet.quantity).toFixed(4)}{' '}
-                  {bet.index === 0 ? OPTIONS_TYPE.YES : OPTIONS_TYPE.NO}
-                </span>
-                <span>${bet.price}</span>
-              </Button>
-            ))}
+          <CardContent className="p-0 space-y-4">
+            {yesBets.length > 0 && (
+              <div className="space-y-2">
+
+                {yesBets.map((bet) => (
+                  <Button
+                    key={bet.id}
+                    onClick={() => handleBetSelect(bet)}
+                    variant="outline"
+                    className={cn(
+                      'w-full justify-between h-auto p-3 text-sm hover:bg-neutral-800 border border-neutral-700',
+                      selectedBet?.id === bet.id
+                        ? 'bg-neutral-800 border-[#F19ED2] text-white'
+                        : 'bg-neutral-900 text-gray-400',
+                    )}
+                  >
+                    <span>
+                      {Number(bet.quantity).toFixed(4)} {OPTIONS_TYPE.YES}
+                    </span>
+                    <span>${bet.price}</span>
+                  </Button>
+                ))}
+              </div>
+            )}
+
+            {noBets.length > 0 && (
+              <div className="space-y-2">
+                
+                {noBets.map((bet) => (
+                  <Button
+                    key={bet.id}
+                    onClick={() => handleBetSelect(bet)}
+                    variant="outline"
+                    className={cn(
+                      'w-full justify-between h-auto p-3 text-sm hover:bg-neutral-800 border border-neutral-700',
+                      selectedBet?.id === bet.id
+                        ? 'bg-neutral-800 border-[#F19ED2] text-white'
+                        : 'bg-neutral-900 text-gray-400',
+                    )}
+                  >
+                    <span>
+                      {Number(bet.quantity).toFixed(4)} {OPTIONS_TYPE.NO}
+                    </span>
+                    <span>${bet.price}</span>
+                  </Button>
+                ))}
+              </div>
+            )}
+
+            {betsData.length === 0 && (
+              <p className="text-center text-gray-400 py-2">You don't have any bets yet</p>
+            )}
           </CardContent>
         </Card>
 
@@ -324,15 +415,7 @@ const SellOrder: FC<SellOrderProps> = ({ duelId }) => {
               : 'bg-zinc-800 text-zinc-400',
           )}
         >
-          {status === TRANSACTION_STATUS.CHECKING_ALLOWANCE && 'Checking Allowance...'}
-          {status === TRANSACTION_STATUS.APPROVAL_NEEDED && 'Approval Needed...'}
-          {status === TRANSACTION_STATUS.APPROVAL_MINING && 'Approving...'}
-          {status === TRANSACTION_STATUS.APPROVAL_COMPLETE && 'Approved! Creating Order...'}
-          {status === TRANSACTION_STATUS.CREATING_DUEL && 'Creating Order...'}
-          {status === TRANSACTION_STATUS.DUEL_MINING && 'Confirming Order...'}
-          {status === TRANSACTION_STATUS.DUEL_COMPLETE && 'Order Complete!'}
-          {status === TRANSACTION_STATUS.FAILED && 'Failed - Try Again'}
-          {status === TRANSACTION_STATUS.IDLE && 'Sell Bet'}
+          Sell Bet
         </Button>
 
         {/* Loading Indicators */}

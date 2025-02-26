@@ -103,7 +103,6 @@ const postPricingData = async (
       },
     });
 
-    console.log('Response:', response.data);
     return response.data;
   } catch (error) {
     console.error('Error:', error);

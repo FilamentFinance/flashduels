@@ -112,7 +112,9 @@ const Markets: FC = () => {
         <DualStatus activeStatus={activeStatus} setActiveStatus={setActiveStatus} />
         <SearchDuels placeholder="Search Duels" onSearch={setSearchQuery} />
       </div>
-      <Duals data={filteredDuels} handleDualRowClick={handleDualRowClick} />
+      <div className='max-h-sm'>
+        <Duals data={filteredDuels} handleDualRowClick={handleDualRowClick} />
+      </div>
     </div>
   );
 };

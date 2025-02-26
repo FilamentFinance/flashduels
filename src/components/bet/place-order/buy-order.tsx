@@ -126,7 +126,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
       const { success } = await joinDuel(parsedAmount);
 
       if (success) {
-        await baseApiClient.post(`${SERVER_CONFIG.API_URL}/bets/create`, {
+        await baseApiClient.post(`${SERVER_CONFIG.API_URL}/user/bets/create`, {
           twitterUsername: '',
           bet: selectedPosition,
           address: address?.toLowerCase(),
@@ -165,6 +165,10 @@ const BuyOrder: FC<BuyOrderProps> = ({
     () => selectedPosition && amount && Number(amount) > 0 && !error,
     [selectedPosition, amount, error],
   );
+
+  const handleMarketBuy = () => {
+    
+  }
   return (
     <Card className="bg-transparent border-none space-y-6">
       <CardContent className="p-0 space-y-6">
@@ -264,6 +268,25 @@ const BuyOrder: FC<BuyOrderProps> = ({
             </div>
           ) : (
             'Join Duel'
+          )}
+        </Button>
+        <Button
+          onClick={handleMarketBuy}
+          disabled={!isFormValid || isLoading}
+          className={cn(
+            'w-full py-6 text-lg font-medium',
+            isFormValid && !isLoading
+              ? 'bg-[#F19ED2] hover:bg-[#F19ED2]/90 text-white'
+              : 'bg-zinc-800 text-zinc-400',
+          )}
+        >
+          {isLoading ? (
+            <div className="flex items-center gap-2">
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              <span>Joining Duel...</span>
+            </div>
+          ) : (
+            'Market Buy'
           )}
         </Button>
       </CardContent>

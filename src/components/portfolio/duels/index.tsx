@@ -108,7 +108,7 @@ const Duels: FC = () => {
     setError(null);
 
     try {
-      const response = await baseApiClient.post(`/portfolio/duels`, {
+      const response = await baseApiClient.post(`user/portfolio/duels`, {
         userAddress: address.toLowerCase(),
       });
 

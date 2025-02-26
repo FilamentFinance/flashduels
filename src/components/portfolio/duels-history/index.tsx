@@ -26,7 +26,7 @@ const DuelsHistory: FC = () => {
       setLoading(true);
       setError(null);
       const response = await baseApiClient.post(
-        `${SERVER_CONFIG.API_URL}/portfolio/table/duels`,
+        `${SERVER_CONFIG.API_URL}/user/portfolio/table/duels`,
         { userAddress: address.toLowerCase() },
         {
           headers: {
@@ -50,7 +50,7 @@ const DuelsHistory: FC = () => {
       setLoading(true);
       setError(null);
       const response = await baseApiClient.post(
-        `${SERVER_CONFIG.API_URL}/portfolio/table/history`,
+        `${SERVER_CONFIG.API_URL}/user/portfolio/table/history`,
         { userAddress: address.toLowerCase() },
         {
           headers: {
@@ -95,7 +95,7 @@ const DuelsHistory: FC = () => {
   }
 
   return (
-    <div className="flex flex-col min-h-[291px] w-full rounded-lg border border-neutral-800 shadow-sm bg-neutral-900">
+    <div className="flex flex-col max-h-[270px] overflow-y-auto w-full rounded-lg border border-neutral-800 shadow-sm bg-neutral-900">
       {/* Header Section */}
       <div className="flex items-center w-full px-4 py-2 border-b border-neutral-800">
         <div className="flex items-center gap-4">

@@ -9,6 +9,7 @@ import { NewDuelItem, OptionBetType } from '@/types/dual';
 import { ArrowLeft } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { FC, useEffect, useState } from 'react';
+import { useAccount } from 'wagmi';
 import ErrorState from './error-state';
 import Header from './header';
 import LoadingSkeleton from './loading-skeleton';
@@ -25,6 +26,7 @@ const Bet: FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [yesBets, setYesBets] = useState<OptionBetType[]>([]);
   const [noBets, setNoBets] = useState<OptionBetType[]>([]);
+  const { address } = useAccount();
 
   const { buyOrder, txHash } = useBuyOrder(id ?? '');
   const { toast } = useToast();
@@ -33,7 +35,12 @@ const Bet: FC = () => {
     try {
       setLoading(true);
       const response = await baseApiClient.get(
-        `${SERVER_CONFIG.API_URL}/duels/get-duel-by-id/${id}`,
+        `${SERVER_CONFIG.API_URL}/user/duels/get-duel-by-id/${id}`,
+        {
+          params: {
+            userAddress: address?.toLowerCase(), // Add the address from useAccount() to the request params
+          },
+        },
       );
       setDuel(response.data);
       setError(null);
@@ -44,7 +51,6 @@ const Bet: FC = () => {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     const socket = new WebSocket(`${SERVER_CONFIG.API_WS_URL}/betWebSocket?duelId=${id}`);
 
@@ -85,7 +91,7 @@ const Bet: FC = () => {
       setError('Duel ID is missing from the query parameters.');
       setLoading(false);
     }
-  }, [id]);
+  }, [id,address]);
 
   const { totalBetYes, totalBetNo } = useTotalBets(id ?? '');
 

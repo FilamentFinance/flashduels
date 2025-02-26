@@ -20,6 +20,16 @@ class AxiosClient {
 
         if (config.method?.toLowerCase() === 'get') {
           address = config.params?.address || config.params?.userAddress;
+
+          // Add token to GET request params if address is available
+          const token = address ? localStorage.getItem(`Bearer_${address.toLowerCase()}`) : null;
+          console.log({ token });
+          if (token) {
+            config.params = {
+              ...config.params,
+              token: token.replace('Bearer ', ''),
+            };
+          }
         } else {
           address = config.data?.address || config.data?.userAddress;
         }

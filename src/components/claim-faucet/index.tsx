@@ -41,7 +41,6 @@ const ClaimFaucet: FC = () => {
       const data = await baseApiClient.post(`${SERVER_CONFIG.API_URL}/api/mint`, {
         address: address.toLowerCase(),
       });
-      console.log({ data });
       toast({
         title: 'Success',
         description: 'Tokens minted successfully',

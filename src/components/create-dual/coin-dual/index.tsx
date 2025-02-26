@@ -1,6 +1,7 @@
 'use client';
 
 import { baseApiClient } from '@/config/api-client';
+import { SERVER_CONFIG } from '@/config/server-config';
 import { TRANSACTION_STATUS } from '@/constants/app';
 import {
   COIN_DUAL_ASSETS,
@@ -32,7 +33,6 @@ import { FC, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useAccount } from 'wagmi';
 import DuelInfo from '../dual-info';
-import { SERVER_CONFIG } from '@/config/server-config';
 
 interface CoinDualFormProps {
   onBack: () => void;
@@ -69,11 +69,11 @@ const CreateCoinDuel: FC<CoinDualFormProps> = ({ onBack }) => {
     const minWager = Number(formData.triggerPrice) * 10 ** 6;
 
     const triggerType = 0;
-    const symbol = formData.token;
+
     const winCondition = formData.winCondition === WIN_CONDITIONS.ABOVE ? 0 : 1;
 
     const dualData = {
-      symbol,
+      symbol: selectedToken,
       options: OPTIONS,
       minWager,
       triggerPrice,
@@ -95,9 +95,8 @@ const CreateCoinDuel: FC<CoinDualFormProps> = ({ onBack }) => {
           winCondition: winCondition,
           endsIn: DURATIONS[durationNumber],
         };
-
         try {
-          await baseApiClient.post(`${SERVER_CONFIG.API_URL}/duels/approve`, {
+          await baseApiClient.post(`${SERVER_CONFIG.API_URL}/user/duels/approve`, {
             ...duelData,
             twitterUsername: '',
             address: address?.toLowerCase(),

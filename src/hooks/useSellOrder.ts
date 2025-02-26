@@ -143,11 +143,7 @@ const useSellOrder = (
         args: [address, SERVER_CONFIG.DIAMOND],
       });
 
-      if (!allowanceResult) {
-        throw new Error('Failed to check token allowance');
-      }
-
-      const allowance = BigInt(allowanceResult.toString());
+      const allowance = BigInt(allowanceResult as unknown as string);
 
       // Only request approval if current allowance is insufficient
       if (allowance < quantityInWei) {
