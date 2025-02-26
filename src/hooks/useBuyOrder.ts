@@ -55,8 +55,8 @@ const useBuyOrder = (duelId: string): UseBuyOrderReturn => {
         functionName: 'buy',
         chainId: SEI_TESTNET_CHAIN_ID,
         args: [
-          optionTokenAddress,
-          duelId,
+            optionTokenAddress,
+            duelId,
           betOptionIndex,
           [sellId], // Array of sale IDs
           [1], // Array of amounts (assuming 1 for now, adjust as needed)

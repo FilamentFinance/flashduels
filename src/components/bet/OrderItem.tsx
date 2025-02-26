@@ -24,7 +24,7 @@ export const OrderItem: React.FC<OrderItemProps> = ({ price, amount, type, onBuy
       >
         {formattedAmount} {type}
       </TableCell>
-      <TableCell className="py-2 px-4 text-right">
+      {/* <TableCell className="py-2 px-4 text-right">
         <Button
           onClick={onBuy}
           variant="outline"
@@ -39,7 +39,7 @@ export const OrderItem: React.FC<OrderItemProps> = ({ price, amount, type, onBuy
         >
           BUY
         </Button>
-      </TableCell>
+      </TableCell> */}
     </TableRow>
   );
 };

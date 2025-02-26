@@ -15,6 +15,7 @@ import { useToast } from '@/shadcn/components/ui/use-toast';
 import { cn } from '@/shadcn/lib/utils';
 import { RootState } from '@/store';
 import { OptionsType } from '@/types/dual';
+import { handleTransactionError, useTokenApproval } from '@/utils/token';
 import Image from 'next/image';
 import { FC, useCallback, useMemo, useState } from 'react';
 import { shallowEqual, useSelector } from 'react-redux';
@@ -45,7 +46,11 @@ const BuyOrder: FC<BuyOrderProps> = ({
   const [selectedPosition, setSelectedPosition] = useState<OptionsType | null>(null);
   const [amount, setAmount] = useState('');
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isJoiningDuel, setIsJoiningDuel] = useState(false);
+  const [isMarketBuying, setIsMarketBuying] = useState(false);
+
+  // Combined loading state for disabling both buttons
+  const isLoading = isJoiningDuel || isMarketBuying;
 
   const { address } = useAccount();
   const { balance } = useBalance(address);
@@ -120,7 +125,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
       return;
     }
 
-    setIsLoading(true);
+    setIsJoiningDuel(true);
     try {
       const parsedAmount = parseUnits(amount, 6);
       const { success } = await joinDuel(parsedAmount);
@@ -157,7 +162,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
         variant: 'destructive',
       });
     } finally {
-      setIsLoading(false);
+      setIsJoiningDuel(false);
     }
   }, [selectedPosition, amount, duelId, duelType, asset, winCondition, address, joinDuel, toast]);
 
@@ -166,9 +171,68 @@ const BuyOrder: FC<BuyOrderProps> = ({
     [selectedPosition, amount, error],
   );
 
-  const handleMarketBuy = () => {
-    
-  }
+  // Import the token approval hook
+  const { checkAllowance, requestAllowance } = useTokenApproval(address);
+
+  // Updated market buy function with error handling
+  const handleMarketBuy = useCallback(async () => {
+    if (!selectedPosition || !amount) {
+      setError('Please select a position and enter an amount');
+      return;
+    }
+
+    setIsMarketBuying(true);
+    try {
+      const optionIndex = selectedPosition === OPTIONS_TYPE.YES ? 0 : 1;
+
+      // Check token allowance first
+      const hasAllowance = await checkAllowance();
+      console.log({ selectedPosition, optionIndex, amount, error, hasAllowance });
+
+      if (!hasAllowance) {
+        // Request token approval if needed
+        await requestAllowance();
+        toast({
+          title: 'Approval Successful',
+          description: 'Token approval completed. You can now place your order.',
+        });
+      } else {
+        // Place the market buy order
+        const response = await baseApiClient.post(`${SERVER_CONFIG.API_URL}/user/betOption/buy`, {
+          duelId,
+          betAmount: amount,
+          index: optionIndex,
+          userAddress: address?.toLowerCase(),
+        });
+
+        // Show success message
+        toast({
+          title: 'Success',
+          description: response.data.message || 'Market buy order placed successfully',
+        });
+
+        // Reset form after successful submission
+        setAmount('');
+        setSelectedPosition(null);
+        setError('');
+      }
+    } catch (error) {
+      console.error('Error in market buy:', error);
+
+      // Use the error handler to get appropriate error message
+      const errorDetails = handleTransactionError(error);
+
+      setError(`Failed to place market buy order: ${errorDetails.message}`);
+      toast({
+        title: 'Error',
+        description: errorDetails.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setIsMarketBuying(false);
+    }
+  }, [selectedPosition, amount, duelId, checkAllowance, requestAllowance, toast, setError]);
+
   return (
     <Card className="bg-transparent border-none space-y-6">
       <CardContent className="p-0 space-y-6">
@@ -261,7 +325,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
               : 'bg-zinc-800 text-zinc-400',
           )}
         >
-          {isLoading ? (
+          {isJoiningDuel ? (
             <div className="flex items-center gap-2">
               <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
               <span>Joining Duel...</span>
@@ -280,10 +344,10 @@ const BuyOrder: FC<BuyOrderProps> = ({
               : 'bg-zinc-800 text-zinc-400',
           )}
         >
-          {isLoading ? (
+          {isMarketBuying ? (
             <div className="flex items-center gap-2">
               <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-              <span>Joining Duel...</span>
+              <span>Processing Order...</span>
             </div>
           ) : (
             'Market Buy'

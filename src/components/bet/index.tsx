@@ -116,28 +116,33 @@ const Bet: FC = () => {
     sellId: number,
     amount: string,
   ) => {
-    const result = await buyOrder(sellId, index, index);
+    // const result = await buyOrder(sellId, index, index);
 
-    if (result.success) {
-      console.log('Buy order successful!', txHash);
+    // if (result.success) {
+    //   console.log('Buy order successful!', txHash);
 
-      const response = await baseApiClient.post(`${SERVER_CONFIG.API_URL}/betOption/buy`, {
-        duelId: id,
-        betOptionMarketId,
-        amount,
-      });
-      const data = response.data.message;
-      toast({
-        title: 'Success',
-        description: data,
-      });
-    } else {
-      console.error('Buy order failed:', result.error);
-      toast({
-        title: 'Error',
-        description: result.error || 'Failed to place order',
-        variant: 'destructive',
-      });
+    //   const response = await baseApiClient.post(`${SERVER_CONFIG.API_URL}/user/betOption/buy`, {
+    //     duelId: id,
+    //     betOptionMarketId,
+    //     amount,
+    //   });
+    //   const data = response.data.message;
+    //   toast({
+    //     title: 'Success',
+    //     description: data,
+    //   });
+    // } else {
+    //   console.error('Buy order failed:', result.error);
+    //   toast({
+    //     title: 'Error',
+    //     description: result.error || 'Failed to place order',
+    //     variant: 'destructive',
+    //   });
+    // }
+    try {
+      
+    } catch (error) {
+      
     }
   };
 

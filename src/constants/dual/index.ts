@@ -50,8 +50,8 @@ export const COIN_DUAL_ASSETS: {
   },
 };
 
-// export const DURATIONS = [3, 6, 12];
 export const DURATIONS = [0.084, 0.25, 0.5, 1, 3, 6, 12];
+
 export const assetImages = [
   {
     symbol: 'BTC',
