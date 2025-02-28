@@ -2,9 +2,7 @@
 
 import { baseApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
-import useBuyOrder from '@/hooks/useBuyOrder';
 import { useTotalBets } from '@/hooks/useTotalBets';
-import { useToast } from '@/shadcn/components/ui/use-toast';
 import { NewDuelItem, OptionBetType } from '@/types/dual';
 import { ArrowLeft } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -27,9 +25,6 @@ const Bet: FC = () => {
   const [yesBets, setYesBets] = useState<OptionBetType[]>([]);
   const [noBets, setNoBets] = useState<OptionBetType[]>([]);
   const { address } = useAccount();
-
-  const { buyOrder, txHash } = useBuyOrder(id ?? '');
-  const { toast } = useToast();
 
   const fetchDuel = async () => {
     try {
@@ -91,7 +86,7 @@ const Bet: FC = () => {
       setError('Duel ID is missing from the query parameters.');
       setLoading(false);
     }
-  }, [id,address]);
+  }, [id, address]);
 
   const { totalBetYes, totalBetNo } = useTotalBets(id ?? '');
 
@@ -116,6 +111,7 @@ const Bet: FC = () => {
     sellId: number,
     amount: string,
   ) => {
+    console.log({ betOptionMarketId, quantity, index, sellId, amount });
     // const result = await buyOrder(sellId, index, index);
 
     // if (result.success) {
@@ -140,9 +136,9 @@ const Bet: FC = () => {
     //   });
     // }
     try {
-      
     } catch (error) {
-      
+      console.error('Error placing buy order:', error);
+     
     }
   };
 

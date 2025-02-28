@@ -31,7 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="bg-background text-white min-h-full">
         <ReduxProvider>
           <Providers>
-           
+            <InviteGate>
               <PriceWrapper>
                 <div className="flex min-h-full flex-col">
                   <Navbar />
@@ -39,7 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   <Toaster />
                 </div>
               </PriceWrapper>
-           
+            </InviteGate>
           </Providers>
         </ReduxProvider>
       </body>

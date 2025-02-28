@@ -1,5 +1,3 @@
-import { OPTIONS_TYPE } from '@/constants/dual';
-import { Button } from '@/shadcn/components/ui/button';
 import { TableCell, TableRow } from '@/shadcn/components/ui/table';
 import { cn } from '@/shadcn/lib/utils';
 import { OptionsType } from '@/types/dual';
@@ -12,7 +10,7 @@ interface OrderItemProps {
   onBuy: () => void;
 }
 
-export const OrderItem: React.FC<OrderItemProps> = ({ price, amount, type, onBuy }) => {
+export const OrderItem: React.FC<OrderItemProps> = ({ price, amount, type }) => {
   const formattedPrice = Number(price).toFixed(2);
   const formattedAmount = Number(amount).toFixed(2);
 

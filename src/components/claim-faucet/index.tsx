@@ -38,7 +38,7 @@ const ClaimFaucet: FC = () => {
 
     try {
       setMintLoading(true);
-      const data = await baseApiClient.post(`${SERVER_CONFIG.API_URL}/api/mint`, {
+      await baseApiClient.post(`${SERVER_CONFIG.API_URL}/api/mint`, {
         address: address.toLowerCase(),
       });
       toast({

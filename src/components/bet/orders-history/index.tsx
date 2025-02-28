@@ -84,7 +84,7 @@ export const OrdersHistory = ({ duelId }: OrdersTableProps) => {
     if (!address) {
       return null;
     }
-    const token = localStorage.getItem(`Bearer_${address!.toLowerCase()}`);
+    // const token = localStorage.getItem(`Bearer_${address!.toLowerCase()}`);
     // Create an instance of WebSocketManager by passing the address.
     const manager = new WebSocketManager<OpenOrdersMessage>({
       address, // The manager will retrieve the token automatically.

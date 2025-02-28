@@ -353,7 +353,6 @@ const SellOrder: FC<SellOrderProps> = ({ duelId }) => {
           <CardContent className="p-0 space-y-4">
             {yesBets.length > 0 && (
               <div className="space-y-2">
-
                 {yesBets.map((bet) => (
                   <Button
                     key={bet.id}
@@ -377,7 +376,6 @@ const SellOrder: FC<SellOrderProps> = ({ duelId }) => {
 
             {noBets.length > 0 && (
               <div className="space-y-2">
-                
                 {noBets.map((bet) => (
                   <Button
                     key={bet.id}
@@ -400,7 +398,7 @@ const SellOrder: FC<SellOrderProps> = ({ duelId }) => {
             )}
 
             {betsData.length === 0 && (
-              <p className="text-center text-gray-400 py-2">You don't have any bets yet</p>
+              <p className="text-center text-gray-400 py-2">You don&apos;t have any bets yet</p>
             )}
           </CardContent>
         </Card>
