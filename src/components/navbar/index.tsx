@@ -4,8 +4,8 @@ import { APP_ROUTES } from '@/constants/app/appRoutes';
 import { Button } from '@/shadcn/components/ui/button';
 import { RootState } from '@/store';
 import { truncateAddress } from '@/utils/general/getEllipsisTxt';
-import { FC } from 'react';
-import { shallowEqual, useSelector } from 'react-redux';
+import { FC, useEffect } from 'react';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { useAccount } from 'wagmi';
 import ClaimFaucet from '../claim-faucet';
 import ClaimFunds from '../claim-funds';
@@ -16,10 +16,30 @@ import EnableTrading from './enableTrading';
 import Logo from './logo';
 import NavLink from './navLink';
 import { WalletModal } from './wallet-modal';
+import axios from 'axios';
+import { setCryptoAsset } from '@/store/slices/priceSlice';
 
 const Navbar: FC = () => {
   const { address, isConnected } = useAccount();
   const { isAuthenticated } = useSelector((state: RootState) => state.auth, shallowEqual);
+  const dispatch = useDispatch();
+  const fetchAssets = async () => {
+    try {
+      const response = await axios.get(
+        'https://orderbookv3.filament.finance/flashduels/assets/list',
+      );
+      console.log({ fetchAssets:response });
+      dispatch(setCryptoAsset(response.data));
+    } catch (error) {
+      console.error('Error fetching assets:', error);
+    }
+  };
+
+
+
+  useEffect(() => {
+    fetchAssets();
+  }, []);
   return (
     <nav className="w-full border-b border-gray-800 h-navbar-height px-navbar-padding flex items-center">
       <div className="mx-auto w-full flex items-center justify-between">

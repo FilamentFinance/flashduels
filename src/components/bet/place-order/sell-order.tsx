@@ -13,10 +13,12 @@ import { OptionsType } from '@/types/dual';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { useAccount } from 'wagmi';
 import PositionSelector from './position-selector';
-// import { TRANSACTION_STATUS } from '@/constants/transaction-status';
 
 interface SellOrderProps {
   duelId: string;
+  asset: string | undefined;
+  yesPrice: number | undefined;
+  noPrice: number | undefined;
 }
 
 type OptionBetType = {
@@ -29,7 +31,7 @@ type OptionBetType = {
   betOption?: { index: number };
 };
 
-const SellOrder: FC<SellOrderProps> = ({ duelId }) => {
+const SellOrder: FC<SellOrderProps> = ({ duelId, asset, yesPrice, noPrice }) => {
   const [selectedPosition, setSelectedPosition] = useState<OptionsType | null>(null);
   const [amount, setAmount] = useState('');
   const [price, setPrice] = useState('0');
@@ -40,7 +42,6 @@ const SellOrder: FC<SellOrderProps> = ({ duelId }) => {
   const [selectedBet, setSelectedBet] = useState<OptionBetType | null>(null);
   const [error, setError] = useState('');
   const { toast } = useToast();
-
   const { sellOrder, status, isApprovalMining, isSellMining } = useSellOrder(
     duelId,
     selectedBet?.index ?? 0,
@@ -289,8 +290,8 @@ const SellOrder: FC<SellOrderProps> = ({ duelId }) => {
         />
 
         <div className="flex justify-between px-1">
-          <Label className="text-zinc-500 text-sm">$/share</Label>
-          <Label className="text-zinc-500 text-sm">$/share</Label>
+          <Label className="text-zinc-500 text-sm">${yesPrice?.toFixed(4)}/share</Label>
+          <Label className="text-zinc-500 text-sm">${noPrice?.toFixed(4)}/share</Label>
         </div>
 
         <div className="space-y-4">

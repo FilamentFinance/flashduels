@@ -35,7 +35,7 @@ const DualRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
   const displayPercentage = isNaN(calculatedPercentage)
     ? data.percentage
     : Number(calculatedPercentage.toFixed(2));
-
+  console.log({duelDatax: data})
   return (
     <Card
       className="flex items-center justify-between p-3 bg-zinc-900 border-zinc-800 hover:bg-zinc-900/90 transition-colors cursor-pointer"

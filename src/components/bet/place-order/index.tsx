@@ -7,6 +7,11 @@ import { OrderType } from '@/types/dual';
 import { FC, useState } from 'react';
 import BuyOrder from './buy-order';
 import SellOrder from './sell-order';
+import { useWebSocketPrices } from '@/hooks/useWebSocketPrices';
+import { usePriceCalculation } from '@/hooks/usePriceCalculation';
+import { useSelector, shallowEqual } from 'react-redux';
+import { RootState } from '@/store';
+import { useTotalBets } from '@/hooks/useTotalBets';
 
 interface PlaceOrderProps {
   duelId: string;
@@ -28,6 +33,20 @@ const PlaceOrder: FC<PlaceOrderProps> = ({
   token,
 }) => {
   const [orderType, setOrderType] = useState<OrderType>(ORDER_TYPE.BUY);
+  const { yesPrice, noPrice, ws } = useWebSocketPrices(asset);
+  const { prices } = useSelector((state: RootState) => state.price, shallowEqual);
+  const { totalBetYes, totalBetNo } = useTotalBets(duelId);
+
+  usePriceCalculation({
+    ws,
+    asset,
+    endsIn,
+    priceFormatted: prices[token as keyof typeof prices],
+    triggerPrice: Number(triggerPrice || 0),
+    winCondition,
+    totalBetYes,
+    totalBetNo,
+  });
 
   return (
     <Card className="bg-zinc-900 rounded-xl w-full max-w-md border-zinc-800 h-fit">
@@ -67,9 +86,16 @@ const PlaceOrder: FC<PlaceOrderProps> = ({
             endsIn={endsIn}
             triggerPrice={triggerPrice}
             token={token}
+            yesPrice={yesPrice}
+            noPrice={noPrice}
           />
         ) : (
-          <SellOrder duelId={duelId} />
+          <SellOrder 
+            duelId={duelId} 
+            asset={asset} 
+            yesPrice={yesPrice}
+            noPrice={noPrice}
+          />
         )}
       </CardContent>
     </Card>

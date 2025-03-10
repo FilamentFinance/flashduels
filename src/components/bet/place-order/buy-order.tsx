@@ -4,9 +4,7 @@ import { LOGOS } from '@/constants/app/logos';
 import { OPTIONS_TYPE } from '@/constants/dual';
 import { useBalance } from '@/hooks/useBalance';
 import useJoinDuel from '@/hooks/useJoinDuel';
-import { usePriceCalculation } from '@/hooks/usePriceCalculation';
 import { useTotalBets } from '@/hooks/useTotalBets';
-import { useWebSocketPrices } from '@/hooks/useWebSocketPrices';
 import { Button } from '@/shadcn/components/ui/button';
 import { Card, CardContent } from '@/shadcn/components/ui/card';
 import { Input } from '@/shadcn/components/ui/input';
@@ -31,6 +29,8 @@ interface BuyOrderProps {
   endsIn: number;
   triggerPrice?: string;
   token: string | undefined;
+  yesPrice: number | undefined;
+  noPrice: number | undefined;
 }
 
 const BuyOrder: FC<BuyOrderProps> = ({
@@ -41,6 +41,8 @@ const BuyOrder: FC<BuyOrderProps> = ({
   endsIn,
   triggerPrice,
   token,
+  yesPrice,
+  noPrice,
 }) => {
   const selectedPosition = useSelector((state: RootState) => state.bet.selectedPosition);
   const [localPosition, setLocalPosition] = useState<OptionsType | null>(() => {
@@ -69,18 +71,6 @@ const BuyOrder: FC<BuyOrderProps> = ({
   const { toast } = useToast();
   const { prices } = useSelector((state: RootState) => state.price, shallowEqual);
   const { totalBetYes, totalBetNo } = useTotalBets(duelId);
-  const { yesPrice, noPrice, ws } = useWebSocketPrices(asset);
-
-  usePriceCalculation({
-    ws,
-    asset,
-    endsIn,
-    priceFormatted: prices[token as keyof typeof prices],
-    triggerPrice: Number(triggerPrice || 0),
-    winCondition,
-    totalBetYes,
-    totalBetNo,
-  });
 
   const handlePositionSelect = useCallback((position: OptionsType) => {
     setLocalPosition(position);

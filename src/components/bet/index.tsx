@@ -162,8 +162,7 @@ const Bet: FC = () => {
      
     }
   };
-  console.log({timeLeft})
-  console.log({date:duel.createdAt,formattedTime:new Date(duel.createdAt).toLocaleString()})
+
   return (
     <div className=" mx-auto p-4">
       {/* Back Button */}

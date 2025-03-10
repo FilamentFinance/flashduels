@@ -30,7 +30,7 @@ import { DualDuration, WinCondition } from '@/types/dual';
 import { mapDurationToNumber } from '@/utils/general/create-duels';
 import { getTransactionStatusMessage } from '@/utils/transaction';
 import { FC, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { shallowEqual, useSelector } from 'react-redux';
 import { useAccount } from 'wagmi';
 import DuelInfo from '../dual-info';
 
@@ -51,6 +51,8 @@ const CreateCoinDuel: FC<CoinDualFormProps> = ({ onBack, onComplete }) => {
   const [selectedToken, setSelectedToken] = useState<string>('');
   const { prices } = useSelector((state: RootState) => state.price);
   const [formData, setFormData] = useState<CreateCoinDuelData | null>(null);
+  const { cryptoAsset } = useSelector((state: RootState) => state.price, shallowEqual);
+  console.log({ cryptoAsset });
   const { address } = useAccount();
   const { createCoinDuel, status, error, isApprovalMining, isDuelMining } = useCreateCoinDuel();
   const { toast } = useToast();
@@ -127,6 +129,24 @@ const CreateCoinDuel: FC<CoinDualFormProps> = ({ onBack, onComplete }) => {
       onComplete();
     }
   };
+  // type fetchAssetType = {
+  //   symbol: string;
+  //   image: string;
+  //   priceFeedId: string;
+  // }[];
+  // const fetchAsset = async () => {
+  //   try {
+  //     const data = await axios.get('https://orderbookv3.filament.finance/flashduels/assets/list');
+  //     console.log({fetchAsset: data.data});
+  //   } catch (error) {
+  //     console.error('Error fetching asset:', error);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   fetchAsset();
+  // }
+  // , []);
 
   return (
     <div className="flex flex-col space-y-6">
