@@ -16,6 +16,7 @@ import FlashDualForm from './flash-dual';
 const CreateDual: FC = () => {
   const [selectedDual, setSelectedDual] = useState<DualType | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleDualSelect = (type: DualType) => {
     setSelectedDual(type);
@@ -27,6 +28,12 @@ const CreateDual: FC = () => {
 
   const handleBack = () => {
     setShowForm(false);
+  };
+
+  const handleClose = () => {
+    setIsOpen(false);
+    setShowForm(false);
+    setSelectedDual(null);
   };
 
   return (
@@ -54,6 +61,7 @@ const CreateDual: FC = () => {
         <Button
           className="font-semibold bg-gradient-pink text-black"
           onClick={() => {
+            setIsOpen(true);
             setShowForm(false);
             setSelectedDual(null);
           }}
@@ -62,6 +70,8 @@ const CreateDual: FC = () => {
         </Button>
       }
       className="max-w-md"
+      open={isOpen}
+      onOpenChange={setIsOpen}
     >
       {!showForm ? (
         <div className="space-y-2">
@@ -98,8 +108,8 @@ const CreateDual: FC = () => {
         </div>
       ) : (
         <div className="space-y-6">
-          {selectedDual === DUAL.COIN && <CreateCoinDuel onBack={handleBack} />}
-          {selectedDual === DUAL.FLASH && <FlashDualForm onBack={handleBack} />}
+          {selectedDual === DUAL.COIN && <CreateCoinDuel onBack={handleBack} onComplete={handleClose} />}
+          {selectedDual === DUAL.FLASH && <FlashDualForm onBack={handleBack} onComplete={handleClose} />}
         </div>
       )}
     </Dialog>

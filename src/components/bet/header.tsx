@@ -1,7 +1,7 @@
+import Image from 'next/image';
 import { FC } from 'react';
 import DetailsAndRules from './details-and-rules';
 import PercentageBlocks from './percentage-blocks';
-import Image from 'next/image';
 
 type Props = {
   title: string;
@@ -10,7 +10,7 @@ type Props = {
   winCondition: number;
   token?: string;
   liquidity?: string;
-  endsIn: number;
+  endsIn: string;
   percentage?: number;
 };
 
@@ -46,7 +46,7 @@ const Header: FC<Props> = ({ title, logo, triggerPrice, token, liquidity, endsIn
 
         <div className="flex flex-col items-center">
           <span className="text-zinc-500 text-sm">Ends in</span>
-          <span className="text-white font-medium">{endsIn}h</span>
+          <span className="text-white font-medium">{endsIn}</span>
         </div>
 
         <div className="flex items-center gap-2">

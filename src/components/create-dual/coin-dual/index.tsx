@@ -36,6 +36,7 @@ import DuelInfo from '../dual-info';
 
 interface CoinDualFormProps {
   onBack: () => void;
+  onComplete: () => void;
 }
 
 export interface CreateCoinDuelData {
@@ -45,7 +46,7 @@ export interface CreateCoinDuelData {
   duration: DualDuration;
 }
 
-const CreateCoinDuel: FC<CoinDualFormProps> = ({ onBack }) => {
+const CreateCoinDuel: FC<CoinDualFormProps> = ({ onBack, onComplete }) => {
   const [selectedDuration, setSelectedDuration] = useState<DualDuration>(DUAL_DURATION.THREE_HOURS);
   const [selectedToken, setSelectedToken] = useState<string>('');
   const { prices } = useSelector((state: RootState) => state.price);
@@ -105,6 +106,7 @@ const CreateCoinDuel: FC<CoinDualFormProps> = ({ onBack }) => {
             title: 'Success',
             description: 'Duel created and approved successfully',
           });
+          onComplete();
         } catch (apiError) {
           console.error('API Error:', apiError);
           toast({
@@ -112,6 +114,7 @@ const CreateCoinDuel: FC<CoinDualFormProps> = ({ onBack }) => {
             description: 'Failed to approve duel. Please try again.',
             variant: 'destructive',
           });
+          onComplete();
         }
       }
     } catch (error) {
@@ -121,6 +124,7 @@ const CreateCoinDuel: FC<CoinDualFormProps> = ({ onBack }) => {
         description: 'Failed to create duel. Please try again.',
         variant: 'destructive',
       });
+      onComplete();
     }
   };
 

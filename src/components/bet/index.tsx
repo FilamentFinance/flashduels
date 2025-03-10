@@ -3,7 +3,9 @@
 import { baseApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
 import { useTotalBets } from '@/hooks/useTotalBets';
+import { RootState } from '@/store';
 import { NewDuelItem, OptionBetType } from '@/types/dual';
+import { calculateTimeLeft } from '@/utils/time';
 import { ArrowLeft } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { FC, useEffect, useState } from 'react';
@@ -15,7 +17,6 @@ import LoadingSkeleton from './loading-skeleton';
 import OrderBook from './order-book';
 import { OrdersHistory } from './orders-history';
 import PlaceOrder from './place-order';
-import { RootState } from '@/store';
 
 const Bet: FC = () => {
   const searchParams = useSearchParams();
@@ -27,6 +28,7 @@ const Bet: FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [yesBets, setYesBets] = useState<OptionBetType[]>([]);
   const [noBets, setNoBets] = useState<OptionBetType[]>([]);
+  const [timeLeft, setTimeLeft] = useState<string>('');
   const { address } = useAccount();
 
   const fetchDuel = async () => {
@@ -93,6 +95,20 @@ const Bet: FC = () => {
     }
   }, [id, address]);
 
+  useEffect(() => {
+    if (duel) {
+      const updateTime = () => {
+        // endsIn is already in hours (e.g., 0.084 for 5 minutes)
+        setTimeLeft(calculateTimeLeft(duel.createdAt, duel.endsIn));
+      };
+
+      updateTime();
+      const timer = setInterval(updateTime, 1000);
+
+      return () => clearInterval(timer);
+    }
+  }, [duel]);
+
   const { totalBetYes, totalBetNo } = useTotalBets(id ?? '');
 
   if (loading) {
@@ -146,7 +162,8 @@ const Bet: FC = () => {
      
     }
   };
-
+  console.log({timeLeft})
+  console.log({date:duel.createdAt,formattedTime:new Date(duel.createdAt).toLocaleString()})
   return (
     <div className=" mx-auto p-4">
       {/* Back Button */}
@@ -174,7 +191,7 @@ const Bet: FC = () => {
               winCondition={duel.winCondition || 0}
               token={duel.token}
               liquidity={duel.totalBetAmount.toString()}
-              endsIn={duel.endsIn}
+              endsIn={timeLeft}
               percentage={displayPercentage}
             />
             <OrderBook yesBets={yesBets} noBets={noBets} handleBuyOrders={handleBuyOrders} />

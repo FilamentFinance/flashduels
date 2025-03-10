@@ -27,9 +27,10 @@ import { useAccount } from 'wagmi';
 
 interface FlashDualFormProps {
   onBack: () => void;
+  onComplete: () => void;
 }
 
-const FlashDualForm: FC<FlashDualFormProps> = ({ onBack }) => {
+const FlashDualForm: FC<FlashDualFormProps> = ({ onBack, onComplete }) => {
   const [selectedDuration, setSelectedDuration] = useState<DualDuration>(DUAL_DURATION.THREE_HOURS);
   const [selectedCategory, setSelectedCategory] = useState<string>(CATEGORIES['ALL_DUELS'].title);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
@@ -87,14 +88,21 @@ const FlashDualForm: FC<FlashDualFormProps> = ({ onBack }) => {
           endsIn: DURATIONS[durationNumber],
         };
 
-        await baseApiClient.post(`${SERVER_CONFIG.API_URL}/user/duels/approve`, {
-          ...duelData,
-          twitterUsername: '',
-          address: address?.toLowerCase(),
-        });
+        try {
+          await baseApiClient.post(`${SERVER_CONFIG.API_URL}/user/duels/approve`, {
+            ...duelData,
+            twitterUsername: '',
+            address: address?.toLowerCase(),
+          });
+          onComplete(); // Close modal on success
+        } catch (error) {
+          console.error('API Error:', error);
+          onComplete(); // Close modal on API error
+        }
       }
     } catch (error) {
       console.error('Failed to create flash duel:', error);
+      onComplete(); // Close modal on error
     }
   };
 

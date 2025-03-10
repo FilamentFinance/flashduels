@@ -28,6 +28,8 @@ interface DialogProps {
     | 'max-w-6xl'
     | 'max-w-7xl';
   className?: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export const Dialog: FC<DialogProps> = ({
@@ -36,9 +38,11 @@ export const Dialog: FC<DialogProps> = ({
   children,
   maxWidth = 'max-w-md',
   className = '',
+  open,
+  onOpenChange,
 }) => {
   return (
-    <DialogPrimitive>
+    <DialogPrimitive open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent
         className={cn(

@@ -1,8 +1,9 @@
 import { useTotalBets } from '@/hooks/useTotalBets';
 import { Card } from '@/shadcn/components/ui/card';
 import { Duel, Position } from '@/types/dual';
+import { calculateTimeLeft } from '@/utils/time';
 import Image from 'next/image';
-import { FC } from 'react';
+import { FC, useEffect, useState } from 'react';
 import ChanceProgress from './chance-progress';
 import YesNoButton from './yes-no-button';
 
@@ -13,8 +14,21 @@ interface Props {
 }
 
 const DualRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
-  const { title, volume, timeLeft } = data;
+  const { title, volume } = data;
   const { totalBetYes, totalBetNo } = useTotalBets(data.duelId);
+  const [timeLeft, setTimeLeft] = useState<string>('');
+
+  useEffect(() => {
+    const updateTime = () => {
+      // timeLeft is the duration in hours (e.g., 0.084 for 5 minutes)
+      setTimeLeft(calculateTimeLeft(data.createdAt, data.timeLeft));
+    };
+
+    updateTime();
+    const timer = setInterval(updateTime, 1000);
+
+    return () => clearInterval(timer);
+  }, [data.createdAt, data.timeLeft]);
 
   const calculatedPercentage =
     ((totalBetYes as number) / (Number(totalBetYes) + Number(totalBetNo))) * 100;
@@ -46,7 +60,7 @@ const DualRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
             </div>
             <div className="flex items-center gap-1.5 text-zinc-400 text-sm">
               <Image src="/logo/markets/timer.svg" alt="Time" width={14} height={14} />
-              <span>{timeLeft}h</span>
+              <span>{timeLeft}</span>
             </div>
           </div>
         </div>
