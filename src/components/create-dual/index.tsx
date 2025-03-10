@@ -51,7 +51,13 @@ const CreateDual: FC = () => {
         </div>
       }
       trigger={
-        <Button className="font-semibold bg-gradient-pink text-black">
+        <Button
+          className="font-semibold bg-gradient-pink text-black"
+          onClick={() => {
+            setShowForm(false);
+            setSelectedDual(null);
+          }}
+        >
           {NAVBAR.CREATE_DUAL.BUTTON_TEXT}
         </Button>
       }

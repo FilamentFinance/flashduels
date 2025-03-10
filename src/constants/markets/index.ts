@@ -12,12 +12,12 @@ export const CATEGORIES: {
     title: 'Crypto',
     icon: '🪙',
   },
-  US_ELECTION: {
-    title: 'US Election',
+  POLITICS: {
+    title: 'Politics',
     icon: '🇺🇸',
   },
-  SPORTS: {
-    title: 'Sports',
+  F1: {
+    title: 'F1',
     icon: '⚽',
   },
 } as const;

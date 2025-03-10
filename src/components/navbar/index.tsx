@@ -45,7 +45,7 @@ const Navbar: FC = () => {
                 {truncateAddress(address)}
               </Button>
             </WalletModal>
-            <GenerateInvite />
+            {/* <GenerateInvite /> */}
           </div>
         ) : (
           <ConnectButton />

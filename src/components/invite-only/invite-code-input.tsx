@@ -11,15 +11,24 @@ interface InviteCodeInputProps {
 
 const InviteCodeInput: React.FC<InviteCodeInputProps> = ({ onSubmit }) => {
   const [inviteCode, setInviteCode] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInviteCode(event.target.value);
   };
 
-  const handleSubmit = () => {
-    if (inviteCode.trim()) {
-      onSubmit(inviteCode);
+  const handleSubmit = async () => {
+    if (inviteCode.trim() && !isSubmitting) {
+      setIsSubmitting(true);
+      await onSubmit(inviteCode);
+      setIsSubmitting(false);
       setInviteCode('');
+    }
+  };
+
+  const handleKeyPress = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter') {
+      handleSubmit();
     }
   };
 
@@ -30,9 +39,17 @@ const InviteCodeInput: React.FC<InviteCodeInputProps> = ({ onSubmit }) => {
         placeholder="Enter invite code"
         value={inviteCode}
         onChange={handleInputChange}
+        onKeyPress={handleKeyPress}
         className="w-full"
+        disabled={isSubmitting}
       />
-      <Button onClick={handleSubmit}>Submit</Button>
+      <Button onClick={handleSubmit} disabled={isSubmitting || !inviteCode.trim()}>
+        {isSubmitting ? (
+          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto"></div>
+        ) : (
+          'Submit'
+        )}
+      </Button>
     </div>
   );
 };

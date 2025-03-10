@@ -10,9 +10,10 @@ import WalletInfo from './wallet-info';
 
 interface InviteOnlyProps {
   onSubmit: (code: string) => void;
+  errorMessage: string | null;
 }
 
-const InviteOnly: React.FC<InviteOnlyProps> = ({ onSubmit }) => {
+const InviteOnly: React.FC<InviteOnlyProps> = ({ onSubmit, errorMessage }) => {
   const { isConnected } = useAccount();
 
   return (
@@ -26,6 +27,8 @@ const InviteOnly: React.FC<InviteOnlyProps> = ({ onSubmit }) => {
               ? 'Enter your invite code to unlock the app.'
               : 'Connect your wallet to continue.'}
           </p>
+
+          {errorMessage && <div className="text-red-400 text-sm mt-2">{errorMessage}</div>}
         </div>
         <div className="mt-6">
           {!isConnected ? (
@@ -35,7 +38,9 @@ const InviteOnly: React.FC<InviteOnlyProps> = ({ onSubmit }) => {
           ) : (
             <>
               <WalletInfo />
-              <InviteCodeInput onSubmit={onSubmit} />
+              <div className="mt-4">
+                <InviteCodeInput onSubmit={onSubmit} />
+              </div>
             </>
           )}
         </div>
