@@ -2,7 +2,7 @@
 'use client';
 
 import { SERVER_CONFIG } from '@/config/server-config';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useAccount } from 'wagmi';
 import InviteOnly from './invite-only';
@@ -35,6 +35,13 @@ interface SignUpResponse {
   };
   error?: {
     status: number;
+    message: string;
+    description: string;
+  };
+}
+
+interface ErrorResponse {
+  error: {
     message: string;
     description: string;
   };
@@ -84,9 +91,12 @@ const InviteGate: React.FC<InviteGateProps> = ({ children }) => {
         setIsAuthenticated(false);
         setErrorMessage('Please enter your invite code to access the app.');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      // Cast error to AxiosError with the correct type
+      const axiosError = error as AxiosError<ErrorResponse>;
+
       // Check if this is a "user not found" error, which is expected for new users
-      if (error.response?.data?.error?.message === 'User not found') {
+      if (axiosError.response?.data?.error?.message === 'User not found') {
         setIsAuthenticated(false);
         setErrorMessage('Please enter your invite code to access the app.');
       } else {
@@ -121,15 +131,20 @@ const InviteGate: React.FC<InviteGateProps> = ({ children }) => {
       if (response.data.success) {
         setIsAuthenticated(true);
         // Show a success message about signup bonus
-        alert(
-          `Welcome! You've received ${response.data.data?.signupBonus} tokens as a signup bonus.`,
-        );
+        // alert(
+        //   `Welcome! You've received ${response.data.data?.signupBonus} tokens as a signup bonus.`,
+        // );
       } else {
         setErrorMessage(response.data.error?.description || 'Invalid invite code.');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error during sign up:', error);
-      setErrorMessage(error.response?.data?.error?.description || 'Error validating invite code.');
+
+      // Cast error to AxiosError with the correct type
+      const axiosError = error as AxiosError<ErrorResponse>;
+      setErrorMessage(
+        axiosError.response?.data?.error?.description || 'Error validating invite code.',
+      );
     } finally {
       setLoading(false);
     }

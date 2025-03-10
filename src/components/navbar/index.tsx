@@ -13,7 +13,6 @@ import CreateDual from '../create-dual';
 import Balance from './balance';
 import { ConnectButton } from './connectButton';
 import EnableTrading from './enableTrading';
-import GenerateInvite from '../invite-only/generate-invite';
 import Logo from './logo';
 import NavLink from './navLink';
 import { WalletModal } from './wallet-modal';
