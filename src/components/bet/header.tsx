@@ -10,7 +10,7 @@ type Props = {
   winCondition: number;
   token?: string;
   liquidity?: string;
-  endsIn?: number;
+  endsIn: number;
   percentage?: number;
 };
 
