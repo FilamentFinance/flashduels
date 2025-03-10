@@ -17,12 +17,11 @@ import { RootState } from '@/store';
 import { OptionsType } from '@/types/dual';
 import { handleTransactionError, useTokenApproval } from '@/utils/token';
 import Image from 'next/image';
-import { FC, useCallback, useMemo, useState } from 'react';
+import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { shallowEqual, useSelector } from 'react-redux';
 import { formatUnits, parseUnits } from 'viem/utils';
 import { useAccount } from 'wagmi';
 import PositionSelector from './position-selector';
-// import { PositionSelector } from './PositionSelector';
 
 interface BuyOrderProps {
   duelId: string;
@@ -43,7 +42,19 @@ const BuyOrder: FC<BuyOrderProps> = ({
   triggerPrice,
   token,
 }) => {
-  const [selectedPosition, setSelectedPosition] = useState<OptionsType | null>(null);
+  const selectedPosition = useSelector((state: RootState) => state.bet.selectedPosition);
+  const [localPosition, setLocalPosition] = useState<OptionsType | null>(() => {
+    if (selectedPosition === 'YES') return OPTIONS_TYPE.YES;
+    if (selectedPosition === 'NO') return OPTIONS_TYPE.NO;
+    return null;
+  });
+
+  // Update local position when Redux state changes
+  useEffect(() => {
+    if (selectedPosition === 'YES') setLocalPosition(OPTIONS_TYPE.YES);
+    else if (selectedPosition === 'NO') setLocalPosition(OPTIONS_TYPE.NO);
+  }, [selectedPosition]);
+
   const [amount, setAmount] = useState('');
   const [error, setError] = useState('');
   const [isJoiningDuel, setIsJoiningDuel] = useState(false);
@@ -72,7 +83,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
   });
 
   const handlePositionSelect = useCallback((position: OptionsType) => {
-    setSelectedPosition(position);
+    setLocalPosition(position);
     setError('');
   }, []);
 
@@ -109,10 +120,10 @@ const BuyOrder: FC<BuyOrderProps> = ({
   );
 
   const calculateShares = useCallback(() => {
-    if (!selectedPosition || !amount) return 0;
-    const price = selectedPosition === OPTIONS_TYPE.YES ? yesPrice : noPrice;
+    if (!localPosition || !amount) return 0;
+    const price = localPosition === OPTIONS_TYPE.YES ? yesPrice : noPrice;
     return Number(amount) / Number(price || 0.15);
-  }, [amount, selectedPosition, yesPrice, noPrice]);
+  }, [amount, localPosition, yesPrice, noPrice]);
 
   const handleMaxClick = useCallback(() => {
     const maxAmount = formatUnits((balance ?? 0) as bigint, 6);
@@ -120,7 +131,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
   }, [balance, validateAndSetAmount]);
 
   const handleJoinDuel = useCallback(async () => {
-    if (!selectedPosition || !amount) {
+    if (!localPosition || !amount) {
       setError('Please select a position and enter an amount');
       return;
     }
@@ -133,10 +144,10 @@ const BuyOrder: FC<BuyOrderProps> = ({
       if (success) {
         await baseApiClient.post(`${SERVER_CONFIG.API_URL}/user/bets/create`, {
           twitterUsername: '',
-          bet: selectedPosition,
+          bet: localPosition,
           address: address?.toLowerCase(),
           betAmount: Number(amount),
-          optionIndex: selectedPosition === OPTIONS_TYPE.YES ? 0 : 1,
+          optionIndex: localPosition === OPTIONS_TYPE.YES ? 0 : 1,
           duelId,
           duelType,
           asset,
@@ -145,12 +156,12 @@ const BuyOrder: FC<BuyOrderProps> = ({
 
         // Reset form after successful submission
         setAmount('');
-        setSelectedPosition(null);
+        setLocalPosition(null);
         setError('');
 
         toast({
           title: 'Success!',
-          description: `Successfully placed ${selectedPosition} bet for ${amount} USDC`,
+          description: `Successfully placed ${localPosition} bet for ${amount} USDC`,
         });
       }
     } catch (error) {
@@ -164,11 +175,11 @@ const BuyOrder: FC<BuyOrderProps> = ({
     } finally {
       setIsJoiningDuel(false);
     }
-  }, [selectedPosition, amount, duelId, duelType, asset, winCondition, address, joinDuel, toast]);
+  }, [localPosition, amount, duelId, duelType, asset, winCondition, address, joinDuel, toast]);
 
   const isFormValid = useMemo(
-    () => selectedPosition && amount && Number(amount) > 0 && !error,
-    [selectedPosition, amount, error],
+    () => localPosition && amount && Number(amount) > 0 && !error,
+    [localPosition, amount, error],
   );
 
   // Import the token approval hook
@@ -176,18 +187,18 @@ const BuyOrder: FC<BuyOrderProps> = ({
 
   // Updated market buy function with error handling
   const handleMarketBuy = useCallback(async () => {
-    if (!selectedPosition || !amount) {
+    if (!localPosition || !amount) {
       setError('Please select a position and enter an amount');
       return;
     }
 
     setIsMarketBuying(true);
     try {
-      const optionIndex = selectedPosition === OPTIONS_TYPE.YES ? 0 : 1;
+      const optionIndex = localPosition === OPTIONS_TYPE.YES ? 0 : 1;
 
       // Check token allowance first
       const hasAllowance = await checkAllowance();
-      console.log({ selectedPosition, optionIndex, amount, error, hasAllowance });
+      console.log({ localPosition, optionIndex, amount, error, hasAllowance });
 
       if (!hasAllowance) {
         // Request token approval if needed
@@ -213,7 +224,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
 
         // Reset form after successful submission
         setAmount('');
-        setSelectedPosition(null);
+        setLocalPosition(null);
         setError('');
       }
     } catch (error) {
@@ -231,14 +242,14 @@ const BuyOrder: FC<BuyOrderProps> = ({
     } finally {
       setIsMarketBuying(false);
     }
-  }, [selectedPosition, amount, duelId, checkAllowance, requestAllowance, toast, setError]);
+  }, [localPosition, amount, duelId, checkAllowance, requestAllowance, toast, setError]);
 
   return (
     <Card className="bg-transparent border-none space-y-6">
       <CardContent className="p-0 space-y-6">
         {/* YES/NO Buttons */}
         <PositionSelector
-          selectedPosition={selectedPosition}
+          selectedPosition={localPosition}
           onPositionSelect={handlePositionSelect}
           disabled={isLoading}
         />
@@ -304,11 +315,11 @@ const BuyOrder: FC<BuyOrderProps> = ({
           <CardContent className="p-3">
             <div className="flex justify-between items-center">
               <div className="text-sm text-gray-400">
-                {calculateShares().toFixed(2)} {selectedPosition}
+                {calculateShares().toFixed(2)} {localPosition}
               </div>
               <div className="text-sm text-gray-400">
                 $
-                {selectedPosition === OPTIONS_TYPE.YES ? yesPrice?.toFixed(2) : noPrice?.toFixed(2)}
+                {localPosition === OPTIONS_TYPE.YES ? yesPrice?.toFixed(2) : noPrice?.toFixed(2)}
               </div>
             </div>
           </CardContent>

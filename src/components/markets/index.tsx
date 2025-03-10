@@ -3,10 +3,12 @@
 import { SERVER_CONFIG } from '@/config/server-config';
 import { DUAL_STATUS } from '@/constants/dual';
 import { CATEGORIES } from '@/constants/markets';
-import { Duel, NewDuelItem, DualStatus as TDualStatus } from '@/types/dual';
+import { Duel, NewDuelItem, DualStatus as TDualStatus, Position } from '@/types/dual';
 import { truncateAddress } from '@/utils/general/getEllipsisTxt';
 import { useRouter } from 'next/navigation';
 import { FC, useEffect, useRef, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { setSelectedPosition } from '@/store/slices/betSlice';
 import Categories from './categories';
 import DualStatus from './dual-status';
 import Duals from './duals';
@@ -19,6 +21,7 @@ const Markets: FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState(CATEGORIES['ALL_DUELS'].title); // Category state
   const wsRef = useRef<WebSocket | null>(null);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     let isSubscribed = true;
@@ -102,6 +105,12 @@ const Markets: FC = () => {
   });
 
   const handleDualRowClick = (duelId: string) => {
+    dispatch(setSelectedPosition(null)); // Reset position when clicking the row
+    router.push(`/bet?duelId=${duelId}`);
+  };
+
+  const handlePositionSelect = (duelId: string, position: Position) => {
+    dispatch(setSelectedPosition(position));
     router.push(`/bet?duelId=${duelId}`);
   };
 
@@ -113,7 +122,11 @@ const Markets: FC = () => {
         <SearchDuels placeholder="Search Duels" onSearch={setSearchQuery} />
       </div>
       <div className='max-h-sm'>
-        <Duals data={filteredDuels} handleDualRowClick={handleDualRowClick} />
+        <Duals 
+          data={filteredDuels} 
+          handleDualRowClick={handleDualRowClick} 
+          onPositionSelect={handlePositionSelect}
+        />
       </div>
     </div>
   );

@@ -2,23 +2,19 @@ import { useTotalBets } from '@/hooks/useTotalBets';
 import { Card } from '@/shadcn/components/ui/card';
 import { Duel, Position } from '@/types/dual';
 import Image from 'next/image';
-import { FC, useState } from 'react';
+import { FC } from 'react';
 import ChanceProgress from './chance-progress';
 import YesNoButton from './yes-no-button';
 
 interface Props {
   data: Duel;
   onClick: () => void;
+  onPositionSelect: (duelId: string, position: Position) => void;
 }
 
-const DualRow: FC<Props> = ({ data, onClick }) => {
+const DualRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
   const { title, volume, timeLeft } = data;
-  const [selectedPosition, setSelectedPosition] = useState<Position | null>(null);
   const { totalBetYes, totalBetNo } = useTotalBets(data.duelId);
-
-  const handlePositionSelect = (position: Position) => {
-    setSelectedPosition(position);
-  };
 
   const calculatedPercentage =
     ((totalBetYes as number) / (Number(totalBetYes) + Number(totalBetNo))) * 100;
@@ -61,13 +57,17 @@ const DualRow: FC<Props> = ({ data, onClick }) => {
       <div className="flex gap-2">
         <YesNoButton
           position="YES"
-          onClick={() => handlePositionSelect('YES')}
-          isSelected={selectedPosition === 'YES'}
+          onClick={(e: React.MouseEvent) => {
+            e.stopPropagation();
+            onPositionSelect(data.duelId, 'YES');
+          }}
         />
         <YesNoButton
           position="NO"
-          onClick={() => handlePositionSelect('NO')}
-          isSelected={selectedPosition === 'NO'}
+          onClick={(e: React.MouseEvent) => {
+            e.stopPropagation();
+            onPositionSelect(data.duelId, 'NO');
+          }}
         />
       </div>
     </Card>

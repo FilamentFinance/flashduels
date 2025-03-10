@@ -1,16 +1,20 @@
 import { OPTIONS_TYPE } from '@/constants/dual';
 import { Button } from '@/shadcn/components/ui/button';
 import { cn } from '@/shadcn/lib/utils';
+import { RootState } from '@/store';
 import { OptionsType } from '@/types/dual';
-import { FC } from 'react';
+import { FC, MouseEvent } from 'react';
+import { useSelector } from 'react-redux';
 
 interface YesNoButtonProps {
   position: OptionsType;
-  isSelected: boolean;
-  onClick: () => void;
+  onClick: (e: MouseEvent) => void;
 }
 
-const YesNoButton: FC<YesNoButtonProps> = ({ position, isSelected, onClick }) => {
+const YesNoButton: FC<YesNoButtonProps> = ({ position, onClick }) => {
+  const selectedPosition = useSelector((state: RootState) => state.bet.selectedPosition);
+  const isSelected = selectedPosition === position;
+
   return (
     <Button
       variant="ghost"

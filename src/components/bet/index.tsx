@@ -7,6 +7,7 @@ import { NewDuelItem, OptionBetType } from '@/types/dual';
 import { ArrowLeft } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { FC, useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { useAccount } from 'wagmi';
 import ErrorState from './error-state';
 import Header from './header';
@@ -14,11 +15,13 @@ import LoadingSkeleton from './loading-skeleton';
 import OrderBook from './order-book';
 import { OrdersHistory } from './orders-history';
 import PlaceOrder from './place-order';
+import { RootState } from '@/store';
 
 const Bet: FC = () => {
   const searchParams = useSearchParams();
   const id = searchParams.get('duelId');
   const router = useRouter();
+  const selectedPosition = useSelector((state: RootState) => state.bet.selectedPosition);
   const [duel, setDuel] = useState<NewDuelItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -82,6 +85,8 @@ const Bet: FC = () => {
   useEffect(() => {
     if (id) {
       fetchDuel();
+      // Log the received position from Redux
+      console.log('Received position from Redux:', selectedPosition);
     } else {
       setError('Duel ID is missing from the query parameters.');
       setLoading(false);

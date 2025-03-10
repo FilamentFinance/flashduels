@@ -14,11 +14,11 @@ export const CATEGORIES: {
   },
   POLITICS: {
     title: 'Politics',
-    icon: '🇺🇸',
+    icon: '🏛️',
   },
   F1: {
     title: 'F1',
-    icon: '⚽',
+    icon: '🏎️',
   },
 } as const;
 
