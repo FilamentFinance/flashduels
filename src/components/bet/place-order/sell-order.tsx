@@ -31,7 +31,7 @@ type OptionBetType = {
   betOption?: { index: number };
 };
 
-const SellOrder: FC<SellOrderProps> = ({ duelId, asset, yesPrice, noPrice }) => {
+const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice }) => {
   const [selectedPosition, setSelectedPosition] = useState<OptionsType | null>(null);
   const [amount, setAmount] = useState('');
   const [price, setPrice] = useState('0');

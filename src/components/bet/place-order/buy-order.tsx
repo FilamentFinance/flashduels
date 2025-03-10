@@ -4,7 +4,6 @@ import { LOGOS } from '@/constants/app/logos';
 import { OPTIONS_TYPE } from '@/constants/dual';
 import { useBalance } from '@/hooks/useBalance';
 import useJoinDuel from '@/hooks/useJoinDuel';
-import { useTotalBets } from '@/hooks/useTotalBets';
 import { Button } from '@/shadcn/components/ui/button';
 import { Card, CardContent } from '@/shadcn/components/ui/card';
 import { Input } from '@/shadcn/components/ui/input';
@@ -16,7 +15,7 @@ import { OptionsType } from '@/types/dual';
 import { handleTransactionError, useTokenApproval } from '@/utils/token';
 import Image from 'next/image';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
-import { shallowEqual, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { formatUnits, parseUnits } from 'viem/utils';
 import { useAccount } from 'wagmi';
 import PositionSelector from './position-selector';
@@ -38,9 +37,9 @@ const BuyOrder: FC<BuyOrderProps> = ({
   duelType,
   asset,
   winCondition,
-  endsIn,
-  triggerPrice,
-  token,
+  // endsIn,
+  // triggerPrice,
+  // token,
   yesPrice,
   noPrice,
 }) => {
@@ -69,8 +68,8 @@ const BuyOrder: FC<BuyOrderProps> = ({
   const { balance } = useBalance(address);
   const { joinDuel } = useJoinDuel();
   const { toast } = useToast();
-  const { prices } = useSelector((state: RootState) => state.price, shallowEqual);
-  const { totalBetYes, totalBetNo } = useTotalBets(duelId);
+  // const { prices } = useSelector((state: RootState) => state.price, shallowEqual);
+  // const { totalBetYes, totalBetNo } = useTotalBets(duelId);
 
   const handlePositionSelect = useCallback((position: OptionsType) => {
     setLocalPosition(position);
@@ -308,8 +307,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
                 {calculateShares().toFixed(2)} {localPosition}
               </div>
               <div className="text-sm text-gray-400">
-                $
-                {localPosition === OPTIONS_TYPE.YES ? yesPrice?.toFixed(2) : noPrice?.toFixed(2)}
+                ${localPosition === OPTIONS_TYPE.YES ? yesPrice?.toFixed(2) : noPrice?.toFixed(2)}
               </div>
             </div>
           </CardContent>
