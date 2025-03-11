@@ -1,7 +1,7 @@
-import { OPTIONS_TYPE } from '@/constants/dual';
+import { OPTIONS_TYPE } from '@/constants/duel';
 import { Button } from '@/shadcn/components/ui/button';
 import { cn } from '@/shadcn/lib/utils';
-import { OptionsType } from '@/types/dual';
+import { OptionsType } from '@/types/duel';
 import { FC } from 'react';
 
 interface PositionSelectorProps {

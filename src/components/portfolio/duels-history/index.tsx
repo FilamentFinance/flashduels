@@ -2,7 +2,7 @@
 
 import { baseApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
-import { ActiveDuels } from '@/types/dual';
+import { ActiveDuels } from '@/types/duel';
 import React, { FC } from 'react';
 import { useAccount } from 'wagmi';
 import { DuelShimmer } from '../duels/duel-shimmer';

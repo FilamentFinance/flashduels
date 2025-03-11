@@ -1,9 +1,9 @@
-export const DUAL = {
+export const DUEL = {
   COIN: 'coin',
   FLASH: 'flash',
 } as const;
 
-export const DUAL_DURATION = {
+export const DUEL_DURATION = {
   FIVE_MINUTES: '5M',
   FIFTEEN_MINUTES: '15M',
   THIRTY_MINUTES: '30M',
@@ -15,7 +15,7 @@ export const DUAL_DURATION = {
   // FORTY_EIGHT_HOURS: '48H',
 } as const;
 
-export const DUAL_STATUS = {
+export const DUEL_STATUS = {
   LIVE: 'Live',
   BOOTSTRAPPING: 'Bootstrapping',
   COMPLETED: 'Completed',
@@ -26,7 +26,7 @@ export const POSITION = {
   NO: 'NO',
 } as const;
 
-export const COIN_DUAL_ASSETS: {
+export const COIN_DUEL_ASSETS: {
   [key: string]: {
     image: string;
     symbol: string;

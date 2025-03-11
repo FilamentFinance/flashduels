@@ -1,25 +1,25 @@
 'use client';
 
-import { DUAL_STATUS } from '@/constants/dual';
+import { DUEL_STATUS } from '@/constants/duel';
 import { Button } from '@/shadcn/components/ui/button';
 import { cn } from '@/shadcn/lib/utils';
-import { DualStatus as TDualStatus } from '@/types/dual';
+import { DuelStatus as TDuelStatus } from '@/types/duel';
 import { FC } from 'react';
 
 type Props = {
-  activeStatus: TDualStatus;
-  setActiveStatus: (status: TDualStatus) => void;
+  activeStatus: TDuelStatus;
+  setActiveStatus: (status: TDuelStatus) => void;
 };
 
-const DualStatus: FC<Props> = ({ activeStatus, setActiveStatus }) => {
+const DuelStatus: FC<Props> = ({ activeStatus, setActiveStatus }) => {
   return (
     <div className="flex items-center gap-2 p-2 border border-zinc-800 w-fit rounded-2xl">
-      {Object.entries(DUAL_STATUS).map(([key, status]) => {
+      {Object.entries(DUEL_STATUS).map(([key, status]) => {
         const isActive = status === activeStatus;
         return (
           <Button
             key={key}
-            onClick={() => setActiveStatus(status as TDualStatus)}
+            onClick={() => setActiveStatus(status as TDuelStatus)}
             variant={isActive ? 'default' : 'ghost'}
             size="sm"
             className={cn(
@@ -37,4 +37,4 @@ const DualStatus: FC<Props> = ({ activeStatus, setActiveStatus }) => {
   );
 };
 
-export default DualStatus;
+export default DuelStatus;

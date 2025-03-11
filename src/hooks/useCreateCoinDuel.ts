@@ -1,4 +1,4 @@
-import { FlashDualCoreFaucetAbi } from '@/abi/FlashDualCoreFaucet';
+import { FlashDuelCoreFaucetAbi } from '@/abi/FlashDualCoreFaucet';
 import { SERVER_CONFIG } from '@/config/server-config';
 import { SEI_TESTNET_CHAIN_ID, TRANSACTION_STATUS } from '@/constants/app';
 import { useToast } from '@/shadcn/components/ui/use-toast';
@@ -78,7 +78,7 @@ const useCreateCoinDuel = () => {
       setStatus(TRANSACTION_STATUS.CREATING_DUEL);
       const tx = await writeContractAsync({
         address: SERVER_CONFIG.DIAMOND as Hex,
-        abi: FlashDualCoreFaucetAbi,
+        abi: FlashDuelCoreFaucetAbi,
         functionName: 'requestCreateCryptoDuel',
         args: [
           params.symbol,

@@ -22,7 +22,7 @@ export const CATEGORIES: {
   },
 } as const;
 
-export const FLASH_DUAL_CATEGORIES = {
+export const FLASH_DUEL_CATEGORIES = {
   ANY: 'any',
   CRYPTO: 'crypto',
   POLITICS: 'politics',

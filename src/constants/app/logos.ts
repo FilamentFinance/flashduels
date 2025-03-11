@@ -19,18 +19,18 @@ export const LOGOS = {
   },
 } as const;
 
-export const DUAL_LOGOS = {
+export const DUEL_LOGOS = {
   COIN: {
     active: '/logo/coin-dual-active.svg',
     inactive: '/logo/coin-dual.svg',
-    alt: 'Coin Dual',
+    alt: 'Coin Duel',
     height: 48,
     width: 48,
   },
   FLASH: {
     active: '/logo/flash-dual-battle-active.svg',
     inactive: '/logo/flash-dual-battle.svg',
-    alt: 'Flash Dual',
+    alt: 'Flash Duel',
     height: 48,
     width: 48,
   },

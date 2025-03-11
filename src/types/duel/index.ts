@@ -1,33 +1,33 @@
 import {
-  DUAL,
-  DUAL_DURATION,
-  DUAL_STATUS,
+  DUEL,
+  DUEL_DURATION,
+  DUEL_STATUS,
   OPTIONS_TYPE,
   ORDER_TYPE,
   POSITION,
   WIN_CONDITIONS,
-} from '@/constants/dual';
+} from '@/constants/duel';
 
-export type DualType = (typeof DUAL)[keyof typeof DUAL];
-export type DualDuration = (typeof DUAL_DURATION)[keyof typeof DUAL_DURATION];
+export type DuelType = (typeof DUEL)[keyof typeof DUEL];
+export type DuelDuration = (typeof DUEL_DURATION)[keyof typeof DUEL_DURATION];
 
-export interface BaseDualFormData {
-  duration: DualDuration;
+export interface BaseDuelFormData {
+  duration: DuelDuration;
 }
 
-export interface CoinDualFormData extends BaseDualFormData {
+export interface CoinDuelFormData extends BaseDuelFormData {
   token: string;
   triggerPrice: string;
   winCondition: 'above' | 'below';
 }
 
-export interface FlashDualFormData extends BaseDualFormData {
+export interface FlashDuelFormData extends BaseDuelFormData {
   category: string;
   duelText: string;
   betIcon: File | null;
 }
 
-export type DualStatus = (typeof DUAL_STATUS)[keyof typeof DUAL_STATUS];
+export type DuelStatus = (typeof DUEL_STATUS)[keyof typeof DUEL_STATUS];
 
 export type User = {
   id: string;

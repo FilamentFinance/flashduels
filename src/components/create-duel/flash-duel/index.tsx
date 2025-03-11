@@ -3,8 +3,8 @@
 import { baseApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
 import { TRANSACTION_STATUS } from '@/constants/app';
-import { DUAL_DURATION, DUEL_TYPE, DURATIONS, OPTIONS } from '@/constants/dual';
-import { CATEGORIES, FLASH_DUAL_CATEGORIES } from '@/constants/markets';
+import { DUEL_DURATION, DUEL_TYPE, DURATIONS, OPTIONS } from '@/constants/duel';
+import { CATEGORIES, FLASH_DUEL_CATEGORIES } from '@/constants/markets';
 import useCreateFlashDuel from '@/hooks/useCreateFlashDuel';
 import { Button } from '@/shadcn/components/ui/button';
 import { Input } from '@/shadcn/components/ui/input';
@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from '@/shadcn/components/ui/select';
 import { Textarea } from '@/shadcn/components/ui/textarea';
-import { DualDuration } from '@/types/dual';
+import { DuelDuration } from '@/types/duel';
 import { mapCategoryToEnumIndex, mapDurationToNumber } from '@/utils/general/create-duels';
 import { getTransactionStatusMessage } from '@/utils/transaction';
 import { Trash2, Upload } from 'lucide-react';
@@ -25,13 +25,13 @@ import Image from 'next/image';
 import { FC, useState } from 'react';
 import { useAccount } from 'wagmi';
 
-interface FlashDualFormProps {
+interface FlashDuelFormProps {
   onBack: () => void;
   onComplete: () => void;
 }
 
-const FlashDualForm: FC<FlashDualFormProps> = ({ onBack, onComplete }) => {
-  const [selectedDuration, setSelectedDuration] = useState<DualDuration>(DUAL_DURATION.THREE_HOURS);
+const FlashDuelForm: FC<FlashDuelFormProps> = ({ onBack, onComplete }) => {
+  const [selectedDuration, setSelectedDuration] = useState<DuelDuration>(DUEL_DURATION.THREE_HOURS);
   const [selectedCategory, setSelectedCategory] = useState<string>(CATEGORIES['ALL_DUELS'].title);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -127,7 +127,7 @@ const FlashDualForm: FC<FlashDualFormProps> = ({ onBack, onComplete }) => {
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
               <SelectContent className="bg-[#1C1C1C] border-zinc-700">
-                {Object.values(FLASH_DUAL_CATEGORIES).map((category) => (
+                {Object.values(FLASH_DUEL_CATEGORIES).map((category) => (
                   <SelectItem
                     key={category}
                     value={category}
@@ -216,13 +216,13 @@ const FlashDualForm: FC<FlashDualFormProps> = ({ onBack, onComplete }) => {
           <div className="w-32">
             <Select
               value={selectedDuration}
-              onValueChange={(value) => setSelectedDuration(value as DualDuration)}
+              onValueChange={(value) => setSelectedDuration(value as DuelDuration)}
             >
               <SelectTrigger className="bg-zinc-900 border-zinc-700">
                 <SelectValue placeholder="Select duration" />
               </SelectTrigger>
               <SelectContent className="bg-[#1C1C1C] border-zinc-700">
-                {Object.values(DUAL_DURATION).map((duration) => (
+                {Object.values(DUEL_DURATION).map((duration) => (
                   <SelectItem
                     key={duration}
                     value={duration}
@@ -260,11 +260,11 @@ const FlashDualForm: FC<FlashDualFormProps> = ({ onBack, onComplete }) => {
             !selectedImage || !selectedCategory || !selectedDuration || isTransactionInProgress
           }
         >
-          {isTransactionInProgress ? getTransactionStatusMessage(status, error) : 'Create Dual'}
+          {isTransactionInProgress ? getTransactionStatusMessage(status, error) : 'Create Duel'}
         </Button>
       </div>
     </div>
   );
 };
 
-export default FlashDualForm;
+export default FlashDuelForm;

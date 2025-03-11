@@ -1,8 +1,8 @@
-import { OPTIONS_TYPE } from '@/constants/dual';
+import { OPTIONS_TYPE } from '@/constants/duel';
 import { Button } from '@/shadcn/components/ui/button';
 import { cn } from '@/shadcn/lib/utils';
 import { RootState } from '@/store';
-import { OptionsType } from '@/types/dual';
+import { OptionsType } from '@/types/duel';
 import { FC, MouseEvent } from 'react';
 import { useSelector } from 'react-redux';
 

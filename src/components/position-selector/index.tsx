@@ -1,7 +1,7 @@
-import { POSITION } from '@/constants/dual';
+import { POSITION } from '@/constants/duel';
 import { Button } from '@/shadcn/components/ui/button';
 import { cn } from '@/shadcn/lib/utils';
-import { Position } from '@/types/dual';
+import { Position } from '@/types/duel';
 import { FC } from 'react';
 
 interface PositionSelectorProps {

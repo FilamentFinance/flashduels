@@ -1,6 +1,6 @@
 import { TableCell, TableRow } from '@/shadcn/components/ui/table';
 import { cn } from '@/shadcn/lib/utils';
-import { OptionsType } from '@/types/dual';
+import { OptionsType } from '@/types/duel';
 import * as React from 'react';
 
 interface OrderItemProps {

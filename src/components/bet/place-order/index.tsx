@@ -1,5 +1,5 @@
 'use client';
-import { ORDER_LABELS, ORDER_TYPE } from '@/constants/dual';
+import { ORDER_LABELS, ORDER_TYPE } from '@/constants/duel';
 import { usePriceCalculation } from '@/hooks/usePriceCalculation';
 import { useTotalBets } from '@/hooks/useTotalBets';
 import { useWebSocketPrices } from '@/hooks/useWebSocketPrices';
@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/shadcn/components/ui/card';
 import { Tabs, TabsList, TabsTrigger } from '@/shadcn/components/ui/tabs';
 import { cn } from '@/shadcn/lib/utils';
 import { RootState } from '@/store';
-import { OrderType } from '@/types/dual';
+import { OrderType } from '@/types/duel';
 import { FC, useState } from 'react';
 import { useSelector } from 'react-redux';
 import BuyOrder from './buy-order';
@@ -90,12 +90,7 @@ const PlaceOrder: FC<PlaceOrderProps> = ({
             noPrice={noPrice}
           />
         ) : (
-          <SellOrder 
-            duelId={duelId} 
-            asset={asset} 
-            yesPrice={yesPrice}
-            noPrice={noPrice}
-          />
+          <SellOrder duelId={duelId} asset={asset} yesPrice={yesPrice} noPrice={noPrice} />
         )}
       </CardContent>
     </Card>

@@ -1,23 +1,23 @@
 'use client';
 
 import { SERVER_CONFIG } from '@/config/server-config';
-import { DUAL_STATUS } from '@/constants/dual';
+import { DUEL_STATUS } from '@/constants/duel';
 import { CATEGORIES } from '@/constants/markets';
 import { setSelectedPosition } from '@/store/slices/betSlice';
-import { Duel, NewDuelItem, Position, DualStatus as TDualStatus } from '@/types/dual';
+import { Duel, NewDuelItem, Position, DuelStatus as TDualStatus } from '@/types/duel';
 import { truncateAddress } from '@/utils/general/getEllipsisTxt';
 import { useRouter } from 'next/navigation';
 import { FC, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import Categories from './categories';
-import DualStatus from './dual-status';
-import Duals from './duals';
-import SearchDuels from './search-dual';
+import Duels from './duals';
+import DuelStatus from './duel-status';
+import SearchDuels from './search-duel';
 
 const Markets: FC = () => {
   const router = useRouter();
   const [duels, setDuels] = useState<Duel[]>([]);
-  const [activeStatus, setActiveStatus] = useState<TDualStatus>(DUAL_STATUS.LIVE);
+  const [activeStatus, setActiveStatus] = useState<TDualStatus>(DUEL_STATUS.LIVE);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState(CATEGORIES['ALL_DUELS'].title); // Category state
   const wsRef = useRef<WebSocket | null>(null);
@@ -43,11 +43,11 @@ const Markets: FC = () => {
         if (message.allDuels) {
           const filteredDuels = message.allDuels
             .filter((item: NewDuelItem) => {
-              if (activeStatus === DUAL_STATUS.LIVE) {
+              if (activeStatus === DUEL_STATUS.LIVE) {
                 return item.status === 0;
-              } else if (activeStatus === DUAL_STATUS.BOOTSTRAPPING) {
+              } else if (activeStatus === DUEL_STATUS.BOOTSTRAPPING) {
                 return item.status === -1; // Only bootstrapping duels
-              } else if (activeStatus === DUAL_STATUS.COMPLETED) {
+              } else if (activeStatus === DUEL_STATUS.COMPLETED) {
                 return item.status === 1; // Only completed duels
               }
               return true;
@@ -105,7 +105,7 @@ const Markets: FC = () => {
     return matchesSearch && matchesCategory;
   });
 
-  const handleDualRowClick = (duelId: string) => {
+  const handleDuelRowClick = (duelId: string) => {
     dispatch(setSelectedPosition(null)); // Reset position when clicking the row
     router.push(`/bet?duelId=${duelId}`);
   };
@@ -118,13 +118,13 @@ const Markets: FC = () => {
     <div className="px-4">
       <Categories activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
       <div className="flex justify-between items-center">
-        <DualStatus activeStatus={activeStatus} setActiveStatus={setActiveStatus} />
+        <DuelStatus activeStatus={activeStatus} setActiveStatus={setActiveStatus} />
         <SearchDuels placeholder="Search Duels" onSearch={setSearchQuery} />
       </div>
       <div className="max-h-sm">
-        <Duals
+        <Duels
           data={filteredDuels}
-          handleDualRowClick={handleDualRowClick}
+          handleDuelRowClick={handleDuelRowClick}
           onPositionSelect={handlePositionSelect}
         />
       </div>

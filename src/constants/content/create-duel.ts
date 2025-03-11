@@ -1,14 +1,14 @@
-export const CREATE_DUAL = {
+export const CREATE_DUEL = {
   DIALOG: {
-    TITLE: 'Create a Dual',
+    TITLE: 'Create a Duel',
   },
   MARKET_SECTION: {
     HEADING: 'Choose a market',
-    COIN_DUAL: {
+    COIN_DUEL: {
       TITLE: 'Coin Duel',
       DESCRIPTION: 'Create Battles Based on Token Prices, resolved by Oracle price from Pyth',
     },
-    FLASH_DUAL: {
+    FLASH_DUEL: {
       TITLE: 'Flash Duel',
       DESCRIPTION:
         'Create Duel Based on Sports, News, pop Culture, bets are settled by Flash Duels',
@@ -20,11 +20,11 @@ export const CREATE_DUAL = {
   TOAST: {
     SUCCESS: {
       TITLE: 'Success',
-      DESCRIPTION: 'Dual created successfully',
+      DESCRIPTION: 'Duel created successfully',
     },
     ERROR: {
       TITLE: 'Error',
-      DESCRIPTION: 'Failed to create dual',
+      DESCRIPTION: 'Failed to create duel',
     },
   },
   INFO: {

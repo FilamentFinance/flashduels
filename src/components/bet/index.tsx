@@ -4,7 +4,7 @@ import { baseApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
 import { useTotalBets } from '@/hooks/useTotalBets';
 import { RootState } from '@/store';
-import { NewDuelItem, OptionBetType } from '@/types/dual';
+import { NewDuelItem, OptionBetType } from '@/types/duel';
 import { calculateTimeLeft } from '@/utils/time';
 import { ArrowLeft } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';

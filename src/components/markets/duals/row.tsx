@@ -1,6 +1,6 @@
 import { useTotalBets } from '@/hooks/useTotalBets';
 import { Card } from '@/shadcn/components/ui/card';
-import { Duel, Position } from '@/types/dual';
+import { Duel, Position } from '@/types/duel';
 import Image from 'next/image';
 import { FC, useEffect, useState } from 'react';
 import ChanceProgress from './chance-progress';
@@ -12,7 +12,7 @@ interface Props {
   onPositionSelect: (duelId: string, position: Position) => void;
 }
 
-const DualRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
+const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
   const { title, volume, status, winner } = data;
   const { totalBetYes, totalBetNo } = useTotalBets(data.duelId);
   const [timeLeft, setTimeLeft] = useState<string>('');
@@ -143,4 +143,4 @@ const DualRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
   );
 };
 
-export default DualRow;
+export default DuelRow;

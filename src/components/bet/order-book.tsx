@@ -1,7 +1,7 @@
-import { OPTIONS_TYPE } from '@/constants/dual';
+import { OPTIONS_TYPE } from '@/constants/duel';
 import { Card, CardContent } from '@/shadcn/components/ui/card';
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/shadcn/components/ui/table';
-import { OptionBetType, OptionsType } from '@/types/dual';
+import { OptionBetType, OptionsType } from '@/types/duel';
 import { FC } from 'react';
 import { OrderItem } from './OrderItem';
 

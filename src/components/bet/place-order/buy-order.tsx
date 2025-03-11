@@ -1,7 +1,7 @@
 import { baseApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
 import { LOGOS } from '@/constants/app/logos';
-import { OPTIONS_TYPE } from '@/constants/dual';
+import { OPTIONS_TYPE } from '@/constants/duel';
 import { useBalance } from '@/hooks/useBalance';
 import useJoinDuel from '@/hooks/useJoinDuel';
 import { Button } from '@/shadcn/components/ui/button';
@@ -11,7 +11,7 @@ import { Label } from '@/shadcn/components/ui/label';
 import { useToast } from '@/shadcn/components/ui/use-toast';
 import { cn } from '@/shadcn/lib/utils';
 import { RootState } from '@/store';
-import { OptionsType } from '@/types/dual';
+import { OptionsType } from '@/types/duel';
 import { handleTransactionError, useTokenApproval } from '@/utils/token';
 import Image from 'next/image';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';

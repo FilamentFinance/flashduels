@@ -1,7 +1,7 @@
 import { baseApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
 import { TRANSACTION_STATUS } from '@/constants/app';
-import { OPTIONS_TYPE } from '@/constants/dual';
+import { OPTIONS_TYPE } from '@/constants/duel';
 import useSellOrder from '@/hooks/useSellOrder';
 import { Button } from '@/shadcn/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shadcn/components/ui/card';
@@ -9,7 +9,7 @@ import { Input } from '@/shadcn/components/ui/input';
 import { Label } from '@/shadcn/components/ui/label';
 import { useToast } from '@/shadcn/components/ui/use-toast';
 import { cn } from '@/shadcn/lib/utils';
-import { OptionsType } from '@/types/dual';
+import { OptionsType } from '@/types/duel';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { useAccount } from 'wagmi';
 import PositionSelector from './position-selector';

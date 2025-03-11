@@ -1,4 +1,4 @@
-import { Position } from '@/types/dual';
+import { Position } from '@/types/duel';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface BetState {

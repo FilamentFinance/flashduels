@@ -3,13 +3,7 @@
 import { baseApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
 import { TRANSACTION_STATUS } from '@/constants/app';
-import {
-  DUAL_DURATION,
-  DUEL_TYPE,
-  DURATIONS,
-  OPTIONS,
-  WIN_CONDITIONS
-} from '@/constants/dual';
+import { DUEL_DURATION, DUEL_TYPE, DURATIONS, OPTIONS, WIN_CONDITIONS } from '@/constants/duel';
 import useCreateCoinDuel from '@/hooks/useCreateCoinDuel';
 import { Button } from '@/shadcn/components/ui/button';
 import { Input } from '@/shadcn/components/ui/input';
@@ -25,15 +19,15 @@ import { useToast } from '@/shadcn/components/ui/use-toast';
 import { cn } from '@/shadcn/lib/utils';
 import { RootState } from '@/store';
 import { selectedCryptoAsset } from '@/store/slices/priceSlice';
-import { DualDuration, WinCondition } from '@/types/dual';
+import { DuelDuration, WinCondition } from '@/types/duel';
 import { mapDurationToNumber } from '@/utils/general/create-duels';
 import { getTransactionStatusMessage } from '@/utils/transaction';
 import { FC, useState } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { useAccount } from 'wagmi';
-import DuelInfo from '../dual-info';
+import DuelInfo from '../duel-info';
 
-interface CoinDualFormProps {
+interface CoinDuelFormProps {
   onBack: () => void;
   onComplete: () => void;
 }
@@ -42,16 +36,19 @@ export interface CreateCoinDuelData {
   token: string;
   triggerPrice: string;
   winCondition: WinCondition;
-  duration: DualDuration;
+  duration: DuelDuration;
 }
 
-const CreateCoinDuel: FC<CoinDualFormProps> = ({ onBack, onComplete }) => {
-  const [selectedDuration, setSelectedDuration] = useState<DualDuration>(DUAL_DURATION.THREE_HOURS);
+const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
+  const [selectedDuration, setSelectedDuration] = useState<DuelDuration>(DUEL_DURATION.THREE_HOURS);
   const [selectedToken, setSelectedToken] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState('');
   const { price } = useSelector((state: RootState) => state.price);
   const [formData, setFormData] = useState<CreateCoinDuelData | null>(null);
-  const { cryptoAsset, selectedCryptoAsset: selectedAsset } = useSelector((state: RootState) => state.price, shallowEqual);
+  const { cryptoAsset, selectedCryptoAsset: selectedAsset } = useSelector(
+    (state: RootState) => state.price,
+    shallowEqual,
+  );
   const dispatch = useDispatch();
   const { address } = useAccount();
   const { createCoinDuel, status, error, isApprovalMining, isDuelMining } = useCreateCoinDuel();
@@ -74,7 +71,7 @@ const CreateCoinDuel: FC<CoinDualFormProps> = ({ onBack, onComplete }) => {
     const triggerType = 0;
 
     const winCondition = formData.winCondition === WIN_CONDITIONS.ABOVE ? 0 : 1;
-    const dualData = {
+    const duelData = {
       symbol: selectedAsset?.symbol || '',
       options: OPTIONS,
       minWager,
@@ -84,7 +81,7 @@ const CreateCoinDuel: FC<CoinDualFormProps> = ({ onBack, onComplete }) => {
       durationNumber,
     };
     try {
-      const result = await createCoinDuel(dualData);
+      const result = await createCoinDuel(duelData);
 
       if (result.success) {
         const duelData = {
@@ -131,7 +128,7 @@ const CreateCoinDuel: FC<CoinDualFormProps> = ({ onBack, onComplete }) => {
 
   const handleTokenSelect = (value: string) => {
     setSelectedToken(value);
-    const selectedAsset = cryptoAsset.find(asset => {
+    const selectedAsset = cryptoAsset.find((asset) => {
       const symbol = asset.symbol.split('/')[0].replace('Crypto.', '');
       return symbol === value;
     });
@@ -158,9 +155,9 @@ const CreateCoinDuel: FC<CoinDualFormProps> = ({ onBack, onComplete }) => {
                 {selectedToken && (
                   <div className="flex items-center space-x-2 py-1">
                     <div className="w-5 h-5 inline-flex items-center justify-center">
-                      <img 
-                        src={`/crypto-icons/light/crypto-${selectedToken.toLowerCase()}-usd.inline.svg`} 
-                        alt={selectedToken} 
+                      <img
+                        src={`/crypto-icons/light/crypto-${selectedToken.toLowerCase()}-usd.inline.svg`}
+                        alt={selectedToken}
                         className="w-5 h-5"
                         onError={(e) => {
                           e.currentTarget.style.display = 'none';
@@ -197,9 +194,9 @@ const CreateCoinDuel: FC<CoinDualFormProps> = ({ onBack, onComplete }) => {
                       >
                         <div className="flex items-center space-x-2 py-1">
                           <div className="w-5 h-5 inline-flex items-center justify-center">
-                            <img 
-                              src={`/crypto-icons/light/crypto-${displaySymbol.toLowerCase()}-usd.inline.svg`} 
-                              alt={displaySymbol} 
+                            <img
+                              src={`/crypto-icons/light/crypto-${displaySymbol.toLowerCase()}-usd.inline.svg`}
+                              alt={displaySymbol}
                               className="w-5 h-5"
                               onError={(e) => {
                                 e.currentTarget.style.display = 'none';
@@ -223,7 +220,9 @@ const CreateCoinDuel: FC<CoinDualFormProps> = ({ onBack, onComplete }) => {
               {/* {selectedAsset && <img src={selectedAsset.image} alt={selectedToken} width={20} height={20} />} */}
               ${price || '--'}
             </div>
-          ) : '--'}
+          ) : (
+            '--'
+          )}
         </div>
 
         <div className="flex items-center justify-between gap-4">
@@ -247,7 +246,7 @@ const CreateCoinDuel: FC<CoinDualFormProps> = ({ onBack, onComplete }) => {
                   triggerPrice: value,
                   token: prevData?.token || '',
                   winCondition: prevData?.winCondition || WIN_CONDITIONS.ABOVE,
-                  duration: prevData?.duration || DUAL_DURATION.THREE_HOURS,
+                  duration: prevData?.duration || DUEL_DURATION.THREE_HOURS,
                 }));
               }
             }}
@@ -281,13 +280,13 @@ const CreateCoinDuel: FC<CoinDualFormProps> = ({ onBack, onComplete }) => {
           <div className="w-32">
             <Select
               value={selectedDuration}
-              onValueChange={(value) => setSelectedDuration(value as DualDuration)}
+              onValueChange={(value) => setSelectedDuration(value as DuelDuration)}
             >
               <SelectTrigger className="bg-zinc-900 border-zinc-700 ">
                 <SelectValue placeholder="Select duration" />
               </SelectTrigger>
               <SelectContent className="bg-[#1C1C1C] border-zinc-700">
-                {Object.values(DUAL_DURATION).map((duration) => (
+                {Object.values(DUEL_DURATION).map((duration) => (
                   <SelectItem
                     key={duration}
                     value={duration}
@@ -304,10 +303,11 @@ const CreateCoinDuel: FC<CoinDualFormProps> = ({ onBack, onComplete }) => {
 
       {formData && (
         <p className="text-xs text-zinc-400 flex items-center gap-2">
-          {selectedAsset && <img src={selectedAsset.image} alt={selectedToken} width={16} height={16} />}
+          {selectedAsset && (
+            <img src={selectedAsset.image} alt={selectedToken} width={16} height={16} />
+          )}
           {formData.winCondition === WIN_CONDITIONS.ABOVE ? 'Yes' : 'No'} wins if mark price is{' '}
-          {formData.winCondition} ${formData.triggerPrice} after{' '}
-          {selectedDuration}
+          {formData.winCondition} ${formData.triggerPrice} after {selectedDuration}
         </p>
       )}
 

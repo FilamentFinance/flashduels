@@ -1,8 +1,8 @@
-import { FC } from 'react';
-import Image from 'next/image';
-import { cn } from '@/shadcn/lib/utils';
+import { DUEL_LOGOS } from '@/constants/app/logos';
 import { Card, CardContent } from '@/shadcn/components/ui/card';
-import { DUAL_LOGOS } from '@/constants/app/logos';
+import { cn } from '@/shadcn/lib/utils';
+import Image from 'next/image';
+import { FC } from 'react';
 
 type Props = {
   logo: {
@@ -15,7 +15,7 @@ type Props = {
   onClick?: () => void;
 };
 
-const Dual: FC<Props> = ({ logo, title, description, isActive, onClick }) => {
+const Duel: FC<Props> = ({ logo, title, description, isActive, onClick }) => {
   return (
     <Card
       onClick={onClick}
@@ -30,8 +30,8 @@ const Dual: FC<Props> = ({ logo, title, description, isActive, onClick }) => {
         <Image
           src={isActive ? logo.active : logo.inactive}
           alt={title}
-          width={DUAL_LOGOS.COIN.width}
-          height={DUAL_LOGOS.COIN.height}
+          width={DUEL_LOGOS.COIN.width}
+          height={DUEL_LOGOS.COIN.height}
           className="w-12 h-12"
         />
         <div className="text-center">
@@ -47,4 +47,4 @@ const Dual: FC<Props> = ({ logo, title, description, isActive, onClick }) => {
   );
 };
 
-export default Dual;
+export default Duel;

@@ -11,7 +11,7 @@ import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { useAccount } from 'wagmi';
 import ClaimFaucet from '../claim-faucet';
 import ClaimFunds from '../claim-funds';
-import CreateDual from '../create-dual';
+import CreateDuel from '../create-duel';
 import Balance from './balance';
 import { ConnectButton } from './connectButton';
 import EnableTrading from './enableTrading';
@@ -28,13 +28,13 @@ const Navbar: FC = () => {
       const response = await axios.get(
         'https://orderbookv3.filament.finance/flashduels/assets/list',
       );
-    const assetsWithImages = response.data.map((asset: fetchAssetType) => {
-      const symbol = asset.symbol.split('/')[0].replace('Crypto.', '').toLowerCase();
-      return {
-        ...asset,
-        image: `/crypto-icons/light/crypto-${symbol}-usd.inline.svg`,
-      };
-    });
+      const assetsWithImages = response.data.map((asset: fetchAssetType) => {
+        const symbol = asset.symbol.split('/')[0].replace('Crypto.', '').toLowerCase();
+        return {
+          ...asset,
+          image: `/crypto-icons/light/crypto-${symbol}-usd.inline.svg`,
+        };
+      });
       dispatch(setCryptoAsset(assetsWithImages));
     } catch (error) {
       console.error('Error fetching assets:', error);
@@ -62,7 +62,7 @@ const Navbar: FC = () => {
             <ClaimFaucet />
             <EnableTrading />
 
-            {isAuthenticated && <CreateDual />}
+            {isAuthenticated && <CreateDuel />}
             <WalletModal>
               <Button className="rounded-default bg-glass hover:bg-glass-hover border border-zinc-800 transition-colors duration-200 hover:shadow-lg">
                 {truncateAddress(address)}

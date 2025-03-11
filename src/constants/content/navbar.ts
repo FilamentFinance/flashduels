@@ -20,7 +20,7 @@ export const NAVBAR = {
   ENABLE_TRADING: {
     BUTTON_TEXT: 'Enable Trading',
   },
-  CREATE_DUAL: {
-    BUTTON_TEXT: 'Create Dual',
+  CREATE_DUEL: {
+    BUTTON_TEXT: 'Create Duel',
   },
 } as const;
