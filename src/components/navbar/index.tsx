@@ -3,7 +3,7 @@
 import { APP_ROUTES } from '@/constants/app/appRoutes';
 import { Button } from '@/shadcn/components/ui/button';
 import { RootState } from '@/store';
-import { setCryptoAsset } from '@/store/slices/priceSlice';
+import { fetchAssetType, setCryptoAsset } from '@/store/slices/priceSlice';
 import { truncateAddress } from '@/utils/general/getEllipsisTxt';
 import axios from 'axios';
 import { FC, useEffect } from 'react';
@@ -28,20 +28,18 @@ const Navbar: FC = () => {
       const response = await axios.get(
         'https://orderbookv3.filament.finance/flashduels/assets/list',
       );
-      const assetsWithImages = response.data.map((asset: any) => {
-        const symbol = asset.symbol.split('/')[0].replace('Crypto.', '').toLowerCase();
-        return {
-          ...asset,
-          image: `/crypto-icons/light/crypto-${symbol}-usd.inline.svg`
-        };
-      });
+    const assetsWithImages = response.data.map((asset: fetchAssetType) => {
+      const symbol = asset.symbol.split('/')[0].replace('Crypto.', '').toLowerCase();
+      return {
+        ...asset,
+        image: `/crypto-icons/light/crypto-${symbol}-usd.inline.svg`,
+      };
+    });
       dispatch(setCryptoAsset(assetsWithImages));
     } catch (error) {
       console.error('Error fetching assets:', error);
     }
   };
-
-
 
   useEffect(() => {
     fetchAssets();

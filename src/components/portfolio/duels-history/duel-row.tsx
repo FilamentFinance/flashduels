@@ -1,5 +1,6 @@
-import React from 'react';
+import { cn } from '@/shadcn/lib/utils';
 import Image from 'next/image';
+import React from 'react';
 
 interface DuelRowProps {
   duelName: string;
@@ -14,6 +15,7 @@ interface DuelRowProps {
   amount: string;
   activeTab: string;
   quantity: string;
+  winner?: number;
 }
 
 export const DuelRow: React.FC<DuelRowProps> = ({
@@ -29,6 +31,7 @@ export const DuelRow: React.FC<DuelRowProps> = ({
   amount,
   activeTab,
   quantity,
+  winner,
 }) => {
   const thirtyMinutesMs = 30 * 60 * 1000;
   const durationMs = resolvesIn * 60 * 60 * 1000;
@@ -88,8 +91,14 @@ export const DuelRow: React.FC<DuelRowProps> = ({
       <div className="w-[15%] text-center">{Number(quantity).toFixed(2)}</div>
       <div className="w-[15%] text-center">${Number(avgPrice).toFixed(2)}</div>
       <div className="w-[15%] text-center">${Number(amount).toFixed(2)}</div>
-      <div className="w-[20%] text-center">
-        {activeTab === 'history' ? `$${pnl.toFixed(2)}` : time}
+      <div className="w-[20%] text-center">{activeTab === 'history' ? `${pnl}` : time}</div>
+      <div className={cn(winner !== undefined ? 'w-[20%] text-center ' : 'hidden')}>
+        {(winner === 0 || winner === 1) &&
+          (winner === 0 ? (
+            <span className="text-green-500">Yes</span>
+          ) : (
+            <span className="text-red-500">No</span>
+          ))}
       </div>
     </div>
   );

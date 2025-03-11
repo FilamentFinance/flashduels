@@ -76,6 +76,7 @@ export type Duel = {
   winCondition?: number;
   totalBetAmount: number;
   triggerPrice?: string;
+  winner?: number;
 };
 
 export type Position = (typeof POSITION)[keyof typeof POSITION];

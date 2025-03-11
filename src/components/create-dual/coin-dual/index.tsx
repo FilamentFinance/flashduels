@@ -50,11 +50,9 @@ const CreateCoinDuel: FC<CoinDualFormProps> = ({ onBack, onComplete }) => {
   const [selectedToken, setSelectedToken] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState('');
   const { price } = useSelector((state: RootState) => state.price);
-  console.log({pkx:price})
   const [formData, setFormData] = useState<CreateCoinDuelData | null>(null);
   const { cryptoAsset, selectedCryptoAsset: selectedAsset } = useSelector((state: RootState) => state.price, shallowEqual);
   const dispatch = useDispatch();
-  console.log({ cryptoAsset });
   const { address } = useAccount();
   const { createCoinDuel, status, error, isApprovalMining, isDuelMining } = useCreateCoinDuel();
   const { toast } = useToast();
@@ -222,7 +220,7 @@ const CreateCoinDuel: FC<CoinDualFormProps> = ({ onBack, onComplete }) => {
           <Label className="text-zinc-400">Mark Price</Label>
           {selectedToken ? (
             <div className="flex items-center gap-2">
-              {selectedAsset && <img src={selectedAsset.image} alt={selectedToken} width={20} height={20} />}
+              {/* {selectedAsset && <img src={selectedAsset.image} alt={selectedToken} width={20} height={20} />} */}
               ${price || '--'}
             </div>
           ) : '--'}
@@ -308,8 +306,8 @@ const CreateCoinDuel: FC<CoinDualFormProps> = ({ onBack, onComplete }) => {
         <p className="text-xs text-zinc-400 flex items-center gap-2">
           {selectedAsset && <img src={selectedAsset.image} alt={selectedToken} width={16} height={16} />}
           {formData.winCondition === WIN_CONDITIONS.ABOVE ? 'Yes' : 'No'} wins if mark price is{' '}
-          {formData.winCondition} ${price} after{' '}
-          {formData.duration}
+          {formData.winCondition} ${formData.triggerPrice} after{' '}
+          {selectedDuration}
         </p>
       )}
 

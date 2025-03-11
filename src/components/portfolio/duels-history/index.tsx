@@ -5,11 +5,11 @@ import { SERVER_CONFIG } from '@/config/server-config';
 import { ActiveDuels } from '@/types/dual';
 import React, { FC } from 'react';
 import { useAccount } from 'wagmi';
+import { DuelShimmer } from '../duels/duel-shimmer';
+import { DuelState } from '../duels/duel-state';
 import { DuelRow } from './duel-row';
 import { TabButton } from './tab-button';
 import { TableHeader } from './tab-header';
-import { DuelState } from '../duels/duel-state';
-import { DuelShimmer } from '../duels/duel-shimmer';
 
 const DuelsHistory: FC = () => {
   const [activeTab, setActiveTab] = React.useState('duels');
@@ -93,7 +93,6 @@ const DuelsHistory: FC = () => {
   if (error) {
     return <DuelState type="error" message={error} />;
   }
-
   return (
     <div className="flex flex-col max-h-[270px] overflow-y-auto w-full rounded-lg border border-neutral-800 shadow-sm bg-neutral-900">
       {/* Header Section */}
@@ -115,6 +114,7 @@ const DuelsHistory: FC = () => {
       {/* Table Section */}
       <div className="flex flex-col overflow-x-auto w-full">
         {/* Table Header */}
+        {/* Table Header */}
         <div className="flex items-center px-4 py-2 text-sm font-semibold text-stone-300 border-b border-neutral-800">
           <TableHeader label="Duel" width="w-[25%]" />
           <TableHeader label="Direction" width="w-[15%]" align="center" />
@@ -126,6 +126,7 @@ const DuelsHistory: FC = () => {
           ) : (
             <TableHeader label="Resolves in" width="w-[20%]" align="center" />
           )}
+          {activeTab === 'history' && <TableHeader label="Winner" width="w-[20%]" align="center" />}
         </div>
 
         {/* Table Rows */}
@@ -133,7 +134,7 @@ const DuelsHistory: FC = () => {
           {activeData.length > 0 ? (
             activeData.map((item, index) => (
               <React.Fragment key={index}>
-                {item.yesBet.amount && (
+                {item?.yesBet?.amount && (
                   <DuelRow
                     duelName={
                       item.duelDetails.betString ||
@@ -152,9 +153,10 @@ const DuelsHistory: FC = () => {
                     icon={item.duelDetails.betIcon}
                     pnl={item.pnl}
                     activeTab={activeTab}
+                    winner={activeTab == 'history' ? item.duelDetails.winner : undefined}
                   />
                 )}
-                {item.noBet.amount && (
+                {item?.noBet?.amount && (
                   <DuelRow
                     duelName={
                       item.duelDetails.betString ||
@@ -168,11 +170,12 @@ const DuelsHistory: FC = () => {
                     startAt={item.duelDetails.startAt}
                     avgPrice={item.noBet.price as string}
                     quantity={item.noBet.quantity}
-                    amount={item.yesBet.amount as string}
+                    amount={item?.yesBet?.amount as string}
                     resolvesIn={item.duelDetails.endsIn as number}
                     icon={item.duelDetails.betIcon}
                     pnl={item.pnl}
                     activeTab={activeTab}
+                    winner={activeTab == 'history' ? item.duelDetails.winner : undefined}
                   />
                 )}
               </React.Fragment>

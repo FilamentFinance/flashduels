@@ -99,7 +99,9 @@ const Bet: FC = () => {
     if (duel) {
       const updateTime = () => {
         // endsIn is already in hours (e.g., 0.084 for 5 minutes)
-        setTimeLeft(calculateTimeLeft(duel.createdAt, duel.endsIn));
+        setTimeLeft(
+          calculateTimeLeft(duel.status === -1 ? duel.createdAt : duel.startAt || 0, duel.endsIn),
+        );
       };
 
       updateTime();
@@ -124,7 +126,6 @@ const Bet: FC = () => {
   const displayPercentage = isNaN(calculatedPercentage)
     ? 50
     : Number(calculatedPercentage.toFixed(2));
-
   const handleBuyOrders = async (
     betOptionMarketId: string,
     quantity: string,
@@ -159,7 +160,6 @@ const Bet: FC = () => {
     try {
     } catch (error) {
       console.error('Error placing buy order:', error);
-     
     }
   };
 

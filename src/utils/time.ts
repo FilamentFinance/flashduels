@@ -52,11 +52,11 @@ export const calculateTimeLeft = (createdAt: number, duration: number): string =
   try {
     // Convert createdAt to milliseconds if it's in seconds (less than year 2100)
     const createdAtMs = createdAt < 10000000000 ? createdAt * 1000 : createdAt;
-    const endTime = createdAtMs + (duration * 60 * 60 * 1000); // Convert hours to milliseconds
+    const endTime = createdAtMs + duration * 60 * 60 * 1000; // Convert hours to milliseconds
     const now = Date.now();
     const timeLeft = endTime - now;
     if (timeLeft <= 0) {
-      return 'Ended';
+      return '00:00:00';
     }
 
     const hours = Math.floor(timeLeft / (1000 * 60 * 60));

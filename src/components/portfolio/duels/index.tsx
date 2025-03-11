@@ -28,6 +28,7 @@ interface DuelResponseItem {
   winCondition: number;
   triggerPrice: number;
 }
+
 interface DuelItem {
   title: string;
   imageSrc: string;
@@ -85,11 +86,41 @@ const StatusBadge: FC<{ status: number }> = ({ status }) => {
   return <span className={cn('px-2 py-1 rounded-full text-sm font-medium', style)}>{label}</span>;
 };
 
-const formatDuration = (timeLeft: number): string => {
-  const hours = Math.floor(timeLeft / 3600);
-  const minutes = Math.floor((timeLeft % 3600) / 60);
-  const seconds = timeLeft % 60;
-  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+const calculateTimeLeft = (duel: DuelItem): number => {
+  if (duel.status === -1) {
+    const waitingPeriod = 30 * 60; // 30 minutes in seconds
+    const createdAtSec = duel.createdAt || 0;
+    const now = Math.floor(Date.now() / 1000);
+    const elapsed = now - createdAtSec;
+    const remaining = waitingPeriod - elapsed;
+    return Math.max(remaining, 0);
+  } else {
+    const endTimeSec = (duel.startAt || 0) + duel.timeLeft * 60;
+    const now = Math.floor(Date.now() / 1000);
+    const remaining = endTimeSec - now;
+    return Math.max(remaining, 0);
+  }
+};
+
+const formatDuration = (seconds: number): string => {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = seconds % 60;
+  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+};
+
+const TimeLeftCell: FC<{ duel: DuelItem }> = ({ duel }) => {
+  const [timeLeft, setTimeLeft] = useState<number>(calculateTimeLeft(duel));
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft(calculateTimeLeft(duel));
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [duel]);
+
+  return <TableCell className="text-gray-300 font-mono">{formatDuration(timeLeft)}</TableCell>;
 };
 
 const Duels: FC = () => {
@@ -131,21 +162,6 @@ const Duels: FC = () => {
         allDuels.push(...filteredDuels);
       }
 
-      // Add pending duels
-      // if (response.data.pendingDuels) {
-      //   const filteredPendingDuels = response.data.pendingDuels.map((item: ) => ({
-      //     title:
-      //       item.data.betString ||
-      //       `Will ${item.data.token} be ${item.data.winCondition === 0 ? 'ABOVE' : 'BELOW'} ${item.data.triggerPrice}`,
-      //     imageSrc: item.data.betIcon || '',
-      //     status: item.status === 'pending' ? 2 : item.status === 'approved' ? 3 : 4,
-      //     duelType: item.type,
-      //     timeLeft: item.data.endsIn,
-      //     token: item.data.token,
-      //   }));
-      //   allDuels.push(...filteredPendingDuels);
-      // }
-
       if (response.data.pendingDuels) {
         const filteredPendingDuels = response.data.pendingDuels.map(
           (item: { data: DuelResponseItem; status: string; type: string }) => ({
@@ -157,6 +173,8 @@ const Duels: FC = () => {
             duelType: item.type,
             timeLeft: item.data.endsIn,
             token: item.data.token,
+            createdAt: item.data?.createdAt || 0,
+            startAt: item.data?.startAt || 0,
           }),
         );
         allDuels.push(...filteredPendingDuels);
@@ -216,9 +234,7 @@ const Duels: FC = () => {
                   <TableCell>
                     <StatusBadge status={duel.status} />
                   </TableCell>
-                  <TableCell className="text-gray-300 font-mono">
-                    {formatDuration(duel.timeLeft)}
-                  </TableCell>
+                  <TimeLeftCell duel={duel} />
                 </TableRow>
               ))}
             </TableBody>

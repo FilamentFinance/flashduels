@@ -3,12 +3,12 @@
 import { SERVER_CONFIG } from '@/config/server-config';
 import { DUAL_STATUS } from '@/constants/dual';
 import { CATEGORIES } from '@/constants/markets';
-import { Duel, NewDuelItem, DualStatus as TDualStatus, Position } from '@/types/dual';
+import { setSelectedPosition } from '@/store/slices/betSlice';
+import { Duel, NewDuelItem, Position, DualStatus as TDualStatus } from '@/types/dual';
 import { truncateAddress } from '@/utils/general/getEllipsisTxt';
 import { useRouter } from 'next/navigation';
 import { FC, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { setSelectedPosition } from '@/store/slices/betSlice';
 import Categories from './categories';
 import DualStatus from './dual-status';
 import Duals from './duals';
@@ -71,8 +71,9 @@ const Markets: FC = () => {
               triggerPrice: item.triggerPrice,
               totalBetAmount: item.totalBetAmount,
               winCondition: item.winCondition,
+              winner: item.winner,
             }));
-
+          console.log({ filteredDuels });
           setDuels(filteredDuels);
         }
       };
@@ -113,7 +114,6 @@ const Markets: FC = () => {
     dispatch(setSelectedPosition(position));
     router.push(`/bet?duelId=${duelId}`);
   };
-
   return (
     <div className="px-4">
       <Categories activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
@@ -121,10 +121,10 @@ const Markets: FC = () => {
         <DualStatus activeStatus={activeStatus} setActiveStatus={setActiveStatus} />
         <SearchDuels placeholder="Search Duels" onSearch={setSearchQuery} />
       </div>
-      <div className='max-h-sm'>
-        <Duals 
-          data={filteredDuels} 
-          handleDualRowClick={handleDualRowClick} 
+      <div className="max-h-sm">
+        <Duals
+          data={filteredDuels}
+          handleDualRowClick={handleDualRowClick}
           onPositionSelect={handlePositionSelect}
         />
       </div>

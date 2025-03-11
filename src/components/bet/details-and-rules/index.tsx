@@ -26,11 +26,11 @@ const DetailsAndRules: FC<DetailsAndRulesProps> = ({ triggerPrice, token = 'BTC'
           <p className="text-zinc-300 mb-4">The market will resolve as follows:</p>
           <ul className="list-disc pl-6 space-y-2 text-zinc-300">
             <li>
-              Yes: If the Price of ${token} is at or above (equal or more than) {triggerPrice}, at
+              Yes: If the Price of {token} is at or above (equal or more than) ${triggerPrice}, at
               the end of betting period
             </li>
             <li>
-              No: If the price of ${token} is below (less than) {triggerPrice} at the end of betting
+              No: If the price of {token} is below (less than) ${triggerPrice} at the end of betting
               period
             </li>
           </ul>
