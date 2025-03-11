@@ -4,13 +4,11 @@ import { baseApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
 import { TRANSACTION_STATUS } from '@/constants/app';
 import {
-  COIN_DUAL_ASSETS,
   DUAL_DURATION,
   DUEL_TYPE,
   DURATIONS,
-  getAssetImage,
   OPTIONS,
-  WIN_CONDITIONS,
+  WIN_CONDITIONS
 } from '@/constants/dual';
 import useCreateCoinDuel from '@/hooks/useCreateCoinDuel';
 import { Button } from '@/shadcn/components/ui/button';
@@ -26,11 +24,12 @@ import {
 import { useToast } from '@/shadcn/components/ui/use-toast';
 import { cn } from '@/shadcn/lib/utils';
 import { RootState } from '@/store';
+import { selectedCryptoAsset } from '@/store/slices/priceSlice';
 import { DualDuration, WinCondition } from '@/types/dual';
 import { mapDurationToNumber } from '@/utils/general/create-duels';
 import { getTransactionStatusMessage } from '@/utils/transaction';
 import { FC, useState } from 'react';
-import { shallowEqual, useSelector } from 'react-redux';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { useAccount } from 'wagmi';
 import DuelInfo from '../dual-info';
 
@@ -49,9 +48,12 @@ export interface CreateCoinDuelData {
 const CreateCoinDuel: FC<CoinDualFormProps> = ({ onBack, onComplete }) => {
   const [selectedDuration, setSelectedDuration] = useState<DualDuration>(DUAL_DURATION.THREE_HOURS);
   const [selectedToken, setSelectedToken] = useState<string>('');
-  const { prices } = useSelector((state: RootState) => state.price);
+  const [searchQuery, setSearchQuery] = useState('');
+  const { price } = useSelector((state: RootState) => state.price);
+  console.log({pkx:price})
   const [formData, setFormData] = useState<CreateCoinDuelData | null>(null);
-  const { cryptoAsset } = useSelector((state: RootState) => state.price, shallowEqual);
+  const { cryptoAsset, selectedCryptoAsset: selectedAsset } = useSelector((state: RootState) => state.price, shallowEqual);
+  const dispatch = useDispatch();
   console.log({ cryptoAsset });
   const { address } = useAccount();
   const { createCoinDuel, status, error, isApprovalMining, isDuelMining } = useCreateCoinDuel();
@@ -74,9 +76,8 @@ const CreateCoinDuel: FC<CoinDualFormProps> = ({ onBack, onComplete }) => {
     const triggerType = 0;
 
     const winCondition = formData.winCondition === WIN_CONDITIONS.ABOVE ? 0 : 1;
-
     const dualData = {
-      symbol: selectedToken,
+      symbol: selectedAsset?.symbol || '',
       options: OPTIONS,
       minWager,
       triggerPrice,
@@ -92,7 +93,7 @@ const CreateCoinDuel: FC<CoinDualFormProps> = ({ onBack, onComplete }) => {
           type: DUEL_TYPE.COIN_DUEL,
           token: selectedToken,
           category: 'Crypto',
-          betIcon: getAssetImage(selectedToken),
+          betIcon: selectedAsset?.image || '',
           triggerPrice: formData.triggerPrice,
           minimumWager: '',
           winCondition: winCondition,
@@ -129,24 +130,17 @@ const CreateCoinDuel: FC<CoinDualFormProps> = ({ onBack, onComplete }) => {
       onComplete();
     }
   };
-  // type fetchAssetType = {
-  //   symbol: string;
-  //   image: string;
-  //   priceFeedId: string;
-  // }[];
-  // const fetchAsset = async () => {
-  //   try {
-  //     const data = await axios.get('https://orderbookv3.filament.finance/flashduels/assets/list');
-  //     console.log({fetchAsset: data.data});
-  //   } catch (error) {
-  //     console.error('Error fetching asset:', error);
-  //   }
-  // };
 
-  // useEffect(() => {
-  //   fetchAsset();
-  // }
-  // , []);
+  const handleTokenSelect = (value: string) => {
+    setSelectedToken(value);
+    const selectedAsset = cryptoAsset.find(asset => {
+      const symbol = asset.symbol.split('/')[0].replace('Crypto.', '');
+      return symbol === value;
+    });
+    if (selectedAsset) {
+      dispatch(selectedCryptoAsset(selectedAsset));
+    }
+  };
 
   return (
     <div className="flex flex-col space-y-6">
@@ -158,29 +152,80 @@ const CreateCoinDuel: FC<CoinDualFormProps> = ({ onBack, onComplete }) => {
           <Select
             name="token"
             required
-            onValueChange={setSelectedToken}
+            onValueChange={handleTokenSelect}
             disabled={isTransactionInProgress}
           >
             <SelectTrigger className="bg-zinc-900 border-zinc-700">
-              <SelectValue placeholder="Select token" />
+              <SelectValue placeholder="Select token">
+                {selectedToken && (
+                  <div className="flex items-center space-x-2 py-1">
+                    <div className="w-5 h-5 inline-flex items-center justify-center">
+                      <img 
+                        src={`/crypto-icons/light/crypto-${selectedToken.toLowerCase()}-usd.inline.svg`} 
+                        alt={selectedToken} 
+                        className="w-5 h-5"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                    </div>
+                    <span className="inline-block leading-none">{selectedToken}</span>
+                  </div>
+                )}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent className="bg-[#1C1C1C] border-zinc-700">
-              {Object.values(COIN_DUAL_ASSETS).map((asset) => (
-                <SelectItem
-                  key={asset.symbol}
-                  value={asset.symbol}
-                  className="text-white focus:bg-zinc-800 focus:text-white"
-                >
-                  {asset.symbol}
-                </SelectItem>
-              ))}
+              <div className="p-2 sticky top-0 bg-[#1C1C1C] z-10 border-b border-zinc-700">
+                <Input
+                  placeholder="Search tokens..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="h-8 bg-zinc-900 border-zinc-700 text-white placeholder:text-zinc-400"
+                />
+              </div>
+              <div className="max-h-[300px] overflow-y-auto py-1">
+                {cryptoAsset
+                  .filter((asset) => {
+                    const symbol = asset.symbol.split('/')[0].replace('Crypto.', '');
+                    return symbol.toLowerCase().includes(searchQuery.toLowerCase());
+                  })
+                  .map((asset) => {
+                    const displaySymbol = asset.symbol.split('/')[0].replace('Crypto.', '');
+                    return (
+                      <SelectItem
+                        key={asset.symbol}
+                        value={displaySymbol}
+                        className="text-white focus:bg-zinc-800 focus:text-white"
+                      >
+                        <div className="flex items-center space-x-2 py-1">
+                          <div className="w-5 h-5 inline-flex items-center justify-center">
+                            <img 
+                              src={`/crypto-icons/light/crypto-${displaySymbol.toLowerCase()}-usd.inline.svg`} 
+                              alt={displaySymbol} 
+                              className="w-5 h-5"
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                              }}
+                            />
+                          </div>
+                          <span className="inline-block leading-none">{displaySymbol}</span>
+                        </div>
+                      </SelectItem>
+                    );
+                  })}
+              </div>
             </SelectContent>
           </Select>
         </div>
 
         <div className="space-y-2 flex justify-between items-center">
           <Label className="text-zinc-400">Mark Price</Label>
-          {selectedToken ? `$${prices[selectedToken as keyof typeof prices]}` : '--'}
+          {selectedToken ? (
+            <div className="flex items-center gap-2">
+              {selectedAsset && <img src={selectedAsset.image} alt={selectedToken} width={20} height={20} />}
+              ${price || '--'}
+            </div>
+          ) : '--'}
         </div>
 
         <div className="flex items-center justify-between gap-4">
@@ -260,9 +305,10 @@ const CreateCoinDuel: FC<CoinDualFormProps> = ({ onBack, onComplete }) => {
       </div>
 
       {formData && (
-        <p className="text-xs text-zinc-400">
+        <p className="text-xs text-zinc-400 flex items-center gap-2">
+          {selectedAsset && <img src={selectedAsset.image} alt={selectedToken} width={16} height={16} />}
           {formData.winCondition === WIN_CONDITIONS.ABOVE ? 'Yes' : 'No'} wins if mark price is{' '}
-          {formData.winCondition} ${prices[formData.token as keyof typeof prices]} after{' '}
+          {formData.winCondition} ${price} after{' '}
           {formData.duration}
         </p>
       )}

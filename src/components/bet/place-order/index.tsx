@@ -1,17 +1,17 @@
 'use client';
 import { ORDER_LABELS, ORDER_TYPE } from '@/constants/dual';
+import { usePriceCalculation } from '@/hooks/usePriceCalculation';
+import { useTotalBets } from '@/hooks/useTotalBets';
+import { useWebSocketPrices } from '@/hooks/useWebSocketPrices';
 import { Card, CardContent } from '@/shadcn/components/ui/card';
 import { Tabs, TabsList, TabsTrigger } from '@/shadcn/components/ui/tabs';
 import { cn } from '@/shadcn/lib/utils';
+import { RootState } from '@/store';
 import { OrderType } from '@/types/dual';
 import { FC, useState } from 'react';
+import { useSelector } from 'react-redux';
 import BuyOrder from './buy-order';
 import SellOrder from './sell-order';
-import { useWebSocketPrices } from '@/hooks/useWebSocketPrices';
-import { usePriceCalculation } from '@/hooks/usePriceCalculation';
-import { useSelector, shallowEqual } from 'react-redux';
-import { RootState } from '@/store';
-import { useTotalBets } from '@/hooks/useTotalBets';
 
 interface PlaceOrderProps {
   duelId: string;
@@ -34,14 +34,14 @@ const PlaceOrder: FC<PlaceOrderProps> = ({
 }) => {
   const [orderType, setOrderType] = useState<OrderType>(ORDER_TYPE.BUY);
   const { yesPrice, noPrice, ws } = useWebSocketPrices(asset);
-  const { prices } = useSelector((state: RootState) => state.price, shallowEqual);
+  const { price } = useSelector((state: RootState) => state.price);
   const { totalBetYes, totalBetNo } = useTotalBets(duelId);
 
   usePriceCalculation({
     ws,
     asset,
     endsIn,
-    priceFormatted: prices[token as keyof typeof prices],
+    priceFormatted: price,
     triggerPrice: Number(triggerPrice || 0),
     winCondition,
     totalBetYes,

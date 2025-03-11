@@ -1,5 +1,4 @@
 // services/hermesPriceService.ts
-import { COIN_DUAL_ASSETS } from '@/constants/dual';
 import { HermesClient } from '@pythnetwork/hermes-client';
 
 interface PriceState {
@@ -15,30 +14,37 @@ export class HermesPriceService {
   private reconnectTimeout: NodeJS.Timeout | null = null;
   private readonly callbacks: Set<PriceUpdateCallback> = new Set();
   private currentPrices: PriceState = {};
-  private readonly addressToSymbol: Record<string, string> = Object.keys(COIN_DUAL_ASSETS).reduce(
-    (acc, key) => {
-      const asset = COIN_DUAL_ASSETS[key];
-      acc[asset.address] = asset.symbol;
-      return acc;
-    },
-    {} as Record<string, string>,
-  );
+  private currentPriceId: string | null = null;
 
   constructor(
     private readonly endpoint: string = 'https://hermes.pyth.network',
-    private readonly priceIds: string[] = Object.values(COIN_DUAL_ASSETS).map(
-      (asset) => asset.address,
-    ),
     private readonly reconnectDelay: number = 5000,
   ) {
     this.client = new HermesClient(endpoint, {});
   }
 
+  async setPriceId(priceId: string): Promise<void> {
+    if (this.currentPriceId === priceId) return;
+    
+    this.currentPriceId = priceId;
+    await this.reconnect();
+  }
+
+  private async reconnect(): Promise<void> {
+    // Disconnect existing connection
+    this.disconnect();
+    
+    // Connect with new price ID if available
+    if (this.currentPriceId) {
+      await this.connect();
+    }
+  }
+
   async connect(): Promise<void> {
-    if (this.isConnected) return;
+    if (this.isConnected || !this.currentPriceId) return;
 
     try {
-      const eventSource = await this.client.getPriceUpdatesStream(this.priceIds);
+      const eventSource = await this.client.getPriceUpdatesStream([this.currentPriceId]);
 
       if (!eventSource) {
         throw new Error('Failed to create event source');
@@ -60,7 +66,7 @@ export class HermesPriceService {
 
       this.eventSource = eventSource;
       this.isConnected = true;
-      console.log('Connected to Hermes price stream');
+      console.log('Connected to Hermes price stream for:', this.currentPriceId);
     } catch (error) {
       console.error('Failed to connect to Hermes:', error);
       this.handleDisconnect();
@@ -69,8 +75,8 @@ export class HermesPriceService {
 
   private handlePriceUpdate(priceUpdate: { id: string; price: { price: number } }[]): void {
     priceUpdate.forEach((item) => {
-      if (item?.price?.price != null) {
-        this.currentPrices[item.id] = item.price.price;
+      if (item?.price?.price != null && item.id === this.currentPriceId) {
+        this.currentPrices = { [item.id]: item.price.price };
       }
     });
 
@@ -128,5 +134,6 @@ export class HermesPriceService {
 
     this.isConnected = false;
     this.callbacks.clear();
+    this.currentPrices = {};
   }
 }

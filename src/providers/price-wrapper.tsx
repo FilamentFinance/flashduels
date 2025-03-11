@@ -1,68 +1,73 @@
 // src/components/PriceWrapper.tsx
 'use client';
-import { COIN_DUAL_ASSETS } from '@/constants/dual';
-import { setPrices } from '@/store/slices/priceSlice';
-import React, { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { RootState } from '@/store';
+import { setPrice } from '@/store/slices/priceSlice';
+import React, { useEffect, useRef } from 'react';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { formatUnits } from 'viem';
 import { HermesPriceService } from '../config/price-client';
-type MappedPrices = {
-  BTC?: number; // Adjust type as necessary
-  ETH?: number; // Adjust type as necessary
-  SOL?: number; // Adjust type as necessary
-};
 
 const PriceWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const dispatch = useDispatch();
-  const priceService = new HermesPriceService();
+  const priceServiceRef = useRef<HermesPriceService | null>(null);
+  const { selectedCryptoAsset } = useSelector((state: RootState) => state.price, shallowEqual);
 
-  // const [assets, setAssets] = React.useState<fetchAssetType>([]);
-
-  // const fetchAssets = async () => {
-  //   try {
-  //     const response = await axios.get(
-  //       'https://orderbookv3.filament.finance/flashduels/assets/list',
-  //     );
-  //     setAssets(response.data);
-  //   } catch (error) {
-  //     console.error('Error fetching assets:', error);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   fetchAssets();
-  // }, []);
-  // console.log({ pk: assets });
   useEffect(() => {
+    // Create price service instance only once
+    priceServiceRef.current = new HermesPriceService();
+
+    // Cleanup on unmount
+    return () => {
+      if (priceServiceRef.current) {
+        priceServiceRef.current.disconnect();
+        priceServiceRef.current = null;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!selectedCryptoAsset || !priceServiceRef.current) return;
+
+    const priceService = priceServiceRef.current;
+    let isSubscribed = true;
+
     const connect = async () => {
-      await priceService.connect();
-      const unsubscribe = priceService.subscribe((prices) => {
-        const mappedPrices: MappedPrices = Object.entries(prices).reduce((acc, [key, rawPrice]) => {
-          const token = COIN_DUAL_ASSETS[`0x${key}`];
-          if (token) {
+      try {
+        // Set the price ID for the selected asset
+        await priceService.setPriceId(selectedCryptoAsset.priceFeedId.slice(2)); // Remove '0x' prefix
+        await priceService.connect();
+
+        const unsubscribe = priceService.subscribe((prices) => {
+          if (!isSubscribed) return;
+          
+          const priceFeedId = selectedCryptoAsset.priceFeedId.slice(2);
+          const rawPrice = prices[priceFeedId];
+          
+          if (rawPrice) {
             const bigIntPrice = BigInt(rawPrice);
             const formattedPrice = formatUnits(bigIntPrice, 8);
-            acc[token.symbol as keyof MappedPrices] = Number(formattedPrice);
+            dispatch(setPrice(Number(formattedPrice)));
           }
-          return acc;
-        }, {} as MappedPrices);
-        dispatch(
-          setPrices({
-            BTC: mappedPrices.BTC || 0,
-            ETH: mappedPrices.ETH || 0,
-            SOL: mappedPrices.SOL || 0,
-          }),
-        );
-      });
-      return () => unsubscribe();
+        });
+
+        return unsubscribe;
+      } catch (error) {
+        console.error('Failed to connect to price service:', error);
+        return () => {};
+      }
     };
 
-    connect();
+    connect().then((unsubscribe) => {
+      if (!isSubscribed) {
+        unsubscribe();
+      }
+    });
 
     return () => {
+      isSubscribed = false;
       priceService.disconnect();
     };
-  }, [dispatch, priceService]);
+  }, [dispatch, selectedCryptoAsset]);
 
   return <>{children}</>;
 };
