@@ -1,15 +1,36 @@
-import MainContent from "@/components/MainContent";
-// import { setupInterceptors } from "@/utils/apiClient";
-// import { useAccount } from "wagmi";
+'use client';
+
+import HowItWorks from '@/components/how-it-works';
+import Markets from '@/components/markets';
+import { useEffect, useState } from 'react';
+
 export default function Home() {
-// const {address} = useAccount()
-// const disconnect = () => {}
-// setupInterceptors(address, disconnect)
-// console.log(address, "address")
+  const [showHowItWorks, setShowHowItWorks] = useState(true);
+  const [isFirstVisit, setIsFirstVisit] = useState(true);
+
+  useEffect(() => {
+    const hasVisited = localStorage.getItem('hasVisitedBefore');
+
+    if (hasVisited) {
+      setShowHowItWorks(false);
+      setIsFirstVisit(false);
+    } else {
+      setShowHowItWorks(true);
+      setIsFirstVisit(true);
+    }
+  }, []);
+
+  const handleCloseHowItWorks = () => {
+    setShowHowItWorks(false);
+    if (isFirstVisit) {
+      localStorage.setItem('hasVisitedBefore', 'true');
+    }
+  };
 
   return (
-    <div>
-      <MainContent />
-    </div>
+    <>
+      <Markets />
+      {showHowItWorks && <HowItWorks onClose={handleCloseHowItWorks} />}
+    </>
   );
 }

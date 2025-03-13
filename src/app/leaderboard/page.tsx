@@ -1,12 +1,10 @@
-// import MainContent from "@/components/MainContent";
+'use client';
 
-import LeaderboardPage from "@/components/LeaderboardPage/LeaderboardPage";
+import { FC } from 'react';
+import Leaderboard from '@/components/leaderboard';
 
-export default function Leaderboard() {
-    return (
-      <div>
-        <LeaderboardPage></LeaderboardPage>
-      </div>
-    );
-  }
-  
+const LeaderboardPage: FC = () => {
+  return <Leaderboard />;
+};
+
+export default LeaderboardPage;

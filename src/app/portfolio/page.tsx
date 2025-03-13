@@ -1,10 +1,14 @@
-import PortfolioPage from "@/components/PortfolioPage";
+'use client';
 
-export default function Portfolio() {
-    return (
-      <div>
-        <PortfolioPage/>
-      </div>
-    );
-  }
-  
+import PortfolioComponent from '@/components/portfolio';
+import { FC } from 'react';
+
+const Portfolio: FC = () => {
+  return (
+    <main>
+      <PortfolioComponent />
+    </main>
+  );
+};
+
+export default Portfolio;
