@@ -8,7 +8,7 @@ import { useState } from 'react';
 import { createWalletClient, Hex, http } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { seiTestnet } from 'viem/chains';
-import { useAccount, usePublicClient, useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
+import { useAccount, usePublicClient, useWaitForTransactionReceipt } from 'wagmi';
 
 interface UseMintFlashUSDCReturn {
   mintFlashUSDC: () => Promise<{ success: boolean; error?: string }>;
@@ -33,7 +33,6 @@ const useMintFlashUSDC = (): UseMintFlashUSDCReturn => {
   const { toast } = useToast();
   const { address } = useAccount();
   const publicClient = usePublicClient();
-  const { writeContractAsync } = useWriteContract();
 
   // Watch mint transaction
   const { isLoading: isMinting, isSuccess: isMintSuccess } = useWaitForTransactionReceipt({

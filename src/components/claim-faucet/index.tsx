@@ -20,7 +20,7 @@ const ClaimFaucet: FC = () => {
   const [mintLoading, setMintLoading] = useState(false);
   const { address } = useAccount();
   const { toast } = useToast();
-  const { mintFlashUSDC, status, error, txHash, isMinting, isMintSuccess } = useMintFlashUSDC();
+  const { mintFlashUSDC, isMinting } = useMintFlashUSDC();
   const handleCopy = async () => {
     await CopyToClipboard(SERVER_CONFIG.FLASH_USDC);
     setIsCopied(true);
