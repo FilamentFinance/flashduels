@@ -29,7 +29,7 @@ export const CREATE_DUEL = {
   },
   INFO: {
     DISCLAIMER: {
-      TEXT: 'Duels Must go through a 3 Hour Bootstrapping Phase, if volume does not exceed $10,000 the collateral is returned The Duel May be closed by team if it is against our',
+      TEXT: 'Duels Must go through a 30 minutes Bootstrapping Phase, if volume does not exceed $50 the collateral is returned The Duel May be closed by team if it is against our',
       GUIDELINES_LINK: 'guidelines',
     },
   },

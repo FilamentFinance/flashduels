@@ -18,4 +18,5 @@ export const TRANSACTION_STATUS = {
   JOIN_COMPLETE: 'join_complete',
   PENDING: 'pending',
   SUCCESS: 'success',
+  MINTING:'minting'
 } as const;
