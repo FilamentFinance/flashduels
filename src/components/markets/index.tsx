@@ -73,7 +73,6 @@ const Markets: FC = () => {
               winCondition: item.winCondition,
               winner: item.winner,
             }));
-          console.log({ filteredDuels });
           setDuels(filteredDuels);
         }
       };

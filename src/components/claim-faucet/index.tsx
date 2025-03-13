@@ -2,6 +2,7 @@
 
 import { Dialog } from '@/components/ui/custom-modal';
 import { SERVER_CONFIG } from '@/config/server-config';
+import { TRANSACTION_STATUS } from '@/constants/app';
 import { FAUCET_LOGOS } from '@/constants/app/logos';
 import { CLAIM_FAUCET } from '@/constants/content/claim-faucent';
 import useMintFlashUSDC from '@/hooks/useMintFlashUSDC';
@@ -20,7 +21,8 @@ const ClaimFaucet: FC = () => {
   const [mintLoading, setMintLoading] = useState(false);
   const { address } = useAccount();
   const { toast } = useToast();
-  const { mintFlashUSDC, isMinting } = useMintFlashUSDC();
+  const { mintFlashUSDC, error, txHash, status, isMintSuccess } = useMintFlashUSDC();
+
   const handleCopy = async () => {
     await CopyToClipboard(SERVER_CONFIG.FLASH_USDC);
     setIsCopied(true);
@@ -39,33 +41,38 @@ const ClaimFaucet: FC = () => {
     try {
       setMintLoading(true);
 
-      const { success, error } = await mintFlashUSDC();
+      const { success, error: mintError } = await mintFlashUSDC();
+      console.log({ error, txHash, status, isMintSuccess });
 
-      if (success) {
-        // You can show a custom success toast here if you want
+      // Handle transaction status
+      if (success && isMintSuccess) {
         toast({
-          title: 'Success',
-          description: 'FlashUSDC tokens claimed successfully!',
+          title: 'Transaction Successful',
+          description: `FlashUSDC tokens claimed successfully! TX: ${txHash?.slice(0, 10)}...`,
         });
-      } else if (error) {
-        console.error({ error });
-        // The hook already shows error toasts, but you can show a custom one here
+      } else if (status === TRANSACTION_STATUS.FAILED) {
         toast({
           variant: 'destructive',
-          title: 'Minting Failed',
-          description: 'Failed to mint tokens. Please try again.',
+          title: 'Transaction Failed',
+          description: error || 'Failed to mint tokens. Please try again.',
+        });
+      } else if (mintError) {
+        toast({
+          variant: 'destructive',
+          title: 'Minting Error',
+          description: mintError,
         });
       }
     } catch (error) {
       toast({
         variant: 'destructive',
-        title: 'Error',
-        description: 'Unexpected error occurred',
+        title: 'Unexpected Error',
+        description: 'Something went wrong while processing your request',
       });
       console.error('Mint error:', error);
     } finally {
       // Only set loading to false when transaction is complete
-      if (!isMinting) {
+      if (status !== TRANSACTION_STATUS.PENDING && status !== TRANSACTION_STATUS.MINTING) {
         setMintLoading(false);
       }
     }
