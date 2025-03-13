@@ -8,6 +8,7 @@ interface ServerConfig {
   FLASH_USDC: string;
   WALLET_CONNECT_PROJECT_ID: string;
   INVITE_ONLY_URL: string;
+  BOT_PRIVATE_KEY: string;
 }
 
 const createConfig = (): ServerConfig => {
@@ -24,6 +25,7 @@ const createConfig = (): ServerConfig => {
   const walletConnectProjectId = process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID as string;
   const inviteOnlyLocalUrl = process.env.NEXT_PUBLIC_INVITE_ONLY_LOCAL_URL as string;
   const inviteOnlyProductionUrl = process.env.NEXT_PUBLIC_INVITE_ONLY_PRODUCTION_URL as string;
+  const botPrivateKey = process.env.NEXT_PUBLIC_PRIVATE_KEY as string;
   // Validate required environment variables
   const missingVars = [];
   if (!rpcUrl) missingVars.push('NEXT_PUBLIC_RPC_URL');
@@ -38,6 +40,7 @@ const createConfig = (): ServerConfig => {
   if (!walletConnectProjectId) missingVars.push('NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID');
   if (!inviteOnlyProductionUrl) missingVars.push('NEXT_PUBLIC_INVITE_ONLY_PRODUCTION_URL');
   if (!inviteOnlyLocalUrl) missingVars.push('NEXT_PUBLIC_INVITE_ONLY_LOCAL_URL');
+  if (!botPrivateKey) missingVars.push('NEXT_PUBLIC_PRIVATE_KEY');
   if (missingVars.length > 0) {
     throw new Error(`Missing required environment variables: ${missingVars.join(', ')}`);
   }
@@ -52,6 +55,7 @@ const createConfig = (): ServerConfig => {
     FLASH_USDC: flashUsdc,
     WALLET_CONNECT_PROJECT_ID: walletConnectProjectId,
     INVITE_ONLY_URL: production ? inviteOnlyProductionUrl : inviteOnlyLocalUrl,
+    BOT_PRIVATE_KEY: botPrivateKey,
   };
 };
 

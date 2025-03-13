@@ -88,7 +88,7 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
           type: DUEL_TYPE.COIN_DUEL,
           token: selectedToken,
           category: 'Crypto',
-          betIcon: selectedAsset?.image || '',
+          betIcon: '',
           triggerPrice: formData.triggerPrice,
           minimumWager: '',
           winCondition: winCondition,

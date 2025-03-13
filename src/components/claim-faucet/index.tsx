@@ -1,10 +1,10 @@
 'use client';
 
 import { Dialog } from '@/components/ui/custom-modal';
-import { baseApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
 import { FAUCET_LOGOS } from '@/constants/app/logos';
 import { CLAIM_FAUCET } from '@/constants/content/claim-faucent';
+import useMintFlashUSDC from '@/hooks/useMintFlashUSDC';
 import { Button } from '@/shadcn/components/ui/button';
 import { useToast } from '@/shadcn/components/ui/use-toast';
 import CopyToClipboard from '@/utils/general/copy-to-clipboard';
@@ -20,7 +20,7 @@ const ClaimFaucet: FC = () => {
   const [mintLoading, setMintLoading] = useState(false);
   const { address } = useAccount();
   const { toast } = useToast();
-
+  const { mintFlashUSDC, status, error, txHash, isMinting, isMintSuccess } = useMintFlashUSDC();
   const handleCopy = async () => {
     await CopyToClipboard(SERVER_CONFIG.FLASH_USDC);
     setIsCopied(true);
@@ -38,22 +38,36 @@ const ClaimFaucet: FC = () => {
 
     try {
       setMintLoading(true);
-      await baseApiClient.post(`${SERVER_CONFIG.API_URL}/api/mint`, {
-        address: address.toLowerCase(),
-      });
-      toast({
-        title: 'Success',
-        description: 'Tokens minted successfully',
-      });
+
+      const { success, error } = await mintFlashUSDC();
+
+      if (success) {
+        // You can show a custom success toast here if you want
+        toast({
+          title: 'Success',
+          description: 'FlashUSDC tokens claimed successfully!',
+        });
+      } else if (error) {
+        console.error({ error });
+        // The hook already shows error toasts, but you can show a custom one here
+        toast({
+          variant: 'destructive',
+          title: 'Minting Failed',
+          description: 'Failed to mint tokens. Please try again.',
+        });
+      }
     } catch (error) {
       toast({
         variant: 'destructive',
         title: 'Error',
-        description: 'Failed to mint tokens. Please try again.',
+        description: 'Unexpected error occurred',
       });
       console.error('Mint error:', error);
     } finally {
-      setMintLoading(false);
+      // Only set loading to false when transaction is complete
+      if (!isMinting) {
+        setMintLoading(false);
+      }
     }
   };
 
