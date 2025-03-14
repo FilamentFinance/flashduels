@@ -257,7 +257,20 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
           <Label htmlFor="winCondition" className="text-zinc-400">
             Win Condition
           </Label>
-          <Select name="winCondition" defaultValue="above" disabled={isTransactionInProgress}>
+          <Select
+            name="winCondition"
+            defaultValue={WIN_CONDITIONS.ABOVE}
+            disabled={isTransactionInProgress}
+            onValueChange={(value) => {
+              setFormData((prevData) => ({
+                ...prevData,
+                winCondition: value as WinCondition,
+                token: prevData?.token || '',
+                triggerPrice: prevData?.triggerPrice || '',
+                duration: prevData?.duration || DUEL_DURATION.THREE_HOURS,
+              }));
+            }}
+          >
             <SelectTrigger className="bg-[#1C1C1C] border-none h-10 w-64 text-base rounded-lg">
               <SelectValue />
             </SelectTrigger>
@@ -306,8 +319,15 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
           {selectedAsset && (
             <img src={selectedAsset.image} alt={selectedToken} width={16} height={16} />
           )}
-          {formData.winCondition === WIN_CONDITIONS.ABOVE ? 'Yes' : 'No'} wins if mark price is{' '}
-          {formData.winCondition} ${formData.triggerPrice} after {selectedDuration}
+          <span>
+            <strong>YES</strong> wins if mark price is{' '}
+            {formData.winCondition === WIN_CONDITIONS.ABOVE ? (
+              <strong>ABOVE</strong>
+            ) : (
+              <strong>BELOW</strong>
+            )}{' '}
+            ${formData.triggerPrice} after <strong>{selectedDuration}</strong>
+          </span>
         </p>
       )}
 
