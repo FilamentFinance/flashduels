@@ -148,6 +148,11 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
             name="token"
             required
             onValueChange={handleTokenSelect}
+            onOpenChange={(open) => {
+              if (!open) {
+                setSearchQuery('');
+              }
+            }}
             disabled={isTransactionInProgress}
           >
             <SelectTrigger className="bg-zinc-900 border-zinc-700">
@@ -170,12 +175,17 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
               </SelectValue>
             </SelectTrigger>
             <SelectContent className="bg-[#1C1C1C] border-zinc-700">
-              <div className="p-2 sticky top-0 bg-[#1C1C1C] z-10 border-b border-zinc-700">
+              <div 
+                className="p-2 sticky top-0 bg-[#1C1C1C] z-10 border-b border-zinc-700" 
+                onMouseDown={(e) => e.stopPropagation()}
+                onClick={(e) => e.stopPropagation()}
+              >
                 <Input
                   placeholder="Search tokens..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="h-8 bg-zinc-900 border-zinc-700 text-white placeholder:text-zinc-400"
+                  onKeyDown={(e) => e.stopPropagation()}
                 />
               </div>
               <div className="max-h-[300px] overflow-y-auto py-1">
@@ -239,6 +249,7 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
             autoComplete="off"
             disabled={isTransactionInProgress}
             onChange={(e) => {
+              e.preventDefault();
               const value = e.target.value;
               if (value === '' || !isNaN(Number(value))) {
                 setFormData((prevData) => ({
@@ -337,7 +348,10 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
         <Button
           type="button"
           variant="outline"
-          onClick={onBack}
+          onClick={(e) => {
+            e.preventDefault();
+            onBack();
+          }}
           disabled={isTransactionInProgress}
           className={cn(
             'flex-1 border-zinc-700',
@@ -348,7 +362,10 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
         </Button>
         <Button
           type="button"
-          onClick={handleCreateDuel}
+          onClick={(e) => {
+            e.preventDefault();
+            handleCreateDuel();
+          }}
           disabled={isTransactionInProgress}
           className={cn(
             'flex-1 bg-gradient-pink text-black',
