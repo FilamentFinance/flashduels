@@ -31,6 +31,12 @@ const Bet: FC = () => {
   const [timeLeft, setTimeLeft] = useState<string>('');
   const { address } = useAccount();
 
+  const getIconPath = (symbol: string | undefined) => {
+    if (!symbol) return '/empty-string.png';
+    const baseSymbol = symbol.split('.')[1]?.split('/')[0]?.toLowerCase();
+    return baseSymbol ? `/crypto-icons/light/crypto-${baseSymbol}-usd.inline.svg` : '/empty-string.png';
+  };
+
   const fetchDuel = async () => {
     try {
       setLoading(true);
@@ -177,36 +183,34 @@ const Bet: FC = () => {
       </div>
 
       {/* Header */}
-      {duel.betIcon && (
-        <div className="flex justify-between items-stretch gap-4">
-          <div className="flex w-full flex-col">
-            <Header
-              title={
-                duel.betString ??
-                `Will ${duel.token} be ${duel.winCondition === 0 ? 'ABOVE' : 'BELOW'} ${duel.triggerPrice}`
-              }
-              logo={duel.betIcon}
-              triggerPrice={duel.triggerPrice || '0'}
-              winCondition={duel.winCondition || 0}
-              token={duel.token}
-              liquidity={duel.totalBetAmount.toString()}
-              endsIn={timeLeft}
-              percentage={displayPercentage}
-            />
-            <OrderBook yesBets={yesBets} noBets={noBets} handleBuyOrders={handleBuyOrders} />
-            <OrdersHistory duelId={duel.duelId} />
-          </div>
-          <PlaceOrder
-            asset={duel.token}
-            duelId={duel.duelId}
-            endsIn={duel.endsIn}
-            token={duel.token}
-            triggerPrice={duel.triggerPrice}
-            winCondition={duel.winCondition}
-            duelType={duel.duelType}
+      <div className="flex justify-between items-stretch gap-4">
+        <div className="flex w-full flex-col">
+          <Header
+            title={
+              duel.betString ??
+              `Will ${duel.token} be ${duel.winCondition === 0 ? 'ABOVE' : 'BELOW'} ${duel.triggerPrice}`
+            }
+            logo={getIconPath(duel.token)}
+            triggerPrice={duel.triggerPrice || '0'}
+            winCondition={duel.winCondition || 0}
+            token={duel.token || ''}
+            liquidity={duel.totalBetAmount.toString()}
+            endsIn={timeLeft}
+            percentage={displayPercentage}
           />
+          <OrderBook yesBets={yesBets} noBets={noBets} handleBuyOrders={handleBuyOrders} />
+          <OrdersHistory duelId={duel.duelId} />
         </div>
-      )}
+        <PlaceOrder
+          asset={duel.token}
+          duelId={duel.duelId}
+          endsIn={duel.endsIn}
+          token={duel.token}
+          triggerPrice={duel.triggerPrice}
+          winCondition={duel.winCondition}
+          duelType={duel.duelType}
+        />
+      </div>
     </div>
   );
 };
