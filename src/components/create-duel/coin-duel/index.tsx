@@ -85,8 +85,10 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
 
       if (result.success) {
         const duelData = {
-          type: DUEL_TYPE.COIN_DUEL,
+          duelId: result.duelId,
+          duelType: DUEL_TYPE.COIN_DUEL,
           token: selectedToken,
+          createdAt: result.createdAt,
           category: 'Crypto',
           betIcon: '',
           triggerPrice: formData.triggerPrice,
@@ -95,7 +97,7 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
           endsIn: DURATIONS[durationNumber],
         };
         try {
-          await baseApiClient.post(`${SERVER_CONFIG.API_URL}/user/duels/approve`, {
+          await baseApiClient.post(`${SERVER_CONFIG.API_URL}/user/duels/createCoinDuel`, {
             ...duelData,
             twitterUsername: '',
             address: address?.toLowerCase(),

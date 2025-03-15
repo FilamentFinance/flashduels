@@ -7,6 +7,7 @@ import { handleTransactionError, useTokenApproval } from '@/utils/token';
 import { useEffect, useState } from 'react';
 import { Hex } from 'viem';
 import { useAccount, usePublicClient, useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
+import { ethers } from 'ethers';
 
 interface CreateCoinDuelParams {
   symbol: string;
@@ -19,6 +20,8 @@ interface CreateCoinDuelParams {
 }
 
 interface CreateCoinDuelResult {
+  duelId: string;
+  createdAt: number;
   success: boolean;
   error?: string;
 }
@@ -57,7 +60,7 @@ const useCreateCoinDuel = () => {
       description: message,
       variant: 'destructive',
     });
-    return { success: false, error: message };
+    return { success: false, error: message, duelId: '', createdAt: 0 };
   };
 
   const waitForTransaction = async (hash: Hex): Promise<boolean> => {
@@ -96,8 +99,34 @@ const useCreateCoinDuel = () => {
       setStatus(TRANSACTION_STATUS.DUEL_MINING);
 
       // Wait for transaction to be mined
-      const isSuccess = await waitForTransaction(tx);
-      return { success: isSuccess };
+      const receipt = await publicClient?.waitForTransactionReceipt({
+        hash: tx,
+        confirmations: 1,
+      });
+      const logs = await publicClient?.getLogs({
+        fromBlock: receipt?.blockNumber,
+        toBlock: receipt?.blockNumber,
+        address: SERVER_CONFIG.DIAMOND as Hex,
+      });
+      let duelId: string | undefined;
+      let createdAt: number | undefined;
+      logs?.forEach((log) => {
+        try {
+          if (!log || !log.topics || !log.data) {
+            throw new Error('Invalid log format');
+          }
+          const iface = new ethers.Interface(FlashDuelCoreFaucetAbi);
+          const decodedLog = iface.parseLog(log);
+
+          if (decodedLog?.name === "CryptoDuelCreated") {
+            duelId = decodedLog.args[2];
+            createdAt = Number(decodedLog.args[3]);
+          }
+        } catch (error) {
+          console.log("Error decoding log from provider:", error, log);
+        }
+      });
+      return { duelId: duelId as string, createdAt: createdAt as number, success: receipt?.status === 'success' };
     } catch (error) {
       return handleError(error);
     }
