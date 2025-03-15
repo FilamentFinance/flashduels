@@ -60,16 +60,17 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
     status === TRANSACTION_STATUS.DUEL_MINING ||
     isApprovalMining ||
     isDuelMining;
+  const [isButtonClicked, setIsButtonClicked] = useState(false);
 
   const handleCreateDuel = async () => {
-    if (!formData) return;
-    const durationNumber = mapDurationToNumber(selectedDuration);
+    if (!formData || isTransactionInProgress || isButtonClicked) return;
+    setIsButtonClicked(true);
 
+    const durationNumber = mapDurationToNumber(selectedDuration);
     const triggerPrice = Number(formData.triggerPrice) * 10 ** 8;
     const minWager = Number(formData.triggerPrice) * 10 ** 6;
 
     const triggerType = 0;
-
     const winCondition = formData.winCondition === WIN_CONDITIONS.ABOVE ? 0 : 1;
     const duelData = {
       symbol: selectedAsset?.symbol || '',
@@ -125,6 +126,8 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
         variant: 'destructive',
       });
       onComplete();
+    } finally {
+      setIsButtonClicked(false);
     }
   };
 
@@ -177,8 +180,8 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
               </SelectValue>
             </SelectTrigger>
             <SelectContent className="bg-[#1C1C1C] border-zinc-700">
-              <div 
-                className="p-2 sticky top-0 bg-[#1C1C1C] z-10 border-b border-zinc-700" 
+              <div
+                className="p-2 sticky top-0 bg-[#1C1C1C] z-10 border-b border-zinc-700"
                 onMouseDown={(e) => e.stopPropagation()}
                 onClick={(e) => e.stopPropagation()}
               >
@@ -368,10 +371,10 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
             e.preventDefault();
             handleCreateDuel();
           }}
-          disabled={isTransactionInProgress}
+          disabled={isTransactionInProgress || isButtonClicked}
           className={cn(
             'flex-1 bg-gradient-pink text-black',
-            isTransactionInProgress ? 'opacity-50 cursor-not-allowed' : '',
+            isTransactionInProgress || isButtonClicked ? 'opacity-50 cursor-not-allowed' : '',
           )}
         >
           {isTransactionInProgress ? getTransactionStatusMessage(status, error) : 'Create Duel'}

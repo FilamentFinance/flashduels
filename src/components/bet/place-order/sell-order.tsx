@@ -132,10 +132,10 @@ const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice }) => {
       return;
     }
 
-    if (Number(cleanValue) > 1) {
-      setPriceError('Price cannot be greater than 1');
-      return;
-    }
+    // if (Number(cleanValue) > 1) {
+    //   setPriceError('Price cannot be greater than 1');
+    //   return;
+    // }
 
     setPrice(cleanValue);
   }, []);
@@ -151,8 +151,13 @@ const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice }) => {
       return;
     }
 
-    if (!price || Number(price) <= 0 || Number(price) > 1) {
-      setPriceError('Please enter a valid price between 0 and 1');
+    // if (!price || Number(price) <= 0 || Number(price) > 1) {
+    //   setPriceError('Please enter a valid price between 0 and 1');
+    //   return;
+    // }
+
+    if (!price || Number(price) <= 0) {
+      setPriceError('Please enter a valid price');
       return;
     }
 
