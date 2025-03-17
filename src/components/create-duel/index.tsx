@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import { Dialog } from '@/components/ui/custom-modal';
@@ -8,15 +9,54 @@ import { DUEL } from '@/constants/duel';
 import { Button } from '@/shadcn/components/ui/button';
 import { cn } from '@/shadcn/lib/utils';
 import { DuelType } from '@/types/duel';
-import { FC, useState } from 'react';
+import { FC, useState, useEffect } from 'react';
+import { useAccount } from 'wagmi';
+import { baseApiClient } from '@/config/api-client';
+import { SERVER_CONFIG } from '@/config/server-config';
+import { toast } from '@/shadcn/components/ui/use-toast';
 import CreateCoinDuel from './coin-duel';
 import Duel from './duel';
 import FlashDuelForm from './flash-duel';
+import { CreatorVerify } from '../creator/verify';
 
 const CreateDuel: FC = () => {
+  const { address } = useAccount();
   const [selectedDuel, setSelectedDuel] = useState<DuelType | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [isCreator, setIsCreator] = useState<boolean | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Check creator status when component mounts or address changes
+  useEffect(() => {
+    const checkCreatorStatus = async () => {
+      if (!address) {
+        setIsCreator(null);
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        // const response = await baseApiClient.post(`${SERVER_CONFIG.API_URL}/user/creator/status`, {
+        //   address: address.toLowerCase(),
+        // });
+        const response = await baseApiClient.get(`${SERVER_CONFIG.API_URL}/user/creator/status`, {
+          params: {
+            address: address.toLowerCase()
+          }
+        });
+        console.log("response", response);
+        setIsCreator(response.data.isCreator);
+      } catch (error) {
+        console.error("Error checking creator status:", error);
+        setIsCreator(false);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkCreatorStatus();
+  }, [address]);
 
   const handleDuelSelect = (type: DuelType) => {
     setSelectedDuel(type);
@@ -36,35 +76,57 @@ const CreateDuel: FC = () => {
     setSelectedDuel(null);
   };
 
+  const handleCreateDuelClick = () => {
+    if (!address) {
+      toast({
+        title: "Connect Wallet",
+        description: "Please connect your wallet to create a duel",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Open the modal - the content will be determined by isCreator state
+    setIsOpen(true);
+  };
+
+  // When the user successfully verifies as a creator
+  const handleVerificationSuccess = () => {
+    setIsCreator(true);
+    // Reset the duel creation flow
+    setShowForm(false);
+    setSelectedDuel(null);
+  };
+
   return (
     <Dialog
       title={
-        <div className="flex flex-col items-center gap-4">
-          <h2 className="text-xl font-semibold">{CREATE_DUEL.DIALOG.TITLE}</h2>
-          <div className="flex w-full gap-2 px-6">
-            <div
-              className={cn(
-                'h-1 rounded-full flex-1 transition-all',
-                !showForm ? 'bg-[#F19ED2]' : 'bg-zinc-700',
-              )}
-            />
-            <div
-              className={cn(
-                'h-1 rounded-full flex-1 transition-all',
-                showForm ? 'bg-[#F19ED2]' : 'bg-zinc-700',
-              )}
-            />
+        !isCreator ? (
+          "Creator Verification Required"
+        ) : (
+          <div className="flex flex-col items-center gap-4">
+            <h2 className="text-xl font-semibold">{CREATE_DUEL.DIALOG.TITLE}</h2>
+            <div className="flex w-full gap-2 px-6">
+              <div
+                className={cn(
+                  'h-1 rounded-full flex-1 transition-all',
+                  !showForm ? 'bg-[#F19ED2]' : 'bg-zinc-700',
+                )}
+              />
+              <div
+                className={cn(
+                  'h-1 rounded-full flex-1 transition-all',
+                  showForm ? 'bg-[#F19ED2]' : 'bg-zinc-700',
+                )}
+              />
+            </div>
           </div>
-        </div>
+        )
       }
       trigger={
         <Button
           className="font-semibold bg-gradient-pink text-black"
-          onClick={() => {
-            setIsOpen(true);
-            setShowForm(false);
-            setSelectedDuel(null);
-          }}
+          onClick={handleCreateDuelClick}
         >
           {NAVBAR.CREATE_DUEL.BUTTON_TEXT}
         </Button>
@@ -73,48 +135,61 @@ const CreateDuel: FC = () => {
       open={isOpen}
       onOpenChange={setIsOpen}
     >
-      {!showForm ? (
-        <div className="space-y-2">
-          <h3 className="text-lg text-zinc-400">{CREATE_DUEL.MARKET_SECTION.HEADING}</h3>
-          <div className="grid grid-cols-2 gap-4">
-            <Duel
-              logo={{
-                active: DUEL_LOGOS.COIN.active,
-                inactive: DUEL_LOGOS.COIN.inactive,
-              }}
-              title={CREATE_DUEL.MARKET_SECTION.COIN_DUEL.TITLE}
-              description={CREATE_DUEL.MARKET_SECTION.COIN_DUEL.DESCRIPTION}
-              isActive={selectedDuel === DUEL.COIN}
-              onClick={() => handleDuelSelect(DUEL.COIN)}
-            />
-            <Duel
-              logo={{
-                active: DUEL_LOGOS.FLASH.active,
-                inactive: DUEL_LOGOS.FLASH.inactive,
-              }}
-              title={CREATE_DUEL.MARKET_SECTION.FLASH_DUEL.TITLE}
-              description={CREATE_DUEL.MARKET_SECTION.FLASH_DUEL.DESCRIPTION}
-              isActive={selectedDuel === DUEL.FLASH}
-              onClick={() => handleDuelSelect(DUEL.FLASH)}
-            />
+      {!isCreator ? (
+        // Show creator verification content
+        <div className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            You need to be a verified creator to create duels on the platform.
+          </p>
+          <div className="flex justify-center">
+            <CreatorVerify onSuccess={handleVerificationSuccess} />
           </div>
-          <Button
-            className="w-full font-semibold bg-gradient-pink text-black disabled:opacity-50 disabled:cursor-not-allowed"
-            onClick={handleNext}
-            disabled={!selectedDuel}
-          >
-            {CREATE_DUEL.BUTTONS.NEXT}
-          </Button>
         </div>
       ) : (
-        <div className="space-y-6">
-          {selectedDuel === DUEL.COIN && (
-            <CreateCoinDuel onBack={handleBack} onComplete={handleClose} />
-          )}
-          {selectedDuel === DUEL.FLASH && (
-            <FlashDuelForm onBack={handleBack} onComplete={handleClose} />
-          )}
-        </div>
+        // Show duel creation content
+        !showForm ? (
+          <div className="space-y-2">
+            <h3 className="text-lg text-zinc-400">{CREATE_DUEL.MARKET_SECTION.HEADING}</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <Duel
+                logo={{
+                  active: DUEL_LOGOS.COIN.active,
+                  inactive: DUEL_LOGOS.COIN.inactive,
+                }}
+                title={CREATE_DUEL.MARKET_SECTION.COIN_DUEL.TITLE}
+                description={CREATE_DUEL.MARKET_SECTION.COIN_DUEL.DESCRIPTION}
+                isActive={selectedDuel === DUEL.COIN}
+                onClick={() => handleDuelSelect(DUEL.COIN)}
+              />
+              <Duel
+                logo={{
+                  active: DUEL_LOGOS.FLASH.active,
+                  inactive: DUEL_LOGOS.FLASH.inactive,
+                }}
+                title={CREATE_DUEL.MARKET_SECTION.FLASH_DUEL.TITLE}
+                description={CREATE_DUEL.MARKET_SECTION.FLASH_DUEL.DESCRIPTION}
+                isActive={selectedDuel === DUEL.FLASH}
+                onClick={() => handleDuelSelect(DUEL.FLASH)}
+              />
+            </div>
+            <Button
+              className="w-full font-semibold bg-gradient-pink text-black disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={handleNext}
+              disabled={!selectedDuel}
+            >
+              {CREATE_DUEL.BUTTONS.NEXT}
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {selectedDuel === DUEL.COIN && (
+              <CreateCoinDuel onBack={handleBack} onComplete={handleClose} />
+            )}
+            {selectedDuel === DUEL.FLASH && (
+              <FlashDuelForm onBack={handleBack} onComplete={handleClose} />
+            )}
+          </div>
+        )
       )}
     </Dialog>
   );
