@@ -147,7 +147,7 @@ const CreateDuel: FC = () => {
           {requestStatus ? (
             requestStatus.status === "pending" ? (
               <p className="text-sm text-muted-foreground">
-                Creating a duel requires creator verification. Your request is being reviewed and you will be able to start creating duels once it's accepted.
+                Creating a duel requires creator verification. Your request is being reviewed and you will be able to start creating duels once it&apos;s accepted.
               </p>
             ) : requestStatus.status === "rejected" ? (
               <p className="text-sm text-muted-foreground">
