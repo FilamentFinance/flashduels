@@ -10,13 +10,13 @@ const useJoinDuel = () => {
   const [status, setStatus] = useState<TransactionStatusType>(TRANSACTION_STATUS.IDLE);
   const [error, setError] = useState<string | null>(null);
   const [approvalHash, setApprovalHash] = useState<`0x${string}` | undefined>(undefined);
-  const [currentAmount, setCurrentAmount] = useState<bigint>(BigInt(0));
+  // const [currentAmount, setCurrentAmount] = useState<bigint>(BigInt(0));
 
   const { toast } = useToast();
   const { address } = useAccount();
   const publicClient = usePublicClient();
-  const { checkAllowance, requestAllowance } = useTokenApproval(address, currentAmount);
-
+  // const { checkAllowance, requestAllowance } = useTokenApproval(address, currentAmount);
+  const { requestAllowance } = useTokenApproval(address);
   // Watch approval transaction
   const { isLoading: isApprovalMining, isSuccess: isApprovalSuccess } =
     useWaitForTransactionReceipt({
@@ -55,13 +55,16 @@ const useJoinDuel = () => {
       setStatus(TRANSACTION_STATUS.CHECKING_ALLOWANCE);
       setError(null);
       setApprovalHash(undefined);
-      setCurrentAmount(amount);
+      // setCurrentAmount(amount);
 
-      const hasAllowance = await checkAllowance();
+
+      // const hasAllowance = await checkAllowance();
+      const hasAllowance = false;
+
 
       if (!hasAllowance) {
         setStatus(TRANSACTION_STATUS.APPROVAL_NEEDED);
-        const approvalTx = await requestAllowance();
+        const approvalTx = await requestAllowance(amount);
         if (!approvalTx) throw new Error('Failed to send approval transaction');
 
         setApprovalHash(approvalTx);

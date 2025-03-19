@@ -172,7 +172,8 @@ const BuyOrder: FC<BuyOrderProps> = ({
   );
 
   // Import the token approval hook
-  const { checkAllowance, requestAllowance } = useTokenApproval(address);
+  // const { checkAllowance, requestAllowance } = useTokenApproval(address);
+  const { requestAllowance } = useTokenApproval(address);
 
   // Updated market buy function with error handling
   const handleMarketBuy = useCallback(async () => {
@@ -186,12 +187,14 @@ const BuyOrder: FC<BuyOrderProps> = ({
       const optionIndex = localPosition === OPTIONS_TYPE.YES ? 0 : 1;
 
       // Check token allowance first
-      const hasAllowance = await checkAllowance();
-      console.log({ localPosition, optionIndex, amount, error, hasAllowance });
+      // const hasAllowance = await checkAllowance();
+      // console.log({ localPosition, optionIndex, amount, error, hasAllowance });
+      const hasAllowance = false;
 
+      // if (!hasAllowance) {
       if (!hasAllowance) {
         // Request token approval if needed
-        await requestAllowance();
+        await requestAllowance(BigInt(amount));
         toast({
           title: 'Approval Successful',
           description: 'Token approval completed. You can now place your order.',
@@ -231,7 +234,8 @@ const BuyOrder: FC<BuyOrderProps> = ({
     } finally {
       setIsMarketBuying(false);
     }
-  }, [localPosition, amount, duelId, checkAllowance, requestAllowance, toast, setError]);
+  // }, [localPosition, amount, duelId, checkAllowance, requestAllowance, toast, setError]);
+  }, [localPosition, amount, duelId, requestAllowance, toast, setError]);
 
   return (
     <Card className="bg-transparent border-none space-y-6">

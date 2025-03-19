@@ -4,31 +4,32 @@ import { SEI_TESTNET_CHAIN_ID } from '@/constants/app';
 import { Hex } from 'viem';
 import { useReadContract, useWriteContract } from 'wagmi';
 
-export const REQUIRED_ALLOWANCE = BigInt(5 * 10 ** 6);
+// export const REQUIRED_ALLOWANCE = BigInt(5 * 10 ** 6);
 
 export const useTokenApproval = (address: Hex | undefined, amount?: bigint) => {
   const { writeContractAsync } = useWriteContract();
 
-  const { data: allowance } = useReadContract({
-    abi: FLASHUSDC,
-    address: SERVER_CONFIG.FLASH_USDC as Hex,
-    functionName: 'allowance',
-    args: [address, SERVER_CONFIG.DIAMOND as Hex],
-    chainId: SEI_TESTNET_CHAIN_ID,
-  }) as { data: bigint | undefined };
+  // const { data: allowance } = useReadContract({
+  //   abi: FLASHUSDC,
+  //   address: SERVER_CONFIG.FLASH_USDC as Hex,
+  //   functionName: 'allowance',
+  //   args: [address, SERVER_CONFIG.DIAMOND as Hex],
+  //   chainId: SEI_TESTNET_CHAIN_ID,
+  // }) as { data: bigint | undefined };
 
-  const checkAllowance = async () => {
-    const currentAllowance = allowance || BigInt(0);
-    return currentAllowance >= (amount || REQUIRED_ALLOWANCE);
-  };
+  // const checkAllowance = async () => {
+  //   const currentAllowance = allowance || BigInt(0);
+  //   return currentAllowance >= (amount || REQUIRED_ALLOWANCE);
+  // };
 
-  const requestAllowance = async () => {
+  const requestAllowance = async (amount: bigint) => {
     const tx = await writeContractAsync({
       abi: FLASHUSDC,
       address: SERVER_CONFIG.FLASH_USDC as Hex,
       functionName: 'increaseAllowance',
       chainId: SEI_TESTNET_CHAIN_ID,
-      args: [SERVER_CONFIG.DIAMOND as Hex, amount || REQUIRED_ALLOWANCE],
+      // args: [SERVER_CONFIG.DIAMOND as Hex, amount || REQUIRED_ALLOWANCE],
+      args: [SERVER_CONFIG.DIAMOND as Hex, amount],
     });
 
     if (!tx) throw new Error('Failed to send approval transaction');
@@ -36,8 +37,8 @@ export const useTokenApproval = (address: Hex | undefined, amount?: bigint) => {
   };
 
   return {
-    allowance,
-    checkAllowance,
+    // allowance,
+    // checkAllowance,
     requestAllowance,
   };
 };

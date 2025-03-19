@@ -9,6 +9,7 @@ import { Hex } from 'viem';
 import { useAccount, usePublicClient, useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
 import { ethers } from 'ethers';
 
+export const REQUIRED_CREATE_DUEL_USDC = BigInt(5 * 10 ** 6);
 interface CreateCoinDuelParams {
   symbol: string;
   options: string[];
@@ -34,7 +35,8 @@ const useCreateCoinDuel = () => {
   const { toast } = useToast();
   const { address } = useAccount();
   const { writeContractAsync } = useWriteContract();
-  const { checkAllowance, requestAllowance } = useTokenApproval(address);
+  // const { checkAllowance, requestAllowance } = useTokenApproval(address);
+  const { requestAllowance } = useTokenApproval(address);
   const publicClient = usePublicClient();
 
   // Watch approval transaction
@@ -139,11 +141,12 @@ const useCreateCoinDuel = () => {
       setTxHash(undefined);
       setApprovalHash(undefined);
 
-      const hasAllowance = await checkAllowance();
+      // const hasAllowance = await checkAllowance();
+      const hasAllowance = false;
 
       if (!hasAllowance) {
         setStatus(TRANSACTION_STATUS.APPROVAL_NEEDED);
-        const approvalTx = await requestAllowance();
+        const approvalTx = await requestAllowance(REQUIRED_CREATE_DUEL_USDC);
         if (!approvalTx) throw new Error('Failed to send approval transaction');
 
         setApprovalHash(approvalTx);
