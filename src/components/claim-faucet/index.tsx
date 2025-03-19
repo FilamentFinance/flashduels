@@ -1,10 +1,11 @@
 'use client';
 
 import { Dialog } from '@/components/ui/custom-modal';
-import { baseApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
+import { TRANSACTION_STATUS } from '@/constants/app';
 import { FAUCET_LOGOS } from '@/constants/app/logos';
 import { CLAIM_FAUCET } from '@/constants/content/claim-faucent';
+import useMintFlashUSDC from '@/hooks/useMintFlashUSDC';
 import { Button } from '@/shadcn/components/ui/button';
 import { useToast } from '@/shadcn/components/ui/use-toast';
 import CopyToClipboard from '@/utils/general/copy-to-clipboard';
@@ -20,6 +21,7 @@ const ClaimFaucet: FC = () => {
   const [mintLoading, setMintLoading] = useState(false);
   const { address } = useAccount();
   const { toast } = useToast();
+  const { mintFlashUSDC, error, txHash, status, isMintSuccess } = useMintFlashUSDC();
 
   const handleCopy = async () => {
     await CopyToClipboard(SERVER_CONFIG.FLASH_USDC);
@@ -38,22 +40,41 @@ const ClaimFaucet: FC = () => {
 
     try {
       setMintLoading(true);
-      await baseApiClient.post(`${SERVER_CONFIG.API_URL}/api/mint`, {
-        address: address.toLowerCase(),
-      });
-      toast({
-        title: 'Success',
-        description: 'Tokens minted successfully',
-      });
+
+      const { success, error: mintError } = await mintFlashUSDC();
+      console.log({ error, txHash, status, isMintSuccess });
+
+      // Handle transaction status
+      if (success && isMintSuccess) {
+        toast({
+          title: 'Transaction Successful',
+          description: `FlashUSDC tokens claimed successfully! TX: ${txHash?.slice(0, 10)}...`,
+        });
+      } else if (status === TRANSACTION_STATUS.FAILED) {
+        toast({
+          variant: 'destructive',
+          title: 'Transaction Failed',
+          description: error || 'Failed to mint tokens. Please try again.',
+        });
+      } else if (mintError) {
+        toast({
+          variant: 'destructive',
+          title: 'Minting Error',
+          description: mintError,
+        });
+      }
     } catch (error) {
       toast({
         variant: 'destructive',
-        title: 'Error',
-        description: 'Failed to mint tokens. Please try again.',
+        title: 'Unexpected Error',
+        description: 'Something went wrong while processing your request',
       });
       console.error('Mint error:', error);
     } finally {
-      setMintLoading(false);
+      // Only set loading to false when transaction is complete
+      if (status !== TRANSACTION_STATUS.PENDING && status !== TRANSACTION_STATUS.MINTING) {
+        setMintLoading(false);
+      }
     }
   };
 

@@ -65,9 +65,8 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
     : Number(calculatedPercentage.toFixed(2));
 
   // Extract symbol from title (e.g., "BTC Price" -> "BTC")
-  const symbol = title.split(' ')[0];
+  const symbol = title.split(' ')[1];
   const iconPath = `/crypto-icons/light/crypto-${symbol.toLowerCase()}-usd.inline.svg`;
-
   return (
     <Card
       className="flex items-center justify-between p-3 bg-zinc-900 border-zinc-800 hover:bg-zinc-900/90 transition-colors cursor-pointer"
@@ -75,17 +74,15 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
     >
       <div className="flex items-center gap-4">
         <div className="relative w-14 h-14">
-          {data.imageSrc !== 'empty-string' && (
-            <Image
-              src={data.imageSrc || iconPath}
-              alt={symbol}
-              fill
-              className="rounded-full object-cover"
-              onError={(e) => {
-                e.currentTarget.style.display = 'none';
-              }}
-            />
-          )}
+          <Image
+            src={iconPath}
+            alt={symbol}
+            fill
+            className="rounded-full "
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+            }}
+          />
         </div>
 
         <div className="flex flex-col">

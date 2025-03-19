@@ -7,6 +7,7 @@ import { CREATE_DUEL } from '@/constants/content/create-duel';
 import { NAVBAR } from '@/constants/content/navbar';
 import { DUEL } from '@/constants/duel';
 import { Button } from '@/shadcn/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/shadcn/components/ui/tooltip';
 import { cn } from '@/shadcn/lib/utils';
 import { DuelType } from '@/types/duel';
 import { FC, useState, useEffect } from 'react';
@@ -64,6 +65,7 @@ const CreateDuel: FC = () => {
   }, [address]);
 
   const handleDuelSelect = (type: DuelType) => {
+    if (type === DUEL.FLASH) return; // Prevent selection of Flash Duel
     setSelectedDuel(type);
   };
 
@@ -164,7 +166,6 @@ const CreateDuel: FC = () => {
           </div>
         </div>
       ) : (
-        // Show duel creation content
         !showForm ? (
           <div className="space-y-2">
             <h3 className="text-lg text-zinc-400">{CREATE_DUEL.MARKET_SECTION.HEADING}</h3>
@@ -179,19 +180,36 @@ const CreateDuel: FC = () => {
                 isActive={selectedDuel === DUEL.COIN}
                 onClick={() => handleDuelSelect(DUEL.COIN)}
               />
-              <Duel
-                logo={{
-                  active: DUEL_LOGOS.FLASH.active,
-                  inactive: DUEL_LOGOS.FLASH.inactive,
-                }}
-                title={CREATE_DUEL.MARKET_SECTION.FLASH_DUEL.TITLE}
-                description={CREATE_DUEL.MARKET_SECTION.FLASH_DUEL.DESCRIPTION}
-                isActive={selectedDuel === DUEL.FLASH}
-                onClick={() => handleDuelSelect(DUEL.FLASH)}
-              />
+              <TooltipProvider delayDuration={200}>
+                <Tooltip>
+                  <TooltipTrigger className="w-full">
+                    <div className="opacity-50 relative cursor-not-allowed">
+                      <div className="pointer-events-none">
+                        <Duel
+                          logo={{
+                            active: DUEL_LOGOS.FLASH.inactive,
+                            inactive: DUEL_LOGOS.FLASH.inactive,
+                          }}
+                          title={CREATE_DUEL.MARKET_SECTION.FLASH_DUEL.TITLE}
+                          description={CREATE_DUEL.MARKET_SECTION.FLASH_DUEL.DESCRIPTION}
+                          isActive={false}
+                          onClick={() => {}}
+                        />
+                      </div>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent 
+                    side="top" 
+                    align="center" 
+                    className="bg-gradient-to-r from-[#F19ED2] to-[#F19ED2]/90 border-none text-black px-3 py-1.5 font-semibold rounded-md"
+                  >
+                    Coming Soon!
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
             <Button
-              className="w-full font-semibold bg-gradient-pink text-black disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full font-semibold bg-gradient-pink text-black disabled:opacity-50 disabled:pointer-events-none"
               onClick={handleNext}
               disabled={!selectedDuel}
             >

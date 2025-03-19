@@ -23,18 +23,20 @@ const Navbar: FC = () => {
   const { address, isConnected } = useAccount();
   const { isAuthenticated } = useSelector((state: RootState) => state.auth, shallowEqual);
   const dispatch = useDispatch();
-  const fetchAssets = async () => {
+  const fetchCryptoAssets = async () => {
     try {
       const response = await axios.get(
         'https://orderbookv3.filament.finance/flashduels/assets/list',
       );
-      const assetsWithImages = response.data.map((asset: fetchAssetType) => {
-        const symbol = asset.symbol.split('/')[0].replace('Crypto.', '').toLowerCase();
-        return {
-          ...asset,
-          image: `/crypto-icons/light/crypto-${symbol}-usd.inline.svg`,
-        };
-      });
+      const assetsWithImages = response.data
+        .filter((asset: fetchAssetType) => asset.symbol.startsWith('Crypto.')) // Filter for crypto assets
+        .map((asset: fetchAssetType) => {
+          const symbol = asset.symbol.split('/')[0].replace('Crypto.', '').toLowerCase();
+          return {
+            ...asset,
+            image: `/crypto-icons/light/crypto-${symbol}-usd.inline.svg`,
+          };
+        });
       dispatch(setCryptoAsset(assetsWithImages));
     } catch (error) {
       console.error('Error fetching assets:', error);
@@ -42,7 +44,7 @@ const Navbar: FC = () => {
   };
 
   useEffect(() => {
-    fetchAssets();
+    fetchCryptoAssets();
   }, []);
   return (
     <nav className="w-full border-b border-gray-800 h-navbar-height px-navbar-padding flex items-center">

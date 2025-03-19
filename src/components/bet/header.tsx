@@ -14,7 +14,9 @@ type Props = {
   percentage?: number;
 };
 
-const Header: FC<Props> = ({ title, logo, triggerPrice, token, liquidity, endsIn, percentage }) => {
+const Header: FC<Props> = ({ title, triggerPrice, token, liquidity, endsIn, percentage }) => {
+  const symbol = title.split(' ')[1];
+  const iconPath = `/crypto-icons/light/crypto-${symbol.toLowerCase()}-usd.inline.svg`;
   return (
     <div className="flex flex-col items-center gap-6 w-full">
       <div className="flex justify-between items-stretch w-full">
@@ -22,7 +24,7 @@ const Header: FC<Props> = ({ title, logo, triggerPrice, token, liquidity, endsIn
         <div className="flex items-center gap-4 mx-2">
           <div>
             <Image
-              src={logo || '/empty-string.png'}
+              src={iconPath}
               alt={title}
               width={48}
               height={48}

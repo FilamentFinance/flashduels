@@ -60,16 +60,17 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
     status === TRANSACTION_STATUS.DUEL_MINING ||
     isApprovalMining ||
     isDuelMining;
+  const [isButtonClicked, setIsButtonClicked] = useState(false);
 
   const handleCreateDuel = async () => {
-    if (!formData) return;
-    const durationNumber = mapDurationToNumber(selectedDuration);
+    if (!formData || isTransactionInProgress || isButtonClicked) return;
+    setIsButtonClicked(true);
 
+    const durationNumber = mapDurationToNumber(selectedDuration);
     const triggerPrice = Number(formData.triggerPrice) * 10 ** 8;
     const minWager = Number(formData.triggerPrice) * 10 ** 6;
 
     const triggerType = 0;
-
     const winCondition = formData.winCondition === WIN_CONDITIONS.ABOVE ? 0 : 1;
     const duelData = {
       symbol: selectedAsset?.symbol || '',
@@ -85,17 +86,19 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
 
       if (result.success) {
         const duelData = {
-          type: DUEL_TYPE.COIN_DUEL,
+          duelId: result.duelId,
+          duelType: DUEL_TYPE.COIN_DUEL,
           token: selectedToken,
+          createdAt: result.createdAt,
           category: 'Crypto',
-          betIcon: selectedAsset?.image || '',
+          betIcon: '',
           triggerPrice: formData.triggerPrice,
           minimumWager: '',
           winCondition: winCondition,
           endsIn: DURATIONS[durationNumber],
         };
         try {
-          await baseApiClient.post(`${SERVER_CONFIG.API_URL}/user/duels/approve`, {
+          await baseApiClient.post(`${SERVER_CONFIG.API_URL}/user/duels/createCoinDuel`, {
             ...duelData,
             twitterUsername: '',
             address: address?.toLowerCase(),
@@ -107,11 +110,11 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
           onComplete();
         } catch (apiError) {
           console.error('API Error:', apiError);
-          toast({
-            title: 'API Error',
-            description: 'Failed to approve duel. Please try again.',
-            variant: 'destructive',
-          });
+          // toast({
+          //   title: 'API Error',
+          //   description: 'Failed to approve duel. Please try again.',
+          //   variant: 'destructive',
+          // });
           onComplete();
         }
       }
@@ -123,6 +126,8 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
         variant: 'destructive',
       });
       onComplete();
+    } finally {
+      setIsButtonClicked(false);
     }
   };
 
@@ -148,6 +153,11 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
             name="token"
             required
             onValueChange={handleTokenSelect}
+            onOpenChange={(open) => {
+              if (!open) {
+                setSearchQuery('');
+              }
+            }}
             disabled={isTransactionInProgress}
           >
             <SelectTrigger className="bg-zinc-900 border-zinc-700">
@@ -170,12 +180,17 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
               </SelectValue>
             </SelectTrigger>
             <SelectContent className="bg-[#1C1C1C] border-zinc-700">
-              <div className="p-2 sticky top-0 bg-[#1C1C1C] z-10 border-b border-zinc-700">
+              <div
+                className="p-2 sticky top-0 bg-[#1C1C1C] z-10 border-b border-zinc-700"
+                onMouseDown={(e) => e.stopPropagation()}
+                onClick={(e) => e.stopPropagation()}
+              >
                 <Input
                   placeholder="Search tokens..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="h-8 bg-zinc-900 border-zinc-700 text-white placeholder:text-zinc-400"
+                  onKeyDown={(e) => e.stopPropagation()}
                 />
               </div>
               <div className="max-h-[300px] overflow-y-auto py-1">
@@ -239,6 +254,7 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
             autoComplete="off"
             disabled={isTransactionInProgress}
             onChange={(e) => {
+              e.preventDefault();
               const value = e.target.value;
               if (value === '' || !isNaN(Number(value))) {
                 setFormData((prevData) => ({
@@ -257,7 +273,20 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
           <Label htmlFor="winCondition" className="text-zinc-400">
             Win Condition
           </Label>
-          <Select name="winCondition" defaultValue="above" disabled={isTransactionInProgress}>
+          <Select
+            name="winCondition"
+            defaultValue={WIN_CONDITIONS.ABOVE}
+            disabled={isTransactionInProgress}
+            onValueChange={(value) => {
+              setFormData((prevData) => ({
+                ...prevData,
+                winCondition: value as WinCondition,
+                token: prevData?.token || '',
+                triggerPrice: prevData?.triggerPrice || '',
+                duration: prevData?.duration || DUEL_DURATION.THREE_HOURS,
+              }));
+            }}
+          >
             <SelectTrigger className="bg-[#1C1C1C] border-none h-10 w-64 text-base rounded-lg">
               <SelectValue />
             </SelectTrigger>
@@ -306,8 +335,15 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
           {selectedAsset && (
             <img src={selectedAsset.image} alt={selectedToken} width={16} height={16} />
           )}
-          {formData.winCondition === WIN_CONDITIONS.ABOVE ? 'Yes' : 'No'} wins if mark price is{' '}
-          {formData.winCondition} ${formData.triggerPrice} after {selectedDuration}
+          <span>
+            <strong>YES</strong> wins if mark price is{' '}
+            {formData.winCondition === WIN_CONDITIONS.ABOVE ? (
+              <strong>ABOVE</strong>
+            ) : (
+              <strong>BELOW</strong>
+            )}{' '}
+            ${formData.triggerPrice} after <strong>{selectedDuration}</strong>
+          </span>
         </p>
       )}
 
@@ -317,7 +353,10 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
         <Button
           type="button"
           variant="outline"
-          onClick={onBack}
+          onClick={(e) => {
+            e.preventDefault();
+            onBack();
+          }}
           disabled={isTransactionInProgress}
           className={cn(
             'flex-1 border-zinc-700',
@@ -328,11 +367,14 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
         </Button>
         <Button
           type="button"
-          onClick={handleCreateDuel}
-          disabled={isTransactionInProgress}
+          onClick={(e) => {
+            e.preventDefault();
+            handleCreateDuel();
+          }}
+          disabled={isTransactionInProgress || isButtonClicked}
           className={cn(
             'flex-1 bg-gradient-pink text-black',
-            isTransactionInProgress ? 'opacity-50 cursor-not-allowed' : '',
+            isTransactionInProgress || isButtonClicked ? 'opacity-50 cursor-not-allowed' : '',
           )}
         >
           {isTransactionInProgress ? getTransactionStatusMessage(status, error) : 'Create Duel'}
