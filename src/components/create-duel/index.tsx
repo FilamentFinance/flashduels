@@ -26,20 +26,23 @@ const CreateDuel: FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isCreator, setIsCreator] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [requestStatus, setRequestStatus] = useState<{
+    status: string;
+    rejectionCount: number;
+    isBlacklisted: boolean;
+  } | null>(null);
 
   // Check creator status when component mounts or address changes
   useEffect(() => {
     const checkCreatorStatus = async () => {
       if (!address) {
         setIsCreator(null);
+        setRequestStatus(null);
         return;
       }
 
       try {
         setIsLoading(true);
-        // const response = await baseApiClient.post(`${SERVER_CONFIG.API_URL}/user/creator/status`, {
-        //   address: address.toLowerCase(),
-        // });
         const response = await baseApiClient.get(`${SERVER_CONFIG.API_URL}/user/creator/status`, {
           params: {
             address: address.toLowerCase()
@@ -47,9 +50,11 @@ const CreateDuel: FC = () => {
         });
         console.log("response", response);
         setIsCreator(response.data.isCreator);
+        setRequestStatus(response.data.request);
       } catch (error) {
         console.error("Error checking creator status:", error);
         setIsCreator(false);
+        setRequestStatus(null);
       } finally {
         setIsLoading(false);
       }
@@ -136,13 +141,26 @@ const CreateDuel: FC = () => {
       onOpenChange={setIsOpen}
     >
       {!isCreator ? (
-        // Show creator verification content
         <div className="space-y-4">
-          <p className="text-sm text-muted-foreground">
-            You need to be a verified creator to create duels on the platform.
-          </p>
+          {requestStatus ? (
+            requestStatus.status === "pending" ? (
+              <p className="text-sm text-muted-foreground">
+                Creating a duel requires creator verification. Your request is being reviewed and you will be able to start creating duels once it's accepted.
+              </p>
+            ) : requestStatus.status === "rejected" ? (
+              <p className="text-sm text-muted-foreground">
+                Your creator verification request was rejected. Please try again. You have {3 - requestStatus.rejectionCount} attempts left.
+              </p>
+            ) : null
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              You need to be a verified creator to create duels on the platform.
+            </p>
+          )}
           <div className="flex justify-center">
-            <CreatorVerify onSuccess={handleVerificationSuccess} />
+            {!requestStatus || requestStatus.status !== "pending" && requestStatus.rejectionCount < 3 ? (
+              <CreatorVerify />
+            ) : null}
           </div>
         </div>
       ) : (
