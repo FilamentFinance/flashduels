@@ -9,6 +9,7 @@ interface PriceCalculationProps {
   winCondition?: number;
   totalBetYes: number;
   totalBetNo: number;
+  duelId?: string;
 }
 
 export const usePriceCalculation = ({
@@ -20,13 +21,14 @@ export const usePriceCalculation = ({
   winCondition,
   totalBetYes,
   totalBetNo,
+  duelId,
 }: PriceCalculationProps) => {
   useEffect(() => {
     if (ws && ws.readyState === WebSocket.OPEN) {
       if (asset) {
         // Crypto Duel calculation
-        const timePeriod = endsIn / (365 * 24); // Convert endsIn to time period in years
-
+        // const timePeriod = endsIn / (365 * 24); // Convert endsIn to time period in years
+        const timePeriod = endsIn * 60;
         ws.send(
           JSON.stringify({
             markPrice: priceFormatted as number,
@@ -36,12 +38,13 @@ export const usePriceCalculation = ({
             winCondition,
             totalYes: totalBetYes || 0,
             totalNo: totalBetNo || 0,
+            duelId,
           }),
         );
       } else {
         // Flash Duel calculation
-        const timePeriod = endsIn / 24; // Convert endsIn to time period in days
-
+        // const timePeriod = endsIn / 24; // Convert endsIn to time period in days
+        const timePeriod = endsIn * 60;
         ws.send(
           JSON.stringify({
             T: timePeriod < 1 ? 1 : timePeriod, // Ensure a minimum value of 1 for T
@@ -63,5 +66,6 @@ export const usePriceCalculation = ({
     winCondition,
     totalBetYes,
     totalBetNo,
+    duelId, 
   ]);
 };

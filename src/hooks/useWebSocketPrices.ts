@@ -10,8 +10,10 @@ interface PriceData {
 interface WebSocketMessage {
   error?: string;
   result?: {
-    'Yes Price': number;
-    'No Price': number;
+    prices?: {
+      'yes': number;
+      'no': number;
+    };
   };
   priceYes?: number;
   priceNo?: number;
@@ -44,8 +46,8 @@ export const useWebSocketPrices = (asset: string | undefined): PriceData => {
         }
 
         if (asset) {
-          setNoPrice(data.result?.['No Price']);
-          setYesPrice(data.result?.['Yes Price']);
+          setNoPrice(data.result?.prices?.no);
+          setYesPrice(data.result?.prices?.yes);
         } else {
           setNoPrice(data.priceNo);
           setYesPrice(data.priceYes);

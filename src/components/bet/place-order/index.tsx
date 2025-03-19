@@ -46,6 +46,7 @@ const PlaceOrder: FC<PlaceOrderProps> = ({
     winCondition,
     totalBetYes,
     totalBetNo,
+    duelId,
   });
 
   return (
