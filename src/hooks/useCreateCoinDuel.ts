@@ -36,7 +36,7 @@ const useCreateCoinDuel = () => {
   const { address } = useAccount();
   const { writeContractAsync } = useWriteContract();
   // const { checkAllowance, requestAllowance } = useTokenApproval(address);
-  const { requestAllowance } = useTokenApproval(address);
+  const { requestAllowance } = useTokenApproval();
   const publicClient = usePublicClient();
 
   // Watch approval transaction

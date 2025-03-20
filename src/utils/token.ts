@@ -6,7 +6,7 @@ import { useWriteContract } from 'wagmi';
 
 // export const REQUIRED_ALLOWANCE = BigInt(5 * 10 ** 6);
 
-export const useTokenApproval = (address: Hex | undefined, amount?: bigint) => {
+export const useTokenApproval = () => {
   const { writeContractAsync } = useWriteContract();
 
   // const { data: allowance } = useReadContract({

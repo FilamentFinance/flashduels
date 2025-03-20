@@ -173,7 +173,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
 
   // Import the token approval hook
   // const { checkAllowance, requestAllowance } = useTokenApproval(address);
-  const { requestAllowance } = useTokenApproval(address);
+  const { requestAllowance } = useTokenApproval();
 
   // Updated market buy function with error handling
   const handleMarketBuy = useCallback(async () => {
@@ -189,7 +189,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
       // Check token allowance first
       // const hasAllowance = await checkAllowance();
       // console.log({ localPosition, optionIndex, amount, error, hasAllowance });
-      const hasAllowance = false;
+      // const hasAllowance = false;
 
       // if (!hasAllowance) {
       // if (!hasAllowance) {

@@ -16,7 +16,7 @@ const useJoinDuel = () => {
   const { address } = useAccount();
   const publicClient = usePublicClient();
   // const { checkAllowance, requestAllowance } = useTokenApproval(address, currentAmount);
-  const { requestAllowance } = useTokenApproval(address);
+  const { requestAllowance } = useTokenApproval();
   // Watch approval transaction
   const { isLoading: isApprovalMining, isSuccess: isApprovalSuccess } =
     useWaitForTransactionReceipt({

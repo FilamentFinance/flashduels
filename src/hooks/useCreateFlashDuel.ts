@@ -27,7 +27,7 @@ const useCreateFlashDuel = () => {
   const { address } = useAccount();
   const { writeContractAsync } = useWriteContract();
   // const { checkAllowance, requestAllowance } = useTokenApproval(address);
-  const { requestAllowance } = useTokenApproval(address);
+  const { requestAllowance } = useTokenApproval();
 
   // Watch approval transaction
   const { isLoading: isApprovalMining, isSuccess: isApprovalSuccess } =
