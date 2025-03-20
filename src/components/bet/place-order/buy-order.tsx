@@ -192,33 +192,33 @@ const BuyOrder: FC<BuyOrderProps> = ({
       const hasAllowance = false;
 
       // if (!hasAllowance) {
-      if (!hasAllowance) {
-        // Request token approval if needed
-        await requestAllowance(BigInt(amount));
-        toast({
-          title: 'Approval Successful',
-          description: 'Token approval completed. You can now place your order.',
-        });
-      } else {
-        // Place the market buy order
-        const response = await baseApiClient.post(`${SERVER_CONFIG.API_URL}/user/betOption/buy`, {
-          duelId,
-          betAmount: amount,
-          index: optionIndex,
-          userAddress: address?.toLowerCase(),
-        });
+      // if (!hasAllowance) {
+      // Request token approval if needed
+      await requestAllowance(parseUnits(amount, 6));
+      toast({
+        title: 'Approval Successful',
+        description: 'Token approval completed. You can now place your order.',
+      });
+      // } else {
+      // Place the market buy order
+      const response = await baseApiClient.post(`${SERVER_CONFIG.API_URL}/user/betOption/buy`, {
+        duelId,
+        betAmount: amount,
+        index: optionIndex,
+        userAddress: address?.toLowerCase(),
+      });
 
-        // Show success message
-        toast({
-          title: 'Success',
-          description: response.data.message || 'Market buy order placed successfully',
-        });
+      // Show success message
+      toast({
+        title: 'Success',
+        description: response.data.message || 'Market buy order placed successfully',
+      });
 
-        // Reset form after successful submission
-        setAmount('');
-        setLocalPosition(null);
-        setError('');
-      }
+      // Reset form after successful submission
+      setAmount('');
+      setLocalPosition(null);
+      setError('');
+      // }
     } catch (error) {
       console.error('Error in market buy:', error);
 
