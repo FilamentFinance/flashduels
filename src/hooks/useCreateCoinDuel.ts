@@ -33,7 +33,7 @@ const useCreateCoinDuel = () => {
   const [txHash, setTxHash] = useState<Hex | undefined>(undefined);
   const [approvalHash, setApprovalHash] = useState<Hex | undefined>(undefined);
   const { toast } = useToast();
-  const { address } = useAccount();
+  // const { address } = useAccount();
   const { writeContractAsync } = useWriteContract();
   // const { checkAllowance, requestAllowance } = useTokenApproval(address);
   const { requestAllowance } = useTokenApproval();

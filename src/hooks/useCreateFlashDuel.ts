@@ -24,7 +24,7 @@ const useCreateFlashDuel = () => {
   const [pendingDuelParams, setPendingDuelParams] = useState<CreateFlashDuelParams | null>(null);
 
   const { toast } = useToast();
-  const { address } = useAccount();
+  // const { address } = useAccount();
   const { writeContractAsync } = useWriteContract();
   // const { checkAllowance, requestAllowance } = useTokenApproval(address);
   const { requestAllowance } = useTokenApproval();
