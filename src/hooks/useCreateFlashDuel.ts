@@ -6,7 +6,7 @@ import { TransactionStatusType } from '@/types/app';
 import { handleTransactionError, useTokenApproval } from '@/utils/token';
 import { useEffect, useState } from 'react';
 import { Hex } from 'viem';
-import { useAccount, useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
+import { useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
 import { REQUIRED_CREATE_DUEL_USDC } from './useCreateCoinDuel';
 
 interface CreateFlashDuelParams {
