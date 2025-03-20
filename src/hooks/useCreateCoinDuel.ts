@@ -6,7 +6,7 @@ import { TransactionStatusType } from '@/types/app';
 import { handleTransactionError, useTokenApproval } from '@/utils/token';
 import { useEffect, useState } from 'react';
 import { Hex } from 'viem';
-import { useAccount, usePublicClient, useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
+import { usePublicClient, useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
 import { ethers } from 'ethers';
 
 export const REQUIRED_CREATE_DUEL_USDC = BigInt(5 * 10 ** 6);

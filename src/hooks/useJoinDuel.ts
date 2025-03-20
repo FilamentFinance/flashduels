@@ -4,7 +4,7 @@ import { TransactionStatusType } from '@/types/app';
 import { handleTransactionError, useTokenApproval } from '@/utils/token';
 import { useState } from 'react';
 import { Hex } from 'viem';
-import { useAccount, usePublicClient, useWaitForTransactionReceipt } from 'wagmi';
+import { usePublicClient, useWaitForTransactionReceipt } from 'wagmi';
 
 const useJoinDuel = () => {
   const [status, setStatus] = useState<TransactionStatusType>(TRANSACTION_STATUS.IDLE);
@@ -13,7 +13,7 @@ const useJoinDuel = () => {
   // const [currentAmount, setCurrentAmount] = useState<bigint>(BigInt(0));
 
   const { toast } = useToast();
-  const { address } = useAccount();
+  // const { address } = useAccount();
   const publicClient = usePublicClient();
   // const { checkAllowance, requestAllowance } = useTokenApproval(address, currentAmount);
   const { requestAllowance } = useTokenApproval();
