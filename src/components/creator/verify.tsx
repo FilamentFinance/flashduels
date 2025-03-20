@@ -27,6 +27,21 @@ export const CreatorVerify = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const validateLinkedInProfile = (url: string) => {
+    const linkedInRegex = /^https:\/\/(www\.)?linkedin\.com\/in\/[A-z0-9_-]+\/?$/;
+    return linkedInRegex.test(url);
+  };
+
+  const validateTwitterHandle = (handle: string) => {
+    const twitterRegex = /^@?(\w){1,15}$/;
+    return twitterRegex.test(handle);
+  };
+
+  const validatePhoneNumber = (number: string) => {
+    const phoneRegex = /^\+?[1-9]\d{1,14}$/;
+    return phoneRegex.test(number);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -38,11 +53,35 @@ export const CreatorVerify = () => {
       });
       return;
     }
-    
+
+    if (!validateTwitterHandle(formData.twitterHandle)) {
+      toast({
+        title: 'Error',
+        description: 'Invalid Twitter handle',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (formData.linkedinProfile && !validateLinkedInProfile(formData.linkedinProfile)) {
+      toast({
+        title: 'Error',
+        description: 'Invalid LinkedIn profile URL',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (formData.mobileNumber && !validatePhoneNumber(formData.mobileNumber)) {
+      toast({
+        title: 'Error',
+        description: 'Invalid phone number',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setLoading(true);
-    // router.get('/status', async (req: Request, res: Response) => {
-    //     try {
-    //       const { address } = req.body;
     try {
       const response = await baseApiClient.post(`${SERVER_CONFIG.API_URL}/user/creator/request`, {
         ...formData,
