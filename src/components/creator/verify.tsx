@@ -9,7 +9,7 @@ import { Label } from '@/shadcn/components/ui/label';
 import { toast } from '@/shadcn/components/ui/use-toast';
 import { Dialog } from '@/components/ui/custom-modal';
 
-export const CreatorVerify = () => {
+export const CreatorVerify = ({ onClose }: { onClose: () => void }) => {
   const { address } = useAccount();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -116,7 +116,12 @@ export const CreatorVerify = () => {
   return (
     <Dialog 
       open={open}
-      onOpenChange={setOpen}
+      onOpenChange={(isOpen) => {
+        setOpen(isOpen);
+        if (!isOpen) {
+          onClose();
+        }
+      }}
       trigger={
         <Button variant="outline" className="bg-primary text-white hover:bg-primary/90">
           Verify as Creator
