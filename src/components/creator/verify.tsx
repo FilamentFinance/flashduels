@@ -142,9 +142,10 @@ export const CreatorVerify = ({ onClose }: { onClose: () => void }) => {
             onChange={handleChange}
             required
           />
-          <Button className="mt-2" onClick={() => {/* Add logic to connect Twitter */}}>
+          {/* <Button className="mt-2" onClick={() => {
+            }}>
             Connect Twitter
-          </Button>
+          </Button> */}
         </div>
         
         <div className="grid w-full items-center gap-2">
