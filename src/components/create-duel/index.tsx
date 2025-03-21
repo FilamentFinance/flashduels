@@ -20,6 +20,8 @@ import Duel from './duel';
 import FlashDuelForm from './flash-duel';
 import { CreatorVerify } from '../creator/verify';
 
+const REJECTION_LIMIT = 3;
+
 const CreateDuel: FC = () => {
   const { address } = useAccount();
   const [selectedDuel, setSelectedDuel] = useState<DuelType | null>(null);
@@ -32,6 +34,7 @@ const CreateDuel: FC = () => {
     rejectionCount: number;
     isBlacklisted: boolean;
   } | null>(null);
+  const [creatorModalOpen, setCreatorModalOpen] = useState(false);
 
   // Check creator status when component mounts or address changes
   useEffect(() => {
@@ -65,7 +68,13 @@ const CreateDuel: FC = () => {
   }, [address]);
 
   const handleDuelSelect = (type: DuelType) => {
-    if (type === DUEL.FLASH) return; // Prevent selection of Flash Duel
+    if (type === DUEL.FLASH) {
+      if (!isCreator) {
+        setIsOpen(true); // Open the modal for verification
+        return;
+      }
+      return; // Prevent selection of Flash Duel if not a creator
+    }
     setSelectedDuel(type);
   };
 
@@ -108,7 +117,7 @@ const CreateDuel: FC = () => {
   return (
     <Dialog
       title={
-        !isCreator ? (
+        !isCreator && selectedDuel == DUEL.FLASH ? (
           "Creator Verification Required"
         ) : (
           <div className="flex flex-col items-center gap-4">
@@ -142,7 +151,7 @@ const CreateDuel: FC = () => {
       open={isOpen}
       onOpenChange={setIsOpen}
     >
-      {!isCreator ? (
+      {(!isCreator && selectedDuel == DUEL.FLASH) || creatorModalOpen ? (
         <div className="space-y-4">
           {requestStatus ? (
             requestStatus.status === "pending" ? (
@@ -151,7 +160,7 @@ const CreateDuel: FC = () => {
               </p>
             ) : requestStatus.status === "rejected" ? (
               <p className="text-sm text-muted-foreground">
-                Your creator verification request was rejected. Please try again. You have {3 - requestStatus.rejectionCount} attempts left.
+                Your creator verification request was rejected. Please try again. You have {REJECTION_LIMIT - requestStatus.rejectionCount} attempts left.
               </p>
             ) : null
           ) : (
@@ -160,8 +169,8 @@ const CreateDuel: FC = () => {
             </p>
           )}
           <div className="flex justify-center">
-            {!requestStatus || requestStatus.status !== "pending" && requestStatus.rejectionCount < 3 ? (
-              <CreatorVerify />
+            {!requestStatus || requestStatus.status !== "pending" && requestStatus.rejectionCount < REJECTION_LIMIT ? (
+              <CreatorVerify onClose={() => setCreatorModalOpen(false)} />
             ) : null}
           </div>
         </div>
@@ -203,7 +212,18 @@ const CreateDuel: FC = () => {
                     align="center" 
                     className="bg-gradient-to-r from-[#F19ED2] to-[#F19ED2]/90 border-none text-black px-3 py-1.5 font-semibold rounded-md"
                   >
-                    Coming Soon!
+                    <div className="flex flex-col items-center">
+                      <span>Coming Soon!</span>
+                      <Button
+                        className="bg-gradient-pink text-black"
+                        onClick={() => {
+                          // setIsOpen(false);
+                          setCreatorModalOpen(true);
+                        }}
+                      >
+                        Verify as Creator
+                      </Button>
+                    </div>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>

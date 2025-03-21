@@ -9,16 +9,17 @@ import { Label } from '@/shadcn/components/ui/label';
 import { toast } from '@/shadcn/components/ui/use-toast';
 import { Dialog } from '@/components/ui/custom-modal';
 
-export const CreatorVerify = () => {
+export const CreatorVerify = ({ onClose }: { onClose: () => void }) => {
   const { address } = useAccount();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
+    name: '',
     twitterHandle: '',
     telegramHandle: '',
+    email: '',
     discordHandle: '',
     linkedinProfile: '',
-    email: '',
     mobileNumber: '',
   });
 
@@ -27,20 +28,20 @@ export const CreatorVerify = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const validateLinkedInProfile = (url: string) => {
-    const linkedInRegex = /^https:\/\/(www\.)?linkedin\.com\/in\/[A-z0-9_-]+\/?$/;
-    return linkedInRegex.test(url);
-  };
+//   const validateLinkedInProfile = (url: string) => {
+//     const linkedInRegex = /^https:\/\/(www\.)?linkedin\.com\/in\/[A-z0-9_-]+\/?$/;
+//     return linkedInRegex.test(url);
+//   };
 
   const validateTwitterHandle = (handle: string) => {
     const twitterRegex = /^@?(\w){1,15}$/;
     return twitterRegex.test(handle);
   };
 
-  const validatePhoneNumber = (number: string) => {
-    const phoneRegex = /^\+?[1-9]\d{1,14}$/;
-    return phoneRegex.test(number);
-  };
+//   const validatePhoneNumber = (number: string) => {
+//     const phoneRegex = /^\+?[1-9]\d{1,14}$/;
+//     return phoneRegex.test(number);
+//   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,24 +64,6 @@ export const CreatorVerify = () => {
       return;
     }
 
-    if (formData.linkedinProfile && !validateLinkedInProfile(formData.linkedinProfile)) {
-      toast({
-        title: 'Error',
-        description: 'Invalid LinkedIn profile URL',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    if (formData.mobileNumber && !validatePhoneNumber(formData.mobileNumber)) {
-      toast({
-        title: 'Error',
-        description: 'Invalid phone number',
-        variant: 'destructive',
-      });
-      return;
-    }
-
     setLoading(true);
     try {
       const response = await baseApiClient.post(`${SERVER_CONFIG.API_URL}/user/creator/request`, {
@@ -95,11 +78,12 @@ export const CreatorVerify = () => {
       
       setOpen(false);
       setFormData({
+        name: '',
         twitterHandle: '',
         telegramHandle: '',
+        email: '',
         discordHandle: '',
         linkedinProfile: '',
-        email: '',
         mobileNumber: '',
       });
     } catch (error: any) {
@@ -116,7 +100,12 @@ export const CreatorVerify = () => {
   return (
     <Dialog 
       open={open}
-      onOpenChange={setOpen}
+      onOpenChange={(isOpen) => {
+        setOpen(isOpen);
+        if (!isOpen) {
+          onClose();
+        }
+      }}
       trigger={
         <Button variant="outline" className="bg-primary text-white hover:bg-primary/90">
           Verify as Creator
@@ -132,6 +121,18 @@ export const CreatorVerify = () => {
       </div>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid w-full items-center gap-2">
+          <Label htmlFor="name">Name</Label>
+          <Input
+            id="name"
+            name="name"
+            placeholder="Your Name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        <div className="grid w-full items-center gap-2">
           <Label htmlFor="twitterHandle">Twitter Handle</Label>
           <Input
             id="twitterHandle"
@@ -141,6 +142,10 @@ export const CreatorVerify = () => {
             onChange={handleChange}
             required
           />
+          {/* <Button className="mt-2" onClick={() => {
+            }}>
+            Connect Twitter
+          </Button> */}
         </div>
         
         <div className="grid w-full items-center gap-2">
@@ -153,29 +158,7 @@ export const CreatorVerify = () => {
             onChange={handleChange}
           />
         </div>
-        
-        <div className="grid w-full items-center gap-2">
-          <Label htmlFor="discordHandle">Discord Handle</Label>
-          <Input
-            id="discordHandle"
-            name="discordHandle"
-            placeholder="username#0000"
-            value={formData.discordHandle}
-            onChange={handleChange}
-          />
-        </div>
-        
-        <div className="grid w-full items-center gap-2">
-          <Label htmlFor="linkedinProfile">LinkedIn Profile</Label>
-          <Input
-            id="linkedinProfile"
-            name="linkedinProfile"
-            placeholder="https://linkedin.com/in/username"
-            value={formData.linkedinProfile}
-            onChange={handleChange}
-          />
-        </div>
-        
+
         <div className="grid w-full items-center gap-2">
           <Label htmlFor="email">Email</Label>
           <Input
@@ -186,17 +169,6 @@ export const CreatorVerify = () => {
             value={formData.email}
             onChange={handleChange}
             required
-          />
-        </div>
-        
-        <div className="grid w-full items-center gap-2">
-          <Label htmlFor="mobileNumber">Mobile Number</Label>
-          <Input
-            id="mobileNumber"
-            name="mobileNumber"
-            placeholder="+1234567890"
-            value={formData.mobileNumber}
-            onChange={handleChange}
           />
         </div>
         
