@@ -2,6 +2,7 @@ export const CATEGORIES: {
   [key: string]: {
     title: string;
     icon: string;
+    comingSoon?: boolean;
   };
 } = {
   ALL_DUELS: {
@@ -15,10 +16,12 @@ export const CATEGORIES: {
   POLITICS: {
     title: 'Politics',
     icon: '🏛️',
+    comingSoon: true,
   },
   F1: {
     title: 'F1',
     icon: '🏎️',
+    comingSoon: true,
   },
 } as const;
 
