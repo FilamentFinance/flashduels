@@ -10,7 +10,7 @@ import { Button } from '@/shadcn/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/shadcn/components/ui/tooltip';
 import { cn } from '@/shadcn/lib/utils';
 import { DuelType } from '@/types/duel';
-import { FC, useState, useEffect } from 'react';
+import { FC, useState } from 'react';
 import { useAccount } from 'wagmi';
 import { baseApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
@@ -20,7 +20,6 @@ import Duel from './duel';
 import FlashDuelForm from './flash-duel';
 import { CreatorVerify } from '../creator/verify';
 
-const REJECTION_LIMIT = 3;
 
 const CreateDuel: FC = () => {
   const { address } = useAccount();
@@ -28,44 +27,7 @@ const CreateDuel: FC = () => {
   const [showForm, setShowForm] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [isCreator, setIsCreator] = useState<boolean | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [requestStatus, setRequestStatus] = useState<{
-    status: string;
-    rejectionCount: number;
-    isBlacklisted: boolean;
-  } | null>(null);
   const [creatorModalOpen, setCreatorModalOpen] = useState(false);
-
-  // Check creator status when component mounts or address changes
-  useEffect(() => {
-    const checkCreatorStatus = async () => {
-      if (!address) {
-        setIsCreator(null);
-        setRequestStatus(null);
-        return;
-      }
-
-      try {
-        setIsLoading(true);
-        const response = await baseApiClient.get(`${SERVER_CONFIG.API_URL}/user/creator/status`, {
-          params: {
-            address: address.toLowerCase()
-          }
-        });
-        console.log("response", response);
-        setIsCreator(response.data.isCreator);
-        setRequestStatus(response.data.request);
-      } catch (error) {
-        console.error("Error checking creator status:", error);
-        setIsCreator(false);
-        setRequestStatus(null);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkCreatorStatus();
-  }, [address]);
 
   const handleDuelSelect = (type: DuelType) => {
     if (type === DUEL.FLASH) {
@@ -153,7 +115,7 @@ const CreateDuel: FC = () => {
     >
       {(!isCreator && selectedDuel == DUEL.FLASH) || creatorModalOpen ? (
         <div className="space-y-4">
-          {requestStatus ? (
+          {/* requestStatus ? (
             requestStatus.status === "pending" ? (
               <p className="text-sm text-muted-foreground">
                 Creating a duel requires creator verification. Your request is being reviewed and you will be able to start creating duels once it&apos;s accepted.
@@ -167,11 +129,9 @@ const CreateDuel: FC = () => {
             <p className="text-sm text-muted-foreground">
               You need to be a verified creator to create duels on the platform.
             </p>
-          )}
+          ) */}
           <div className="flex justify-center">
-            {!requestStatus || requestStatus.status !== "pending" && requestStatus.rejectionCount < REJECTION_LIMIT ? (
-              <CreatorVerify onClose={() => setCreatorModalOpen(false)} />
-            ) : null}
+            <CreatorVerify onClose={() => setCreatorModalOpen(false)} />
           </div>
         </div>
       ) : (
