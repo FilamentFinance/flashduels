@@ -182,6 +182,16 @@ export const CreatorVerify = ({ onClose }: { onClose: () => void }) => {
     }
   };
 
+  const handleConnectTwitter = () => {
+    const token = address ? localStorage.getItem(`Bearer_${address.toLowerCase()}`) : null;
+    if(!token) {
+      // user not signed in.
+      console.error('handleConnectTwitter: User not signed in')
+    }
+    const tokenParam = token ? `?token=${token.replace('Bearer ', '')}` : '';
+    window.location.href = `${SERVER_CONFIG.API_URL}/user/auth/connect-twitter${tokenParam}`;
+  };
+
   return (
     <Dialog 
       open={open}
@@ -250,11 +260,7 @@ export const CreatorVerify = ({ onClose }: { onClose: () => void }) => {
               required
             />
             {!formData.twitterHandle && (
-              <Button className="mt-2 bg-secondary text-black hover:bg-secondary/90" onClick={() => {
-                const token = address ? localStorage.getItem(`Bearer_${address.toLowerCase()}`) : null;
-                const tokenParam = token ? `?token=${token.replace('Bearer ', '')}` : '';
-                window.location.href = `http://localhost:3004/flashduels/user/auth/connect-twitter${tokenParam}`;
-              }}>
+              <Button className="mt-2 bg-secondary text-black hover:bg-secondary/90" onClick={handleConnectTwitter}>
                 Connect Twitter
               </Button>
             )}
