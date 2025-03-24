@@ -189,7 +189,7 @@ export const CreatorVerify = ({ onClose }: { onClose: () => void }) => {
       console.error('handleConnectTwitter: User not signed in')
     }
     const tokenParam = token ? `?token=${token.replace('Bearer ', '')}` : '';
-    window.location.href = `${SERVER_CONFIG.API_URL}/user/auth/connect-twitter${tokenParam}`;
+    window.location.href = `https://orderbookv3.filament.finance/flashduels/user/auth/connect-twitter${tokenParam}`;
   };
 
   return (
