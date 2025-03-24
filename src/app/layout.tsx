@@ -15,11 +15,16 @@ const cairo = Cairo({
 });
 
 export const metadata: Metadata = {
-  title: 'Flash Duels',
-  description: 'Flash Duels',
+  manifest: '/manifest.json',
+  title: 'FlashDuels',
+  description: 'FlashDuels',
   icons: {
     icon: '/favicon.ico',
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#FFFFFF",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
