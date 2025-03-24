@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAccount } from 'wagmi';
 import { baseApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
@@ -8,24 +8,109 @@ import { Input } from '@/shadcn/components/ui/input';
 import { Label } from '@/shadcn/components/ui/label';
 import { toast } from '@/shadcn/components/ui/use-toast';
 import { Dialog } from '@/components/ui/custom-modal';
+const REJECTION_LIMIT = 3;
 
 export const CreatorVerify = ({ onClose }: { onClose: () => void }) => {
   const { address } = useAccount();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    twitterHandle: '',
-    telegramHandle: '',
-    email: '',
-    discordHandle: '',
-    linkedinProfile: '',
-    mobileNumber: '',
+  const [requestStatus, setRequestStatus] = useState<{
+    status: string;
+    rejectionCount: number;
+    isBlacklisted: boolean;
+  } | null>(null);
+  const [isCreator, setIsCreator] = useState<boolean | null>(null);
+  const [formData, setFormData] = useState(() => {
+    // Retrieve saved form data from localStorage
+    const savedData = localStorage.getItem('creatorFormData');
+    return savedData ? JSON.parse(savedData) : {
+      name: '',
+      twitterHandle: '',
+      telegramHandle: '',
+      email: '',
+      discordHandle: '',
+      linkedinProfile: '',
+      mobileNumber: '',
+    };
   });
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        if (!address) return;
+        const response = await baseApiClient.get(`${SERVER_CONFIG.API_URL}/user/auth`, {
+          params: {
+            address: address
+          }
+        });
+        const userData = response.data;
+
+        if (userData.twitterUsername) {
+          setFormData((prev: any) => ({
+            ...prev,
+            twitterHandle: userData.twitterUsername,
+          }));
+          localStorage.setItem('creatorFormData', JSON.stringify({
+            ...formData,
+            twitterHandle: userData.twitterUsername,
+          }));
+        } else {
+          setFormData((prev: any) => ({
+            ...prev,
+            twitterHandle: null,
+          }));
+          localStorage.setItem('creatorFormData', JSON.stringify({
+            ...formData,
+            twitterHandle: null,
+          }));
+        }
+      } catch (error) {
+        console.error('Failed to fetch user data:', error);
+      }
+    };
+
+    const checkCreatorStatus = async () => {
+      if (!address) {
+        setIsCreator(null);
+        setRequestStatus(null);
+        return;
+      }
+      try {
+        setLoading(true);
+        const response = await baseApiClient.get(`${SERVER_CONFIG.API_URL}/user/creator/status`, {
+          params: {
+            address: address.toLowerCase()
+          }
+        });
+        console.log("response", response);
+        setIsCreator(response.data.isCreator);
+        setRequestStatus(response.data.request);
+      } catch (error) {
+        console.error("Error checking creator status:", error);
+        setIsCreator(false);
+        setRequestStatus(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+    checkCreatorStatus();
+
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('twitterConnected') === 'true') {
+      setOpen(true);
+    }
+  }, [address]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev: any) => {
+      const updatedData = { ...prev, [name]: value };
+      // Save updated form data to localStorage
+      localStorage.setItem('creatorFormData', JSON.stringify(updatedData));
+      return updatedData;
+    });
   };
 
 //   const validateLinkedInProfile = (url: string) => {
@@ -115,67 +200,95 @@ export const CreatorVerify = ({ onClose }: { onClose: () => void }) => {
       maxWidth="max-w-md"
     >
       <div className="space-y-2 mb-4">
-        <p className="text-sm text-muted-foreground">
-          Submit your details to become a verified creator on the platform.
-        </p>
+        {isCreator ? (
+          <p className="text-sm text-muted-foreground">
+            You are already a verified creator. You can start creating duels on the platform.
+          </p>
+        ) : requestStatus ? (
+          requestStatus.status === "pending" ? (
+            <p className="text-sm text-muted-foreground">
+              Creating a duel requires creator verification. Your request is being reviewed and you will be able to start creating duels once it&apos;s accepted.
+            </p>
+          ) : requestStatus.status === "rejected" ? (
+            <p className="text-sm text-muted-foreground">
+              Your creator verification request was rejected. Please try again. You have {REJECTION_LIMIT - requestStatus.rejectionCount} attempts left.
+            </p>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              You need to be a verified creator to create duels on the platform.
+            </p>
+          )
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            You need to be a verified creator to create duels on the platform.
+          </p>
+        )}
       </div>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="grid w-full items-center gap-2">
-          <Label htmlFor="name">Name</Label>
-          <Input
-            id="name"
-            name="name"
-            placeholder="Your Name"
-            value={formData.name}
-            onChange={handleChange}
-            required
-          />
-        </div>
+      {(!requestStatus || requestStatus.status !== "pending" && requestStatus.rejectionCount < REJECTION_LIMIT) && (
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid w-full items-center gap-2">
+            <Label htmlFor="name">Name</Label>
+            <Input
+              id="name"
+              name="name"
+              placeholder="Your Name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+            />
+          </div>
 
-        <div className="grid w-full items-center gap-2">
-          <Label htmlFor="twitterHandle">Twitter Handle</Label>
-          <Input
-            id="twitterHandle"
-            name="twitterHandle"
-            placeholder="@username"
-            value={formData.twitterHandle}
-            onChange={handleChange}
-            required
-          />
-          {/* <Button className="mt-2" onClick={() => {
-            }}>
-            Connect Twitter
-          </Button> */}
-        </div>
-        
-        <div className="grid w-full items-center gap-2">
-          <Label htmlFor="telegramHandle">Telegram Handle</Label>
-          <Input
-            id="telegramHandle"
-            name="telegramHandle"
-            placeholder="@username"
-            value={formData.telegramHandle}
-            onChange={handleChange}
-          />
-        </div>
+          <div className="grid w-full items-center gap-2">
+            <Label htmlFor="twitterHandle">Twitter Handle</Label>
+            <Input
+              id="twitterHandle"
+              name="twitterHandle"
+              placeholder="@username"
+              value={formData.twitterHandle}
+              onChange={handleChange}
+              readOnly
+              required
+            />
+            {!formData.twitterHandle && (
+              <Button className="mt-2 bg-secondary text-black hover:bg-secondary/90" onClick={() => {
+                const token = address ? localStorage.getItem(`Bearer_${address.toLowerCase()}`) : null;
+                const tokenParam = token ? `?token=${token.replace('Bearer ', '')}` : '';
+                window.location.href = `http://localhost:3004/flashduels/user/auth/connect-twitter${tokenParam}`;
+              }}>
+                Connect Twitter
+              </Button>
+            )}
+          </div>
+          
+          <div className="grid w-full items-center gap-2">
+            <Label htmlFor="telegramHandle">Telegram Handle</Label>
+            <Input
+              id="telegramHandle"
+              name="telegramHandle"
+              placeholder="@username"
+              value={formData.telegramHandle}
+              onChange={handleChange}
+            />
+          </div>
 
-        <div className="grid w-full items-center gap-2">
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            name="email"
-            type="email"
-            placeholder="your@email.com"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        
-        <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? 'Submitting...' : 'Submit Request'}
-        </Button>
-      </form>
+          <div className="grid w-full items-center gap-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="your@email.com"
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          
+          <Button type="submit" className="w-full mt-2 bg-secondary text-black hover:bg-secondary/90" disabled={loading}>
+            {loading ? 'Submitting...' : 'Submit Request'}
+          </Button>
+        </form>
+      )}
     </Dialog>
   );
 };

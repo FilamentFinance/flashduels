@@ -13,6 +13,7 @@ import Categories from './categories';
 import Duels from './duals';
 import DuelStatus from './duel-status';
 import SearchDuels from './search-duel';
+import {CreatorVerify} from '../creator/verify';
 
 const Markets: FC = () => {
   const router = useRouter();
@@ -22,6 +23,14 @@ const Markets: FC = () => {
   const [activeCategory, setActiveCategory] = useState(CATEGORIES['ALL_DUELS'].title); // Category state
   const wsRef = useRef<WebSocket | null>(null);
   const dispatch = useDispatch();
+  const [isVerifyModalOpen, setVerifyModalOpen] = useState(false);
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('twitterConnected') === 'true') {
+      setVerifyModalOpen(true);
+    }
+  }, []);
 
   useEffect(() => {
     let isSubscribed = true;
@@ -127,6 +136,9 @@ const Markets: FC = () => {
           onPositionSelect={handlePositionSelect}
         />
       </div>
+      {isVerifyModalOpen && (
+        <CreatorVerify onClose={() => setVerifyModalOpen(false)} />
+      )}
     </div>
   );
 };
