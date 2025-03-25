@@ -4,7 +4,7 @@ import axios from 'axios';
 import { FC, useState } from 'react';
 import { useAccount } from 'wagmi';
 
-const GAS_API_URL = 'https://orderbookv3.filament.finance/gastesttesttest';
+const GAS_API_URL = 'https://orderbookv3.filament.finance/gastank';
 
 const GetGas: FC = () => {
   const { address } = useAccount();
