@@ -3,12 +3,6 @@ import { Button } from '@/shadcn/components/ui/button';
 import axios from 'axios';
 import { FC, useState } from 'react';
 import { useAccount } from 'wagmi';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/shadcn/components/ui/tooltip';
 
 const GAS_API_URL = 'https://orderbookv3.filament.finance/gastank';
 
