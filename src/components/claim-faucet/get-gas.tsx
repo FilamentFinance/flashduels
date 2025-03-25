@@ -8,14 +8,13 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/shadcn/components/ui/tooltip";
+} from '@/shadcn/components/ui/tooltip';
 
 const GAS_API_URL = 'https://orderbookv3.filament.finance/gastank';
 
 const GetGas: FC = () => {
-
   // Note - It will be enabled on mainnet soon
-  
+
   // const { address } = useAccount();
   // const [gasClaimed, setGasClaimed] = useState(false);
 
@@ -47,21 +46,29 @@ const GetGas: FC = () => {
   // );
 
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            className="font-semibold bg-gradient-pink text-black opacity-50 cursor-not-allowed"
-            disabled={true}
-          >
-            Get Gas
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>Will be available on Mainnet soon</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <Button
+      className="font-semibold bg-gradient-pink text-black opacity-50 cursor-not-allowed 
+        border border-pink-300
+        hover:shadow-lg hover:scale-[1.02]"
+      title="Will be available on Mainnet soon"
+    >
+      <span className="flex items-center gap-1">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M13 10V3L4 14h7v7l9-11h-7z"
+          />
+        </svg>
+        Get Gas
+      </span>
+    </Button>
   );
 };
 
