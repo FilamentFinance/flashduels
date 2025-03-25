@@ -18,6 +18,7 @@ import EnableTrading from './enableTrading';
 import Logo from './logo';
 import NavLink from './navLink';
 import { WalletModal } from './wallet-modal';
+import GetGas from '../claim-faucet/get-gas';
 
 const Navbar: FC = () => {
   const { address, isConnected } = useAccount();
@@ -63,7 +64,7 @@ const Navbar: FC = () => {
             <Balance />
             <ClaimFaucet />
             <EnableTrading />
-
+            <GetGas />
             {isAuthenticated && <CreateDuel />}
             <WalletModal>
               <Button className="rounded-default bg-glass hover:bg-glass-hover border border-zinc-800 transition-colors duration-200 hover:shadow-lg">

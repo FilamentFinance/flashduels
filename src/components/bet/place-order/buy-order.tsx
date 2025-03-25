@@ -18,7 +18,10 @@ import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { formatUnits, parseUnits } from 'viem/utils';
 import { useAccount } from 'wagmi';
+import { NewDuelItem } from '@/types/duel';
+
 import PositionSelector from './position-selector';
+import { calculateTimeLeft } from '@/utils/time';
 
 interface BuyOrderProps {
   duelId: string;
@@ -60,6 +63,9 @@ const BuyOrder: FC<BuyOrderProps> = ({
   const [error, setError] = useState('');
   const [isJoiningDuel, setIsJoiningDuel] = useState(false);
   const [isMarketBuying, setIsMarketBuying] = useState(false);
+  const [marketBuyEnabled, setMarketBuyEnabled] = useState(false);
+  const [countdown, setCountdown] = useState('');
+  const [duel, setDuel] = useState<NewDuelItem | null>(null);
 
   // Combined loading state for disabling both buttons
   const isLoading = isJoiningDuel || isMarketBuying;
@@ -237,6 +243,97 @@ const BuyOrder: FC<BuyOrderProps> = ({
   // }, [localPosition, amount, duelId, checkAllowance, requestAllowance, toast, setError]);
   }, [localPosition, amount, duelId, requestAllowance, toast, setError]);
 
+  useEffect(() => {
+    const fetchDuel = async () => {
+      try {
+        console.log('Fetching duel data...');
+        const response = await baseApiClient.get(
+          `${SERVER_CONFIG.API_URL}/user/duels/get-duel-by-id/${duelId}`,
+          {
+            params: {
+              userAddress: address?.toLowerCase(), // Add the address from useAccount() to the request params
+            },
+          },
+        );
+        console.log('Duel data fetched:', response.data);
+        setDuel(response.data);
+        // if (response.data.endsIn < 0.5) {
+        //   console.log("in")
+        //   if (response.data.status === 3 || 4) {
+        //     return;
+        //   }
+        //   setMarketBuyEnabled(true);
+        //   console.log("s",marketBuyEnabled);
+        //   return;
+        // }
+      } catch (error) {
+        console.error('Error fetching duel:', error);
+      }
+    };
+
+    fetchDuel();
+  }, [address, duelId]);
+
+  useEffect(() => {
+    if (duel) {
+      const updateTime = () => {
+        console.log('updating time')
+        if (duel.endsIn < 0.5) {
+          setMarketBuyEnabled(true);
+          console.log("is ",marketBuyEnabled);
+          return;
+        }
+        const timeleftForEnd = calculateTimeLeft(duel.status === -1 ? duel.createdAt : duel.startAt || 0, duel.endsIn);
+        console.log(timeleftForEnd);
+
+        // Extract hours, minutes, and seconds using regex
+        const timeMatch = timeleftForEnd.match(/(\d+)h\s(\d+)m\s(\d+)s/);
+        // console.log(timeMatch);
+        if (timeMatch) {
+          const hours = parseInt(timeMatch[1], 10);
+          const minutes = parseInt(timeMatch[2], 10);
+          const seconds = parseInt(timeMatch[3], 10);
+
+          // Convert the extracted time to milliseconds
+          const timeInMilliseconds = (hours * 3600 + minutes * 60 + seconds) * 1000;
+          // console.log("timeInMilliseconds", timeInMilliseconds);
+          if (duel.endsIn === 0.5 && timeInMilliseconds <= 10 * 60 * 1000) {
+            // console.log("in 30 min",timeInMilliseconds / 1000);
+            // Enable 10 minutes before end for 30 min duels
+            setMarketBuyEnabled(true);
+            setCountdown(`${Math.floor(timeInMilliseconds / 1000 / 60)}m ${Math.floor((timeInMilliseconds / 1000) % 60)}s`);
+          } else if (duel.endsIn > 0.5 && timeInMilliseconds <= 30 * 60 * 1000) {
+            // console.log("in more tha 30 min", timeInMilliseconds / 1000);
+            // Enable 30 minutes before end for longer duels
+            setMarketBuyEnabled(true);
+            setCountdown(`${Math.floor(timeInMilliseconds / 1000 / 60)}m ${Math.floor((timeInMilliseconds / 1000) % 60)}s`);
+          } else {
+            setMarketBuyEnabled(false);
+            console.log("here")
+            if (duel.endsIn === 0.5) {
+              const timeLeft = timeInMilliseconds - 10 * 60 * 1000;
+              const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+              const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+              const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+              setCountdown(`${hours}h ${minutes}m ${seconds}s`);
+            } else if (duel.endsIn > 0.5) {
+              const timeLeft = timeInMilliseconds - 30 * 60 * 1000;
+              const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+              const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+              const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+              setCountdown(`${hours}h ${minutes}m ${seconds}s`);
+            }
+          }
+        }
+      };
+
+      updateTime();
+      const timer = setInterval(updateTime, 1000);
+
+      return () => clearInterval(timer);
+    }
+  }, [duel]);
+
   return (
     <Card className="bg-transparent border-none space-y-6">
       <CardContent className="p-0 space-y-6">
@@ -339,10 +436,10 @@ const BuyOrder: FC<BuyOrderProps> = ({
         </Button>
         <Button
           onClick={handleMarketBuy}
-          disabled={!isFormValid || isLoading}
+          disabled={!isFormValid || isLoading || !marketBuyEnabled}
           className={cn(
             'w-full py-6 text-lg font-medium',
-            isFormValid && !isLoading
+            isFormValid && !isLoading && marketBuyEnabled
               ? 'bg-[#F19ED2] hover:bg-[#F19ED2]/90 text-white'
               : 'bg-zinc-800 text-zinc-400',
           )}
@@ -353,7 +450,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
               <span>Processing Order...</span>
             </div>
           ) : (
-            'Market Buy'
+            marketBuyEnabled ? 'Market Buy' : `Market Buy ${countdown ? 'in' : ''} ${countdown}`
           )}
         </Button>
       </CardContent>
