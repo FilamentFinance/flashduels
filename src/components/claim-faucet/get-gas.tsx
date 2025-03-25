@@ -14,6 +14,7 @@ const GetGas: FC = () => {
     try {
       await axios.post(`${GAS_API_URL}/api/transfer`, {
         address: address?.toLowerCase() ?? '',
+        app: 'flash_duels',
       });
       setGasClaimed(true);
       localStorage.setItem('gas_claimed', 'true');
