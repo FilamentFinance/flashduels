@@ -3,6 +3,12 @@
 import { CATEGORIES } from '@/constants/markets';
 import { cn } from '@/shadcn/lib/utils';
 import { FC } from 'react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/shadcn/components/ui/tooltip';
 
 interface CategoriesProps {
   activeCategory: string;
@@ -12,17 +18,21 @@ interface CategoriesProps {
 const Categories: FC<CategoriesProps> = ({ activeCategory, setActiveCategory }) => {
   return (
     <div className="flex items-center gap-4 py-4">
-      {Object.entries(CATEGORIES).map(([key, { title, icon }]) => {
+      {Object.entries(CATEGORIES).map(([key, { title, icon, comingSoon }]) => {
         const isActive = title === activeCategory;
-        return (
+        const isComingSoon = Boolean(comingSoon);
+
+        // Create the button content
+        const buttonContent = (
           <button
-            key={key}
-            onClick={() => setActiveCategory(title)}
+            key={`button-${key}`}
+            onClick={() => !isComingSoon && setActiveCategory(title)}
             className={cn(
               'group flex items-center transition-all duration-200 rounded-md p-2 gap-1',
               isActive
                 ? 'bg-[#F19ED2]/20 border border-[#F19ED2]'
                 : 'bg-[#44464933] hover:bg-zinc-800/50',
+              isComingSoon && 'opacity-60 cursor-not-allowed',
             )}
           >
             <div
@@ -36,6 +46,23 @@ const Categories: FC<CategoriesProps> = ({ activeCategory, setActiveCategory }) 
             <span className="text-md font-medium whitespace-nowrap">{title}</span>
           </button>
         );
+
+        // If coming soon, wrap in tooltip
+        if (isComingSoon) {
+          return (
+            <TooltipProvider key={`tooltip-${key}`}>
+              <Tooltip>
+                <TooltipTrigger asChild>{buttonContent}</TooltipTrigger>
+                <TooltipContent>
+                  <p className="font-semibold">Coming Soon</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          );
+        }
+
+        // Otherwise return the button directly
+        return buttonContent;
       })}
     </div>
   );

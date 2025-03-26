@@ -255,11 +255,11 @@ const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice }) => {
       setBetsData(response.data.bets[0].options);
     } catch (error) {
       console.error('Error fetching bet:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to fetch your bets',
-        variant: 'destructive',
-      });
+      // toast({
+      //   title: 'Error',
+      //   description: 'Failed to fetch your bets',
+      //   variant: 'destructive',
+      // });
     }
   }, [duelId, address, toast]);
 

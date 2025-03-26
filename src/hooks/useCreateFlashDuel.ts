@@ -6,7 +6,7 @@ import { TransactionStatusType } from '@/types/app';
 import { handleTransactionError, useTokenApproval } from '@/utils/token';
 import { useEffect, useState } from 'react';
 import { Hex } from 'viem';
-import { useAccount, useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
+import { useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
 import { REQUIRED_CREATE_DUEL_USDC } from './useCreateCoinDuel';
 
 interface CreateFlashDuelParams {
@@ -24,10 +24,10 @@ const useCreateFlashDuel = () => {
   const [pendingDuelParams, setPendingDuelParams] = useState<CreateFlashDuelParams | null>(null);
 
   const { toast } = useToast();
-  const { address } = useAccount();
+  // const { address } = useAccount();
   const { writeContractAsync } = useWriteContract();
   // const { checkAllowance, requestAllowance } = useTokenApproval(address);
-  const { requestAllowance } = useTokenApproval(address);
+  const { requestAllowance } = useTokenApproval();
 
   // Watch approval transaction
   const { isLoading: isApprovalMining, isSuccess: isApprovalSuccess } =

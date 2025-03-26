@@ -6,7 +6,7 @@ import { TransactionStatusType } from '@/types/app';
 import { handleTransactionError, useTokenApproval } from '@/utils/token';
 import { useEffect, useState } from 'react';
 import { Hex } from 'viem';
-import { useAccount, usePublicClient, useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
+import { usePublicClient, useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
 import { ethers } from 'ethers';
 
 export const REQUIRED_CREATE_DUEL_USDC = BigInt(5 * 10 ** 6);
@@ -33,10 +33,10 @@ const useCreateCoinDuel = () => {
   const [txHash, setTxHash] = useState<Hex | undefined>(undefined);
   const [approvalHash, setApprovalHash] = useState<Hex | undefined>(undefined);
   const { toast } = useToast();
-  const { address } = useAccount();
+  // const { address } = useAccount();
   const { writeContractAsync } = useWriteContract();
   // const { checkAllowance, requestAllowance } = useTokenApproval(address);
-  const { requestAllowance } = useTokenApproval(address);
+  const { requestAllowance } = useTokenApproval();
   const publicClient = usePublicClient();
 
   // Watch approval transaction

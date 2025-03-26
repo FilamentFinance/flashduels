@@ -179,7 +179,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
 
   // Import the token approval hook
   // const { checkAllowance, requestAllowance } = useTokenApproval(address);
-  const { requestAllowance } = useTokenApproval(address);
+  const { requestAllowance } = useTokenApproval();
 
   // Updated market buy function with error handling
   const handleMarketBuy = useCallback(async () => {
@@ -195,36 +195,36 @@ const BuyOrder: FC<BuyOrderProps> = ({
       // Check token allowance first
       // const hasAllowance = await checkAllowance();
       // console.log({ localPosition, optionIndex, amount, error, hasAllowance });
-      const hasAllowance = false;
+      // const hasAllowance = false;
 
       // if (!hasAllowance) {
-      if (!hasAllowance) {
-        // Request token approval if needed
-        await requestAllowance(BigInt(amount));
-        toast({
-          title: 'Approval Successful',
-          description: 'Token approval completed. You can now place your order.',
-        });
-      } else {
-        // Place the market buy order
-        const response = await baseApiClient.post(`${SERVER_CONFIG.API_URL}/user/betOption/buy`, {
-          duelId,
-          betAmount: amount,
-          index: optionIndex,
-          userAddress: address?.toLowerCase(),
-        });
+      // if (!hasAllowance) {
+      // Request token approval if needed
+      await requestAllowance(parseUnits(amount, 6));
+      toast({
+        title: 'Approval Successful',
+        description: 'Token approval completed. You can now place your order.',
+      });
+      // } else {
+      // Place the market buy order
+      const response = await baseApiClient.post(`${SERVER_CONFIG.API_URL}/user/betOption/buy`, {
+        duelId,
+        betAmount: amount,
+        index: optionIndex,
+        userAddress: address?.toLowerCase(),
+      });
 
-        // Show success message
-        toast({
-          title: 'Success',
-          description: response.data.message || 'Market buy order placed successfully',
-        });
+      // Show success message
+      toast({
+        title: 'Success',
+        description: response.data.message || 'Market buy order placed successfully',
+      });
 
-        // Reset form after successful submission
-        setAmount('');
-        setLocalPosition(null);
-        setError('');
-      }
+      // Reset form after successful submission
+      setAmount('');
+      setLocalPosition(null);
+      setError('');
+      // }
     } catch (error) {
       console.error('Error in market buy:', error);
 

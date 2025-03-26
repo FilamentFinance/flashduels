@@ -3,11 +3,11 @@ import { FLASHUSDC } from '@/abi/FLASHUSDC';
 import { SERVER_CONFIG } from '@/config/server-config';
 import { SEI_TESTNET_CHAIN_ID } from '@/constants/app';
 import { Hex } from 'viem';
-import { useReadContract, useWriteContract } from 'wagmi';
+import { useWriteContract } from 'wagmi';
 
 // export const REQUIRED_ALLOWANCE = BigInt(5 * 10 ** 6);
 
-export const useTokenApproval = (address: Hex | undefined, amount?: bigint) => {
+export const useTokenApproval = () => {
   const { writeContractAsync } = useWriteContract();
 
   // const { data: allowance } = useReadContract({
