@@ -246,7 +246,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
   useEffect(() => {
     const fetchDuel = async () => {
       try {
-        console.log('Fetching duel data...');
+        // console.log('Fetching duel data...');
         const response = await baseApiClient.get(
           `${SERVER_CONFIG.API_URL}/user/duels/get-duel-by-id/${duelId}`,
           {
@@ -255,7 +255,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
             },
           },
         );
-        console.log('Duel data fetched:', response.data);
+        // console.log('Duel data fetched:', response.data);
         setDuel(response.data);
         // if (response.data.endsIn < 0.5) {
         //   console.log("in")
@@ -277,52 +277,38 @@ const BuyOrder: FC<BuyOrderProps> = ({
   useEffect(() => {
     if (duel) {
       const updateTime = () => {
-        console.log('updating time')
         if (duel.endsIn < 0.5) {
           setMarketBuyEnabled(true);
-          console.log("is ",marketBuyEnabled);
           return;
         }
         const timeleftForEnd = calculateTimeLeft(duel.status === -1 ? duel.createdAt : duel.startAt || 0, duel.endsIn);
-        console.log(timeleftForEnd);
+        // console.log(timeleftForEnd);
 
         // Extract hours, minutes, and seconds using regex
-        const timeMatch = timeleftForEnd.match(/(\d+)h\s(\d+)m\s(\d+)s/);
+        const timeMatch = timeleftForEnd.match(/(?:(\d+)h\s)?(?:(\d+)m\s)?(\d+)s/);
         // console.log(timeMatch);
         if (timeMatch) {
-          const hours = parseInt(timeMatch[1], 10);
-          const minutes = parseInt(timeMatch[2], 10);
+          const hours = timeMatch[1] ? parseInt(timeMatch[1], 10) : 0;
+          const minutes = timeMatch[2] ? parseInt(timeMatch[2], 10) : 0;
           const seconds = parseInt(timeMatch[3], 10);
 
           // Convert the extracted time to milliseconds
           const timeInMilliseconds = (hours * 3600 + minutes * 60 + seconds) * 1000;
-          // console.log("timeInMilliseconds", timeInMilliseconds);
-          if (duel.endsIn === 0.5 && timeInMilliseconds <= 10 * 60 * 1000) {
-            // console.log("in 30 min",timeInMilliseconds / 1000);
-            // Enable 10 minutes before end for 30 min duels
+          const isShortDuel = duel.endsIn === 0.5;
+          const shortDuelThreshold = 10 * 60 * 1000; // 10 minutes in milliseconds
+          const longDuelThreshold = 30 * 60 * 1000; // 30 minutes in milliseconds
+
+          if ((isShortDuel && timeInMilliseconds <= shortDuelThreshold) ||
+              (!isShortDuel && timeInMilliseconds <= longDuelThreshold)) {
             setMarketBuyEnabled(true);
-            setCountdown(`${Math.floor(timeInMilliseconds / 1000 / 60)}m ${Math.floor((timeInMilliseconds / 1000) % 60)}s`);
-          } else if (duel.endsIn > 0.5 && timeInMilliseconds <= 30 * 60 * 1000) {
-            // console.log("in more tha 30 min", timeInMilliseconds / 1000);
-            // Enable 30 minutes before end for longer duels
-            setMarketBuyEnabled(true);
-            setCountdown(`${Math.floor(timeInMilliseconds / 1000 / 60)}m ${Math.floor((timeInMilliseconds / 1000) % 60)}s`);
           } else {
             setMarketBuyEnabled(false);
-            console.log("here")
-            if (duel.endsIn === 0.5) {
-              const timeLeft = timeInMilliseconds - 10 * 60 * 1000;
-              const hours = Math.floor(timeLeft / (1000 * 60 * 60));
-              const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-              const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-              setCountdown(`${hours}h ${minutes}m ${seconds}s`);
-            } else if (duel.endsIn > 0.5) {
-              const timeLeft = timeInMilliseconds - 30 * 60 * 1000;
-              const hours = Math.floor(timeLeft / (1000 * 60 * 60));
-              const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-              const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-              setCountdown(`${hours}h ${minutes}m ${seconds}s`);
-            }
+            const timeLeft = timeInMilliseconds - (isShortDuel ? shortDuelThreshold : longDuelThreshold);
+            const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+            setCountdown(isShortDuel ? `${minutes}m ${seconds}s` : `${hours}h ${minutes}m ${seconds}s`);
           }
         }
       };
