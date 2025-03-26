@@ -3,7 +3,13 @@
 import { baseApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
 import { TRANSACTION_STATUS } from '@/constants/app';
-import { DUEL_DURATION, DUEL_TYPE, DURATIONS, OPTIONS } from '@/constants/duel';
+import {
+  DUEL_DURATION,
+  DUEL_TYPE,
+  DURATIONS,
+  OPTIONS,
+  FLASH_DUEL_DURATION,
+} from '@/constants/duel';
 import { CATEGORIES, FLASH_DUEL_CATEGORIES } from '@/constants/markets';
 import useCreateFlashDuel from '@/hooks/useCreateFlashDuel';
 import { Button } from '@/shadcn/components/ui/button';
@@ -22,36 +28,88 @@ import { mapCategoryToEnumIndex, mapDurationToNumber } from '@/utils/general/cre
 import { getTransactionStatusMessage } from '@/utils/transaction';
 import { Trash2, Upload } from 'lucide-react';
 import Image from 'next/image';
-import { FC, useState } from 'react';
+import { FC, useState, useEffect } from 'react';
 import { useAccount } from 'wagmi';
+import { cn } from '@/shadcn/lib/utils';
 
-interface FlashDuelFormProps {
+type FlashDuelFormProps = {
   onBack: () => void;
   onComplete: () => void;
-}
+  isSubmitting: boolean;
+  setIsSubmitting: (value: boolean) => void;
+};
 
-const FlashDuelForm: FC<FlashDuelFormProps> = ({ onBack, onComplete }) => {
-  const [selectedDuration, setSelectedDuration] = useState<DuelDuration>(DUEL_DURATION.THREE_HOURS);
+const FlashDuelForm: FC<FlashDuelFormProps> = ({
+  onBack,
+  onComplete,
+  isSubmitting,
+  setIsSubmitting,
+}) => {
+  const [selectedDuration, setSelectedDuration] = useState<DuelDuration>(
+    FLASH_DUEL_DURATION.THREE_HOURS,
+  );
   const [selectedCategory, setSelectedCategory] = useState<string>(CATEGORIES['ALL_DUELS'].title);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
   const { address } = useAccount();
-  const { status, error, isApprovalMining, isDuelMining, createFlashDuel } = useCreateFlashDuel();
+  const { status, error, isApprovalMining, isDuelMining, createFlashDuel, isComplete } =
+    useCreateFlashDuel();
+  const [isButtonClicked, setIsButtonClicked] = useState(false);
+
+  useEffect(() => {
+    console.log('Completion Status Check:', {
+      isComplete,
+      hasAddress: !!address,
+      currentStatus: status,
+    });
+
+    const handleCompletion = async () => {
+      if (isComplete && address) {
+        console.log('Proceeding with API call after duel completion');
+        const duelText = (document.getElementById('duelText') as HTMLTextAreaElement)?.value || '';
+        const durationNumber = mapDurationToNumber(selectedDuration, 'flash');
+
+        const duelData = {
+          type: DUEL_TYPE.FLASH_DUEL,
+          category: selectedCategory,
+          betIcon: selectedImage,
+          betString: duelText,
+          minimumWager: '',
+          endsIn: DURATIONS[durationNumber],
+        };
+
+        console.log('Preparing to send duel data to API:', duelData);
+        try {
+          await baseApiClient.post(`${SERVER_CONFIG.API_URL}/user/duels/approve`, {
+            ...duelData,
+            twitterUsername: '',
+            address: address?.toLowerCase(),
+          });
+          console.log('API call successful');
+          onComplete();
+        } catch (error) {
+          console.error('API Error:', error);
+          onComplete();
+        }
+      }
+    };
+
+    handleCompletion();
+  }, [isComplete, address]);
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     try {
-      setIsUploading(true);
+      setIsSubmitting(true);
       const previewUrl = URL.createObjectURL(file);
       setImagePreview(previewUrl);
       setSelectedImage(file);
     } catch (error) {
       console.error('Error handling image:', error);
     } finally {
-      setIsUploading(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -64,7 +122,11 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({ onBack, onComplete }) => {
   };
 
   const handleCreateFlashDuel = async () => {
+    if (isTransactionInProgress || isButtonClicked) return;
+    setIsButtonClicked(true);
+
     try {
+      setIsSubmitting(true);
       const categoryEnumIndex = mapCategoryToEnumIndex(selectedCategory);
       const durationNumber = mapDurationToNumber(selectedDuration);
       const duelText = (document.getElementById('duelText') as HTMLTextAreaElement)?.value || '';
@@ -77,32 +139,13 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({ onBack, onComplete }) => {
       };
 
       await createFlashDuel(createDuelData);
-
-      if (status === TRANSACTION_STATUS.DUEL_COMPLETE && address) {
-        const duelData = {
-          type: DUEL_TYPE.FLASH_DUEL,
-          category: selectedCategory,
-          betIcon: selectedImage,
-          duelText: duelText,
-          minimumWager: '',
-          endsIn: DURATIONS[durationNumber],
-        };
-
-        try {
-          await baseApiClient.post(`${SERVER_CONFIG.API_URL}/user/duels/approve`, {
-            ...duelData,
-            twitterUsername: '',
-            address: address?.toLowerCase(),
-          });
-          onComplete(); // Close modal on success
-        } catch (error) {
-          console.error('API Error:', error);
-          onComplete(); // Close modal on API error
-        }
-      }
+      console.log('createFlashDuel completed, current status:', status);
     } catch (error) {
-      console.error('Failed to create flash duel:', error);
-      onComplete(); // Close modal on error
+      console.error('Error in handleCreateFlashDuel:', error);
+      onComplete();
+    } finally {
+      setIsSubmitting(false);
+      setIsButtonClicked(false);
     }
   };
 
@@ -159,7 +202,7 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({ onBack, onComplete }) => {
             Bet Icon*
           </Label>
           <div className="border-2 border-dashed border-zinc-700 rounded-lg p-4 text-center bg-zinc-900">
-            {isUploading ? (
+            {isSubmitting ? (
               <div className="flex flex-col items-center gap-2">
                 <div className="animate-spin">
                   <Upload className="h-8 w-8 text-zinc-400" />
@@ -222,7 +265,7 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({ onBack, onComplete }) => {
                 <SelectValue placeholder="Select duration" />
               </SelectTrigger>
               <SelectContent className="bg-[#1C1C1C] border-zinc-700">
-                {Object.values(DUEL_DURATION).map((duration) => (
+                {Object.values(FLASH_DUEL_DURATION).map((duration) => (
                   <SelectItem
                     key={duration}
                     value={duration}
@@ -242,23 +285,31 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({ onBack, onComplete }) => {
           type="button"
           variant="outline"
           onClick={onBack}
-          className="flex-1 bg-transparent border-zinc-700 text-white hover:bg-zinc-800 hover:text-white"
+          disabled={isTransactionInProgress}
+          className={cn(
+            'flex-1 border-zinc-700',
+            isTransactionInProgress ? 'opacity-50 cursor-not-allowed' : 'hover:bg-zinc-900',
+          )}
         >
           Back
         </Button>
         <Button
-          type="submit"
+          type="button"
           onClick={(e) => {
             e.preventDefault();
-            if (!selectedImage || !selectedCategory || !selectedDuration) {
-              return;
-            }
             handleCreateFlashDuel();
           }}
-          className="flex-1 bg-gradient-pink text-black font-semibold hover:bg-gradient-pink/90"
           disabled={
-            !selectedImage || !selectedCategory || !selectedDuration || isTransactionInProgress
+            !selectedImage ||
+            !selectedCategory ||
+            !selectedDuration ||
+            isTransactionInProgress ||
+            isButtonClicked
           }
+          className={cn(
+            'flex-1 bg-gradient-pink text-black',
+            isTransactionInProgress || isButtonClicked ? 'opacity-50 cursor-not-allowed' : '',
+          )}
         >
           {isTransactionInProgress ? getTransactionStatusMessage(status, error) : 'Create Duel'}
         </Button>

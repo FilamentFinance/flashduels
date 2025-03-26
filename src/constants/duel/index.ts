@@ -15,6 +15,24 @@ export const DUEL_DURATION = {
   // FORTY_EIGHT_HOURS: '48H',
 } as const;
 
+// Add new constants for specific duel types
+export const COIN_DUEL_DURATION = {
+  FIVE_MINUTES: '5M',
+  FIFTEEN_MINUTES: '15M',
+  THIRTY_MINUTES: '30M',
+  ONE_HOUR: '1H',
+  THREE_HOURS: '3H',
+  SIX_HOURS: '6H',
+  TWELVE_HOURS: '12H',
+} as const;
+
+export const FLASH_DUEL_DURATION = {
+  ONE_HOUR: '1H',
+  THREE_HOURS: '3H',
+  SIX_HOURS: '6H',
+  TWELVE_HOURS: '12H',
+} as const;
+
 export const DUEL_STATUS = {
   LIVE: 'Live',
   BOOTSTRAPPING: 'Bootstrapping',

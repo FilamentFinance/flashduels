@@ -3,7 +3,14 @@
 import { baseApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
 import { TRANSACTION_STATUS } from '@/constants/app';
-import { DUEL_DURATION, DUEL_TYPE, DURATIONS, OPTIONS, WIN_CONDITIONS } from '@/constants/duel';
+import {
+  DUEL_DURATION,
+  DUEL_TYPE,
+  DURATIONS,
+  OPTIONS,
+  WIN_CONDITIONS,
+  COIN_DUEL_DURATION,
+} from '@/constants/duel';
 import useCreateCoinDuel from '@/hooks/useCreateCoinDuel';
 import { Button } from '@/shadcn/components/ui/button';
 import { Input } from '@/shadcn/components/ui/input';
@@ -40,7 +47,9 @@ export interface CreateCoinDuelData {
 }
 
 const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
-  const [selectedDuration, setSelectedDuration] = useState<DuelDuration>(DUEL_DURATION.THREE_HOURS);
+  const [selectedDuration, setSelectedDuration] = useState<DuelDuration>(
+    COIN_DUEL_DURATION.THREE_HOURS,
+  );
   const [selectedToken, setSelectedToken] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState('');
   const { price } = useSelector((state: RootState) => state.price);
@@ -66,7 +75,7 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
     if (!formData || isTransactionInProgress || isButtonClicked) return;
     setIsButtonClicked(true);
 
-    const durationNumber = mapDurationToNumber(selectedDuration);
+    const durationNumber = mapDurationToNumber(selectedDuration, 'coin');
     const triggerPrice = Number(formData.triggerPrice) * 10 ** 8;
     const minWager = Number(formData.triggerPrice) * 10 ** 6;
 
@@ -262,7 +271,7 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
                   triggerPrice: value,
                   token: prevData?.token || '',
                   winCondition: prevData?.winCondition || WIN_CONDITIONS.ABOVE,
-                  duration: prevData?.duration || DUEL_DURATION.THREE_HOURS,
+                  duration: prevData?.duration || COIN_DUEL_DURATION.THREE_HOURS,
                 }));
               }
             }}
@@ -283,7 +292,7 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
                 winCondition: value as WinCondition,
                 token: prevData?.token || '',
                 triggerPrice: prevData?.triggerPrice || '',
-                duration: prevData?.duration || DUEL_DURATION.THREE_HOURS,
+                duration: prevData?.duration || COIN_DUEL_DURATION.THREE_HOURS,
               }));
             }}
           >
@@ -315,7 +324,7 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
                 <SelectValue placeholder="Select duration" />
               </SelectTrigger>
               <SelectContent className="bg-[#1C1C1C] border-zinc-700">
-                {Object.values(DUEL_DURATION).map((duration) => (
+                {Object.values(COIN_DUEL_DURATION).map((duration) => (
                   <SelectItem
                     key={duration}
                     value={duration}

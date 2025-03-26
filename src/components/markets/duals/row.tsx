@@ -13,9 +13,20 @@ interface Props {
 }
 
 const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
-  const { title, volume, status, winner } = data;
+  const { title, volume, status, winner, duelType } = data;
   const { totalBetYes, totalBetNo } = useTotalBets(data.duelId);
   const [timeLeft, setTimeLeft] = useState<string>('');
+
+  const getIconPath = () => {
+    if (duelType === 'COIN_DUEL') {
+      const symbol = title.split(' ')[1];
+      return `/crypto-icons/light/crypto-${symbol.toLowerCase()}-usd.inline.svg`;
+    }
+    return '';
+  };
+
+  const iconPath = getIconPath();
+
   useEffect(() => {
     const calculateTimeLeft = () => {
       if (status === -1) {
@@ -64,9 +75,6 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
     ? data.percentage
     : Number(calculatedPercentage.toFixed(2));
 
-  // Extract symbol from title (e.g., "BTC Price" -> "BTC")
-  const symbol = title.split(' ')[1];
-  const iconPath = `/crypto-icons/light/crypto-${symbol.toLowerCase()}-usd.inline.svg`;
   return (
     <Card
       className="flex items-center justify-between p-3 bg-zinc-900 border-zinc-800 hover:bg-zinc-900/90 transition-colors cursor-pointer"
@@ -74,15 +82,22 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
     >
       <div className="flex items-center gap-4">
         <div className="relative w-14 h-14">
-          <Image
-            src={iconPath}
-            alt={symbol}
-            fill
-            className="rounded-full "
-            onError={(e) => {
-              e.currentTarget.style.display = 'none';
-            }}
-          />
+          {duelType === 'COIN_DUEL' ? (
+            <Image
+              src={iconPath}
+              alt={title.split(' ')[1]}
+              fill
+              className="rounded-full"
+              onError={(e) => {
+                console.error('Error loading crypto image:', iconPath);
+                e.currentTarget.style.display = 'none';
+              }}
+            />
+          ) : (
+            <div className="w-full h-full rounded-full bg-zinc-800 flex items-center justify-center">
+              <span className="text-zinc-400">?</span>
+            </div>
+          )}
         </div>
 
         <div className="flex flex-col">
