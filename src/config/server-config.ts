@@ -9,6 +9,7 @@ interface ServerConfig {
   WALLET_CONNECT_PROJECT_ID: string;
   INVITE_ONLY_URL: string;
   BOT_PRIVATE_KEY: string;
+  CREDIT_CONTRACT: string;
 }
 
 const createConfig = (): ServerConfig => {
@@ -26,6 +27,7 @@ const createConfig = (): ServerConfig => {
   const inviteOnlyLocalUrl = process.env.NEXT_PUBLIC_INVITE_ONLY_LOCAL_URL as string;
   const inviteOnlyProductionUrl = process.env.NEXT_PUBLIC_INVITE_ONLY_PRODUCTION_URL as string;
   const botPrivateKey = process.env.NEXT_PUBLIC_PRIVATE_KEY as string;
+  const creditContract = process.env.NEXT_PUBLIC_FLASH_CREDITS as string;
   // Validate required environment variables
   const missingVars = [];
   if (!rpcUrl) missingVars.push('NEXT_PUBLIC_RPC_URL');
@@ -45,6 +47,7 @@ const createConfig = (): ServerConfig => {
     throw new Error(`Missing required environment variables: ${missingVars.join(', ')}`);
   }
 
+
   return {
     PRODUCTION: production,
     RPC_URL: rpcUrl,
@@ -56,6 +59,7 @@ const createConfig = (): ServerConfig => {
     WALLET_CONNECT_PROJECT_ID: walletConnectProjectId,
     INVITE_ONLY_URL: production ? inviteOnlyProductionUrl : inviteOnlyLocalUrl,
     BOT_PRIVATE_KEY: botPrivateKey,
+    CREDIT_CONTRACT: creditContract
   };
 };
 
