@@ -12,25 +12,40 @@ type Props = {
   liquidity?: string;
   endsIn: string;
   percentage?: number;
+  duelType?: 'COIN_DUEL' | string;
 };
 
-const Header: FC<Props> = ({ title, triggerPrice, token, liquidity, endsIn, percentage }) => {
-  const symbol = title.split(' ')[1];
-  const iconPath = `/crypto-icons/light/crypto-${symbol.toLowerCase()}-usd.inline.svg`;
+const Header: FC<Props> = ({
+  title,
+  triggerPrice,
+  token,
+  liquidity,
+  endsIn,
+  percentage,
+  duelType,
+}) => {
+  let symbol, iconPath;
+  if (duelType === 'COIN_DUEL') {
+    symbol = title.split(' ')[1];
+    iconPath = `/crypto-icons/light/crypto-${symbol.toLowerCase()}-usd.inline.svg`;
+  }
+
   return (
     <div className="flex flex-col items-center gap-6 w-full">
       <div className="flex justify-between items-stretch w-full">
         {/* Back Button and Logo */}
         <div className="flex items-center gap-4 mx-2">
-          <div>
-            <Image
-              src={iconPath}
-              alt={title}
-              width={48}
-              height={48}
-              className="rounded-full object-cover"
-            />
-          </div>
+          {duelType === 'COIN_DUEL' ? (
+            <div>
+              <Image
+                src={iconPath || ''}
+                alt={title}
+                width={48}
+                height={48}
+                className="rounded-full object-cover"
+              />
+            </div>
+          ) : null}
         </div>
 
         {/* Title and Details Button */}

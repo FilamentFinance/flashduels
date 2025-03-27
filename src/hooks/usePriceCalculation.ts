@@ -50,6 +50,7 @@ export const usePriceCalculation = ({
             T: timePeriod < 1 ? 1 : timePeriod, // Ensure a minimum value of 1 for T
             totalYes: totalBetYes || 0,
             totalNo: totalBetNo || 0,
+            duelId,
           }),
         );
       }
