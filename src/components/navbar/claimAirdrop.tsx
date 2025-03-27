@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { FC, useState } from 'react';
 import { Button } from '@/shadcn/components/ui/button';
-import { useAccount, usePublicClient, useWaitForTransactionReceipt } from 'wagmi';
+import { useAccount, usePublicClient, useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
 import { FLASHDUELS_CREDITS_ABI } from '@/abi/FlashDuelCredit';
 import { SERVER_CONFIG } from '@/config/server-config';
 import { SEI_TESTNET_CHAIN_ID, TRANSACTION_STATUS } from '@/constants/app';
@@ -20,12 +20,7 @@ const ClaimAirdropButton: FC = () => {
   const { toast } = useToast();
   const { address } = useAccount();
   const publicClient = usePublicClient();
-  const account = privateKeyToAccount(SERVER_CONFIG.BOT_PRIVATE_KEY as Hex);
-  const walletClient = createWalletClient({
-    account,
-    chain: seiTestnet,
-    transport: http(),
-  });
+  const { writeContractAsync } = useWriteContract();
 
   const { isLoading: isClaiming, isSuccess: isClaimSuccess } = useWaitForTransactionReceipt({
     hash: txHash,
@@ -78,7 +73,7 @@ const ClaimAirdropButton: FC = () => {
       });
       console.log('User credits before claiming:', credits?.toString());
 
-      const tx = await walletClient.writeContract({
+      const tx = await writeContractAsync({
         abi: FLASHDUELS_CREDITS_ABI,
         address: SERVER_CONFIG.CREDIT_CONTRACT as Hex,
         functionName: 'claim',
