@@ -64,7 +64,7 @@ const Navbar: FC = () => {
             <ClaimFunds />
             {/* <Balance /> */}
             <ClaimAirdropButton />
-            <ClaimFaucet />
+            {/* <ClaimFaucet /> */}
             <EnableTrading />
             <GetGas />
             {isAuthenticated && <CreateDuel />}

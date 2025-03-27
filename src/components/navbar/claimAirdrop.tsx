@@ -109,7 +109,7 @@ const ClaimAirdropButton: FC = () => {
     className="font-semibold bg-gradient-pink text-black opacity-100 
         border border-pink-300
         hover:shadow-lg hover:scale-[1.02]">
-      Claim CRE Airdrop
+       CRD Airdrop
     </Button>
   );
 };
