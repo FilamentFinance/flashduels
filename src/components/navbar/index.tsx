@@ -9,7 +9,7 @@ import axios from 'axios';
 import { FC, useEffect } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { useAccount } from 'wagmi';
-import ClaimFaucet from '../claim-faucet';
+// import ClaimFaucet from '../claim-faucet';
 import ClaimFunds from '../claim-funds';
 import CreateDuel from '../create-duel';
 // import Balance from './balance';
