@@ -17,6 +17,7 @@ import { useAccount, useDisconnect, useSignMessage } from 'wagmi';
 import { SERVER_CONFIG } from '@/config/server-config';
 import { RootState } from '@/store';
 import { shallowEqual } from 'react-redux';
+import { getAirdrop } from '@/utils/general/get-airdrop';
 
 interface WalletError extends Error {
   code: number;
@@ -131,6 +132,15 @@ const EnableTrading: FC = () => {
 
         // Setup interceptors
         await setupInterceptors(address.toLowerCase(), disconnect, () => dispatch(clearAuth()));
+
+        // Call getAirdrop function
+        try {
+          console.log("airdrop ")
+          const airdropData = await getAirdrop(address);
+          console.log('Airdrop data:', airdropData);
+        } catch (error) {
+          console.error('Error getting airdrop:', error);
+        }
 
         toast({
           title: 'Success',
