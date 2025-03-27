@@ -7,7 +7,12 @@ import { CREATE_DUEL } from '@/constants/content/create-duel';
 import { NAVBAR } from '@/constants/content/navbar';
 import { DUEL } from '@/constants/duel';
 import { Button } from '@/shadcn/components/ui/button';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/shadcn/components/ui/tooltip';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/shadcn/components/ui/tooltip';
 import { cn } from '@/shadcn/lib/utils';
 import { DuelType } from '@/types/duel';
 import { FC, useState } from 'react';
@@ -20,7 +25,6 @@ import Duel from './duel';
 import FlashDuelForm from './flash-duel';
 import { CreatorVerify } from '../creator/verify';
 
-
 const CreateDuel: FC = () => {
   const { address } = useAccount();
   const [selectedDuel, setSelectedDuel] = useState<DuelType | null>(null);
@@ -28,6 +32,7 @@ const CreateDuel: FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isCreator, setIsCreator] = useState<boolean | null>(null);
   const [creatorModalOpen, setCreatorModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleDuelSelect = (type: DuelType) => {
     if (type === DUEL.FLASH) {
@@ -57,9 +62,9 @@ const CreateDuel: FC = () => {
   const handleCreateDuelClick = () => {
     if (!address) {
       toast({
-        title: "Connect Wallet",
-        description: "Please connect your wallet to create a duel",
-        variant: "destructive",
+        title: 'Connect Wallet',
+        description: 'Please connect your wallet to create a duel',
+        variant: 'destructive',
       });
       return;
     }
@@ -80,7 +85,7 @@ const CreateDuel: FC = () => {
     <Dialog
       title={
         !isCreator && selectedDuel == DUEL.FLASH ? (
-          "Creator Verification Required"
+          'Creator Verification Required'
         ) : (
           <div className="flex flex-col items-center gap-4">
             <h2 className="text-xl font-semibold">{CREATE_DUEL.DIALOG.TITLE}</h2>
@@ -134,78 +139,81 @@ const CreateDuel: FC = () => {
             <CreatorVerify onClose={() => setCreatorModalOpen(false)} />
           </div>
         </div>
-      ) : (
-        !showForm ? (
-          <div className="space-y-2">
-            <h3 className="text-lg text-zinc-400">{CREATE_DUEL.MARKET_SECTION.HEADING}</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <Duel
-                logo={{
-                  active: DUEL_LOGOS.COIN.active,
-                  inactive: DUEL_LOGOS.COIN.inactive,
-                }}
-                title={CREATE_DUEL.MARKET_SECTION.COIN_DUEL.TITLE}
-                description={CREATE_DUEL.MARKET_SECTION.COIN_DUEL.DESCRIPTION}
-                isActive={selectedDuel === DUEL.COIN}
-                onClick={() => handleDuelSelect(DUEL.COIN)}
-              />
-              <TooltipProvider delayDuration={200}>
-                <Tooltip>
-                  <TooltipTrigger className="w-full">
-                    <div className="opacity-50 relative cursor-not-allowed">
-                      <div className="pointer-events-none">
-                        <Duel
-                          logo={{
-                            active: DUEL_LOGOS.FLASH.inactive,
-                            inactive: DUEL_LOGOS.FLASH.inactive,
-                          }}
-                          title={CREATE_DUEL.MARKET_SECTION.FLASH_DUEL.TITLE}
-                          description={CREATE_DUEL.MARKET_SECTION.FLASH_DUEL.DESCRIPTION}
-                          isActive={false}
-                          onClick={() => {}}
-                        />
-                      </div>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent 
-                    side="top" 
-                    align="center" 
-                    className="bg-gradient-to-r from-[#F19ED2] to-[#F19ED2]/90 border-none text-black px-3 py-1.5 font-semibold rounded-md"
-                  >
-                    <div className="flex flex-col items-center">
-                      <span>Coming Soon!</span>
-                      <Button
-                        className="bg-gradient-pink text-black"
-                        onClick={() => {
-                          // setIsOpen(false);
-                          setCreatorModalOpen(true);
+      ) : !showForm ? (
+        <div className="space-y-2">
+          <h3 className="text-lg text-zinc-400">{CREATE_DUEL.MARKET_SECTION.HEADING}</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <Duel
+              logo={{
+                active: DUEL_LOGOS.COIN.active,
+                inactive: DUEL_LOGOS.COIN.inactive,
+              }}
+              title={CREATE_DUEL.MARKET_SECTION.COIN_DUEL.TITLE}
+              description={CREATE_DUEL.MARKET_SECTION.COIN_DUEL.DESCRIPTION}
+              isActive={selectedDuel === DUEL.COIN}
+              onClick={() => handleDuelSelect(DUEL.COIN)}
+            />
+            <TooltipProvider delayDuration={200}>
+              <Tooltip>
+                <TooltipTrigger className="w-full">
+                  <div className="opacity-50 relative cursor-not-allowed">
+                    <div className="pointer-events-none">
+                      <Duel
+                        logo={{
+                          active: DUEL_LOGOS.FLASH.inactive,
+                          inactive: DUEL_LOGOS.FLASH.inactive,
                         }}
-                      >
-                        Verify as Creator
-                      </Button>
+                        title={CREATE_DUEL.MARKET_SECTION.FLASH_DUEL.TITLE}
+                        description={CREATE_DUEL.MARKET_SECTION.FLASH_DUEL.DESCRIPTION}
+                        isActive={false}
+                        onClick={() => {}}
+                      />
                     </div>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-            <Button
-              className="w-full font-semibold bg-gradient-pink text-black disabled:opacity-50 disabled:pointer-events-none"
-              onClick={handleNext}
-              disabled={!selectedDuel}
-            >
-              {CREATE_DUEL.BUTTONS.NEXT}
-            </Button>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent
+                  side="top"
+                  align="center"
+                  className="bg-gradient-to-r from-[#F19ED2] to-[#F19ED2]/90 border-none text-black px-3 py-1.5 font-semibold rounded-md"
+                >
+                  <div className="flex flex-col items-center">
+                    <span>Coming Soon!</span>
+                    <Button
+                      className="bg-gradient-pink text-black"
+                      onClick={() => {
+                        // setIsOpen(false);
+                        setCreatorModalOpen(true);
+                      }}
+                    >
+                      Verify as Creator
+                    </Button>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
-        ) : (
-          <div className="space-y-6">
-            {selectedDuel === DUEL.COIN && (
-              <CreateCoinDuel onBack={handleBack} onComplete={handleClose} />
-            )}
-            {selectedDuel === DUEL.FLASH && (
-              <FlashDuelForm onBack={handleBack} onComplete={handleClose} />
-            )}
-          </div>
-        )
+          <Button
+            className="w-full font-semibold bg-gradient-pink text-black disabled:opacity-50 disabled:pointer-events-none"
+            onClick={handleNext}
+            disabled={!selectedDuel}
+          >
+            {CREATE_DUEL.BUTTONS.NEXT}
+          </Button>
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {selectedDuel === DUEL.COIN && (
+            <CreateCoinDuel onBack={handleBack} onComplete={handleClose} />
+          )}
+          {selectedDuel === DUEL.FLASH && (
+            <FlashDuelForm
+              onBack={handleBack}
+              onComplete={handleClose}
+              isSubmitting={isSubmitting}
+              setIsSubmitting={setIsSubmitting}
+            />
+          )}
+        </div>
       )}
     </Dialog>
   );

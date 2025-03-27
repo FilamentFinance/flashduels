@@ -4,7 +4,7 @@ import { baseApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
 import { TRANSACTION_STATUS } from '@/constants/app';
 import {
-  DUEL_DURATION,
+  // DUEL_DURATION,
   DUEL_TYPE,
   DURATIONS,
   OPTIONS,
