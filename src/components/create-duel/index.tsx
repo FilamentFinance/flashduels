@@ -15,7 +15,7 @@ import {
 } from '@/shadcn/components/ui/tooltip';
 import { cn } from '@/shadcn/lib/utils';
 import { DuelType } from '@/types/duel';
-import { FC, useState } from 'react';
+import { FC, useState, useEffect } from 'react';
 import { useAccount } from 'wagmi';
 import { baseApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
@@ -33,14 +33,43 @@ const CreateDuel: FC = () => {
   const [isCreator, setIsCreator] = useState<boolean | null>(null);
   const [creatorModalOpen, setCreatorModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [requestStatus, setRequestStatus] = useState<string | null>(null);
+
+  const checkCreatorStatus = async () => {
+    if (!address) {
+      setIsCreator(null);
+      setRequestStatus(null);
+      return;
+    }
+    try {
+      setLoading(true);
+      const response = await baseApiClient.get(`${SERVER_CONFIG.API_URL}/user/creator/status`, {
+        params: {
+          address: address.toLowerCase()
+        }
+      });
+      console.log("response", response);
+      setIsCreator(response.data.isCreator);
+      setRequestStatus(response.data.request);
+    } catch (error) {
+      console.error("Error checking creator status:", error);
+      setIsCreator(false);
+      setRequestStatus(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Call checkCreatorStatus when the component mounts or address changes
+  useEffect(() => {
+    checkCreatorStatus();
+  }, [address]);
 
   const handleDuelSelect = (type: DuelType) => {
-    if (type === DUEL.FLASH) {
-      if (!isCreator) {
-        setIsOpen(true); // Open the modal for verification
-        return;
-      }
-      return; // Prevent selection of Flash Duel if not a creator
+    if (type === DUEL.FLASH && !isCreator) {
+      setIsOpen(true); // Open the modal for verification
+      return;
     }
     setSelectedDuel(type);
   };
@@ -120,21 +149,6 @@ const CreateDuel: FC = () => {
     >
       {(!isCreator && selectedDuel == DUEL.FLASH) || creatorModalOpen ? (
         <div className="space-y-4">
-          {/* requestStatus ? (
-            requestStatus.status === "pending" ? (
-              <p className="text-sm text-muted-foreground">
-                Creating a duel requires creator verification. Your request is being reviewed and you will be able to start creating duels once it&apos;s accepted.
-              </p>
-            ) : requestStatus.status === "rejected" ? (
-              <p className="text-sm text-muted-foreground">
-                Your creator verification request was rejected. Please try again. You have {REJECTION_LIMIT - requestStatus.rejectionCount} attempts left.
-              </p>
-            ) : null
-          ) : (
-            <p className="text-sm text-muted-foreground">
-              You need to be a verified creator to create duels on the platform.
-            </p>
-          ) */}
           <div className="flex justify-center">
             <CreatorVerify onClose={() => setCreatorModalOpen(false)} />
           </div>
@@ -156,39 +170,40 @@ const CreateDuel: FC = () => {
             <TooltipProvider delayDuration={200}>
               <Tooltip>
                 <TooltipTrigger className="w-full">
-                  <div className="opacity-50 relative cursor-not-allowed">
-                    <div className="pointer-events-none">
+                  <div className={`relative ${isCreator ? '' : 'opacity-50 cursor-not-allowed'}`}>
+                    <div className={isCreator ? '' : 'pointer-events-none'}>
                       <Duel
                         logo={{
-                          active: DUEL_LOGOS.FLASH.inactive,
+                          active: isCreator ? DUEL_LOGOS.FLASH.active : DUEL_LOGOS.FLASH.inactive,
                           inactive: DUEL_LOGOS.FLASH.inactive,
                         }}
                         title={CREATE_DUEL.MARKET_SECTION.FLASH_DUEL.TITLE}
                         description={CREATE_DUEL.MARKET_SECTION.FLASH_DUEL.DESCRIPTION}
-                        isActive={false}
-                        onClick={() => {}}
+                        isActive={selectedDuel === DUEL.FLASH}
+                        onClick={() => handleDuelSelect(DUEL.FLASH)}
                       />
                     </div>
                   </div>
                 </TooltipTrigger>
-                <TooltipContent
-                  side="top"
-                  align="center"
-                  className="bg-gradient-to-r from-[#F19ED2] to-[#F19ED2]/90 border-none text-black px-3 py-1.5 font-semibold rounded-md"
-                >
-                  <div className="flex flex-col items-center">
-                    <span>Coming Soon!</span>
-                    <Button
-                      className="bg-gradient-pink text-black"
-                      onClick={() => {
-                        // setIsOpen(false);
-                        setCreatorModalOpen(true);
-                      }}
-                    >
-                      Verify as Creator
-                    </Button>
-                  </div>
-                </TooltipContent>
+                {!isCreator && (
+                  <TooltipContent
+                    side="top"
+                    align="center"
+                    className="bg-gradient-to-r from-[#F19ED2] to-[#F19ED2]/90 border-none text-black px-3 py-1.5 font-semibold rounded-md"
+                  >
+                    <div className="flex flex-col items-center">
+                      <span>Coming Soon!</span>
+                      <Button
+                        className="bg-gradient-pink text-black"
+                        onClick={() => {
+                          setCreatorModalOpen(true);
+                        }}
+                      >
+                        Verify as Creator
+                      </Button>
+                    </div>
+                  </TooltipContent>
+                )}
               </Tooltip>
             </TooltipProvider>
           </div>
