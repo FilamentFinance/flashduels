@@ -18,11 +18,11 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
   const [timeLeft, setTimeLeft] = useState<string>('');
 
   const getIconPath = () => {
-    if (duelType === 'COIN_DUEL') {
+    if (duelType === 'COIN_DUEL' && title) {
       const symbol = title.split(' ')[1];
-      return `/crypto-icons/light/crypto-${symbol.toLowerCase()}-usd.inline.svg`;
+      return symbol ? `/crypto-icons/light/crypto-${symbol.toLowerCase()}-usd.inline.svg` : null;
     }
-    return '';
+    return null;
   };
 
   const iconPath = getIconPath();
@@ -82,7 +82,7 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
     >
       <div className="flex items-center gap-4">
         <div className="relative w-14 h-14">
-          {duelType === 'COIN_DUEL' ? (
+          {duelType === 'COIN_DUEL' && iconPath && iconPath.startsWith('/') ? (
             <Image
               src={iconPath}
               alt={title.split(' ')[1]}
@@ -90,6 +90,17 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
               className="rounded-full"
               onError={(e) => {
                 console.error('Error loading crypto image:', iconPath);
+                e.currentTarget.style.display = 'none';
+              }}
+            />
+          ) : data.imageSrc && data.imageSrc.startsWith('http') ? (
+            <Image
+              src={data.imageSrc}
+              alt="Duel Image"
+              fill
+              className="rounded-full object-cover"
+              onError={(e) => {
+                console.error('Error loading duel image:', data.imageSrc);
                 e.currentTarget.style.display = 'none';
               }}
             />

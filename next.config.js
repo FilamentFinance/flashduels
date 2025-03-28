@@ -1,5 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  images: {
+    domains: [
+      'flashduel-images.s3.us-east-1.amazonaws.com'  // Add your S3 bucket domain
+    ],
+  },
   headers: async () => {
     return process.env.NEXT_PUBLIC_PRODUCTION === 'production'
       ? [] // No additional headers in production

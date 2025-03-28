@@ -51,6 +51,7 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<string>(CATEGORIES['ALL_DUELS'].title);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const { address } = useAccount();
   const { status, error, isApprovalMining, isDuelMining, createFlashDuel, isComplete } =
     useCreateFlashDuel();
@@ -72,7 +73,7 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
         const duelData = {
           type: DUEL_TYPE.FLASH_DUEL,
           category: selectedCategory,
-          betIcon: selectedImage,
+          betIcon: imageUrl,
           betString: duelText,
           minimumWager: '',
           endsIn: DURATIONS[durationNumber],
@@ -131,15 +132,39 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
       const durationNumber = mapDurationToNumber(selectedDuration);
       const duelText = (document.getElementById('duelText') as HTMLTextAreaElement)?.value || '';
 
+      // First, get the presigned URL for the image upload
+      if (selectedImage) {
+        const fileName = `${Date.now()}-${selectedImage.name}`;
+        const presignedUrlResponse = await baseApiClient.post(
+          `${SERVER_CONFIG.API_URL}/user/aws/generate-presigned-url`,
+          {
+            fileName,
+            fileType: selectedImage.type,
+            userAddress: address?.toLowerCase(),
+          },
+        );
+
+        // Trim the URL to get the base S3 path
+        const fullUrl = presignedUrlResponse.data.url;
+        const imageUrl = fullUrl.split('?')[0];
+        setImageUrl(imageUrl);
+        // Upload the image directly to S3 using the presigned URL
+        await fetch(presignedUrlResponse.data.url, {
+          method: 'PUT',
+          body: selectedImage,
+          headers: {
+            'Content-Type': selectedImage.type,
+          },
+        });
+      }
+
       const createDuelData = {
         topic: duelText,
         category: categoryEnumIndex,
         duration: durationNumber,
         options: OPTIONS,
       };
-      console.log("callin createFlashDuel")
       await createFlashDuel(createDuelData);
-      console.log('createFlashDuel completed, current status:', status);
     } catch (error) {
       console.error('Error in handleCreateFlashDuel:', error);
       onComplete();

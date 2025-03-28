@@ -12,7 +12,8 @@ type Props = {
   liquidity?: string;
   endsIn: string;
   percentage?: number;
-  duelType?: 'COIN_DUEL' | string;
+  duelType?: 'COIN_DUEL' | 'FLASH_DUEL';
+  imageSrc?: string;
 };
 
 const Header: FC<Props> = ({
@@ -23,6 +24,7 @@ const Header: FC<Props> = ({
   endsIn,
   percentage,
   duelType,
+  imageSrc,
 }) => {
   let symbol, iconPath;
   if (duelType === 'COIN_DUEL') {
@@ -35,17 +37,35 @@ const Header: FC<Props> = ({
       <div className="flex justify-between items-stretch w-full">
         {/* Back Button and Logo */}
         <div className="flex items-center gap-4 mx-2">
-          {duelType === 'COIN_DUEL' ? (
-            <div>
+          <div className="relative w-12 h-12">
+            {duelType === 'COIN_DUEL' && iconPath ? (
               <Image
-                src={iconPath || ''}
+                src={iconPath}
                 alt={title}
-                width={48}
-                height={48}
+                fill
                 className="rounded-full object-cover"
+                onError={(e) => {
+                  console.error('Error loading crypto image:', iconPath);
+                  e.currentTarget.style.display = 'none';
+                }}
               />
-            </div>
-          ) : null}
+            ) : duelType === 'FLASH_DUEL' && imageSrc ? (
+              <Image
+                src={imageSrc}
+                alt="Duel Image"
+                fill
+                className="rounded-full object-cover"
+                onError={(e) => {
+                  console.error('Error loading duel image:', imageSrc);
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
+            ) : (
+              <div className="w-full h-full rounded-full bg-zinc-800 flex items-center justify-center">
+                <span className="text-zinc-400">?</span>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Title and Details Button */}
