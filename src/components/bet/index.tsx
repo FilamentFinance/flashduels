@@ -34,7 +34,9 @@ const Bet: FC = () => {
   const getIconPath = (symbol: string | undefined) => {
     if (!symbol) return '/empty-string.png';
     const baseSymbol = symbol.split('.')[1]?.split('/')[0]?.toLowerCase();
-    return baseSymbol ? `/crypto-icons/light/crypto-${baseSymbol}-usd.inline.svg` : '/empty-string.png';
+    return baseSymbol
+      ? `/crypto-icons/light/crypto-${baseSymbol}-usd.inline.svg`
+      : '/empty-string.png';
   };
 
   const fetchDuel = async () => {
@@ -197,6 +199,8 @@ const Bet: FC = () => {
             liquidity={duel.totalBetAmount.toString()}
             endsIn={timeLeft}
             percentage={displayPercentage}
+            duelType={duel.duelType as 'COIN_DUEL' | 'FLASH_DUEL'}
+            imageSrc={duel.betIcon}
           />
           <OrderBook yesBets={yesBets} noBets={noBets} handleBuyOrders={handleBuyOrders} />
           <OrdersHistory duelId={duel.duelId} />
