@@ -137,7 +137,7 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
         duration: durationNumber,
         options: OPTIONS,
       };
-
+      console.log("callin createFlashDuel")
       await createFlashDuel(createDuelData);
       console.log('createFlashDuel completed, current status:', status);
     } catch (error) {

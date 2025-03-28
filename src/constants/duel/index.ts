@@ -37,6 +37,7 @@ export const DUEL_STATUS = {
   LIVE: 'Live',
   BOOTSTRAPPING: 'Bootstrapping',
   COMPLETED: 'Completed',
+  YET_TO_BE_RESOLVED: 'Yet To Be Resolved'
 } as const;
 
 export const POSITION = {

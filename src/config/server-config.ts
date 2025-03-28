@@ -22,7 +22,8 @@ const createConfig = (): ServerConfig => {
   const timerBotUrl = process.env.NEXT_PUBLIC_TIMER_BOT_URL as string;
   const timerBotUrlProduction = process.env.NEXT_PUBLIC_TIMER_BOT_URL_PRODUCTION as string;
   const diamond = process.env.NEXT_PUBLIC_DIAMOND as string;
-  const flashUsdc = process.env.NEXT_PUBLIC_FLASH_USDC as string;
+  // const flashUsdc = process.env.NEXT_PUBLIC_FLASH_USDC as string;
+  const flashUsdc = process.env.NEXT_PUBLIC_FLASH_CREDITS as string;
   const walletConnectProjectId = process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID as string;
   const inviteOnlyLocalUrl = process.env.NEXT_PUBLIC_INVITE_ONLY_LOCAL_URL as string;
   const inviteOnlyProductionUrl = process.env.NEXT_PUBLIC_INVITE_ONLY_PRODUCTION_URL as string;
@@ -38,7 +39,8 @@ const createConfig = (): ServerConfig => {
   if (!timerBotUrl) missingVars.push('NEXT_PUBLIC_TIMER_BOT_URL');
   if (!timerBotUrlProduction) missingVars.push('NEXT_PUBLIC_TIMER_BOT_URL_PRODUCTION');
   if (!diamond) missingVars.push('NEXT_PUBLIC_DIAMOND');
-  if (!flashUsdc) missingVars.push('NEXT_PUBLIC_FLASH_USDC');
+  // if (!flashUsdc) missingVars.push('NEXT_PUBLIC_FLASH_USDC');
+  if (!flashUsdc) missingVars.push('NEXT_PUBLIC_FLASH_CREDITS');
   if (!walletConnectProjectId) missingVars.push('NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID');
   if (!inviteOnlyProductionUrl) missingVars.push('NEXT_PUBLIC_INVITE_ONLY_PRODUCTION_URL');
   if (!inviteOnlyLocalUrl) missingVars.push('NEXT_PUBLIC_INVITE_ONLY_LOCAL_URL');
