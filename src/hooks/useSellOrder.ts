@@ -132,8 +132,9 @@ const useSellOrder = (
       // Convert quantity to wei (18 decimals)
       const quantityInWei = parseUnits(quantity, 18);
 
-      // Calculate total value in USDC (6 decimals)
-      const totalValue = parseUnits((Number(price) * Number(quantity)).toString(), 6);
+      // Calculate total value in USDC (6 decimals) @CRD is 18 dec
+      // const totalValue = parseUnits((Number(price) * Number(quantity)).toString(), 6);
+      const totalValue = parseUnits((Number(price) * Number(quantity)).toString(), 18);
 
       // Check current allowance
       const allowanceResult = await publicClient?.readContract({
@@ -224,7 +225,8 @@ const useSellOrder = (
                 continue;
               }
 
-              const amountFilled = Number(formatUnits(totalPrice, 6));
+              // const amountFilled = Number(formatUnits(totalPrice, 6));
+              const amountFilled = Number(formatUnits(totalPrice, 18)); // CRD is 18 decimals
 
               setStatus(TRANSACTION_STATUS.DUEL_COMPLETE);
               toast({

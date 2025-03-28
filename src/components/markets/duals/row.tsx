@@ -9,11 +9,11 @@ import YesNoButton from './yes-no-button';
 interface Props {
   data: Duel;
   onClick: () => void;
-  onPositionSelect: (duelId: string, position: Position) => void;
+  onPositionSelect: (duelId: string, position: Position, status: number) => void;
 }
 
 const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
-  const { title, volume, status, winner, duelType } = data;
+  const { title, volume, status, winner, duelType, duelId } = data;
   const { totalBetYes, totalBetNo } = useTotalBets(data.duelId);
   const [timeLeft, setTimeLeft] = useState<string>('');
 
@@ -125,7 +125,7 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
             position="YES"
             onClick={(e: React.MouseEvent) => {
               e.stopPropagation();
-              onPositionSelect(data.duelId, 'YES');
+              onPositionSelect(duelId, 'YES', status);
             }}
             // disabled={status === -1}
           />
@@ -133,7 +133,7 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
             position="NO"
             onClick={(e: React.MouseEvent) => {
               e.stopPropagation();
-              onPositionSelect(data.duelId, 'NO');
+              onPositionSelect(duelId, 'NO', status);
             }}
             // disabled={status === -1}
           />

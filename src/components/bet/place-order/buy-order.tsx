@@ -103,7 +103,8 @@ const BuyOrder: FC<BuyOrderProps> = ({
         return;
       }
 
-      const maxAmount = Number(formatUnits((balance ?? 0) as bigint, 6));
+      // const maxAmount = Number(formatUnits((balance ?? 0) as bigint, 6));
+      const maxAmount = Number(formatUnits((balance ?? 0) as bigint, 18)); // CRD is 18 dec 
       if (Number(cleanValue) > maxAmount) {
         setError(`Cannot bet more than your available balance: ${maxAmount}`);
         return;
@@ -121,7 +122,8 @@ const BuyOrder: FC<BuyOrderProps> = ({
   }, [amount, localPosition, yesPrice, noPrice]);
 
   const handleMaxClick = useCallback(() => {
-    const maxAmount = formatUnits((balance ?? 0) as bigint, 6);
+    // const maxAmount = formatUnits((balance ?? 0) as bigint, 6);
+    const maxAmount = formatUnits((balance ?? 0) as bigint, 18); // CRD is 18 decimal
     validateAndSetAmount(maxAmount);
   }, [balance, validateAndSetAmount]);
 
@@ -133,7 +135,8 @@ const BuyOrder: FC<BuyOrderProps> = ({
 
     setIsJoiningDuel(true);
     try {
-      const parsedAmount = parseUnits(amount, 6);
+      // const parsedAmount = parseUnits(amount, 6);
+      const parsedAmount = parseUnits(amount, 18); // crd, todo @need to convert back to 6 for usdc
       const { success } = await joinDuel(parsedAmount);
 
       if (success) {
@@ -200,7 +203,8 @@ const BuyOrder: FC<BuyOrderProps> = ({
       // if (!hasAllowance) {
       // if (!hasAllowance) {
       // Request token approval if needed
-      await requestAllowance(parseUnits(amount, 6));
+      // await requestAllowance(parseUnits(amount, 6));
+      await requestAllowance(parseUnits(amount, 18)); // CRD is 18 decimals
       toast({
         title: 'Approval Successful',
         description: 'Token approval completed. You can now place your order.',
@@ -343,7 +347,8 @@ const BuyOrder: FC<BuyOrderProps> = ({
               Amount
             </Label>
             <div className="text-zinc-400 text-sm">
-              Available: {formatUnits((balance ?? 0) as bigint, 6)}{' '}
+              {/* Available: {formatUnits((balance ?? 0) as bigint, 6)}{' '} */}
+              Available: {formatUnits((balance ?? 0) as bigint, 18)}{' '}
               <button
                 onClick={handleMaxClick}
                 disabled={isLoading}

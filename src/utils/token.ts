@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { FLASHUSDC } from '@/abi/FLASHUSDC';
+// import { FLASHUSDC } from '@/abi/FLASHUSDC';
+import { FLASHDUELS_CREDITS_ABI } from '@/abi/FlashDuelCredit';
 import { SERVER_CONFIG } from '@/config/server-config';
 import { SEI_TESTNET_CHAIN_ID } from '@/constants/app';
 import { Hex } from 'viem';
@@ -24,10 +25,26 @@ export const useTokenApproval = () => {
   // };
 
   const requestAllowance = async (amount: bigint) => {
+  // for flashUSDC
+  //   const tx = await writeContractAsync({
+  //     abi: FLASHUSDC,
+  //     address: SERVER_CONFIG.FLASH_USDC as Hex,
+  //     functionName: 'increaseAllowance',
+  //     chainId: SEI_TESTNET_CHAIN_ID,
+  //     // args: [SERVER_CONFIG.DIAMOND as Hex, amount || REQUIRED_ALLOWANCE],
+  //     args: [SERVER_CONFIG.DIAMOND as Hex, amount],
+  //   });
+
+  //   if (!tx) throw new Error('Failed to send approval transaction');
+  //   return tx;
+  // };
+
+
+    // for CRD use
     const tx = await writeContractAsync({
-      abi: FLASHUSDC,
-      address: SERVER_CONFIG.FLASH_USDC as Hex,
-      functionName: 'increaseAllowance',
+      abi: FLASHDUELS_CREDITS_ABI,
+      address: SERVER_CONFIG.CREDIT_CONTRACT as Hex,
+      functionName: 'approve',
       chainId: SEI_TESTNET_CHAIN_ID,
       // args: [SERVER_CONFIG.DIAMOND as Hex, amount || REQUIRED_ALLOWANCE],
       args: [SERVER_CONFIG.DIAMOND as Hex, amount],
@@ -36,6 +53,7 @@ export const useTokenApproval = () => {
     if (!tx) throw new Error('Failed to send approval transaction');
     return tx;
   };
+
 
   return {
     // allowance,
