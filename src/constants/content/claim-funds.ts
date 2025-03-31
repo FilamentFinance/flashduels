@@ -4,7 +4,7 @@ export const CLAIM_FUNDS = {
   },
   TRIGGER: {
     DEFAULT_AMOUNT: '$0.00',
-    CLAIM_TEXT: 'Claim',
+    CLAIM_TEXT: 'Withdraw',
   },
   AMOUNT_SECTION: {
     LABEL: 'Amount',
