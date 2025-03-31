@@ -9,6 +9,7 @@ interface ServerConfig {
   WALLET_CONNECT_PROJECT_ID: string;
   INVITE_ONLY_URL: string;
   BOT_PRIVATE_KEY: string;
+  CREDIT_CONTRACT: string;
 }
 
 const createConfig = (): ServerConfig => {
@@ -21,11 +22,13 @@ const createConfig = (): ServerConfig => {
   const timerBotUrl = process.env.NEXT_PUBLIC_TIMER_BOT_URL as string;
   const timerBotUrlProduction = process.env.NEXT_PUBLIC_TIMER_BOT_URL_PRODUCTION as string;
   const diamond = process.env.NEXT_PUBLIC_DIAMOND as string;
-  const flashUsdc = process.env.NEXT_PUBLIC_FLASH_USDC as string;
+  // const flashUsdc = process.env.NEXT_PUBLIC_FLASH_USDC as string;
+  const flashUsdc = process.env.NEXT_PUBLIC_FLASH_CREDITS as string;
   const walletConnectProjectId = process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID as string;
   const inviteOnlyLocalUrl = process.env.NEXT_PUBLIC_INVITE_ONLY_LOCAL_URL as string;
   const inviteOnlyProductionUrl = process.env.NEXT_PUBLIC_INVITE_ONLY_PRODUCTION_URL as string;
   const botPrivateKey = process.env.NEXT_PUBLIC_PRIVATE_KEY as string;
+  const creditContract = process.env.NEXT_PUBLIC_FLASH_CREDITS as string;
   // Validate required environment variables
   const missingVars = [];
   if (!rpcUrl) missingVars.push('NEXT_PUBLIC_RPC_URL');
@@ -36,7 +39,8 @@ const createConfig = (): ServerConfig => {
   if (!timerBotUrl) missingVars.push('NEXT_PUBLIC_TIMER_BOT_URL');
   if (!timerBotUrlProduction) missingVars.push('NEXT_PUBLIC_TIMER_BOT_URL_PRODUCTION');
   if (!diamond) missingVars.push('NEXT_PUBLIC_DIAMOND');
-  if (!flashUsdc) missingVars.push('NEXT_PUBLIC_FLASH_USDC');
+  // if (!flashUsdc) missingVars.push('NEXT_PUBLIC_FLASH_USDC');
+  if (!flashUsdc) missingVars.push('NEXT_PUBLIC_FLASH_CREDITS');
   if (!walletConnectProjectId) missingVars.push('NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID');
   if (!inviteOnlyProductionUrl) missingVars.push('NEXT_PUBLIC_INVITE_ONLY_PRODUCTION_URL');
   if (!inviteOnlyLocalUrl) missingVars.push('NEXT_PUBLIC_INVITE_ONLY_LOCAL_URL');
@@ -44,6 +48,7 @@ const createConfig = (): ServerConfig => {
   if (missingVars.length > 0) {
     throw new Error(`Missing required environment variables: ${missingVars.join(', ')}`);
   }
+
 
   return {
     PRODUCTION: production,
@@ -56,6 +61,7 @@ const createConfig = (): ServerConfig => {
     WALLET_CONNECT_PROJECT_ID: walletConnectProjectId,
     INVITE_ONLY_URL: production ? inviteOnlyProductionUrl : inviteOnlyLocalUrl,
     BOT_PRIVATE_KEY: botPrivateKey,
+    CREDIT_CONTRACT: creditContract
   };
 };
 

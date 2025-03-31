@@ -9,13 +9,24 @@ import YesNoButton from './yes-no-button';
 interface Props {
   data: Duel;
   onClick: () => void;
-  onPositionSelect: (duelId: string, position: Position) => void;
+  onPositionSelect: (duelId: string, position: Position, status: number) => void;
 }
 
 const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
-  const { title, volume, status, winner } = data;
+  const { title, volume, status, winner, duelType, duelId } = data;
   const { totalBetYes, totalBetNo } = useTotalBets(data.duelId);
   const [timeLeft, setTimeLeft] = useState<string>('');
+
+  const getIconPath = () => {
+    if (duelType === 'COIN_DUEL' && title) {
+      const symbol = title.split(' ')[1];
+      return symbol ? `/crypto-icons/light/crypto-${symbol.toLowerCase()}-usd.inline.svg` : null;
+    }
+    return null;
+  };
+
+  const iconPath = getIconPath();
+
   useEffect(() => {
     const calculateTimeLeft = () => {
       if (status === -1) {
@@ -64,9 +75,6 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
     ? data.percentage
     : Number(calculatedPercentage.toFixed(2));
 
-  // Extract symbol from title (e.g., "BTC Price" -> "BTC")
-  const symbol = title.split(' ')[1];
-  const iconPath = `/crypto-icons/light/crypto-${symbol.toLowerCase()}-usd.inline.svg`;
   return (
     <Card
       className="flex items-center justify-between p-3 bg-zinc-900 border-zinc-800 hover:bg-zinc-900/90 transition-colors cursor-pointer"
@@ -74,15 +82,33 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
     >
       <div className="flex items-center gap-4">
         <div className="relative w-14 h-14">
-          <Image
-            src={iconPath}
-            alt={symbol}
-            fill
-            className="rounded-full "
-            onError={(e) => {
-              e.currentTarget.style.display = 'none';
-            }}
-          />
+          {duelType === 'COIN_DUEL' && iconPath && iconPath.startsWith('/') ? (
+            <Image
+              src={iconPath}
+              alt={title.split(' ')[1]}
+              fill
+              className="rounded-full"
+              onError={(e) => {
+                console.error('Error loading crypto image:', iconPath);
+                e.currentTarget.style.display = 'none';
+              }}
+            />
+          ) : data.imageSrc && data.imageSrc.startsWith('http') ? (
+            <Image
+              src={data.imageSrc}
+              alt="Duel Image"
+              fill
+              className="rounded-full object-cover"
+              onError={(e) => {
+                console.error('Error loading duel image:', data.imageSrc);
+                e.currentTarget.style.display = 'none';
+              }}
+            />
+          ) : (
+            <div className="w-full h-full rounded-full bg-zinc-800 flex items-center justify-center">
+              <span className="text-zinc-400">?</span>
+            </div>
+          )}
         </div>
 
         <div className="flex flex-col">
@@ -110,7 +136,7 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
             position="YES"
             onClick={(e: React.MouseEvent) => {
               e.stopPropagation();
-              onPositionSelect(data.duelId, 'YES');
+              onPositionSelect(duelId, 'YES', status);
             }}
             // disabled={status === -1}
           />
@@ -118,7 +144,7 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
             position="NO"
             onClick={(e: React.MouseEvent) => {
               e.stopPropagation();
-              onPositionSelect(data.duelId, 'NO');
+              onPositionSelect(duelId, 'NO', status);
             }}
             // disabled={status === -1}
           />

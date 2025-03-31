@@ -9,16 +9,17 @@ import axios from 'axios';
 import { FC, useEffect } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { useAccount } from 'wagmi';
-import ClaimFaucet from '../claim-faucet';
+// import ClaimFaucet from '../claim-faucet';
 import ClaimFunds from '../claim-funds';
 import CreateDuel from '../create-duel';
-import Balance from './balance';
+// import Balance from './balance';
 import { ConnectButton } from './connectButton';
 import EnableTrading from './enableTrading';
 import Logo from './logo';
 import NavLink from './navLink';
 import { WalletModal } from './wallet-modal';
 import GetGas from '../claim-faucet/get-gas';
+import ClaimAirdropButton from './claimAirdrop';
 
 const Navbar: FC = () => {
   const { address, isConnected } = useAccount();
@@ -61,8 +62,9 @@ const Navbar: FC = () => {
         {isConnected && address ? (
           <div className="flex gap-2">
             <ClaimFunds />
-            <Balance />
-            <ClaimFaucet />
+            {/* <Balance /> */}
+            <ClaimAirdropButton />
+            {/* <ClaimFaucet /> */}
             <EnableTrading />
             <GetGas />
             {isAuthenticated && <CreateDuel />}

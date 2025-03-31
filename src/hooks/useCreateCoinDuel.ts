@@ -9,7 +9,8 @@ import { Hex } from 'viem';
 import { usePublicClient, useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
 import { ethers } from 'ethers';
 
-export const REQUIRED_CREATE_DUEL_USDC = BigInt(5 * 10 ** 6);
+// export const REQUIRED_CREATE_DUEL_USDC = BigInt(5 * 10 ** 6);
+export const REQUIRED_CREATE_DUEL_USDC = BigInt(5 * 10 ** 18); // crd 18
 interface CreateCoinDuelParams {
   symbol: string;
   options: string[];

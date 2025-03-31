@@ -5,8 +5,8 @@ import DuelRow from './row';
 
 type Props = {
   data: Duel[];
-  handleDuelRowClick: (duelId: string) => void;
-  onPositionSelect: (duelId: string, position: Position) => void;
+  handleDuelRowClick: (duelId: string, status: number) => void;
+  onPositionSelect: (duelId: string, position: Position, status: number) => void;
 };
 
 const Duels: FC<Props> = ({ data, handleDuelRowClick, onPositionSelect }) => {
@@ -21,7 +21,7 @@ const Duels: FC<Props> = ({ data, handleDuelRowClick, onPositionSelect }) => {
           <DuelRow
             key={duel.duelId}
             data={duel}
-            onClick={() => handleDuelRowClick(duel.duelId)}
+            onClick={() => handleDuelRowClick(duel.duelId, duel.status)}
             onPositionSelect={onPositionSelect}
           />
         ))}

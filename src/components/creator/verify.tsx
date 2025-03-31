@@ -190,6 +190,7 @@ export const CreatorVerify = ({ onClose }: { onClose: () => void }) => {
     }
     const tokenParam = token ? `?token=${token.replace('Bearer ', '')}` : '';
     window.location.href = `${SERVER_CONFIG.API_URL}/user/auth/connect-twitter${tokenParam}`;
+    // window.location.href = `http://localhost:3004/flashduels/user/auth/connect-twitter${tokenParam}`;
   };
 
   return (

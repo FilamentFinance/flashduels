@@ -22,6 +22,7 @@ const useCreateFlashDuel = () => {
   const [txHash, setTxHash] = useState<Hex | undefined>(undefined);
   const [approvalHash, setApprovalHash] = useState<Hex | undefined>(undefined);
   const [pendingDuelParams, setPendingDuelParams] = useState<CreateFlashDuelParams | null>(null);
+  const [isComplete, setIsComplete] = useState(false);
 
   const { toast } = useToast();
   // const { address } = useAccount();
@@ -36,12 +37,6 @@ const useCreateFlashDuel = () => {
       chainId: SEI_TESTNET_CHAIN_ID,
     });
 
-  // Watch duel creation transaction
-  const { isLoading: isDuelMining, isSuccess: isDuelSuccess } = useWaitForTransactionReceipt({
-    hash: txHash,
-    chainId: SEI_TESTNET_CHAIN_ID,
-  });
-
   // Handle approval success
   useEffect(() => {
     if (isApprovalSuccess && pendingDuelParams) {
@@ -52,12 +47,19 @@ const useCreateFlashDuel = () => {
       });
       createFlashDuelTransaction(pendingDuelParams);
     }
-  }, [isApprovalSuccess]);
+  }, [isApprovalSuccess, pendingDuelParams]);
 
+
+  // Watch duel creation transaction
+  const { isLoading: isDuelMining, isSuccess: isDuelSuccess } = useWaitForTransactionReceipt({
+    hash: txHash,
+    chainId: SEI_TESTNET_CHAIN_ID,
+  });
   // Handle duel success
   useEffect(() => {
     if (isDuelSuccess) {
       setStatus(TRANSACTION_STATUS.DUEL_COMPLETE);
+      setIsComplete(true);
       toast({
         title: 'Success',
         description: 'Duel created successfully',
@@ -101,28 +103,24 @@ const useCreateFlashDuel = () => {
 
   const createFlashDuel = async (params: CreateFlashDuelParams) => {
     try {
-      setStatus(TRANSACTION_STATUS.CHECKING_ALLOWANCE);
+      setStatus(TRANSACTION_STATUS.APPROVAL_NEEDED);
       setError(null);
       setTxHash(undefined);
       setApprovalHash(undefined);
       setPendingDuelParams(params);
 
-      // const hasAllowance = await checkAllowance();
-      const hasAllowance = false;
 
-      // if (!hasAllowance) {
-      if (!hasAllowance) {
-        setStatus(TRANSACTION_STATUS.APPROVAL_NEEDED);
-        const approvalTx = await requestAllowance(REQUIRED_CREATE_DUEL_USDC);
-        setApprovalHash(approvalTx);
-        setStatus(TRANSACTION_STATUS.APPROVAL_MINING);
-      } else {
-        await createFlashDuelTransaction(params);
-      }
+      const approvalTx = await requestAllowance(REQUIRED_CREATE_DUEL_USDC);
+      setApprovalHash(approvalTx);
+      setStatus(TRANSACTION_STATUS.APPROVAL_MINING);
     } catch (error) {
       handleError(error);
       throw error;
     }
+  };
+
+  const isDuelComplete = () => {
+    return isDuelSuccess;
   };
 
   return {
@@ -133,6 +131,8 @@ const useCreateFlashDuel = () => {
     isApprovalMining,
     isDuelMining,
     createFlashDuel,
+    isDuelComplete,
+    isComplete,
   };
 };
 
