@@ -1,10 +1,12 @@
 import { FlashDuelsMarketplaceFacet } from '@/abi/FlashDuelsMarketplaceFacet';
 import { FlashDuelsViewFacetABI } from '@/abi/FlashDuelsViewFacet';
 import { SERVER_CONFIG } from '@/config/server-config';
-import { SEI_TESTNET_CHAIN_ID, TRANSACTION_STATUS } from '@/constants/app';
+// import { SEI_TESTNET_CHAIN_ID, TRANSACTION_STATUS } from '@/constants/app';
+import { TRANSACTION_STATUS } from '@/constants/app';
 import { useToast } from '@/shadcn/components/ui/use-toast';
 import { useState } from 'react';
 import { Hex } from 'viem';
+import { sei, seiTestnet } from 'viem/chains';
 import { usePublicClient, useWriteContract } from 'wagmi';
 
 interface UseOrderReturn {
@@ -52,7 +54,7 @@ const useCancelOrder = (): UseOrderReturn => {
         abi: FlashDuelsMarketplaceFacet,
         address: SERVER_CONFIG.DIAMOND as Hex,
         functionName: 'cancelSell',
-        chainId: SEI_TESTNET_CHAIN_ID,
+        chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
         args: [optionTokenAddress, sellId],
       });
 

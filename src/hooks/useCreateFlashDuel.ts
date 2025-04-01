@@ -1,6 +1,7 @@
 import { FlashDuelCoreFaucetAbi } from '@/abi/FlashDualCoreFaucet';
 import { SERVER_CONFIG } from '@/config/server-config';
-import { SEI_TESTNET_CHAIN_ID, TRANSACTION_STATUS } from '@/constants/app';
+// import { SEI_TESTNET_CHAIN_ID, TRANSACTION_STATUS } from '@/constants/app';
+import { TRANSACTION_STATUS } from '@/constants/app';
 import { useToast } from '@/shadcn/components/ui/use-toast';
 import { TransactionStatusType } from '@/types/app';
 import { handleTransactionError, useTokenApproval } from '@/utils/token';
@@ -8,6 +9,7 @@ import { useEffect, useState } from 'react';
 import { Hex } from 'viem';
 import { useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
 import { REQUIRED_CREATE_DUEL_USDC } from './useCreateCoinDuel';
+import { sei, seiTestnet } from 'viem/chains';
 
 interface CreateFlashDuelParams {
   topic: string;
@@ -34,8 +36,14 @@ const useCreateFlashDuel = () => {
   const { isLoading: isApprovalMining, isSuccess: isApprovalSuccess } =
     useWaitForTransactionReceipt({
       hash: approvalHash,
-      chainId: SEI_TESTNET_CHAIN_ID,
+      chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
     });
+
+  // Watch duel creation transaction
+  // const { isLoading: isDuelMining, isSuccess: isDuelSuccess } = useWaitForTransactionReceipt({
+  //   hash: txHash,
+  //   chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
+  // });
 
   // Handle approval success
   useEffect(() => {
@@ -53,7 +61,7 @@ const useCreateFlashDuel = () => {
   // Watch duel creation transaction
   const { isLoading: isDuelMining, isSuccess: isDuelSuccess } = useWaitForTransactionReceipt({
     hash: txHash,
-    chainId: SEI_TESTNET_CHAIN_ID,
+    chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
   });
   // Handle duel success
   useEffect(() => {
@@ -87,7 +95,7 @@ const useCreateFlashDuel = () => {
         abi: FlashDuelCoreFaucetAbi,
         address: SERVER_CONFIG.DIAMOND as Hex,
         functionName: 'requestCreateDuel',
-        chainId: SEI_TESTNET_CHAIN_ID,
+        chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
         args: [params.category, params.topic, params.options, params.duration],
       });
 

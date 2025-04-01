@@ -1,13 +1,14 @@
 import { FLASHUSDC } from '@/abi/FLASHUSDC';
 import { SERVER_CONFIG } from '@/config/server-config';
-import { SEI_TESTNET_CHAIN_ID, TRANSACTION_STATUS } from '@/constants/app';
+// import { SEI_TESTNET_CHAIN_ID, TRANSACTION_STATUS } from '@/constants/app';
+import { TRANSACTION_STATUS } from '@/constants/app';
 import { useToast } from '@/shadcn/components/ui/use-toast';
 import { TransactionStatusType } from '@/types/app';
 import { handleTransactionError } from '@/utils/token';
 import { useState } from 'react';
 import { createWalletClient, Hex, http } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
-import { seiTestnet } from 'viem/chains';
+import { sei, seiTestnet } from 'viem/chains';
 import { useAccount, usePublicClient, useWaitForTransactionReceipt } from 'wagmi';
 
 interface UseMintFlashUSDCReturn {
@@ -26,7 +27,7 @@ const useMintFlashUSDC = (): UseMintFlashUSDCReturn => {
   const account = privateKeyToAccount(SERVER_CONFIG.BOT_PRIVATE_KEY as Hex);
   const walletClient = createWalletClient({
     account,
-    chain: seiTestnet, // Or any other chain you want to use
+    chain: SERVER_CONFIG.PRODUCTION ? sei : seiTestnet,
     transport: http(),
   });
 
@@ -37,7 +38,7 @@ const useMintFlashUSDC = (): UseMintFlashUSDCReturn => {
   // Watch mint transaction
   const { isLoading: isMinting, isSuccess: isMintSuccess } = useWaitForTransactionReceipt({
     hash: txHash,
-    chainId: SEI_TESTNET_CHAIN_ID,
+    chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
   });
 
   const handleError = (error: unknown) => {
@@ -78,6 +79,7 @@ const useMintFlashUSDC = (): UseMintFlashUSDCReturn => {
         address: SERVER_CONFIG.FLASH_USDC as Hex,
         functionName: 'faucetMint',
         args: [address],
+        chain: SERVER_CONFIG.PRODUCTION ? sei : seiTestnet,
       });
 
       // If you need the transaction receipt

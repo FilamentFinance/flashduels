@@ -2,12 +2,14 @@ import { FlashDuelsMarketplaceFacet } from '@/abi/FlashDuelsMarketplaceFacet';
 import { FlashDuelsViewFacetABI } from '@/abi/FlashDuelsViewFacet';
 import { OptionTokenABI } from '@/abi/OptionToken';
 import { SERVER_CONFIG } from '@/config/server-config';
-import { SEI_TESTNET_CHAIN_ID, TRANSACTION_STATUS } from '@/constants/app';
+// import { SEI_TESTNET_CHAIN_ID, TRANSACTION_STATUS } from '@/constants/app';
+import { TRANSACTION_STATUS } from '@/constants/app';
 import { useToast } from '@/shadcn/components/ui/use-toast';
 import { TransactionStatusType } from '@/types/app';
 import { useState } from 'react';
 import type { Hex } from 'viem';
 import { decodeEventLog, formatUnits, parseUnits } from 'viem';
+import { sei, seiTestnet } from 'viem/chains';
 import {
   useAccount,
   usePublicClient,
@@ -54,7 +56,7 @@ const useSellOrder = (
     abi: FlashDuelsViewFacetABI,
     functionName: 'getOptionIndexToOptionToken',
     address: SERVER_CONFIG.DIAMOND as Hex,
-    chainId: SEI_TESTNET_CHAIN_ID,
+    chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
     args: [duelId, optionIndex],
   });
 
@@ -64,13 +66,13 @@ const useSellOrder = (
   // Watch approval transaction
   const { isLoading: isApprovalMining } = useWaitForTransactionReceipt({
     hash: approvalHash,
-    chainId: SEI_TESTNET_CHAIN_ID,
+    chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
   });
 
   // Watch sell transaction
   const { isLoading: isSellMining } = useWaitForTransactionReceipt({
     hash: txHash,
-    chainId: SEI_TESTNET_CHAIN_ID,
+    chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
   });
 
   const handleError = (error: unknown) => {
@@ -153,7 +155,7 @@ const useSellOrder = (
           abi: OptionTokenABI,
           address: optionTokenAddress as Hex,
           functionName: 'approve',
-          chainId: SEI_TESTNET_CHAIN_ID,
+          chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
           args: [SERVER_CONFIG.DIAMOND, quantityInWei],
         });
 
@@ -182,7 +184,7 @@ const useSellOrder = (
         abi: FlashDuelsMarketplaceFacet,
         address: SERVER_CONFIG.DIAMOND as Hex,
         functionName: 'sell',
-        chainId: SEI_TESTNET_CHAIN_ID,
+        chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
         args: [optionTokenAddress, duelId, optionIndex, quantityInWei, totalValue],
       });
 

@@ -1,6 +1,7 @@
 import { FlashDuelCoreFaucetAbi } from '@/abi/FlashDualCoreFaucet';
 import { SERVER_CONFIG } from '@/config/server-config';
-import { SEI_TESTNET_CHAIN_ID, TRANSACTION_STATUS } from '@/constants/app';
+// import { SEI_TESTNET_CHAIN_ID, TRANSACTION_STATUS } from '@/constants/app';
+import { TRANSACTION_STATUS } from '@/constants/app';
 import { useToast } from '@/shadcn/components/ui/use-toast';
 import { TransactionStatusType } from '@/types/app';
 import { handleTransactionError, useTokenApproval } from '@/utils/token';
@@ -8,6 +9,7 @@ import { useEffect, useState } from 'react';
 import { Hex } from 'viem';
 import { usePublicClient, useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
 import { ethers } from 'ethers';
+import { sei, seiTestnet } from 'viem/chains';
 
 // export const REQUIRED_CREATE_DUEL_USDC = BigInt(5 * 10 ** 6);
 export const REQUIRED_CREATE_DUEL_USDC = BigInt(5 * 10 ** 18); // crd 18
@@ -44,13 +46,13 @@ const useCreateCoinDuel = () => {
   const { isLoading: isApprovalMining, isSuccess: isApprovalSuccess } =
     useWaitForTransactionReceipt({
       hash: approvalHash,
-      chainId: SEI_TESTNET_CHAIN_ID,
+      chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
     });
 
   // Watch duel creation transaction
   const { isLoading: isDuelMining, isSuccess: isDuelSuccess } = useWaitForTransactionReceipt({
     hash: txHash,
-    chainId: SEI_TESTNET_CHAIN_ID,
+    chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
   });
 
   const handleError = (error: unknown) => {
@@ -86,6 +88,7 @@ const useCreateCoinDuel = () => {
         address: SERVER_CONFIG.DIAMOND as Hex,
         abi: FlashDuelCoreFaucetAbi,
         functionName: 'requestCreateCryptoDuel',
+        chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
         args: [
           params.symbol,
           params.options,
