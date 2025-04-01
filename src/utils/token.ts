@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // import { FLASHUSDC } from '@/abi/FLASHUSDC';
-import { FLASHDUELS_CREDITS_ABI } from '@/abi/FlashDuelCredit';
+import { CREDITS } from '@/abi/CREDITS';
 import { SERVER_CONFIG } from '@/config/server-config';
-import { SEI_TESTNET_CHAIN_ID } from '@/constants/app';
+// import { SEI_TESTNET_CHAIN_ID } from '@/constants/app';
 import { Hex } from 'viem';
+import { sei, seiTestnet } from 'viem/chains';
 import { useWriteContract } from 'wagmi';
 
 // export const REQUIRED_ALLOWANCE = BigInt(5 * 10 ** 6);
@@ -42,10 +43,10 @@ export const useTokenApproval = () => {
 
     // for CRD use
     const tx = await writeContractAsync({
-      abi: FLASHDUELS_CREDITS_ABI,
+      abi: CREDITS,
       address: SERVER_CONFIG.CREDIT_CONTRACT as Hex,
       functionName: 'approve',
-      chainId: SEI_TESTNET_CHAIN_ID,
+      chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
       // args: [SERVER_CONFIG.DIAMOND as Hex, amount || REQUIRED_ALLOWANCE],
       args: [SERVER_CONFIG.DIAMOND as Hex, amount],
     });

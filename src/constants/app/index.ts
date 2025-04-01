@@ -1,4 +1,4 @@
-export const SEI_TESTNET_CHAIN_ID = 1328;
+// export const SEI_TESTNET_CHAIN_ID = 1328;
 
 export const TRANSACTION_STATUS = {
   IDLE: 'idle',
