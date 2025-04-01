@@ -4,13 +4,14 @@ import { Button } from '@/shadcn/components/ui/button';
 import { useAccount, usePublicClient, useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
 import { FLASHDUELS_CREDITS_ABI } from '@/abi/FlashDuelCredit';
 import { SERVER_CONFIG } from '@/config/server-config';
-import { SEI_TESTNET_CHAIN_ID, TRANSACTION_STATUS } from '@/constants/app';
+// import { SEI_TESTNET_CHAIN_ID, TRANSACTION_STATUS } from '@/constants/app';
+import { TRANSACTION_STATUS } from '@/constants/app';
 import { useToast } from '@/shadcn/components/ui/use-toast';
 import { TransactionStatusType } from '@/types/app';
 import { handleTransactionError } from '@/utils/token';
 import { createWalletClient, Hex, http } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
-import { seiTestnet } from 'viem/chains';
+import { sei, seiTestnet } from 'viem/chains';
 
 
 const ClaimAirdropButton: FC = () => {
@@ -24,7 +25,7 @@ const ClaimAirdropButton: FC = () => {
 
   const { isLoading: isClaiming, isSuccess: isClaimSuccess } = useWaitForTransactionReceipt({
     hash: txHash,
-    chainId: SEI_TESTNET_CHAIN_ID,
+    chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
   });
 
   const handleError = (error: unknown) => {

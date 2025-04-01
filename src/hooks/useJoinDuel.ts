@@ -1,9 +1,12 @@
-import { SEI_TESTNET_CHAIN_ID, TRANSACTION_STATUS } from '@/constants/app';
+// import { SEI_TESTNET_CHAIN_ID, TRANSACTION_STATUS } from '@/constants/app';
+import { SERVER_CONFIG } from '@/config/server-config';
+import { TRANSACTION_STATUS } from '@/constants/app';
 import { useToast } from '@/shadcn/components/ui/use-toast';
 import { TransactionStatusType } from '@/types/app';
 import { handleTransactionError, useTokenApproval } from '@/utils/token';
 import { useState } from 'react';
 import { Hex } from 'viem';
+import { sei, seiTestnet } from 'viem/chains';
 import { usePublicClient, useWaitForTransactionReceipt } from 'wagmi';
 
 const useJoinDuel = () => {
@@ -21,7 +24,7 @@ const useJoinDuel = () => {
   const { isLoading: isApprovalMining, isSuccess: isApprovalSuccess } =
     useWaitForTransactionReceipt({
       hash: approvalHash,
-      chainId: SEI_TESTNET_CHAIN_ID,
+      chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
     });
 
   const handleError = (error: unknown) => {

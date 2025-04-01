@@ -3,8 +3,8 @@ import axios from 'axios';
 import { useCallback, useEffect, useState } from 'react';
 import { useReadContract } from 'wagmi';
 import { formatUnits, Hex } from 'viem';
-import { SEI_TESTNET_CHAIN_ID } from '@/constants/app';
 import { SERVER_CONFIG } from '@/config/server-config';
+import { sei, seiTestnet } from 'viem/chains';
 
 const useTotalBets = (duelId: string) => {
   const [totalBetYes, setTotalBetYes] = useState<number | null>(null);
@@ -20,7 +20,7 @@ const useTotalBets = (duelId: string) => {
     abi: FlashDuelsViewFacetABI,
     functionName: 'getTotalBetsOnOption',
     address: SERVER_CONFIG.DIAMOND as Hex,
-    chainId: SEI_TESTNET_CHAIN_ID,
+    chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
     args: [duelId, 0, 'YES'],
   });
 
@@ -34,7 +34,7 @@ const useTotalBets = (duelId: string) => {
     abi: FlashDuelsViewFacetABI,
     functionName: 'getTotalBetsOnOption',
     address: SERVER_CONFIG.DIAMOND as Hex,
-    chainId: SEI_TESTNET_CHAIN_ID,
+    chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
     args: [duelId, 1, 'NO'],
   });
 
