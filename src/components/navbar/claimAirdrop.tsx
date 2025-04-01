@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { FC, useState, useEffect } from 'react';
 import { Button } from '@/shadcn/components/ui/button';
-import { useAccount, usePublicClient, useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
+import { useAccount, usePublicClient, useWriteContract } from 'wagmi';
 import { SERVER_CONFIG } from '@/config/server-config';
 // import { SEI_TESTNET_CHAIN_ID, TRANSACTION_STATUS } from '@/constants/app';
 import { TRANSACTION_STATUS } from '@/constants/app';
@@ -15,25 +15,6 @@ import { formatUnits, Hex } from 'viem';
 import { CREDITS } from '@/abi/CREDITS';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/shadcn/components/ui/dialog';
 
-interface EthereumProvider {
-  request: (args: {
-    method: string;
-    params: {
-      type: 'ERC20';
-      options: {
-        address: string;
-        symbol: string;
-        decimals: number;
-      };
-    };
-  }) => Promise<boolean>;
-}
-
-declare global {
-  interface Window {
-    ethereum?: EthereumProvider;
-  }
-}
 const symbol = SERVER_CONFIG.PRODUCTION ? 'CRD' : 'FDCRD';
 
 const ClaimAirdropButton: FC = () => {
