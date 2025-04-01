@@ -10,37 +10,34 @@ interface HowItWorksProps {
 
 const HowItWorks: FC<HowItWorksProps> = ({ onClose }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [isAutoPlay, setIsAutoPlay] = useState(true);
 
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (isAutoPlay) {
-      interval = setInterval(() => {
-        setCurrentSlide((prev) => (prev + 1) % 3);
-      }, 5000);
-    }
-    return () => clearInterval(interval);
-  }, [isAutoPlay]);
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % 3);
+    }, 5000);
 
-  const handleKeyDown = useCallback((e: globalThis.KeyboardEvent) => {
-    switch (e.code) {
-      case 'ArrowLeft':
-        setCurrentSlide((prev) => (prev - 1 + 3) % 3);
-        setIsAutoPlay(false);
-        break;
-      case 'ArrowRight':
-        setCurrentSlide((prev) => (prev + 1) % 3);
-        setIsAutoPlay(false);
-        break;
-      case 'Space':
-        e.preventDefault();
-        setIsAutoPlay((prev) => !prev);
-        break;
-      case 'Escape':
-        onClose?.();
-        break;
-    }
-  }, [onClose]);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleKeyDown = useCallback(
+    (e: globalThis.KeyboardEvent) => {
+      switch (e.code) {
+        case 'ArrowLeft':
+          setCurrentSlide((prev) => (prev - 1 + 3) % 3);
+          break;
+        case 'ArrowRight':
+          setCurrentSlide((prev) => (prev + 1) % 3);
+          break;
+        case 'Space':
+          e.preventDefault();
+          break;
+        case 'Escape':
+          onClose?.();
+          break;
+      }
+    },
+    [onClose],
+  );
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
@@ -55,16 +52,14 @@ const HowItWorks: FC<HowItWorksProps> = ({ onClose }) => {
 
   const handlePrevSlide = () => {
     setCurrentSlide((prev) => (prev - 1 + 3) % 3);
-    setIsAutoPlay(false);
   };
 
   const handleNextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % 3);
-    setIsAutoPlay(false);
   };
 
   return (
-    <div 
+    <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80"
       role="dialog"
       aria-modal="true"
@@ -78,15 +73,17 @@ const HowItWorks: FC<HowItWorksProps> = ({ onClose }) => {
           aria-label="Close how it works"
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
-            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
           </svg>
         </button>
 
-        <h1 id="howItWorksTitle" className="text-4xl font-bold text-stone-200 mb-16">How it Works</h1>
+        <h1 id="howItWorksTitle" className="text-4xl font-bold text-stone-200 mb-16">
+          How it Works
+        </h1>
 
         <div className="relative w-full h-full flex items-center justify-center">
           {/* Carousel Container */}
-          <div 
+          <div
             className="relative w-full h-full flex items-center justify-center"
             role="region"
             aria-roledescription="carousel"
@@ -140,7 +137,7 @@ const HowItWorks: FC<HowItWorksProps> = ({ onClose }) => {
           </button>
 
           {/* Dots Navigation */}
-          <div 
+          <div
             className="absolute bottom-0 left-1/2 -translate-x-1/2 flex gap-2"
             role="tablist"
             aria-label="Slides"
@@ -150,7 +147,6 @@ const HowItWorks: FC<HowItWorksProps> = ({ onClose }) => {
                 key={index}
                 onClick={() => {
                   setCurrentSlide(index);
-                  setIsAutoPlay(false);
                 }}
                 className={`w-3 h-3 rounded-full transition-all ${
                   currentSlide === index ? 'bg-pink-300' : 'bg-gray-500'
@@ -162,26 +158,6 @@ const HowItWorks: FC<HowItWorksProps> = ({ onClose }) => {
               />
             ))}
           </div>
-
-          {/* Auto-play Toggle */}
-          <button
-            onClick={() => setIsAutoPlay((prev) => !prev)}
-            className={`absolute top-4 right-16 p-2 rounded-full transition-all ${
-              isAutoPlay ? 'bg-pink-300' : 'bg-gray-500'
-            }`}
-            aria-label={isAutoPlay ? 'Pause auto-play' : 'Start auto-play'}
-            aria-pressed={isAutoPlay}
-          >
-            {isAutoPlay ? (
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
-                <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
-              </svg>
-            ) : (
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
-                <path d="M8 5v14l11-7z" />
-              </svg>
-            )}
-          </button>
         </div>
       </div>
     </div>
