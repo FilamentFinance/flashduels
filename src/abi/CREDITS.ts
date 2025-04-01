@@ -139,7 +139,7 @@ export const CREDITS = [
     },
     {
         "inputs": [],
-        "name": "FailedInnerCall",
+        "name": "FailedCall",
         "type": "error"
     },
     {
@@ -213,6 +213,25 @@ export const CREDITS = [
             }
         ],
         "name": "Approval",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "user",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "CreditsClaimed",
         "type": "event"
     },
     {
@@ -384,6 +403,19 @@ export const CREDITS = [
         "type": "function"
     },
     {
+        "inputs": [],
+        "name": "botAddress",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
         "inputs": [
             {
                 "internalType": "uint256",
@@ -539,6 +571,19 @@ export const CREDITS = [
         "type": "function"
     },
     {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "_botAddress",
+                "type": "address"
+            }
+        ],
+        "name": "setBotAddress",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
         "inputs": [],
         "name": "symbol",
         "outputs": [
@@ -546,6 +591,25 @@ export const CREDITS = [
                 "internalType": "string",
                 "name": "",
                 "type": "string"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "name": "totalClaimed",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
             }
         ],
         "stateMutability": "view",

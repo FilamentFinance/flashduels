@@ -3,7 +3,8 @@ export const CLAIM_FUNDS = {
     TITLE: 'Claim Funds',
   },
   TRIGGER: {
-    DEFAULT_AMOUNT: '$0.00',
+    // DEFAULT_AMOUNT: '$0.00',
+    DEFAULT_AMOUNT: '0.00 CRD',
     CLAIM_TEXT: 'Withdraw',
   },
   AMOUNT_SECTION: {

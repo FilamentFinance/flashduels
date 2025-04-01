@@ -16,7 +16,7 @@ const ClaimFunds: FC = () => {
         <div className="inline-flex items-center gap-2 px-3 bg-zinc-900 rounded-xl border border-zinc-800">
           <Image src="/logo/dollar.svg" alt="Funds" width={12} height={12} className="mr-2" />
           <span>{CLAIM_FUNDS.TRIGGER.DEFAULT_AMOUNT}</span>
-          <Button variant="pink" size="sm" className="text-black">
+          <Button variant="pink" size="sm" className="text-black font-bold">
             {CLAIM_FUNDS.TRIGGER.CLAIM_TEXT}
           </Button>
         </div>
