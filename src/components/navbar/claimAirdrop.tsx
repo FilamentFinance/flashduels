@@ -18,7 +18,17 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/shadcn/compo
 declare global {
   interface Window {
     ethereum?: {
-      request: (args: { method: string; params: any }) => Promise<any>;
+      request: (args: {
+        method: string;
+        params: {
+          type: 'ERC20';
+          options: {
+            address: string;
+            symbol: string;
+            decimals: number;
+          };
+        };
+      }) => Promise<boolean>;
     };
   }
 }
