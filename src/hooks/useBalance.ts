@@ -1,6 +1,6 @@
 import { FLASHUSDC } from '@/abi/FLASHUSDC';
 import { SERVER_CONFIG } from '@/config/server-config';
-import { SEI_TESTNET_CHAIN_ID } from '@/constants/app';
+import { sei, seiTestnet } from 'viem/chains';
 import { Hex } from 'viem';
 import { useReadContracts } from 'wagmi';
 
@@ -10,26 +10,26 @@ export const useBalance = (address: Hex | undefined) => {
       {
         abi: FLASHUSDC,
         address: SERVER_CONFIG.FLASH_USDC as Hex,
-        chainId: SEI_TESTNET_CHAIN_ID,
+        chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
         functionName: 'balanceOf',
         args: address ? [address] : undefined,
       },
       {
         abi: FLASHUSDC,
         address: SERVER_CONFIG.FLASH_USDC as Hex,
-        chainId: SEI_TESTNET_CHAIN_ID,
+        chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
         functionName: 'symbol',
       },
       {
         abi: FLASHUSDC,
         address: SERVER_CONFIG.FLASH_USDC as Hex,
-        chainId: SEI_TESTNET_CHAIN_ID,
+        chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
         functionName: 'decimals',
       },
       {
         abi: FLASHUSDC,
         address: SERVER_CONFIG.FLASH_USDC as Hex,
-        chainId: SEI_TESTNET_CHAIN_ID,
+        chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
         functionName: 'name',
       },
     ],
