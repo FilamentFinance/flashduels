@@ -1,4 +1,4 @@
-import { FLASHUSDC } from '@/abi/FLASHUSDC';
+// import { FLASHUSDC } from '@/abi/FLASHUSDC';
 import { SERVER_CONFIG } from '@/config/server-config';
 import { sei, seiTestnet } from 'viem/chains';
 import { Hex } from 'viem';
