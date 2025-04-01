@@ -3,32 +3,63 @@ import { SERVER_CONFIG } from '@/config/server-config';
 import { sei, seiTestnet } from 'viem/chains';
 import { Hex } from 'viem';
 import { useReadContracts } from 'wagmi';
+import { CREDITS } from '@/abi/CREDITS';
 
 export const useBalance = (address: Hex | undefined) => {
+  // const { data, isLoading, isError, refetch } = useReadContracts({
+  //   contracts: [
+  //     {
+  //       abi: FLASHUSDC,
+  //       address: SERVER_CONFIG.FLASH_USDC as Hex,
+  //       chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
+  //       functionName: 'balanceOf',
+  //       args: address ? [address] : undefined,
+  //     },
+  //     {
+  //       abi: FLASHUSDC,
+  //       address: SERVER_CONFIG.FLASH_USDC as Hex,
+  //       chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
+  //       functionName: 'symbol',
+  //     },
+  //     {
+  //       abi: FLASHUSDC,
+  //       address: SERVER_CONFIG.FLASH_USDC as Hex,
+  //       chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
+  //       functionName: 'decimals',
+  //     },
+  //     {
+  //       abi: FLASHUSDC,
+  //       address: SERVER_CONFIG.FLASH_USDC as Hex,
+  //       chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
+  //       functionName: 'name',
+  //     },
+  //   ],
+  // });
+
   const { data, isLoading, isError, refetch } = useReadContracts({
     contracts: [
       {
-        abi: FLASHUSDC,
-        address: SERVER_CONFIG.FLASH_USDC as Hex,
+        abi: CREDITS,
+        address: SERVER_CONFIG.CREDIT_CONTRACT as Hex,
         chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
         functionName: 'balanceOf',
         args: address ? [address] : undefined,
       },
       {
-        abi: FLASHUSDC,
-        address: SERVER_CONFIG.FLASH_USDC as Hex,
+        abi: CREDITS,
+        address: SERVER_CONFIG.CREDIT_CONTRACT as Hex,
         chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
         functionName: 'symbol',
       },
       {
-        abi: FLASHUSDC,
-        address: SERVER_CONFIG.FLASH_USDC as Hex,
+        abi: CREDITS,
+        address: SERVER_CONFIG.CREDIT_CONTRACT as Hex,
         chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
         functionName: 'decimals',
       },
       {
-        abi: FLASHUSDC,
-        address: SERVER_CONFIG.FLASH_USDC as Hex,
+        abi: CREDITS,
+        address: SERVER_CONFIG.CREDIT_CONTRACT as Hex,
         chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
         functionName: 'name',
       },
