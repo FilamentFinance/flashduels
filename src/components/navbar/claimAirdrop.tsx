@@ -101,13 +101,12 @@ const ClaimAirdropButton: FC = () => {
       // setTxHash(undefined);
       setClaimedAmount('');
 
-      // Get initial credits balance
-      const initialCredits = await publicClient?.readContract({
-        abi: CREDITS,
-        address: SERVER_CONFIG.CREDIT_CONTRACT as Hex,
-        functionName: 'credits',
-        args: [address.toLowerCase()],
-      });
+      // const initialCredits = await publicClient?.readContract({
+      //   abi: CREDITS,
+      //   address: SERVER_CONFIG.CREDIT_CONTRACT as Hex,
+      //   functionName: 'credits',
+      //   args: [address.toLowerCase()],
+      // });
 
       const tx = await writeContractAsync({
         abi: CREDITS,
@@ -129,18 +128,18 @@ const ClaimAirdropButton: FC = () => {
       }
 
       // Get final credits balance
-      const finalCredits: any = await publicClient?.readContract({
+      const finalCredits = await publicClient?.readContract({
         abi: CREDITS,
         address: SERVER_CONFIG.CREDIT_CONTRACT as Hex,
         functionName: 'totalClaimed',
         args: [address.toLowerCase()],
       });
-      setClaimedAmount(finalCredits);
+      setClaimedAmount(formatUnits(BigInt(finalCredits?.toString() || 0), 18));
 
       setStatus(TRANSACTION_STATUS.SUCCESS);
       toast({
         title: 'Claim Successful',
-        description: `${formatUnits(BigInt(finalCredits), 18)} CRD claimed successfully`,
+        description: `${formatUnits(BigInt(finalCredits?.toString() || 0), 18)} CRD claimed successfully`,
       });
     } catch (error) {
       handleError(error);
