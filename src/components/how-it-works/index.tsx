@@ -10,11 +10,9 @@ interface HowItWorksProps {
 
 const HowItWorks: FC<HowItWorksProps> = ({ onClose }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [isAutoPlay, setIsAutoPlay] = useState(true);
 
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-    interval = setInterval(() => {
+    const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % 3);
     }, 5000);
 
@@ -26,15 +24,12 @@ const HowItWorks: FC<HowItWorksProps> = ({ onClose }) => {
       switch (e.code) {
         case 'ArrowLeft':
           setCurrentSlide((prev) => (prev - 1 + 3) % 3);
-          setIsAutoPlay(false);
           break;
         case 'ArrowRight':
           setCurrentSlide((prev) => (prev + 1) % 3);
-          setIsAutoPlay(false);
           break;
         case 'Space':
           e.preventDefault();
-          setIsAutoPlay((prev) => !prev);
           break;
         case 'Escape':
           onClose?.();
@@ -57,12 +52,10 @@ const HowItWorks: FC<HowItWorksProps> = ({ onClose }) => {
 
   const handlePrevSlide = () => {
     setCurrentSlide((prev) => (prev - 1 + 3) % 3);
-    setIsAutoPlay(false);
   };
 
   const handleNextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % 3);
-    setIsAutoPlay(false);
   };
 
   return (
@@ -154,7 +147,6 @@ const HowItWorks: FC<HowItWorksProps> = ({ onClose }) => {
                 key={index}
                 onClick={() => {
                   setCurrentSlide(index);
-                  setIsAutoPlay(false);
                 }}
                 className={`w-3 h-3 rounded-full transition-all ${
                   currentSlide === index ? 'bg-pink-300' : 'bg-gray-500'
