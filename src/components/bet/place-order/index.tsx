@@ -32,7 +32,7 @@ const PlaceOrder: FC<PlaceOrderProps> = ({
   triggerPrice,
   winCondition,
   token,
-  category,
+  // category,
 }) => {
   const [orderType, setOrderType] = useState<OrderType>(ORDER_TYPE.BUY);
   const { yesPrice, noPrice, ws } = useWebSocketPrices(asset);
