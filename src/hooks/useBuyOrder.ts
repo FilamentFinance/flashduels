@@ -4,10 +4,11 @@ import { SERVER_CONFIG } from '@/config/server-config';
 // import { SEI_TESTNET_CHAIN_ID, TRANSACTION_STATUS } from '@/constants/app';
 import { TRANSACTION_STATUS } from '@/constants/app';
 import { useToast } from '@/shadcn/components/ui/use-toast';
+import { mapCategoryToEnumIndex } from '@/utils/general/create-duels';
 import { useState } from 'react';
 import { Hex } from 'viem';
 import { sei, seiTestnet } from 'viem/chains';
-import { usePublicClient, useWriteContract } from 'wagmi';
+import { usePublicClient, useWriteContract, useAccount } from 'wagmi';
 
 interface UseBuyOrderReturn {
   buyOrder: (
@@ -21,7 +22,7 @@ interface UseBuyOrderReturn {
   isReading: boolean;
 }
 
-const useBuyOrder = (duelId: string): UseBuyOrderReturn => {
+const useBuyOrder = (duelId: string, category: string): UseBuyOrderReturn => {
   const [txHash, setTxHash] = useState<Hex | undefined>(undefined);
   const [status, setStatus] = useState<string>(TRANSACTION_STATUS.IDLE);
   const [error, setError] = useState<string | null>(null);
@@ -29,6 +30,7 @@ const useBuyOrder = (duelId: string): UseBuyOrderReturn => {
   const { toast } = useToast();
   const publicClient = usePublicClient();
   const { writeContractAsync } = useWriteContract();
+  const { address } = useAccount();
 
   const buyOrder = async (
     sellId: number,
@@ -36,6 +38,10 @@ const useBuyOrder = (duelId: string): UseBuyOrderReturn => {
     betOptionIndex: number,
   ): Promise<{ success: boolean; error?: string }> => {
     try {
+      if (!address) {
+        throw new Error('Wallet not connected');
+      }
+
       setStatus(TRANSACTION_STATUS.PENDING);
       setError(null);
 
@@ -57,11 +63,13 @@ const useBuyOrder = (duelId: string): UseBuyOrderReturn => {
         functionName: 'buy',
         chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
         args: [
-            optionTokenAddress,
-            duelId,
+          duelId,
+          address,
+          mapCategoryToEnumIndex(category),
+          optionTokenAddress,
           betOptionIndex,
-          [sellId], // Array of sale IDs
-          [1], // Array of amounts (assuming 1 for now, adjust as needed)
+          [sellId],
+          [1],
         ],
       });
 

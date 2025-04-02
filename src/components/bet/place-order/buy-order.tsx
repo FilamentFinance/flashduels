@@ -1,6 +1,6 @@
 import { baseApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
-import { LOGOS } from '@/constants/app/logos';
+// import { LOGOS } from '@/constants/app/logos';
 import { OPTIONS_TYPE } from '@/constants/duel';
 import { useBalance } from '@/hooks/useBalance';
 import useJoinDuel from '@/hooks/useJoinDuel';
@@ -13,12 +13,13 @@ import { cn } from '@/shadcn/lib/utils';
 import { RootState } from '@/store';
 import { OptionsType } from '@/types/duel';
 import { handleTransactionError, useTokenApproval } from '@/utils/token';
-import Image from 'next/image';
+// import Image from 'next/image';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { formatUnits, parseUnits } from 'viem/utils';
 import { useAccount } from 'wagmi';
 import { NewDuelItem } from '@/types/duel';
+import { mapCategoryToEnumIndex } from '@/utils/general/create-duels';
 
 import PositionSelector from './position-selector';
 import { calculateTimeLeft } from '@/utils/time';
@@ -35,6 +36,8 @@ interface BuyOrderProps {
   noPrice: number | undefined;
 }
 
+const symbol = SERVER_CONFIG.PRODUCTION ? 'CRD' : 'FDCRD';
+
 const BuyOrder: FC<BuyOrderProps> = ({
   duelId,
   duelType,
@@ -48,15 +51,15 @@ const BuyOrder: FC<BuyOrderProps> = ({
 }) => {
   const selectedPosition = useSelector((state: RootState) => state.bet.selectedPosition);
   const [localPosition, setLocalPosition] = useState<OptionsType | null>(() => {
-    if (selectedPosition === 'YES') return OPTIONS_TYPE.YES;
-    if (selectedPosition === 'NO') return OPTIONS_TYPE.NO;
+    if (selectedPosition === 'LONG') return OPTIONS_TYPE.LONG;
+    if (selectedPosition === 'SHORT') return OPTIONS_TYPE.SHORT;
     return null;
   });
 
   // Update local position when Redux state changes
   useEffect(() => {
-    if (selectedPosition === 'YES') setLocalPosition(OPTIONS_TYPE.YES);
-    else if (selectedPosition === 'NO') setLocalPosition(OPTIONS_TYPE.NO);
+    if (selectedPosition === 'LONG') setLocalPosition(OPTIONS_TYPE.LONG);
+    else if (selectedPosition === 'SHORT') setLocalPosition(OPTIONS_TYPE.SHORT);
   }, [selectedPosition]);
 
   const [amount, setAmount] = useState('');
@@ -66,6 +69,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
   const [marketBuyEnabled, setMarketBuyEnabled] = useState(false);
   const [countdown, setCountdown] = useState('');
   const [duel, setDuel] = useState<NewDuelItem | null>(null);
+  const [showMarketBuyMessage, setShowMarketBuyMessage] = useState(false);
 
   // Combined loading state for disabling both buttons
   const isLoading = isJoiningDuel || isMarketBuying;
@@ -104,7 +108,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
       }
 
       // const maxAmount = Number(formatUnits((balance ?? 0) as bigint, 6));
-      const maxAmount = Number(formatUnits((balance ?? 0) as bigint, 18)); // CRD is 18 dec 
+      const maxAmount = Number(formatUnits((balance ?? 0) as bigint, 18)); // CRD is 18 dec
       if (Number(cleanValue) > maxAmount) {
         setError(`Cannot bet more than your available balance: ${maxAmount}`);
         return;
@@ -117,7 +121,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
 
   const calculateShares = useCallback(() => {
     if (!localPosition || !amount) return 0;
-    const price = localPosition === OPTIONS_TYPE.YES ? yesPrice : noPrice;
+    const price = localPosition === OPTIONS_TYPE.LONG ? yesPrice : noPrice;
     return Number(amount) / Number(price || 0.15);
   }, [amount, localPosition, yesPrice, noPrice]);
 
@@ -145,7 +149,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
           bet: localPosition,
           address: address?.toLowerCase(),
           betAmount: Number(amount),
-          optionIndex: localPosition === OPTIONS_TYPE.YES ? 0 : 1,
+          optionIndex: localPosition === OPTIONS_TYPE.LONG ? 0 : 1,
           duelId,
           duelType,
           asset,
@@ -159,7 +163,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
 
         toast({
           title: 'Success!',
-          description: `Successfully placed ${localPosition} bet for ${amount} USDC`,
+          description: `Successfully placed ${localPosition} bet for ${amount} ${symbol}`,
         });
       }
     } catch (error) {
@@ -193,7 +197,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
 
     setIsMarketBuying(true);
     try {
-      const optionIndex = localPosition === OPTIONS_TYPE.YES ? 0 : 1;
+      const optionIndex = localPosition === OPTIONS_TYPE.LONG ? 0 : 1;
 
       // Check token allowance first
       // const hasAllowance = await checkAllowance();
@@ -207,15 +211,24 @@ const BuyOrder: FC<BuyOrderProps> = ({
       await requestAllowance(parseUnits(amount, 18)); // CRD is 18 decimals
       toast({
         title: 'Approval Successful',
-        description: 'Token approval completed. You can now place your order.',
+        description: 'Token approval completed. Placing your order.',
       });
       // } else {
       // Place the market buy order
+      console.log('duelCategory: ', duel?.category);
+      console.log('Market buy: ', {
+        duelId,
+        betAmount: amount,
+        index: optionIndex,
+        userAddress: address?.toLowerCase(),
+        duelCategory: mapCategoryToEnumIndex(duel?.category || ''),
+      });
       const response = await baseApiClient.post(`${SERVER_CONFIG.API_URL}/user/betOption/buy`, {
         duelId,
         betAmount: amount,
         index: optionIndex,
         userAddress: address?.toLowerCase(),
+        duelCategory: mapCategoryToEnumIndex(duel?.category || '' ),
       });
 
       // Show success message
@@ -244,32 +257,21 @@ const BuyOrder: FC<BuyOrderProps> = ({
     } finally {
       setIsMarketBuying(false);
     }
-  // }, [localPosition, amount, duelId, checkAllowance, requestAllowance, toast, setError]);
+    // }, [localPosition, amount, duelId, checkAllowance, requestAllowance, toast, setError]);
   }, [localPosition, amount, duelId, requestAllowance, toast, setError]);
 
   useEffect(() => {
     const fetchDuel = async () => {
       try {
-        // console.log('Fetching duel data...');
         const response = await baseApiClient.get(
           `${SERVER_CONFIG.API_URL}/user/duels/get-duel-by-id/${duelId}`,
           {
             params: {
-              userAddress: address?.toLowerCase(), // Add the address from useAccount() to the request params
+              userAddress: address?.toLowerCase(),
             },
           },
         );
-        // console.log('Duel data fetched:', response.data);
         setDuel(response.data);
-        // if (response.data.endsIn < 0.5) {
-        //   console.log("in")
-        //   if (response.data.status === 3 || 4) {
-        //     return;
-        //   }
-        //   setMarketBuyEnabled(true);
-        //   console.log("s",marketBuyEnabled);
-        //   return;
-        // }
       } catch (error) {
         console.error('Error fetching duel:', error);
       }
@@ -285,7 +287,10 @@ const BuyOrder: FC<BuyOrderProps> = ({
           setMarketBuyEnabled(true);
           return;
         }
-        const timeleftForEnd = calculateTimeLeft(duel.status === -1 ? duel.createdAt : duel.startAt || 0, duel.endsIn);
+        const timeleftForEnd = calculateTimeLeft(
+          duel.status === -1 ? duel.createdAt : duel.startAt || 0,
+          duel.endsIn,
+        );
         // console.log(timeleftForEnd);
 
         // Extract hours, minutes, and seconds using regex
@@ -302,17 +307,22 @@ const BuyOrder: FC<BuyOrderProps> = ({
           const shortDuelThreshold = 10 * 60 * 1000; // 10 minutes in milliseconds
           const longDuelThreshold = 30 * 60 * 1000; // 30 minutes in milliseconds
 
-          if ((isShortDuel && timeInMilliseconds <= shortDuelThreshold) ||
-              (!isShortDuel && timeInMilliseconds <= longDuelThreshold)) {
+          if (
+            (isShortDuel && timeInMilliseconds <= shortDuelThreshold) ||
+            (!isShortDuel && timeInMilliseconds <= longDuelThreshold)
+          ) {
             setMarketBuyEnabled(true);
           } else {
             setMarketBuyEnabled(false);
-            const timeLeft = timeInMilliseconds - (isShortDuel ? shortDuelThreshold : longDuelThreshold);
+            const timeLeft =
+              timeInMilliseconds - (isShortDuel ? shortDuelThreshold : longDuelThreshold);
             const hours = Math.floor(timeLeft / (1000 * 60 * 60));
             const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
 
-            setCountdown(isShortDuel ? `${minutes}m ${seconds}s` : `${hours}h ${minutes}m ${seconds}s`);
+            setCountdown(
+              isShortDuel ? `${minutes}m ${seconds}s` : `${hours}h ${minutes}m ${seconds}s`,
+            );
           }
         }
       };
@@ -324,10 +334,14 @@ const BuyOrder: FC<BuyOrderProps> = ({
     }
   }, [duel]);
 
+  const isShortDurationDuel = useMemo(() => {
+    return duel?.endsIn !== undefined && duel.endsIn < 0.5;
+  }, [duel?.endsIn]);
+
   return (
     <Card className="bg-transparent border-none space-y-6">
       <CardContent className="p-0 space-y-6">
-        {/* YES/NO Buttons */}
+        {/* LONG/SHORT Buttons */}
         <PositionSelector
           selectedPosition={localPosition}
           onPositionSelect={handlePositionSelect}
@@ -359,7 +373,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
             </div>
           </div>
           <div className="relative">
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-xl text-white">$</div>
+            {/* <div className="absolute left-4 top-1/2 -translate-y-1/2 text-xl text-white">$</div> */}
             <Input
               id="amount"
               type="text"
@@ -367,7 +381,8 @@ const BuyOrder: FC<BuyOrderProps> = ({
               onChange={(e) => validateAndSetAmount(e.target.value)}
               disabled={isLoading}
               className={cn(
-                'w-full bg-zinc-800 rounded-xl py-6 pl-8 pr-20 text-xl text-white border-none focus:border-none focus:ring-0 focus-visible:ring-0',
+                // 'w-full bg-zinc-800 rounded-xl py-6 pl-8 pr-20 text-xl text-white border-none focus:border-none focus:ring-0 focus-visible:ring-0',
+                'w-full bg-zinc-800 rounded-xl py-6 pl-3 pr-20 text-xl text-white border-none focus:border-none focus:ring-0 focus-visible:ring-0',
                 error && 'border-red-500 ring-1 ring-red-500',
                 isLoading && 'opacity-50',
               )}
@@ -375,14 +390,14 @@ const BuyOrder: FC<BuyOrderProps> = ({
               autoComplete="off"
             />
             <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
-              <Image
+              {/* <Image
                 src={LOGOS.USDC.icon}
                 alt="USDC"
                 width={28}
                 height={28}
                 className="rounded-full object-cover"
-              />
-              <span className="text-white text-lg font-medium">USDC</span>
+              /> */}
+              <span className="text-white text-lg font-medium">{symbol}</span>
             </div>
           </div>
           {error && <p className="text-red-500 text-sm">{error}</p>}
@@ -399,7 +414,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
                 {calculateShares().toFixed(2)} {localPosition}
               </div>
               <div className="text-sm text-gray-400">
-                ${localPosition === OPTIONS_TYPE.YES ? yesPrice?.toFixed(2) : noPrice?.toFixed(2)}
+                ${localPosition === OPTIONS_TYPE.LONG ? yesPrice?.toFixed(2) : noPrice?.toFixed(2)}
               </div>
             </div>
           </CardContent>
@@ -425,25 +440,47 @@ const BuyOrder: FC<BuyOrderProps> = ({
             'Join Duel'
           )}
         </Button>
-        <Button
-          onClick={handleMarketBuy}
-          disabled={!isFormValid || isLoading || !marketBuyEnabled}
-          className={cn(
-            'w-full py-6 text-lg font-medium',
-            isFormValid && !isLoading && marketBuyEnabled
-              ? 'bg-[#F19ED2] hover:bg-[#F19ED2]/90 text-white'
-              : 'bg-zinc-800 text-zinc-400',
-          )}
+        <div
+          className="relative"
+          onMouseEnter={() => isShortDurationDuel && setShowMarketBuyMessage(true)}
+          onMouseLeave={() => setShowMarketBuyMessage(false)}
         >
-          {isMarketBuying ? (
-            <div className="flex items-center gap-2">
-              <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-              <span>Processing Order...</span>
+          <Button
+            onClick={handleMarketBuy}
+            disabled={!isFormValid || isLoading || !marketBuyEnabled || isShortDurationDuel}
+            className={cn(
+              'w-full py-6 text-lg font-medium',
+              isFormValid && !isLoading && marketBuyEnabled && !isShortDurationDuel
+                ? 'bg-[#F19ED2] hover:bg-[#F19ED2]/90 text-white'
+                : 'bg-zinc-800 text-zinc-400',
+            )}
+          >
+            {isMarketBuying ? (
+              <div className="flex items-center gap-2">
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                <span>Processing Order...</span>
+              </div>
+            ) : marketBuyEnabled && !isShortDurationDuel ? (
+              'Market Buy'
+            ) : isShortDurationDuel ? (
+              'Market Buy'
+            ) : (
+              `Market Buy ${countdown ? 'in' : ''} ${countdown}`
+            )}
+          </Button>
+
+          {/* Hover Message Box */}
+          {showMarketBuyMessage && isShortDurationDuel && (
+            <div
+              className="absolute top-full left-0 right-0 mt-2 p-4 
+                         bg-zinc-900 border border-zinc-800 rounded-lg
+                         text-center text-red-400 text-sm
+                         shadow-lg z-50"
+            >
+              Market Buy is unavailable for 5 and 15 mins duration duels
             </div>
-          ) : (
-            marketBuyEnabled ? 'Market Buy' : `Market Buy ${countdown ? 'in' : ''} ${countdown}`
           )}
-        </Button>
+        </div>
       </CardContent>
     </Card>
   );

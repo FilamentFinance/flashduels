@@ -21,6 +21,8 @@ interface PlaceOrderProps {
   endsIn: number;
   winCondition: number | undefined;
   token: string | undefined;
+  category?: string;
+  duration: number;
 }
 
 const PlaceOrder: FC<PlaceOrderProps> = ({
@@ -31,6 +33,8 @@ const PlaceOrder: FC<PlaceOrderProps> = ({
   triggerPrice,
   winCondition,
   token,
+  duration,
+  // category,
 }) => {
   const [orderType, setOrderType] = useState<OrderType>(ORDER_TYPE.BUY);
   const { yesPrice, noPrice, ws } = useWebSocketPrices(asset);
@@ -91,7 +95,13 @@ const PlaceOrder: FC<PlaceOrderProps> = ({
             noPrice={noPrice}
           />
         ) : (
-          <SellOrder duelId={duelId} asset={asset} yesPrice={yesPrice} noPrice={noPrice} />
+          <SellOrder
+            duelId={duelId}
+            asset={asset}
+            yesPrice={yesPrice}
+            noPrice={noPrice}
+            duration={duration}
+          />
         )}
       </CardContent>
     </Card>

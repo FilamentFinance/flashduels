@@ -1,6 +1,6 @@
 export const CLAIM_FUNDS = {
   DIALOG: {
-    TITLE: 'Claim Funds',
+    TITLE: 'Withdraw Funds',
   },
   TRIGGER: {
     // DEFAULT_AMOUNT: '$0.00',
@@ -20,6 +20,6 @@ export const CLAIM_FUNDS = {
     },
   },
   CLAIM_BUTTON: {
-    TEXT: 'Claim Funds',
+    TEXT: 'Withdraw Funds',
   },
 } as const;

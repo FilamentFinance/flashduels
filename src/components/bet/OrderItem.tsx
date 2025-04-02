@@ -18,7 +18,7 @@ export const OrderItem: React.FC<OrderItemProps> = ({ price, amount, type }) => 
     <TableRow className="border-0 hover:bg-neutral-800/50">
       <TableCell className="py-2 px-4 font-medium text-stone-200">{formattedPrice}</TableCell>
       <TableCell
-        className={cn('py-2 px-4 font-medium', type === 'YES' ? 'text-[#95DE64]' : 'text-red-500')}
+        className={cn('py-2 px-4 font-medium', type === 'LONG' ? 'text-[#95DE64]' : 'text-red-500')}
       >
         {formattedAmount} {type}
       </TableCell>
@@ -32,7 +32,7 @@ export const OrderItem: React.FC<OrderItemProps> = ({ price, amount, type }) => 
             'text-neutral-300 hover:text-white',
             'hover:bg-neutral-800 hover:border-neutral-600',
             'transition-colors duration-200',
-            type === OPTIONS_TYPE.YES ? 'hover:border-[#95DE64]/50' : 'hover:border-red-500/50',
+            type === OPTIONS_TYPE.LONG ? 'hover:border-[#95DE64]/50' : 'hover:border-red-500/50',
           )}
         >
           BUY

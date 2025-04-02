@@ -91,6 +91,7 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
       durationNumber,
     };
     try {
+      console.log("creating coin duel", duelData);
       const result = await createCoinDuel(duelData);
 
       if (result.success) {
@@ -345,7 +346,7 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
             <img src={selectedAsset.image} alt={selectedToken} width={16} height={16} />
           )}
           <span>
-            <strong>YES</strong> wins if mark price is{' '}
+            <strong>LONG</strong> wins if mark price is{' '}
             {formData.winCondition === WIN_CONDITIONS.ABOVE ? (
               <strong>ABOVE</strong>
             ) : (

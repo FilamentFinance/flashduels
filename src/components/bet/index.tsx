@@ -213,6 +213,7 @@ const Bet: FC = () => {
           triggerPrice={duel.triggerPrice}
           winCondition={duel.winCondition}
           duelType={duel.duelType}
+          duration={duel.endsIn}
         />
       </div>
     </div>

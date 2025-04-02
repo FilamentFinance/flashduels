@@ -13,7 +13,7 @@ import Categories from './categories';
 import Duels from './duals';
 import DuelStatus from './duel-status';
 import SearchDuels from './search-duel';
-import {CreatorVerify} from '../creator/verify';
+import { CreatorVerify } from '../creator/verify';
 
 const Markets: FC = () => {
   const router = useRouter();
@@ -53,23 +53,27 @@ const Markets: FC = () => {
           const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
           const filteredDuels = message.allDuels
             .filter((item: NewDuelItem) => {
+              const endTime = item.startAt! + item.endsIn;
+
               if (activeStatus === DUEL_STATUS.LIVE) {
-                if (item.duelType === "FLASH_DUEL") {
-                  const endTime = item.startAt! + item.endsIn;
-                  // Only show live flash duels that haven't passed their end time
-                  return item.status === 0 && endTime >= currentTime;
-                }
-                // For other duel types, just check status
-                return item.status === 0;
+                // if (item.duelType === 'FLASH_DUEL') {
+                  // For FLASH_DUELS in LIVE section:
+                  // Show if status is 0 (live) and either:
+                  // 1. End time hasn't been reached, or
+                  // 2. End time has been reached but admin hasn't resolved yet
+                  return item.status === 0;
+                // } else {
+                //   // For CRYPTO_DUELS in LIVE section:
+                //   // Only show if status is 0 (live) and end time hasn't been reached
+                  // return item.status === 0;
+                // }
               } else if (activeStatus === DUEL_STATUS.BOOTSTRAPPING) {
                 return item.status === -1; // Only bootstrapping duels
               } else if (activeStatus === DUEL_STATUS.COMPLETED) {
                 return item.status === 1; // Only completed duels
               } else if (activeStatus === DUEL_STATUS.YET_TO_BE_RESOLVED) {
-                // Filter for duels that are still marked as live (status 0) but their end time has passed
-                console.log('YET_TO_BE_RESOLVED in startAt', item.startAt, item.createdAt)
-                const endTime = item.startAt! + item.endsIn;
-                return item.status === 0 && endTime < currentTime;
+                // Only show FLASH_DUELS that have passed their end time but haven't been resolved
+                return item.duelType === 'FLASH_DUEL' && item.status === 0 && endTime < currentTime;
               }
               return true;
             })
