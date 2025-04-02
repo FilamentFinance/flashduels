@@ -13,19 +13,6 @@ import { OptionsType } from '@/types/duel';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { useAccount } from 'wagmi';
 import PositionSelector from './position-selector';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/shadcn/components/ui/tooltip';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/shadcn/components/ui/dialog';
 
 interface SellOrderProps {
   duelId: string;
