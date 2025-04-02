@@ -91,6 +91,7 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
       durationNumber,
     };
     try {
+      console.log("creating coin duel", duelData);
       const result = await createCoinDuel(duelData);
 
       if (result.success) {

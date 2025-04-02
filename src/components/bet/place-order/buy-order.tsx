@@ -211,6 +211,12 @@ const BuyOrder: FC<BuyOrderProps> = ({
       });
       // } else {
       // Place the market buy order
+      console.log('Market buy:', {
+        duelId,
+        betAmount: amount,
+        index: optionIndex,
+        userAddress: address?.toLowerCase(),
+      });
       const response = await baseApiClient.post(`${SERVER_CONFIG.API_URL}/user/betOption/buy`, {
         duelId,
         betAmount: amount,

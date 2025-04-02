@@ -11,7 +11,9 @@ import { formatUnits } from 'viem';
 import { useAccount, useDisconnect } from 'wagmi';
 import { AccountShimmer } from './account-shimmer';
 import { openExternalLinkInNewTab } from '@/utils/general/open-external-link';
+import { SERVER_CONFIG } from '@/config/server-config';
 
+const symbol = SERVER_CONFIG.PRODUCTION ? 'CRD' : 'FDCRD';
 interface AccountData {
   positionValue: string;
   pnl: string;
@@ -129,7 +131,9 @@ const AccountDetails: FC = () => {
         {/* Account Value */}
         <div className="mb-8">
           <h2 className="text-sm font-medium text-zinc-500 mb-2">Account Value</h2>
-          <div className="text-[2.5rem] font-bold text-white leading-none">${formattedBalance}</div>
+          <div className="text-[2rem] font-bold text-white leading-none">
+            {formattedBalance} <span className="text-[1.85rem]">{symbol}</span>
+          </div>
         </div>
 
         {/* Stats Grid */}
