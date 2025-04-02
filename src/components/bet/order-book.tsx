@@ -47,7 +47,7 @@ const OrderBook: FC<OrderBookProps> = ({ yesBets, noBets, handleBuyOrders }) => 
           <TableRow className="border-b-2 border-stone-900 hover:bg-transparent">
             <TableHead className="w-24 text-stone-200 py-3">Price</TableHead>
             <TableHead className="text-stone-200 py-3">
-              {type === OPTIONS_TYPE.YES ? 'Quantity' : 'Amount'}
+              {type === OPTIONS_TYPE.LONG ? 'Quantity' : 'Amount'}
             </TableHead>
             <TableHead className="w-24 py-3" />
           </TableRow>
@@ -67,10 +67,10 @@ const OrderBook: FC<OrderBookProps> = ({ yesBets, noBets, handleBuyOrders }) => 
         ) : (
           <div className="flex h-[300px] divide-x-2 divide-stone-900">
             <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-stone-700 scrollbar-track-transparent">
-              <OrderTable orders={yesBets} type={OPTIONS_TYPE.YES} />
+              <OrderTable orders={yesBets} type={OPTIONS_TYPE.LONG} />
             </div>
             <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-stone-700 scrollbar-track-transparent">
-              <OrderTable orders={noBets} type={OPTIONS_TYPE.NO} />
+              <OrderTable orders={noBets} type={OPTIONS_TYPE.SHORT} />
             </div>
           </div>
         )}

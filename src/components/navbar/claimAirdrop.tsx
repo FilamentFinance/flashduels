@@ -194,7 +194,7 @@ const ClaimAirdropButton: FC = () => {
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>{symbol} Tokens</DialogTitle>
+            <DialogTitle className="text-center">Filament Credits ({symbol})</DialogTitle>
           </DialogHeader>
 
           <div className="flex flex-col gap-4 py-4">
@@ -215,7 +215,8 @@ const ClaimAirdropButton: FC = () => {
                 >
                   {status === TRANSACTION_STATUS.PENDING
                     ? 'Claiming...'
-                    : `Claim ${formatUnits(BigInt(availableToClaim), 18)} ${symbol}`}
+                    // : `Claim ${formatUnits(BigInt(availableToClaim), 18)} ${symbol}`}
+                    : `Claim ${symbol}`}
                 </Button>
               )}
 
@@ -226,7 +227,7 @@ const ClaimAirdropButton: FC = () => {
 
             {status === TRANSACTION_STATUS.SUCCESS && (
               <div className="text-center text-sm text-green-500">
-                You have claimed {formatUnits(BigInt(claimedAmount.toString()), 18)} {symbol}! 🎉
+                Congratulations 🎉 You have claimed {formatUnits(BigInt(claimedAmount.toString()), 18)} {symbol}!
               </div>
             )}
           </div>

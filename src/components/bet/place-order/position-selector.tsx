@@ -16,7 +16,7 @@ const PositionSelector: FC<PositionSelectorProps> = ({
   disabled = false,
 }) => {
   const getButtonStyles = (position: OptionsType) => {
-    if (position === OPTIONS_TYPE.YES) {
+    if (position === OPTIONS_TYPE.LONG) {
       return selectedPosition === position
         ? 'bg-[#95DE64] text-black hover:bg-[#95DE64]/90'
         : 'bg-[#1A2515] text-[#95DE64] hover:bg-[#1A2515]/80';

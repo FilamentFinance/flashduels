@@ -19,6 +19,7 @@ import { useSelector } from 'react-redux';
 import { formatUnits, parseUnits } from 'viem/utils';
 import { useAccount } from 'wagmi';
 import { NewDuelItem } from '@/types/duel';
+import { mapCategoryToEnumIndex } from '@/utils/general/create-duels';
 
 import PositionSelector from './position-selector';
 import { calculateTimeLeft } from '@/utils/time';
@@ -35,6 +36,8 @@ interface BuyOrderProps {
   noPrice: number | undefined;
 }
 
+const symbol = SERVER_CONFIG.PRODUCTION ? 'CRD' : 'FDCRD';
+
 const BuyOrder: FC<BuyOrderProps> = ({
   duelId,
   duelType,
@@ -48,15 +51,15 @@ const BuyOrder: FC<BuyOrderProps> = ({
 }) => {
   const selectedPosition = useSelector((state: RootState) => state.bet.selectedPosition);
   const [localPosition, setLocalPosition] = useState<OptionsType | null>(() => {
-    if (selectedPosition === 'YES') return OPTIONS_TYPE.YES;
-    if (selectedPosition === 'NO') return OPTIONS_TYPE.NO;
+    if (selectedPosition === 'LONG') return OPTIONS_TYPE.LONG;
+    if (selectedPosition === 'SHORT') return OPTIONS_TYPE.SHORT;
     return null;
   });
 
   // Update local position when Redux state changes
   useEffect(() => {
-    if (selectedPosition === 'YES') setLocalPosition(OPTIONS_TYPE.YES);
-    else if (selectedPosition === 'NO') setLocalPosition(OPTIONS_TYPE.NO);
+    if (selectedPosition === 'LONG') setLocalPosition(OPTIONS_TYPE.LONG);
+    else if (selectedPosition === 'SHORT') setLocalPosition(OPTIONS_TYPE.SHORT);
   }, [selectedPosition]);
 
   const [amount, setAmount] = useState('');
@@ -118,7 +121,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
 
   const calculateShares = useCallback(() => {
     if (!localPosition || !amount) return 0;
-    const price = localPosition === OPTIONS_TYPE.YES ? yesPrice : noPrice;
+    const price = localPosition === OPTIONS_TYPE.LONG ? yesPrice : noPrice;
     return Number(amount) / Number(price || 0.15);
   }, [amount, localPosition, yesPrice, noPrice]);
 
@@ -146,7 +149,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
           bet: localPosition,
           address: address?.toLowerCase(),
           betAmount: Number(amount),
-          optionIndex: localPosition === OPTIONS_TYPE.YES ? 0 : 1,
+          optionIndex: localPosition === OPTIONS_TYPE.LONG ? 0 : 1,
           duelId,
           duelType,
           asset,
@@ -160,7 +163,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
 
         toast({
           title: 'Success!',
-          description: `Successfully placed ${localPosition} bet for ${amount} USDC`,
+          description: `Successfully placed ${localPosition} bet for ${amount} ${symbol}`,
         });
       }
     } catch (error) {
@@ -194,7 +197,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
 
     setIsMarketBuying(true);
     try {
-      const optionIndex = localPosition === OPTIONS_TYPE.YES ? 0 : 1;
+      const optionIndex = localPosition === OPTIONS_TYPE.LONG ? 0 : 1;
 
       // Check token allowance first
       // const hasAllowance = await checkAllowance();
@@ -208,21 +211,24 @@ const BuyOrder: FC<BuyOrderProps> = ({
       await requestAllowance(parseUnits(amount, 18)); // CRD is 18 decimals
       toast({
         title: 'Approval Successful',
-        description: 'Token approval completed. You can now place your order.',
+        description: 'Token approval completed. Placing your order.',
       });
       // } else {
       // Place the market buy order
-      console.log('Market buy:', {
+      console.log('duelCategory: ', duel?.category);
+      console.log('Market buy: ', {
         duelId,
         betAmount: amount,
         index: optionIndex,
         userAddress: address?.toLowerCase(),
+        duelCategory: mapCategoryToEnumIndex(duel?.category || ''),
       });
       const response = await baseApiClient.post(`${SERVER_CONFIG.API_URL}/user/betOption/buy`, {
         duelId,
         betAmount: amount,
         index: optionIndex,
         userAddress: address?.toLowerCase(),
+        duelCategory: mapCategoryToEnumIndex(duel?.category || '' ),
       });
 
       // Show success message
@@ -257,26 +263,15 @@ const BuyOrder: FC<BuyOrderProps> = ({
   useEffect(() => {
     const fetchDuel = async () => {
       try {
-        // console.log('Fetching duel data...');
         const response = await baseApiClient.get(
           `${SERVER_CONFIG.API_URL}/user/duels/get-duel-by-id/${duelId}`,
           {
             params: {
-              userAddress: address?.toLowerCase(), // Add the address from useAccount() to the request params
+              userAddress: address?.toLowerCase(),
             },
           },
         );
-        // console.log('Duel data fetched:', response.data);
         setDuel(response.data);
-        // if (response.data.endsIn < 0.5) {
-        //   console.log("in")
-        //   if (response.data.status === 3 || 4) {
-        //     return;
-        //   }
-        //   setMarketBuyEnabled(true);
-        //   console.log("s",marketBuyEnabled);
-        //   return;
-        // }
       } catch (error) {
         console.error('Error fetching duel:', error);
       }
@@ -346,7 +341,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
   return (
     <Card className="bg-transparent border-none space-y-6">
       <CardContent className="p-0 space-y-6">
-        {/* YES/NO Buttons */}
+        {/* LONG/SHORT Buttons */}
         <PositionSelector
           selectedPosition={localPosition}
           onPositionSelect={handlePositionSelect}
@@ -378,7 +373,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
             </div>
           </div>
           <div className="relative">
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-xl text-white">$</div>
+            {/* <div className="absolute left-4 top-1/2 -translate-y-1/2 text-xl text-white">$</div> */}
             <Input
               id="amount"
               type="text"
@@ -386,7 +381,8 @@ const BuyOrder: FC<BuyOrderProps> = ({
               onChange={(e) => validateAndSetAmount(e.target.value)}
               disabled={isLoading}
               className={cn(
-                'w-full bg-zinc-800 rounded-xl py-6 pl-8 pr-20 text-xl text-white border-none focus:border-none focus:ring-0 focus-visible:ring-0',
+                // 'w-full bg-zinc-800 rounded-xl py-6 pl-8 pr-20 text-xl text-white border-none focus:border-none focus:ring-0 focus-visible:ring-0',
+                'w-full bg-zinc-800 rounded-xl py-6 pl-3 pr-20 text-xl text-white border-none focus:border-none focus:ring-0 focus-visible:ring-0',
                 error && 'border-red-500 ring-1 ring-red-500',
                 isLoading && 'opacity-50',
               )}
@@ -394,14 +390,14 @@ const BuyOrder: FC<BuyOrderProps> = ({
               autoComplete="off"
             />
             <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
-              <Image
+              {/* <Image
                 src={LOGOS.USDC.icon}
                 alt="USDC"
                 width={28}
                 height={28}
                 className="rounded-full object-cover"
-              />
-              <span className="text-white text-lg font-medium">USDC</span>
+              /> */}
+              <span className="text-white text-lg font-medium">{symbol}</span>
             </div>
           </div>
           {error && <p className="text-red-500 text-sm">{error}</p>}
@@ -418,7 +414,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
                 {calculateShares().toFixed(2)} {localPosition}
               </div>
               <div className="text-sm text-gray-400">
-                ${localPosition === OPTIONS_TYPE.YES ? yesPrice?.toFixed(2) : noPrice?.toFixed(2)}
+                ${localPosition === OPTIONS_TYPE.LONG ? yesPrice?.toFixed(2) : noPrice?.toFixed(2)}
               </div>
             </div>
           </CardContent>
