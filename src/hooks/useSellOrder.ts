@@ -227,7 +227,7 @@ const useSellOrder = (
               const args = decodedEvent.args as unknown as SaleCreatedEventArgs;
               const { saleId, totalPrice } = args;
 
-              if (!saleId || !totalPrice) {
+              if (saleId === undefined || saleId === null || totalPrice === undefined || totalPrice === null) {
                 console.error('Required event args are missing:', { saleId, totalPrice });
                 continue;
               }
