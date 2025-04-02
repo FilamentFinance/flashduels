@@ -1,6 +1,7 @@
 'use client';
 
 import { baseApiClient } from '@/config/api-client';
+// import { getIconPath } from '@/components/bet';
 import {
   Table,
   TableBody,
@@ -39,33 +40,41 @@ interface DuelItem {
   createdAt?: number;
   startAt?: number;
 }
+const getIconPath = (duelType?: string, title?: string): string => {
+  if (duelType === 'COIN_DUEL' && title) {
+    const symbol = title.split(' ')[1];
+    return `/crypto-icons/light/crypto-${symbol.toLowerCase()}-usd.inline.svg`;
+  }
+  return '';
+};
 
-const TokenIcon: FC<{ token?: string; imageSrc?: string }> = ({ token, imageSrc }) => {
-  if (imageSrc) {
+const TokenIcon: FC<{ duelType?: string; title?: string; duel: DuelItem }> = ({
+  duelType,
+  title,
+  duel,
+}) => {
+  // For crypto duels, use getIconPath
+  if (duelType === 'COIN_DUEL') {
+    return title ? (
+      <Image
+        src={getIconPath(duelType, title)}
+        alt={`${title} icon`}
+        width={24}
+        height={24}
+        className="rounded-full"
+      />
+    ) : null;
+  }
+
+  // For other duels, use provided imageSrc
+  if (duel.imageSrc) {
+    console.log('duel.imageSrc', duel);
     return (
-      <Image src={imageSrc} alt="Token icon" width={24} height={24} className="rounded-full" />
+      <Image src={duel.imageSrc} alt="Token icon" width={24} height={24} className="rounded-full" />
     );
   }
 
-  const tokenIcons = {
-    BTC: '/btc.svg',
-    ETH: '/eth.svg',
-    USDT: '/usdt.svg',
-  };
-
-  if (!token || !tokenIcons[token as keyof typeof tokenIcons]) {
-    return null;
-  }
-
-  return (
-    <Image
-      src={tokenIcons[token as keyof typeof tokenIcons]}
-      alt={`${token} icon`}
-      width={24}
-      height={24}
-      className="rounded-full"
-    />
-  );
+  return null;
 };
 
 const StatusBadge: FC<{ status: number }> = ({ status }) => {
@@ -227,7 +236,7 @@ const Duels: FC = () => {
               {duels.map((duel, index) => (
                 <TableRow key={index} className="border-neutral-800 hover:bg-neutral-800/50">
                   <TableCell className="flex items-center gap-3 font-medium text-gray-100">
-                    <TokenIcon token={duel.token} imageSrc={duel.imageSrc} />
+                    <TokenIcon duelType={duel.duelType} title={duel.title} duel={duel} />
                     {duel.title}
                   </TableCell>
                   <TableCell className="text-gray-300">{duel.duelType}</TableCell>

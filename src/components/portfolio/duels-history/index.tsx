@@ -132,54 +132,64 @@ const DuelsHistory: FC = () => {
         {/* Table Rows */}
         <div className="flex flex-col w-full">
           {activeData.length > 0 ? (
-            activeData.map((item, index) => (
-              <React.Fragment key={index}>
-                {item?.yesBet?.amount && (
-                  <DuelRow
-                    duelName={
-                      item.duelDetails.betString ||
-                      `Will ${item.duelDetails.token} be ${
-                        item.duelDetails.winCondition === 0 ? 'ABOVE' : 'BELOW'
-                      } ${item.duelDetails.triggerPrice}`
-                    }
-                    direction="Yes"
-                    status={item.duelDetails.status}
-                    createdAt={item.duelDetails.createdAt}
-                    startAt={item.duelDetails.startAt}
-                    avgPrice={item.yesBet.price as string}
-                    quantity={item.yesBet.quantity as string}
-                    amount={item.yesBet.amount as string}
-                    resolvesIn={item.duelDetails.endsIn as number}
-                    icon={item.duelDetails.betIcon}
-                    pnl={item.pnl}
-                    activeTab={activeTab}
-                    winner={activeTab == 'history' ? item.duelDetails.winner : undefined}
-                  />
-                )}
-                {item?.noBet?.amount && (
-                  <DuelRow
-                    duelName={
-                      item.duelDetails.betString ||
-                      `Will ${item.duelDetails.token} be ${
-                        item.duelDetails.winCondition === 0 ? 'ABOVE' : 'BELOW'
-                      } ${item.duelDetails.triggerPrice}`
-                    }
-                    direction="No"
-                    status={item.duelDetails.status}
-                    createdAt={item.duelDetails.createdAt}
-                    startAt={item.duelDetails.startAt}
-                    avgPrice={item.noBet.price as string}
-                    quantity={item.noBet.quantity}
-                    amount={item?.yesBet?.amount as string}
-                    resolvesIn={item.duelDetails.endsIn as number}
-                    icon={item.duelDetails.betIcon}
-                    pnl={item.pnl}
-                    activeTab={activeTab}
-                    winner={activeTab == 'history' ? item.duelDetails.winner : undefined}
-                  />
-                )}
-              </React.Fragment>
-            ))
+            activeData.map((item, index) => {
+              console.log('Rendering duel item:', {
+                index,
+                duelDetails: item.duelDetails,
+                yesBet: item.yesBet,
+                noBet: item.noBet,
+              });
+
+              return (
+                <React.Fragment key={index}>
+                  {item?.yesBet?.amount && (
+                    <DuelRow
+                      duelName={
+                        item.duelDetails.betString ||
+                        `Will ${item.duelDetails.token} be ${
+                          item.duelDetails.winCondition === 0 ? 'ABOVE' : 'BELOW'
+                        } ${item.duelDetails.triggerPrice}`
+                      }
+                      direction="Yes"
+                      status={item.duelDetails.status}
+                      createdAt={item.duelDetails.createdAt}
+                      startAt={item.duelDetails.startAt}
+                      avgPrice={item.yesBet.price as string}
+                      quantity={item.yesBet.quantity as string}
+                      amount={item.yesBet.amount as string}
+                      resolvesIn={item.duelDetails.endsIn as number}
+                      icon={item.duelDetails.betIcon}
+                      duelType={item.duelDetails.duelType}
+                      pnl={item.pnl}
+                      activeTab={activeTab}
+                      winner={activeTab == 'history' ? item.duelDetails.winner : undefined}
+                    />
+                  )}
+                  {item?.noBet?.amount && (
+                    <DuelRow
+                      duelName={
+                        item.duelDetails.betString ||
+                        `Will ${item.duelDetails.token} be ${
+                          item.duelDetails.winCondition === 0 ? 'ABOVE' : 'BELOW'
+                        } ${item.duelDetails.triggerPrice}`
+                      }
+                      direction="No"
+                      status={item.duelDetails.status}
+                      createdAt={item.duelDetails.createdAt}
+                      startAt={item.duelDetails.startAt}
+                      avgPrice={item.noBet.price as string}
+                      quantity={item.noBet.quantity}
+                      amount={item?.yesBet?.amount as string}
+                      resolvesIn={item.duelDetails.endsIn as number}
+                      icon={item.duelDetails.betIcon}
+                      pnl={item.pnl}
+                      activeTab={activeTab}
+                      winner={activeTab == 'history' ? item.duelDetails.winner : undefined}
+                    />
+                  )}
+                </React.Fragment>
+              );
+            })
           ) : (
             <DuelState type="empty" />
           )}

@@ -29,7 +29,15 @@ type OptionBetType = {
   price: string;
   sellId: number;
   betOption?: { index: number };
+  category: string;
 };
+
+interface BetResponse {
+  bets: Array<{
+    options: OptionBetType[];
+    category: string;
+  }>;
+}
 
 const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice }) => {
   const [selectedPosition, setSelectedPosition] = useState<OptionsType | null>(null);
@@ -42,11 +50,20 @@ const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice }) => {
   const [selectedBet, setSelectedBet] = useState<OptionBetType | null>(null);
   const [error, setError] = useState('');
   const { toast } = useToast();
+
+  console.log('amount before useSellOrder', amount);
+  console.log(
+    'selectedBet?.category ?? ',
+    selectedBet?.category ?? '',
+    'selectedBet?.index ?? ',
+    selectedBet?.index ?? 0,
+  );
   const { sellOrder, status, isApprovalMining, isSellMining } = useSellOrder(
     duelId,
     selectedBet?.index ?? 0,
     amount,
     price,
+    selectedBet?.category ?? '',
   );
 
   const handlePositionSelect = useCallback(
@@ -175,7 +192,7 @@ const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice }) => {
       if (!result.success) {
         throw new Error(result.error || 'Failed to place sell order');
       }
-      console.log({
+      console.log('Sell order:', {
         duelId,
         address,
         position: selectedPosition,
@@ -240,7 +257,7 @@ const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice }) => {
 
   const getBets = useCallback(async () => {
     try {
-      const response = await baseApiClient.post(
+      const response = await baseApiClient.post<BetResponse>(
         `${SERVER_CONFIG.API_URL}/user/bets/getByUser`,
         {
           duelId,
@@ -252,16 +269,18 @@ const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice }) => {
           },
         },
       );
-      setBetsData(response.data.bets[0].options);
+
+      const betsWithCategory = response.data.bets[0].options.map((option: OptionBetType) => ({
+        ...option,
+        category: response.data.bets[0].category,
+      }));
+      setBetsData(betsWithCategory);
+
+      console.log('Bets with category:', betsWithCategory);
     } catch (error) {
       console.error('Error fetching bet:', error);
-      // toast({
-      //   title: 'Error',
-      //   description: 'Failed to fetch your bets',
-      //   variant: 'destructive',
-      // });
     }
-  }, [duelId, address, toast]);
+  }, [duelId, address]);
 
   const handleBetSelect = useCallback((bet: OptionBetType) => {
     const position = bet.index === 0 ? OPTIONS_TYPE.YES : OPTIONS_TYPE.NO;

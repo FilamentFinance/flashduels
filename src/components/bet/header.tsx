@@ -3,7 +3,7 @@ import { FC } from 'react';
 import DetailsAndRules from './details-and-rules';
 import PercentageBlocks from './percentage-blocks';
 
-type Props = {
+interface Props {
   title: string;
   logo: string;
   triggerPrice: string;
@@ -14,7 +14,8 @@ type Props = {
   percentage?: number;
   duelType?: 'COIN_DUEL' | 'FLASH_DUEL';
   imageSrc?: string;
-};
+  category?: string;
+}
 
 const Header: FC<Props> = ({
   title,
@@ -25,6 +26,7 @@ const Header: FC<Props> = ({
   percentage,
   duelType,
   imageSrc,
+  // category,
 }) => {
   let symbol, iconPath;
   if (duelType === 'COIN_DUEL') {

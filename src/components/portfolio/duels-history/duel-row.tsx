@@ -16,7 +16,25 @@ interface DuelRowProps {
   activeTab: string;
   quantity: string;
   winner?: number;
+  duelType?: string;
 }
+
+const getIconPath = (duelType?: string, title?: string): string => {
+  console.log('getIconPath inputs:', { duelType, title });
+
+  if (title) {
+    // Extract token name - works for both "Will AAVE be ABOVE 148" format
+    const tokenMatch = title.match(/Will (\w+) be/);
+    if (tokenMatch && tokenMatch[1]) {
+      const symbol = tokenMatch[1];
+      const path = `/crypto-icons/light/crypto-${symbol.toLowerCase()}-usd.inline.svg`;
+      console.log('Generated icon path:', path);
+      return path;
+    }
+  }
+  console.log('No icon path generated, returning empty string');
+  return '';
+};
 
 export const DuelRow: React.FC<DuelRowProps> = ({
   duelName,
@@ -32,7 +50,15 @@ export const DuelRow: React.FC<DuelRowProps> = ({
   activeTab,
   quantity,
   winner,
+  duelType,
 }) => {
+  console.log('DuelRow props:', {
+    duelName,
+    direction,
+    duelType,
+    icon,
+  });
+
   const thirtyMinutesMs = 30 * 60 * 1000;
   const durationMs = resolvesIn * 60 * 60 * 1000;
   const [time, setTimeLeft] = React.useState('');
@@ -71,16 +97,27 @@ export const DuelRow: React.FC<DuelRowProps> = ({
     return () => clearInterval(interval);
   }, [createdAt, startAt, resolvesIn]);
 
+  // Always try to get icon path regardless of direction
+  const iconPath = getIconPath(duelType, duelName) || icon;
+  console.log('Final iconPath used:', iconPath);
+
   return (
     <div className="flex items-center px-4 py-2 text-sm text-stone-300 border-b border-neutral-800">
       <div className="w-[25%] flex items-center gap-2">
-        <Image
-          src={icon || '/empty-string.png'}
-          alt={duelName}
-          width={24}
-          height={24}
-          className="rounded-full object-cover"
-        />
+        {iconPath && (
+          <Image
+            src={iconPath}
+            alt={`${duelName} icon`}
+            width={24}
+            height={24}
+            className="rounded-full"
+            onError={(e) => {
+              console.error('Image failed to load:', iconPath);
+              const target = e.target as HTMLImageElement;
+              target.style.display = 'none';
+            }}
+          />
+        )}
         <span>{duelName}</span>
       </div>
       <div

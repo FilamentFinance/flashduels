@@ -21,6 +21,7 @@ interface PlaceOrderProps {
   endsIn: number;
   winCondition: number | undefined;
   token: string | undefined;
+  category?: string;
 }
 
 const PlaceOrder: FC<PlaceOrderProps> = ({
@@ -31,6 +32,7 @@ const PlaceOrder: FC<PlaceOrderProps> = ({
   triggerPrice,
   winCondition,
   token,
+  // category,
 }) => {
   const [orderType, setOrderType] = useState<OrderType>(ORDER_TYPE.BUY);
   const { yesPrice, noPrice, ws } = useWebSocketPrices(asset);
