@@ -84,8 +84,8 @@ const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice, duration }) 
       // Auto-select the first bet that matches the position
       const matchingBets = betsData.filter(
         (bet) =>
-          (position === OPTIONS_TYPE.YES && bet.index === 0) ||
-          (position === OPTIONS_TYPE.NO && bet.index === 1),
+          (position === OPTIONS_TYPE.LONG && bet.index === 0) ||
+          (position === OPTIONS_TYPE.SHORT && bet.index === 1),
       );
 
       if (matchingBets.length > 0) {
@@ -300,7 +300,7 @@ const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice, duration }) 
   }, [duelId, address]);
 
   const handleBetSelect = useCallback((bet: OptionBetType) => {
-    const position = bet.index === 0 ? OPTIONS_TYPE.YES : OPTIONS_TYPE.NO;
+    const position = bet.index === 0 ? OPTIONS_TYPE.LONG : OPTIONS_TYPE.SHORT;
     setSelectedPosition(position);
     setAmount(bet.quantity);
     setPrice(bet.price);
@@ -408,7 +408,7 @@ const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice, duration }) 
                     )}
                   >
                     <span>
-                      {Number(bet.quantity).toFixed(4)} {OPTIONS_TYPE.YES}
+                      {Number(bet.quantity).toFixed(4)} {OPTIONS_TYPE.LONG}
                     </span>
                     <span>${bet.price}</span>
                   </Button>
@@ -431,7 +431,7 @@ const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice, duration }) 
                     )}
                   >
                     <span>
-                      {Number(bet.quantity).toFixed(4)} {OPTIONS_TYPE.NO}
+                      {Number(bet.quantity).toFixed(4)} {OPTIONS_TYPE.SHORT}
                     </span>
                     <span>${bet.price}</span>
                   </Button>

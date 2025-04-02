@@ -18,28 +18,28 @@ const PositionSelector: FC<PositionSelectorProps> = ({
   return (
     <div className={cn('grid grid-cols-2 gap-4', className)}>
       <Button
-        onClick={() => onPositionSelect?.(POSITION.YES)}
+        onClick={() => onPositionSelect?.(POSITION.LONG)}
         variant="ghost"
         className={cn(
           'h-12 rounded-2xl font-medium text-lg transition-all duration-200',
-          selectedPosition === POSITION.YES
+          selectedPosition === POSITION.LONG
             ? 'bg-[#95DE64] text-black hover:bg-[#95DE64]/90'
             : 'bg-[#4BF90F0D] text-zinc-400 border-2 border-[#4BF90F0D] hover:bg-[#4BF90F0D]/20',
         )}
       >
-        {POSITION.YES}
+        {POSITION.LONG}
       </Button>
       <Button
-        onClick={() => onPositionSelect?.(POSITION.NO)}
+        onClick={() => onPositionSelect?.(POSITION.SHORT)}
         variant="ghost"
         className={cn(
           'h-12 rounded-2xl font-medium text-lg transition-all duration-200',
-          selectedPosition === POSITION.NO
+          selectedPosition === POSITION.SHORT
             ? 'bg-[#E84749] text-white hover:bg-[#E84749]/90'
             : 'bg-[#F814161A] text-zinc-400 hover:bg-[#E84749]/20',
         )}
       >
-        {POSITION.NO}
+        {POSITION.SHORT}
       </Button>
     </div>
   );

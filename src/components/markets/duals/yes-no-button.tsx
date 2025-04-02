@@ -21,16 +21,16 @@ const YesNoButton: FC<YesNoButtonProps> = ({ position, onClick }) => {
       onClick={onClick}
       className={cn(
         'w-24 py-4 text-base font-medium transition-all duration-200 rounded-xl border-0',
-        position === OPTIONS_TYPE.YES &&
+        position === OPTIONS_TYPE.LONG &&
           !isSelected &&
           'text-[#95DE64] bg-[#95DE64]/10 hover:bg-[#95DE64]/20',
-        position === OPTIONS_TYPE.YES &&
+        position === OPTIONS_TYPE.LONG &&
           isSelected &&
           'text-white bg-[#95DE64]/20 hover:bg-[#95DE64]/30',
-        position === OPTIONS_TYPE.NO &&
+        position === OPTIONS_TYPE.SHORT &&
           !isSelected &&
           'text-red-500 bg-red-500/10 hover:bg-red-500/20',
-        position === OPTIONS_TYPE.NO &&
+        position === OPTIONS_TYPE.SHORT &&
           isSelected &&
           'text-white bg-red-500/20 hover:bg-red-500/30',
       )}
