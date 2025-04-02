@@ -1,7 +1,7 @@
 'use client';
 
 import { Dialog } from '@/components/ui/custom-modal';
-import { LOGOS } from '@/constants/app/logos';
+// import { LOGOS } from '@/constants/app/logos';
 import { CLAIM_FUNDS } from '@/constants/content/claim-funds';
 import { Button } from '@/shadcn/components/ui/button';
 import Image from 'next/image';

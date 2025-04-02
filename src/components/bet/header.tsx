@@ -26,7 +26,7 @@ const Header: FC<Props> = ({
   percentage,
   duelType,
   imageSrc,
-  category,
+  // category,
 }) => {
   let symbol, iconPath;
   if (duelType === 'COIN_DUEL') {

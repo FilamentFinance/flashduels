@@ -32,6 +32,13 @@ type OptionBetType = {
   category: string;
 };
 
+interface BetResponse {
+  bets: Array<{
+    options: OptionBetType[];
+    category: string;
+  }>;
+}
+
 const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice }) => {
   const [selectedPosition, setSelectedPosition] = useState<OptionsType | null>(null);
   const [amount, setAmount] = useState('');
@@ -250,7 +257,7 @@ const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice }) => {
 
   const getBets = useCallback(async () => {
     try {
-      const response = await baseApiClient.post(
+      const response = await baseApiClient.post<BetResponse>(
         `${SERVER_CONFIG.API_URL}/user/bets/getByUser`,
         {
           duelId,
@@ -262,14 +269,14 @@ const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice }) => {
           },
         },
       );
-      // Make sure we're getting the category from the bet
-      const betsWithCategory = response.data.bets[0].options.map((option: any) => ({
+
+      const betsWithCategory = response.data.bets[0].options.map((option: OptionBetType) => ({
         ...option,
-        category: response.data.bets[0].category, // Add category from the parent bet
+        category: response.data.bets[0].category,
       }));
       setBetsData(betsWithCategory);
 
-      console.log('Bets with category:', betsWithCategory); // Debug log
+      console.log('Bets with category:', betsWithCategory);
     } catch (error) {
       console.error('Error fetching bet:', error);
     }
