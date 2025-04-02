@@ -19,6 +19,7 @@ interface SellOrderProps {
   asset: string | undefined;
   yesPrice: number | undefined;
   noPrice: number | undefined;
+  duration?: number;
 }
 
 type OptionBetType = {
@@ -39,7 +40,7 @@ interface BetResponse {
   }>;
 }
 
-const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice }) => {
+const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice, duration }) => {
   const [selectedPosition, setSelectedPosition] = useState<OptionsType | null>(null);
   const [amount, setAmount] = useState('');
   const [price, setPrice] = useState('0');
@@ -50,14 +51,20 @@ const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice }) => {
   const [selectedBet, setSelectedBet] = useState<OptionBetType | null>(null);
   const [error, setError] = useState('');
   const { toast } = useToast();
+  const [showDialog, setShowDialog] = useState(false);
 
   console.log('amount before useSellOrder', amount);
   console.log(
     'selectedBet?.category ?? ',
-    selectedBet?.category ?? '',
+    selectedBet?.category,
     'selectedBet?.index ?? ',
-    selectedBet?.index ?? 0,
+    selectedBet?.index,
   );
+
+  const isShortDurationDuel = useMemo(() => {
+    return duration !== undefined && duration < 0.5;
+  }, [duration]);
+
   const { sellOrder, status, isApprovalMining, isSellMining } = useSellOrder(
     duelId,
     selectedBet?.index ?? 0,
@@ -158,6 +165,15 @@ const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice }) => {
   }, []);
 
   const handlePlaceOrder = useCallback(async () => {
+    if (isShortDurationDuel) {
+      toast({
+        title: 'Action Not Available',
+        description: 'Selling is not available for 5 and 15 minutes duration duels',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     if (!selectedPosition || !selectedBet) {
       setError('Please select a position and bet');
       return;
@@ -244,6 +260,7 @@ const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice }) => {
       });
     }
   }, [
+    isShortDurationDuel,
     selectedPosition,
     selectedBet,
     amount,
@@ -428,18 +445,36 @@ const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice }) => {
           </CardContent>
         </Card>
 
-        <Button
-          onClick={handlePlaceOrder}
-          disabled={!isFormValid || status !== TRANSACTION_STATUS.IDLE}
-          className={cn(
-            'w-full py-6 text-lg font-medium',
-            isFormValid && status === TRANSACTION_STATUS.IDLE
-              ? 'bg-[#F19ED2] hover:bg-[#F19ED2]/90 text-white'
-              : 'bg-zinc-800 text-zinc-400',
-          )}
+        <div
+          className="relative"
+          onMouseEnter={() => isShortDurationDuel && setShowDialog(true)}
+          onMouseLeave={() => setShowDialog(false)}
         >
-          Sell Bet
-        </Button>
+          <Button
+            onClick={handlePlaceOrder}
+            disabled={!isFormValid || status !== TRANSACTION_STATUS.IDLE || isShortDurationDuel}
+            className={cn(
+              'w-full py-6 text-lg font-medium',
+              isFormValid && status === TRANSACTION_STATUS.IDLE && !isShortDurationDuel
+                ? 'bg-[#F19ED2] hover:bg-[#F19ED2]/90 text-white'
+                : 'bg-zinc-800 text-zinc-400',
+            )}
+          >
+            Sell Bet
+          </Button>
+
+          {/* Hover Message Box */}
+          {showDialog && isShortDurationDuel && (
+            <div
+              className="absolute top-full left-0 right-0 mt-2 p-4 
+                         bg-zinc-900 border border-zinc-800 rounded-lg
+                         text-center text-red-400 text-sm
+                         shadow-lg z-50"
+            >
+              Sell Bet is unavailable for 5 and 15 mins duration duels
+            </div>
+          )}
+        </div>
 
         {/* Loading Indicators */}
         {(isApprovalMining || isSellMining) && (

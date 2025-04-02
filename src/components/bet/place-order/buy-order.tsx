@@ -66,6 +66,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
   const [marketBuyEnabled, setMarketBuyEnabled] = useState(false);
   const [countdown, setCountdown] = useState('');
   const [duel, setDuel] = useState<NewDuelItem | null>(null);
+  const [showMarketBuyMessage, setShowMarketBuyMessage] = useState(false);
 
   // Combined loading state for disabling both buttons
   const isLoading = isJoiningDuel || isMarketBuying;
@@ -104,7 +105,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
       }
 
       // const maxAmount = Number(formatUnits((balance ?? 0) as bigint, 6));
-      const maxAmount = Number(formatUnits((balance ?? 0) as bigint, 18)); // CRD is 18 dec 
+      const maxAmount = Number(formatUnits((balance ?? 0) as bigint, 18)); // CRD is 18 dec
       if (Number(cleanValue) > maxAmount) {
         setError(`Cannot bet more than your available balance: ${maxAmount}`);
         return;
@@ -250,7 +251,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
     } finally {
       setIsMarketBuying(false);
     }
-  // }, [localPosition, amount, duelId, checkAllowance, requestAllowance, toast, setError]);
+    // }, [localPosition, amount, duelId, checkAllowance, requestAllowance, toast, setError]);
   }, [localPosition, amount, duelId, requestAllowance, toast, setError]);
 
   useEffect(() => {
@@ -291,7 +292,10 @@ const BuyOrder: FC<BuyOrderProps> = ({
           setMarketBuyEnabled(true);
           return;
         }
-        const timeleftForEnd = calculateTimeLeft(duel.status === -1 ? duel.createdAt : duel.startAt || 0, duel.endsIn);
+        const timeleftForEnd = calculateTimeLeft(
+          duel.status === -1 ? duel.createdAt : duel.startAt || 0,
+          duel.endsIn,
+        );
         // console.log(timeleftForEnd);
 
         // Extract hours, minutes, and seconds using regex
@@ -308,17 +312,22 @@ const BuyOrder: FC<BuyOrderProps> = ({
           const shortDuelThreshold = 10 * 60 * 1000; // 10 minutes in milliseconds
           const longDuelThreshold = 30 * 60 * 1000; // 30 minutes in milliseconds
 
-          if ((isShortDuel && timeInMilliseconds <= shortDuelThreshold) ||
-              (!isShortDuel && timeInMilliseconds <= longDuelThreshold)) {
+          if (
+            (isShortDuel && timeInMilliseconds <= shortDuelThreshold) ||
+            (!isShortDuel && timeInMilliseconds <= longDuelThreshold)
+          ) {
             setMarketBuyEnabled(true);
           } else {
             setMarketBuyEnabled(false);
-            const timeLeft = timeInMilliseconds - (isShortDuel ? shortDuelThreshold : longDuelThreshold);
+            const timeLeft =
+              timeInMilliseconds - (isShortDuel ? shortDuelThreshold : longDuelThreshold);
             const hours = Math.floor(timeLeft / (1000 * 60 * 60));
             const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
 
-            setCountdown(isShortDuel ? `${minutes}m ${seconds}s` : `${hours}h ${minutes}m ${seconds}s`);
+            setCountdown(
+              isShortDuel ? `${minutes}m ${seconds}s` : `${hours}h ${minutes}m ${seconds}s`,
+            );
           }
         }
       };
@@ -329,6 +338,10 @@ const BuyOrder: FC<BuyOrderProps> = ({
       return () => clearInterval(timer);
     }
   }, [duel]);
+
+  const isShortDurationDuel = useMemo(() => {
+    return duel?.endsIn !== undefined && duel.endsIn < 0.5;
+  }, [duel?.endsIn]);
 
   return (
     <Card className="bg-transparent border-none space-y-6">
@@ -431,25 +444,47 @@ const BuyOrder: FC<BuyOrderProps> = ({
             'Join Duel'
           )}
         </Button>
-        <Button
-          onClick={handleMarketBuy}
-          disabled={!isFormValid || isLoading || !marketBuyEnabled}
-          className={cn(
-            'w-full py-6 text-lg font-medium',
-            isFormValid && !isLoading && marketBuyEnabled
-              ? 'bg-[#F19ED2] hover:bg-[#F19ED2]/90 text-white'
-              : 'bg-zinc-800 text-zinc-400',
-          )}
+        <div
+          className="relative"
+          onMouseEnter={() => isShortDurationDuel && setShowMarketBuyMessage(true)}
+          onMouseLeave={() => setShowMarketBuyMessage(false)}
         >
-          {isMarketBuying ? (
-            <div className="flex items-center gap-2">
-              <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-              <span>Processing Order...</span>
+          <Button
+            onClick={handleMarketBuy}
+            disabled={!isFormValid || isLoading || !marketBuyEnabled || isShortDurationDuel}
+            className={cn(
+              'w-full py-6 text-lg font-medium',
+              isFormValid && !isLoading && marketBuyEnabled && !isShortDurationDuel
+                ? 'bg-[#F19ED2] hover:bg-[#F19ED2]/90 text-white'
+                : 'bg-zinc-800 text-zinc-400',
+            )}
+          >
+            {isMarketBuying ? (
+              <div className="flex items-center gap-2">
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                <span>Processing Order...</span>
+              </div>
+            ) : marketBuyEnabled && !isShortDurationDuel ? (
+              'Market Buy'
+            ) : isShortDurationDuel ? (
+              'Market Buy'
+            ) : (
+              `Market Buy ${countdown ? 'in' : ''} ${countdown}`
+            )}
+          </Button>
+
+          {/* Hover Message Box */}
+          {showMarketBuyMessage && isShortDurationDuel && (
+            <div
+              className="absolute top-full left-0 right-0 mt-2 p-4 
+                         bg-zinc-900 border border-zinc-800 rounded-lg
+                         text-center text-red-400 text-sm
+                         shadow-lg z-50"
+            >
+              Market Buy is unavailable for 5 and 15 mins duration duels
             </div>
-          ) : (
-            marketBuyEnabled ? 'Market Buy' : `Market Buy ${countdown ? 'in' : ''} ${countdown}`
           )}
-        </Button>
+        </div>
       </CardContent>
     </Card>
   );
