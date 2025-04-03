@@ -10,7 +10,7 @@ const useTotalBets = (duelId: string) => {
   const [totalBetYes, setTotalBetYes] = useState<number | null>(null);
   const [totalBetNo, setTotalBetNo] = useState<number | null>(null);
 
-  // Fetch total bets for "LONG" option
+  // Fetch total bets for "YES" option
   const {
     data: yesData,
     error: yesError,
@@ -21,10 +21,10 @@ const useTotalBets = (duelId: string) => {
     functionName: 'getTotalBetsOnOption',
     address: SERVER_CONFIG.DIAMOND as Hex,
     chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
-    args: [duelId, 0, 'LONG'],
+    args: [duelId, 0, 'YES'],
   });
 
-  // Fetch total bets for "SHORT" option
+  // Fetch total bets for "NO" option
   const {
     data: noData,
     error: noError,
@@ -35,7 +35,7 @@ const useTotalBets = (duelId: string) => {
     functionName: 'getTotalBetsOnOption',
     address: SERVER_CONFIG.DIAMOND as Hex,
     chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
-    args: [duelId, 1, 'SHORT'],
+    args: [duelId, 1, 'NO'],
   });
 
   const yesOption = yesData ? Number(formatUnits(BigInt(yesData.toString()), 18)) : 0;

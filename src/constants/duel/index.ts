@@ -41,8 +41,8 @@ export const DUEL_STATUS = {
 } as const;
 
 export const POSITION = {
-  LONG: 'LONG',
-  SHORT: 'SHORT',
+  YES: 'YES',
+  NO: 'NO',
 } as const;
 
 export const COIN_DUEL_ASSETS: {
@@ -91,7 +91,7 @@ export const getAssetImage = (symbol: string) => {
   return asset ? asset.image : null;
 };
 
-export const OPTIONS = ['LONG', 'SHORT'];
+export const OPTIONS = ['YES', 'NO'];
 
 export const WIN_CONDITIONS = {
   ABOVE: 'above',
@@ -109,8 +109,8 @@ export const ORDER_TYPE = {
 } as const;
 
 export const OPTIONS_TYPE = {
-  LONG: 'LONG',
-  SHORT: 'SHORT',
+  YES: 'YES',
+  NO: 'NO',
 } as const;
 
 export const ORDER_LABELS = {
@@ -119,11 +119,11 @@ export const ORDER_LABELS = {
 } as const;
 
 export const POSITION_COLORS = {
-  [OPTIONS_TYPE.LONG]: {
+  [OPTIONS_TYPE.YES]: {
     active: 'bg-[#95DE64] text-black hover:bg-[#95DE64]/90',
     inactive: 'bg-[#1C2A1C] text-[#95DE64] hover:bg-[#1C2A1C]/80',
   },
-  [OPTIONS_TYPE.SHORT]: {
+  [OPTIONS_TYPE.NO]: {
     active: 'bg-[#E84749] text-white hover:bg-[#E84749]/90',
     inactive: 'bg-[#2A1C1C] text-[#E84749] hover:bg-[#2A1C1C]/80',
   },

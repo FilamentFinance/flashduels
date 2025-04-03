@@ -166,7 +166,7 @@ export const OrdersHistory = ({ duelId }: OrdersTableProps) => {
                         className={`py-3 text-xs font-medium text-center
                           ${order.betOptionIndex === 0 ? 'text-lime-300' : 'text-red-400'}`}
                       >
-                        {order.betOptionIndex === 0 ? 'LONG' : 'SHORT'}
+                        {order.betOptionIndex === 0 ? 'YES' : 'NO'}
                       </TableCell>
                       <TableCell className="py-3 text-xs font-medium text-white text-center">
                         {Number(order.quantity).toFixed(2)}
