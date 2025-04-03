@@ -195,12 +195,23 @@ export const CreatorVerify = ({ onClose }: { onClose: () => void }) => {
     window.location.href = connectUrl;
   };
 
+  const handleClose = () => {
+    // Check if URL has twitterConnected parameter
+    if (window.location.search.includes('twitterConnected=true')) {
+      // Remove query parameters by navigating to base path
+      window.history.pushState({}, '', window.location.pathname);
+    }
+    
+    // Call the original onClose function
+    onClose();
+  };
+
   return (
     <Dialog 
       open={true}
       onOpenChange={(isOpen) => {
         if (!isOpen) {
-          onClose();
+          handleClose();
         }
       }}
       title="Creator Verification"
