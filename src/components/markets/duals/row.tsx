@@ -133,18 +133,18 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
       {(status == -1 || status == 0) && (
         <div className="flex gap-2">
           <YesNoButton
-            position="LONG"
+            position="YES"
             onClick={(e: React.MouseEvent) => {
               e.stopPropagation();
-              onPositionSelect(duelId, 'LONG', status);
+              onPositionSelect(duelId, 'YES', status);
             }}
             // disabled={status === -1}
           />
           <YesNoButton
-            position="SHORT"
+            position="NO"
             onClick={(e: React.MouseEvent) => {
               e.stopPropagation();
-              onPositionSelect(duelId, 'SHORT', status);
+              onPositionSelect(duelId, 'NO', status);
             }}
             // disabled={status === -1}
           />
@@ -155,9 +155,9 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
           <p className="text-zinc-400">
             Winner:{' '}
             {winner === 0 ? (
-              <span className="text-green-500 font-bold ">LONG</span>
+              <span className="text-green-500 font-bold ">YES</span>
             ) : (
-              <span className="text-red-500 font-bold ">SHORT</span>
+              <span className="text-red-500 font-bold ">NO</span>
             )}
           </p>
         </div>
