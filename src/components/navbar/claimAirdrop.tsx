@@ -181,9 +181,8 @@ const ClaimAirdropButton: FC = () => {
     <>
       <Button
         onClick={() => setIsModalOpen(true)}
-        variant="pink"
+        className="text-pink-300 border border-pink-300 bg-transparent hover:shadow-lg hover:scale-[1.02] hover:bg-pink-300/10 text-pink-300 font-bold"
         size="sm"
-        className="text-black font-bold"
         disabled={false}
       >
         {status === TRANSACTION_STATUS.SUCCESS
@@ -209,13 +208,11 @@ const ClaimAirdropButton: FC = () => {
               {status !== TRANSACTION_STATUS.SUCCESS && (
                 <Button
                   onClick={handleClaimAirdrop}
-                  variant="pink"
+                  className="text-pink-300 border border-pink-300 bg-transparent hover:shadow-lg hover:scale-[1.02] hover:bg-pink-300/10 w-full"
                   disabled={status === TRANSACTION_STATUS.PENDING}
-                  className="w-full"
                 >
                   {status === TRANSACTION_STATUS.PENDING
                     ? 'Claiming...'
-                    // : `Claim ${formatUnits(BigInt(availableToClaim), 18)} ${symbol}`}
                     : `Claim ${symbol}`}
                 </Button>
               )}

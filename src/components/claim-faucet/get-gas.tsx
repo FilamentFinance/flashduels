@@ -39,9 +39,8 @@ const GetGas: FC = () => {
 
   return (
     <Button
-      // className="font-semibold bg-gradient-pink text-black"
-      className="font-semibold bg-gradient-pink text-black border border-pink-300
-        hover:shadow-lg hover:scale-[1.02]"
+      className="font-semibold text-pink-300 border border-pink-300 bg-transparent
+        hover:shadow-lg hover:scale-[1.02] hover:bg-pink-300/10"
       onClick={getGas}
       disabled={gasClaimed || isLoading}
     >
