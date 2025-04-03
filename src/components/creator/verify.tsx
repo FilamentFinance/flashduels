@@ -263,7 +263,11 @@ export const CreatorVerify = ({ onClose }: { onClose: () => void }) => {
                   required
                 />
                 {!formData.twitterHandle && (
-                  <Button className="mt-2 bg-secondary text-black hover:bg-secondary/90" onClick={handleConnectTwitter}>
+                  <Button 
+                    type="button"
+                    className="mt-2 bg-secondary text-black hover:bg-secondary/90" 
+                    onClick={handleConnectTwitter}
+                  >
                     Connect Twitter
                   </Button>
                 )}
