@@ -67,10 +67,6 @@ const CreateDuel: FC = () => {
   }, [address]);
 
   const handleDuelSelect = (type: DuelType) => {
-    if (type === DUEL.FLASH && !isCreator) {
-      setIsOpen(true); // Open the modal for verification
-      return;
-    }
     setSelectedDuel(type);
   };
 
@@ -147,7 +143,7 @@ const CreateDuel: FC = () => {
       open={isOpen}
       onOpenChange={setIsOpen}
     >
-      {(!isCreator && selectedDuel == DUEL.FLASH) || creatorModalOpen ? (
+      {(!isCreator && selectedDuel == DUEL.FLASH && showForm) || creatorModalOpen ? (
         <div className="space-y-4">
           <div className="flex justify-center">
             <CreatorVerify onClose={() => setCreatorModalOpen(false)} />
@@ -167,52 +163,25 @@ const CreateDuel: FC = () => {
               isActive={selectedDuel === DUEL.COIN}
               onClick={() => handleDuelSelect(DUEL.COIN)}
             />
-            <TooltipProvider delayDuration={200}>
-              <Tooltip>
-                <TooltipTrigger className="w-full">
-                  <div className={`relative ${isCreator ? '' : 'opacity-50 cursor-not-allowed'}`}>
-                    <div className={isCreator ? '' : 'pointer-events-none'}>
-                      <Duel
-                        logo={{
-                          active: isCreator ? DUEL_LOGOS.FLASH.active : DUEL_LOGOS.FLASH.inactive,
-                          inactive: DUEL_LOGOS.FLASH.inactive,
-                        }}
-                        title={CREATE_DUEL.MARKET_SECTION.FLASH_DUEL.TITLE}
-                        description={CREATE_DUEL.MARKET_SECTION.FLASH_DUEL.DESCRIPTION}
-                        isActive={selectedDuel === DUEL.FLASH}
-                        onClick={() => handleDuelSelect(DUEL.FLASH)}
-                      />
-                    </div>
-                  </div>
-                </TooltipTrigger>
-                {!isCreator && (
-                  <TooltipContent
-                    side="top"
-                    align="center"
-                    className="bg-gradient-to-r from-[#F19ED2] to-[#F19ED2]/90 border-none text-black px-3 py-1.5 font-semibold rounded-md"
-                  >
-                    <div className="flex flex-col items-center">
-                      <span>Coming Soon!</span>
-                      <Button
-                        className="bg-gradient-pink text-black"
-                        onClick={() => {
-                          setCreatorModalOpen(true);
-                        }}
-                      >
-                        Verify as Creator
-                      </Button>
-                    </div>
-                  </TooltipContent>
-                )}
-              </Tooltip>
-            </TooltipProvider>
+            <Duel
+              logo={{
+                active: DUEL_LOGOS.FLASH.active,
+                inactive: DUEL_LOGOS.FLASH.inactive,
+              }}
+              title={CREATE_DUEL.MARKET_SECTION.FLASH_DUEL.TITLE}
+              description={CREATE_DUEL.MARKET_SECTION.FLASH_DUEL.DESCRIPTION}
+              isActive={selectedDuel === DUEL.FLASH}
+              onClick={() => handleDuelSelect(DUEL.FLASH)}
+            />
           </div>
           <Button
             className="w-full font-semibold bg-gradient-pink text-black disabled:opacity-50 disabled:pointer-events-none"
-            onClick={handleNext}
+            onClick={!isCreator && selectedDuel === DUEL.FLASH ? () => setCreatorModalOpen(true) : handleNext}
             disabled={!selectedDuel}
           >
-            {CREATE_DUEL.BUTTONS.NEXT}
+            {!isCreator && selectedDuel === DUEL.FLASH 
+              ? "Verify as Creator" 
+              : CREATE_DUEL.BUTTONS.NEXT}
           </Button>
         </div>
       ) : (
