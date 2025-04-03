@@ -12,8 +12,8 @@ const REJECTION_LIMIT = 3;
 
 export const CreatorVerify = ({ onClose }: { onClose: () => void }) => {
   const { address } = useAccount();
-  const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isDataLoading, setIsDataLoading] = useState(true);
   const [requestStatus, setRequestStatus] = useState<{
     status: string;
     rejectionCount: number;
@@ -45,25 +45,14 @@ export const CreatorVerify = ({ onClose }: { onClose: () => void }) => {
         });
         const userData = response.data;
 
-        if (userData.twitterUsername) {
-          setFormData((prev: any) => ({
-            ...prev,
-            twitterHandle: userData.twitterUsername,
-          }));
-          localStorage.setItem('creatorFormData', JSON.stringify({
-            ...formData,
-            twitterHandle: userData.twitterUsername,
-          }));
-        } else {
-          setFormData((prev: any) => ({
-            ...prev,
-            twitterHandle: null,
-          }));
-          localStorage.setItem('creatorFormData', JSON.stringify({
-            ...formData,
-            twitterHandle: null,
-          }));
-        }
+        setFormData((prev: any) => ({
+          ...prev,
+          twitterHandle: userData.twitterUsername || '',
+        }));
+        localStorage.setItem('creatorFormData', JSON.stringify({
+          ...formData,
+          twitterHandle: userData.twitterUsername || '',
+        }));
       } catch (error) {
         console.error('Failed to fetch user data:', error);
       }
@@ -73,10 +62,11 @@ export const CreatorVerify = ({ onClose }: { onClose: () => void }) => {
       if (!address) {
         setIsCreator(null);
         setRequestStatus(null);
+        setIsDataLoading(false);
         return;
       }
       try {
-        setLoading(true);
+        setIsDataLoading(true);
         const response = await baseApiClient.get(`${SERVER_CONFIG.API_URL}/user/creator/status`, {
           params: {
             address: address.toLowerCase()
@@ -90,7 +80,7 @@ export const CreatorVerify = ({ onClose }: { onClose: () => void }) => {
         setIsCreator(false);
         setRequestStatus(null);
       } finally {
-        setLoading(false);
+        setIsDataLoading(false);
       }
     };
 
@@ -99,7 +89,7 @@ export const CreatorVerify = ({ onClose }: { onClose: () => void }) => {
 
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('twitterConnected') === 'true') {
-      setOpen(true);
+      setIsCreator(true);
     }
   }, [address]);
 
@@ -118,10 +108,10 @@ export const CreatorVerify = ({ onClose }: { onClose: () => void }) => {
 //     return linkedInRegex.test(url);
 //   };
 
-  const validateTwitterHandle = (handle: string) => {
-    const twitterRegex = /^@?(\w){1,15}$/;
-    return twitterRegex.test(handle);
-  };
+  // const validateTwitterHandle = (handle: string) => {
+  //   const twitterRegex = /^@?(\w){1,15}$/;
+  //   return twitterRegex.test(handle);
+  // };
 
 //   const validatePhoneNumber = (number: string) => {
 //     const phoneRegex = /^\+?[1-9]\d{1,14}$/;
@@ -140,14 +130,14 @@ export const CreatorVerify = ({ onClose }: { onClose: () => void }) => {
       return;
     }
 
-    if (!validateTwitterHandle(formData.twitterHandle)) {
-      toast({
-        title: 'Error',
-        description: 'Invalid Twitter handle',
-        variant: 'destructive',
-      });
-      return;
-    }
+    // if (!validateTwitterHandle(formData.twitterHandle)) {
+    //   toast({
+    //     title: 'Error',
+    //     description: 'Invalid Twitter handle',
+    //     variant: 'destructive',
+    //   });
+    //   return;
+    // }
 
     setLoading(true);
     try {
@@ -161,7 +151,7 @@ export const CreatorVerify = ({ onClose }: { onClose: () => void }) => {
         description: response.data.message || 'Creator verification request submitted successfully.',
       });
       
-      setOpen(false);
+      setIsCreator(true);
       setFormData({
         name: '',
         twitterHandle: '',
@@ -171,6 +161,9 @@ export const CreatorVerify = ({ onClose }: { onClose: () => void }) => {
         linkedinProfile: '',
         mobileNumber: '',
       });
+      
+      // Auto close the modal on successful submission
+      onClose();
     } catch (error: any) {
       toast({
         title: 'Error',
@@ -184,117 +177,136 @@ export const CreatorVerify = ({ onClose }: { onClose: () => void }) => {
 
   const handleConnectTwitter = () => {
     const token = address ? localStorage.getItem(`Bearer_${address.toLowerCase()}`) : null;
-    if(!token) {
-      // user not signed in.
-      console.error('handleConnectTwitter: User not signed in')
+    
+    if (!token) {
+      toast({
+        title: 'Error',
+        description: 'Please sign in first',
+        variant: 'destructive',
+      });
+      return;
     }
-    const tokenParam = token ? `?token=${token.replace('Bearer ', '')}` : '';
-    window.location.href = `${SERVER_CONFIG.API_URL}/user/auth/connect-twitter${tokenParam}`;
-    // window.location.href = `http://localhost:3004/flashduels/user/auth/connect-twitter${tokenParam}`;
+    
+    // Encode the token properly for URL
+    const tokenParam = token ? `?token=${encodeURIComponent(token.replace('Bearer ', ''))}` : '';
+    const connectUrl = `${SERVER_CONFIG.API_URL}/user/auth/connect-twitter${tokenParam}`;
+    
+    console.log("Redirecting to:", connectUrl);
+    window.location.href = connectUrl;
   };
 
   return (
     <Dialog 
-      open={open}
+      open={true}
       onOpenChange={(isOpen) => {
-        setOpen(isOpen);
         if (!isOpen) {
           onClose();
         }
       }}
-      trigger={
-        <Button variant="outline" className="bg-primary text-white hover:bg-primary/90">
-          Verify as Creator
-        </Button>
-      }
       title="Creator Verification"
       maxWidth="max-w-md"
     >
-      <div className="space-y-2 mb-4">
-        {isCreator ? (
-          <p className="text-sm text-muted-foreground">
-            You are already a verified creator. You can start creating duels on the platform.
-          </p>
-        ) : requestStatus ? (
-          requestStatus.status === "pending" ? (
-            <p className="text-sm text-muted-foreground">
-              Creating a duel requires creator verification. Your request is being reviewed and you will be able to start creating duels once it&apos;s accepted.
-            </p>
-          ) : requestStatus.status === "rejected" ? (
-            <p className="text-sm text-muted-foreground">
-              Your creator verification request was rejected. Please try again. You have {REJECTION_LIMIT - requestStatus.rejectionCount} attempts left.
-            </p>
-          ) : (
-            <p className="text-sm text-muted-foreground">
-              You need to be a verified creator to create duels on the platform.
-            </p>
-          )
-        ) : (
-          <p className="text-sm text-muted-foreground">
-            You need to be a verified creator to create duels on the platform.
-          </p>
-        )}
-      </div>
-      {(!requestStatus || requestStatus.status !== "pending" && requestStatus.rejectionCount < REJECTION_LIMIT) && (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid w-full items-center gap-2">
-            <Label htmlFor="name">Name</Label>
-            <Input
-              id="name"
-              name="name"
-              placeholder="Your Name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className="grid w-full items-center gap-2">
-            <Label htmlFor="twitterHandle">Twitter Handle</Label>
-            <Input
-              id="twitterHandle"
-              name="twitterHandle"
-              placeholder="@username"
-              value={formData.twitterHandle}
-              onChange={handleChange}
-              readOnly
-              required
-            />
-            {!formData.twitterHandle && (
-              <Button className="mt-2 bg-secondary text-black hover:bg-secondary/90" onClick={handleConnectTwitter}>
-                Connect Twitter
-              </Button>
+      {isDataLoading ? (
+        <div className="flex justify-center items-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-secondary"></div>
+        </div>
+      ) : (
+        <>
+          <div className="space-y-2 mb-4">
+            {isCreator ? (
+              <p className="text-sm text-muted-foreground">
+                You are already a verified creator. You can start creating duels on the platform.
+              </p>
+            ) : requestStatus ? (
+              requestStatus.status === "pending" ? (
+                <p className="text-sm text-muted-foreground">
+                  Creating a duel requires creator verification. Your request is being reviewed and you will be able to start creating duels once it&apos;s accepted.
+                </p>
+              ) : requestStatus.status === "rejected" ? (
+                <p className="text-sm text-muted-foreground">
+                  Your creator verification request was rejected. Please try again. You have {REJECTION_LIMIT - requestStatus.rejectionCount} attempts left.
+                </p>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  You need to be a verified creator to create duels on the platform.
+                </p>
+              )
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                You need to be a verified creator to create duels on the platform.
+              </p>
             )}
           </div>
-          
-          <div className="grid w-full items-center gap-2">
-            <Label htmlFor="telegramHandle">Telegram Handle</Label>
-            <Input
-              id="telegramHandle"
-              name="telegramHandle"
-              placeholder="@username"
-              value={formData.telegramHandle}
-              onChange={handleChange}
-            />
-          </div>
+          {(!requestStatus || requestStatus.status !== "pending" && requestStatus.rejectionCount < REJECTION_LIMIT) && (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid w-full items-center gap-2">
+                <Label htmlFor="name">Name</Label>
+                <Input
+                  id="name"
+                  name="name"
+                  placeholder="Your Name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
 
-          <div className="grid w-full items-center gap-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="your@email.com"
-              value={formData.email}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          
-          <Button type="submit" className="w-full mt-2 bg-secondary text-black hover:bg-secondary/90" disabled={loading}>
-            {loading ? 'Submitting...' : 'Submit Request'}
-          </Button>
-        </form>
+              <div className="grid w-full items-center gap-2">
+                <Label htmlFor="twitterHandle">Twitter Handle</Label>
+                <Input
+                  id="twitterHandle"
+                  name="twitterHandle"
+                  placeholder="@username"
+                  value={formData.twitterHandle}
+                  onChange={handleChange}
+                  readOnly
+                  required
+                />
+                {!formData.twitterHandle && (
+                  <Button 
+                    type="button"
+                    className="mt-2 bg-secondary text-black hover:bg-secondary/90" 
+                    onClick={handleConnectTwitter}
+                  >
+                    Connect Twitter
+                  </Button>
+                )}
+              </div>
+              
+              <div className="grid w-full items-center gap-2">
+                <Label htmlFor="telegramHandle">Telegram Handle</Label>
+                <Input
+                  id="telegramHandle"
+                  name="telegramHandle"
+                  placeholder="@username"
+                  value={formData.telegramHandle}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className="grid w-full items-center gap-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="your@email.com"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              
+              <Button 
+                type="submit" 
+                className="w-full mt-2 bg-secondary text-black hover:bg-secondary/90" 
+                disabled={loading || !formData.twitterHandle}
+              >
+                {loading ? 'Submitting...' : 'Submit Request'}
+              </Button>
+            </form>
+          )}
+        </>
       )}
     </Dialog>
   );

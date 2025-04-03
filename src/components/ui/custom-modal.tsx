@@ -13,7 +13,7 @@ import { X } from 'lucide-react';
 import { FC } from 'react';
 
 interface DialogProps {
-  trigger: React.ReactNode;
+  trigger?: React.ReactNode;
   title: React.ReactNode;
   children: React.ReactNode;
   maxWidth?:
