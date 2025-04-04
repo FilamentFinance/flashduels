@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   title: 'Flash Duels',
   description: 'Flash Duels',
   icons: {
-    icon: '/favicon.ico',
+    icon: '/flash.svg',
   },
 };
 
