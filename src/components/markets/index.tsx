@@ -98,6 +98,13 @@ const Markets: FC = () => {
               winCondition: item.winCondition,
               winner: item.winner,
             }));
+          
+          // Sort completed duels from latest to oldest based on completion time
+          if (activeStatus === DUEL_STATUS.COMPLETED) {
+            // console.log('Sorting completed duels from latest to oldest based on completion time');
+            filteredDuels.sort((a: { createdAt: number; }, b: { createdAt: number; }) => b.createdAt - a.createdAt);
+          }
+          
           setDuels(filteredDuels);
         }
       };
