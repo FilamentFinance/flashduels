@@ -70,6 +70,7 @@ const Markets: FC = () => {
               } else if (activeStatus === DUEL_STATUS.BOOTSTRAPPING) {
                 return item.status === -1; // Only bootstrapping duels
               } else if (activeStatus === DUEL_STATUS.COMPLETED) {
+                // console.log('Completed duels', item.status, item.createdAt);
                 return item.status === 1; // Only completed duels
               } else if (activeStatus === DUEL_STATUS.YET_TO_BE_RESOLVED) {
                 // Only show FLASH_DUELS that have passed their end time but haven't been resolved
