@@ -181,8 +181,8 @@ const ClaimAirdropButton: FC = () => {
     <>
       <Button
         onClick={() => setIsModalOpen(true)}
-        className="text-pink-300 border border-pink-300 bg-transparent hover:shadow-lg hover:scale-[1.02] hover:bg-pink-300/10 text-pink-300 font-bold"
-        size="sm"
+        className="text-pink-300 border border-pink-300 bg-transparent hover:shadow-lg hover:scale-[1.02] hover:bg-pink-300/10 text-pink-300 font-bold h-10 px-4"
+        size="default"
         disabled={false}
       >
         {status === TRANSACTION_STATUS.SUCCESS
