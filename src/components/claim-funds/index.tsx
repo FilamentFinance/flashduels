@@ -57,6 +57,13 @@ const ClaimFunds: FC = () => {
     }
   }, [earningsData]);
 
+  // Function to trim to 4 decimal places without rounding
+  const trimToFourDecimals = (value: string): string => {
+    const parts = value.split('.');
+    if (parts.length === 1) return value; // No decimal part
+    return parts[0] + '.' + parts[1].substring(0, 4);
+  };
+
   const handleError = (error: unknown) => {
     const { message, type } = handleTransactionError(error);
     console.error('Transaction error:', { message, type });
@@ -182,7 +189,7 @@ const ClaimFunds: FC = () => {
         <div className="inline-flex items-center gap-2 px-3 bg-zinc-900 rounded-xl border border-zinc-800">
           <Image src="/logo/dollar.svg" alt="Funds" width={12} height={12} className="mr-2" />
           <span>
-            {earnings} {symbol}
+            {trimToFourDecimals(earnings)} {symbol}
           </span>
           <Button variant="pink" size="sm" className="text-black font-bold">
             {CLAIM_FUNDS.TRIGGER.CLAIM_TEXT}
@@ -194,7 +201,7 @@ const ClaimFunds: FC = () => {
         <div className="flex items-center justify-between">
           <span className="text-zinc-400 text-sm">Available Balance:</span>
           <span className="text-white text-sm">
-            {earnings} {symbol}
+            {trimToFourDecimals(earnings)} {symbol}
           </span>
         </div>
 
@@ -222,7 +229,7 @@ const ClaimFunds: FC = () => {
         {amount !== '' && !isValidAmount() && (
           <div className="text-red-500 text-xs">
             {parseFloat(amount) > parseFloat(earnings)
-              ? `Amount exceeds available balance of ${earnings} ${symbol}`
+              ? `Amount exceeds available balance of ${trimToFourDecimals(earnings)} ${symbol}`
               : 'Please enter a valid amount'}
           </div>
         )}

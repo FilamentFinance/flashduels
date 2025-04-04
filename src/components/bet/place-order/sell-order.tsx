@@ -104,34 +104,39 @@ const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice, duration }) 
         return;
       }
 
-      const cleanValue = Number(value).toString();
-
-      if (isNaN(Number(cleanValue))) {
+      // Don't clean the value during typing - allow user to enter any number of decimals
+      if (isNaN(Number(value))) {
         setError('Please enter a valid number');
         return;
       }
 
-      if (Number(cleanValue) < 0) {
+      if (Number(value) < 0) {
         setError('Amount cannot be negative');
         return;
       }
 
       if (selectedBet) {
         const maxAmount = Number(selectedBet.quantity);
-        if (Number(cleanValue) > maxAmount) {
+        if (Number(value) > maxAmount) {
           setError(`Cannot sell more than your available amount: ${maxAmount}`);
           return;
         }
       }
 
-      setAmount(cleanValue);
+      // Store the full value in state without trimming
+      setAmount(value);
     },
     [selectedBet],
   );
 
   const setMaxAmount = useCallback(() => {
     if (selectedBet) {
-      setAmount(selectedBet.quantity);
+      // Trim to 4 decimal places without rounding
+      const trimmedQuantity = String(selectedBet.quantity).includes('.')
+        ? selectedBet.quantity.toString().split('.')[0] + '.' + selectedBet.quantity.toString().split('.')[1].slice(0, 4)
+        : selectedBet.quantity;
+        
+      setAmount(trimmedQuantity);
       setError('');
     }
   }, [selectedBet]);
@@ -144,24 +149,20 @@ const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice, duration }) 
       return;
     }
 
-    const cleanValue = Number(value).toString();
+    // Don't convert to Number when setting the input value
+    // This allows users to type decimal points
+    setPrice(value);
 
-    if (isNaN(Number(cleanValue))) {
+    // For validation, we can check if it's a valid number
+    if (isNaN(Number(value))) {
       setPriceError('Please enter a valid number');
       return;
     }
 
-    if (Number(cleanValue) <= 0) {
+    // Allow typing but show error message if price is <= 0
+    if (Number(value) <= 0) {
       setPriceError('Price must be greater than 0');
-      return;
     }
-
-    // if (Number(cleanValue) > 1) {
-    //   setPriceError('Price cannot be greater than 1');
-    //   return;
-    // }
-
-    setPrice(cleanValue);
   }, []);
 
   const handlePlaceOrder = useCallback(async () => {
@@ -302,7 +303,13 @@ const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice, duration }) 
   const handleBetSelect = useCallback((bet: OptionBetType) => {
     const position = bet.index === 0 ? OPTIONS_TYPE.YES : OPTIONS_TYPE.NO;
     setSelectedPosition(position);
-    setAmount(bet.quantity);
+    
+    // Trim to 4 decimal places without rounding
+    const trimmedQuantity = String(bet.quantity).includes('.') 
+      ? bet.quantity.toString().split('.')[0] + '.' + bet.quantity.toString().split('.')[1].slice(0, 4)
+      : bet.quantity;
+      
+    setAmount(trimmedQuantity);
     setPrice(bet.price);
     setBetOptionId(bet.id);
     setSelectedBet(bet);

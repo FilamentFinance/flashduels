@@ -27,7 +27,6 @@ export const CATEGORIES: {
 
 export const FLASH_DUEL_CATEGORIES = {
   ANY: 'any',
-  CRYPTO: 'crypto',
   POLITICS: 'politics',
   SPORTS: 'sports',
   TWITTER: 'twitter',
