@@ -95,26 +95,26 @@ const BuyOrder: FC<BuyOrderProps> = ({
         return;
       }
 
-      const cleanValue = Number(value).toString();
-
-      if (isNaN(Number(cleanValue))) {
+      // Don't clean the value during typing - allow user to enter any number of decimals
+      if (isNaN(Number(value))) {
         setError('Please enter a valid number');
         return;
       }
 
-      if (Number(cleanValue) < 0) {
+      if (Number(value) < 0) {
         setError('Amount cannot be negative');
         return;
       }
 
       // const maxAmount = Number(formatUnits((balance ?? 0) as bigint, 6));
       const maxAmount = Number(formatUnits((balance ?? 0) as bigint, 18)); // CRD is 18 dec
-      if (Number(cleanValue) > maxAmount) {
+      if (Number(value) > maxAmount) {
         setError(`Cannot bet more than your available balance: ${maxAmount}`);
         return;
       }
 
-      setAmount(cleanValue);
+      // Store the full value in state without trimming
+      setAmount(value);
     },
     [balance],
   );
@@ -128,7 +128,13 @@ const BuyOrder: FC<BuyOrderProps> = ({
   const handleMaxClick = useCallback(() => {
     // const maxAmount = formatUnits((balance ?? 0) as bigint, 6);
     const maxAmount = formatUnits((balance ?? 0) as bigint, 18); // CRD is 18 decimal
-    validateAndSetAmount(maxAmount);
+    
+    // Trim to 4 decimal places without rounding
+    const trimmedAmount = String(maxAmount).includes('.')
+      ? maxAmount.toString().split('.')[0] + '.' + maxAmount.toString().split('.')[1].slice(0, 4)
+      : maxAmount;
+      
+    validateAndSetAmount(trimmedAmount);
   }, [balance, validateAndSetAmount]);
 
   const handleJoinDuel = useCallback(async () => {
@@ -361,8 +367,12 @@ const BuyOrder: FC<BuyOrderProps> = ({
               Amount
             </Label>
             <div className="text-zinc-400 text-sm">
-              {/* Available: {formatUnits((balance ?? 0) as bigint, 6)}{' '} */}
-              Available: {formatUnits((balance ?? 0) as bigint, 18)}{' '}
+              Available: {
+                Number(formatUnits((balance ?? 0) as bigint, 18)).toString().includes('.')
+                  ? Number(formatUnits((balance ?? 0) as bigint, 18)).toString().split('.')[0] + '.' + 
+                    (Number(formatUnits((balance ?? 0) as bigint, 18)).toString().split('.')[1]?.slice(0, 4) || '0000')
+                  : Number(formatUnits((balance ?? 0) as bigint, 18)).toString()
+              }{' '}
               <button
                 onClick={handleMaxClick}
                 disabled={isLoading}
