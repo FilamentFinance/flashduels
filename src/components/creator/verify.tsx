@@ -118,6 +118,13 @@ export const CreatorVerify = ({ onClose }: { onClose: () => void }) => {
 //     return phoneRegex.test(number);
 //   };
 
+  // Add this validation function for email
+  const validateEmail = (email: string) => {
+    // RFC 5322 compliant email regex
+    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+    return emailRegex.test(email) && email.includes('.'); // Ensure there's at least one dot for domain
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -125,6 +132,16 @@ export const CreatorVerify = ({ onClose }: { onClose: () => void }) => {
       toast({
         title: 'Error',
         description: 'Please connect your wallet first',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Add email validation check
+    if (!validateEmail(formData.email)) {
+      toast({
+        title: 'Error',
+        description: 'Please enter a valid email address',
         variant: 'destructive',
       });
       return;

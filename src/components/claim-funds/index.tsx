@@ -64,6 +64,9 @@ const ClaimFunds: FC = () => {
     return parts[0] + '.' + parts[1].substring(0, 4);
   };
 
+  // Check if user has funds to withdraw
+  const hasEarnings = parseFloat(earnings) > 0;
+
   const handleError = (error: unknown) => {
     const { message, type } = handleTransactionError(error);
     console.error('Transaction error:', { message, type });
@@ -181,7 +184,7 @@ const ClaimFunds: FC = () => {
     return !isNaN(numAmount) && numAmount > 0 && numAmount <= parseFloat(earnings);
   };
 
-  return (
+  return hasEarnings ? (
     <Dialog
       title={CLAIM_FUNDS.DIALOG.TITLE}
       maxWidth="max-w-md"
@@ -246,7 +249,7 @@ const ClaimFunds: FC = () => {
         </Button>
       </div>
     </Dialog>
-  );
+  ) : null;
 };
 
 export default ClaimFunds;
