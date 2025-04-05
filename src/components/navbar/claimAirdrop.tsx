@@ -15,6 +15,7 @@ import { formatUnits, Hex } from 'viem';
 import { CREDITS } from '@/abi/CREDITS';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/shadcn/components/ui/dialog';
 import { X } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 const symbol = SERVER_CONFIG.PRODUCTION ? 'CRD' : 'FDCRD';
 
@@ -30,6 +31,7 @@ const ClaimAirdropButton: FC = () => {
   const publicClient = usePublicClient();
   const { writeContractAsync } = useWriteContract();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAddingToMetamask, setIsAddingToMetamask] = useState(false);
 
   // const { isLoading: isClaiming, isSuccess: isClaimSuccess } = useWaitForTransactionReceipt({
   //   hash: txHash,
@@ -162,9 +164,20 @@ const ClaimAirdropButton: FC = () => {
     }
   };
 
-  const handleAddToMetamask = () => {
-    if (window.ethereum) {
-      window.ethereum.request({
+  const handleAddToMetamask = async () => {
+    if (!window.ethereum) {
+      toast({
+        title: "MetaMask not found",
+        description: "Please install MetaMask extension first",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    try {
+      setIsAddingToMetamask(true);
+      
+      const wasAdded = await window.ethereum.request({
         method: 'wallet_watchAsset',
         params: {
           type: 'ERC20',
@@ -175,6 +188,27 @@ const ClaimAirdropButton: FC = () => {
           },
         },
       });
+      
+      if (wasAdded) {
+        toast({
+          title: "Success",
+          description: `${symbol} has been added to your MetaMask wallet`,
+        });
+      } else {
+        toast({
+          title: "Cancelled",
+          description: "You cancelled adding the token to MetaMask",
+        });
+      }
+    } catch (error) {
+      console.error("Error adding to MetaMask:", error);
+      toast({
+        title: "Error",
+        description: "Failed to add token to MetaMask",
+        variant: "destructive"
+      });
+    } finally {
+      setIsAddingToMetamask(false);
     }
   };
 
@@ -216,15 +250,40 @@ const ClaimAirdropButton: FC = () => {
                   className="text-pink-300 border border-pink-300 bg-transparent hover:shadow-lg hover:scale-[1.02] hover:bg-pink-300/10 w-full"
                   disabled={status === TRANSACTION_STATUS.PENDING}
                 >
-                  {status === TRANSACTION_STATUS.PENDING
-                    ? 'Claiming...'
-                    : `Claim ${symbol}`}
+                  {status === TRANSACTION_STATUS.PENDING ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Claiming...
+                    </>
+                  ) : (
+                    `Claim ${symbol}`
+                  )}
                 </Button>
               )}
 
-              <Button onClick={handleAddToMetamask} variant="outline" className="w-full">
-                Add {symbol} to MetaMask
-              </Button>
+              <div className="mt-2">
+                <h4 className="text-sm font-medium mb-2">Add to MetaMask:</h4>
+                <ol className="text-xs text-gray-500 space-y-1 list-decimal pl-4 mb-2">
+                  <li>Click the button below to open MetaMask</li>
+                  <li>Review the token details</li>
+                  <li>Click "Add Token" in your MetaMask wallet</li>
+                </ol>
+                <Button 
+                  onClick={handleAddToMetamask} 
+                  variant="outline" 
+                  className="w-full"
+                  disabled={isAddingToMetamask}
+                >
+                  {isAddingToMetamask ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Adding to MetaMask...
+                    </>
+                  ) : (
+                    `Add ${symbol} to MetaMask`
+                  )}
+                </Button>
+              </div>
             </div>
 
             {status === TRANSACTION_STATUS.SUCCESS && (
