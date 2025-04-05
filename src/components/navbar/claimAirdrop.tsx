@@ -13,7 +13,9 @@ import { formatUnits, Hex } from 'viem';
 // import { privateKeyToAccount } from 'viem/accounts';
 // import { sei, seiTestnet } from 'viem/chains';
 import { CREDITS } from '@/abi/CREDITS';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/shadcn/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/shadcn/components/ui/dialog';
+import { X } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 const symbol = SERVER_CONFIG.PRODUCTION ? 'CRD' : 'FDCRD';
 
@@ -29,6 +31,7 @@ const ClaimAirdropButton: FC = () => {
   const publicClient = usePublicClient();
   const { writeContractAsync } = useWriteContract();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAddingToMetamask, setIsAddingToMetamask] = useState(false);
 
   // const { isLoading: isClaiming, isSuccess: isClaimSuccess } = useWaitForTransactionReceipt({
   //   hash: txHash,
@@ -133,7 +136,7 @@ const ClaimAirdropButton: FC = () => {
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       // Fetch the updated balances
-      const [newBalance, newClaimed] = await Promise.all([
+      const [newBalance, newClaimed, newAvailable] = await Promise.all([
         publicClient?.readContract({
           abi: CREDITS,
           address: SERVER_CONFIG.CREDIT_CONTRACT as Hex,
@@ -146,10 +149,17 @@ const ClaimAirdropButton: FC = () => {
           functionName: 'totalClaimed',
           args: [address.toLowerCase()],
         }),
+        publicClient?.readContract({
+          abi: CREDITS,
+          address: SERVER_CONFIG.CREDIT_CONTRACT as Hex,
+          functionName: 'credits',
+          args: [address.toLowerCase()],
+        }),
       ]);
 
       setCreditsBalance(newBalance?.toString() || '0');
       setClaimedAmount(newClaimed?.toString() || '0');
+      setAvailableToClaim(newAvailable?.toString() || '0');
       setStatus(TRANSACTION_STATUS.SUCCESS);
 
       toast({
@@ -161,9 +171,20 @@ const ClaimAirdropButton: FC = () => {
     }
   };
 
-  const handleAddToMetamask = () => {
-    if (window.ethereum) {
-      window.ethereum.request({
+  const handleAddToMetamask = async () => {
+    if (!window.ethereum) {
+      toast({
+        title: "MetaMask not found",
+        description: "Please install MetaMask extension first",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    try {
+      setIsAddingToMetamask(true);
+      
+      const wasAdded = await window.ethereum.request({
         method: 'wallet_watchAsset',
         params: {
           type: 'ERC20',
@@ -174,6 +195,27 @@ const ClaimAirdropButton: FC = () => {
           },
         },
       });
+      
+      if (wasAdded) {
+        toast({
+          title: "Success",
+          description: `${symbol} has been added to your MetaMask wallet`,
+        });
+      } else {
+        toast({
+          title: "Cancelled",
+          description: "You cancelled adding the token to MetaMask",
+        });
+      }
+    } catch (error) {
+      console.error("Error adding to MetaMask:", error);
+      toast({
+        title: "Error",
+        description: "Failed to add token to MetaMask",
+        variant: "destructive"
+      });
+    } finally {
+      setIsAddingToMetamask(false);
     }
   };
 
@@ -186,22 +228,35 @@ const ClaimAirdropButton: FC = () => {
         disabled={false}
       >
         {status === TRANSACTION_STATUS.SUCCESS
-          ? `${formatUnits(BigInt(claimedAmount.toString()), 18)} ${symbol} Claimed 🎉`
+          ? `${parseFloat(formatUnits(BigInt(claimedAmount.toString()), 18)).toFixed(4)} ${symbol} Claimed 🎉`
           : `Claim ${symbol}`}
       </Button>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-[425px]">
+          <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none">
+            <X className="h-4 w-4" />
+            <span className="sr-only">Close</span>
+          </DialogClose>
           <DialogHeader>
             <DialogTitle className="text-center">Filament Credits ({symbol})</DialogTitle>
           </DialogHeader>
 
           <div className="flex flex-col gap-4 py-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-500">Available Balance:</span>
-              <span className="font-medium">
-                {parseFloat(formatUnits(BigInt(creditsBalance), 18)).toFixed(3)} {symbol}
-              </span>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-500">Current Balance:</span>
+                <span className="font-medium">
+                  {parseFloat(formatUnits(BigInt(creditsBalance), 18)).toFixed(4)} {symbol}
+                </span>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-500">Available to Claim:</span>
+                <span className="font-medium">
+                  {parseFloat(formatUnits(BigInt(availableToClaim), 18)).toFixed(4)} {symbol}
+                </span>
+              </div>
             </div>
 
             <div className="flex flex-col gap-3">
@@ -209,17 +264,44 @@ const ClaimAirdropButton: FC = () => {
                 <Button
                   onClick={handleClaimAirdrop}
                   className="text-pink-300 border border-pink-300 bg-transparent hover:shadow-lg hover:scale-[1.02] hover:bg-pink-300/10 w-full"
-                  disabled={status === TRANSACTION_STATUS.PENDING}
+                  disabled={status === TRANSACTION_STATUS.PENDING || availableToClaim === '0'}
                 >
-                  {status === TRANSACTION_STATUS.PENDING
-                    ? 'Claiming...'
-                    : `Claim ${symbol}`}
+                  {status === TRANSACTION_STATUS.PENDING ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Claiming...
+                    </>
+                  ) : availableToClaim === '0' ? (
+                    `No ${symbol} Available to Claim`
+                  ) : (
+                    `Claim ${parseFloat(formatUnits(BigInt(availableToClaim), 18)).toFixed(4)} ${symbol}`
+                  )}
                 </Button>
               )}
 
-              <Button onClick={handleAddToMetamask} variant="outline" className="w-full">
-                Add {symbol} to MetaMask
-              </Button>
+              <div className="mt-2">
+                <h4 className="text-sm font-medium mb-2">Add to MetaMask:</h4>
+                <ol className="text-xs text-gray-500 space-y-1 list-decimal pl-4 mb-2">
+                  <li>Click the button below to open MetaMask</li>
+                  <li>Review the token details</li>
+                  <li>Click &quot;Add Token&quot; in your MetaMask wallet</li>
+                </ol>
+                <Button 
+                  onClick={handleAddToMetamask} 
+                  variant="outline" 
+                  className="w-full"
+                  disabled={isAddingToMetamask}
+                >
+                  {isAddingToMetamask ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Adding to MetaMask...
+                    </>
+                  ) : (
+                    `Add ${symbol} to MetaMask`
+                  )}
+                </Button>
+              </div>
             </div>
 
             {status === TRANSACTION_STATUS.SUCCESS && (

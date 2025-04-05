@@ -7,7 +7,7 @@ import { fetchAssetType, setCryptoAsset } from '@/store/slices/priceSlice';
 import { truncateAddress } from '@/utils/general/getEllipsisTxt';
 import axios from 'axios';
 import { FC, useEffect } from 'react';
-import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { shallowEqual, useDispatch } from 'react-redux';
 import { useAccount } from 'wagmi';
 // import ClaimFaucet from '../claim-faucet';
 import ClaimFunds from '../claim-funds';
@@ -20,10 +20,12 @@ import NavLink from './navLink';
 import { WalletModal } from './wallet-modal';
 import GetGas from '../claim-faucet/get-gas';
 import ClaimAirdropButton from './claimAirdrop';
+import { useAppSelector } from '@/store/hooks';
 
 const Navbar: FC = () => {
   const { address, isConnected } = useAccount();
-  const { isAuthenticated } = useSelector((state: RootState) => state.auth, shallowEqual);
+  const { isAuthenticated } = useAppSelector((state: RootState) => state.auth, shallowEqual);
+  // const { isTradingEnabled = false } = useAppSelector((state: RootState) => state.user || {}, shallowEqual);
   const dispatch = useDispatch();
   const fetchCryptoAssets = async () => {
     try {
@@ -55,6 +57,9 @@ const Navbar: FC = () => {
           <Logo />
           <div className="flex items-center gap-6">
             {Object.values(APP_ROUTES).map((route) => {
+              if (route.path === APP_ROUTES.PORTFOLIO.path && !isAuthenticated) {
+                return null;
+              }
               return <NavLink key={route.path} {...route} />;
             })}
           </div>
