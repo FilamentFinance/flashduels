@@ -136,7 +136,7 @@ const ClaimAirdropButton: FC = () => {
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       // Fetch the updated balances
-      const [newBalance, newClaimed] = await Promise.all([
+      const [newBalance, newClaimed, newAvailable] = await Promise.all([
         publicClient?.readContract({
           abi: CREDITS,
           address: SERVER_CONFIG.CREDIT_CONTRACT as Hex,
@@ -149,10 +149,17 @@ const ClaimAirdropButton: FC = () => {
           functionName: 'totalClaimed',
           args: [address.toLowerCase()],
         }),
+        publicClient?.readContract({
+          abi: CREDITS,
+          address: SERVER_CONFIG.CREDIT_CONTRACT as Hex,
+          functionName: 'credits',
+          args: [address.toLowerCase()],
+        }),
       ]);
 
       setCreditsBalance(newBalance?.toString() || '0');
       setClaimedAmount(newClaimed?.toString() || '0');
+      setAvailableToClaim(newAvailable?.toString() || '0');
       setStatus(TRANSACTION_STATUS.SUCCESS);
 
       toast({
@@ -236,11 +243,20 @@ const ClaimAirdropButton: FC = () => {
           </DialogHeader>
 
           <div className="flex flex-col gap-4 py-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-500">Available Balance:</span>
-              <span className="font-medium">
-                {parseFloat(formatUnits(BigInt(creditsBalance), 18)).toFixed(4)} {symbol}
-              </span>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-500">Current Balance:</span>
+                <span className="font-medium">
+                  {parseFloat(formatUnits(BigInt(creditsBalance), 18)).toFixed(4)} {symbol}
+                </span>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-500">Available to Claim:</span>
+                <span className="font-medium">
+                  {parseFloat(formatUnits(BigInt(availableToClaim), 18)).toFixed(4)} {symbol}
+                </span>
+              </div>
             </div>
 
             <div className="flex flex-col gap-3">
@@ -248,15 +264,17 @@ const ClaimAirdropButton: FC = () => {
                 <Button
                   onClick={handleClaimAirdrop}
                   className="text-pink-300 border border-pink-300 bg-transparent hover:shadow-lg hover:scale-[1.02] hover:bg-pink-300/10 w-full"
-                  disabled={status === TRANSACTION_STATUS.PENDING}
+                  disabled={status === TRANSACTION_STATUS.PENDING || availableToClaim === '0'}
                 >
                   {status === TRANSACTION_STATUS.PENDING ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Claiming...
                     </>
+                  ) : availableToClaim === '0' ? (
+                    `No ${symbol} Available to Claim`
                   ) : (
-                    `Claim ${symbol}`
+                    `Claim ${parseFloat(formatUnits(BigInt(availableToClaim), 18)).toFixed(4)} ${symbol}`
                   )}
                 </Button>
               )}
