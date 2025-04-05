@@ -29,10 +29,12 @@ import { selectedCryptoAsset } from '@/store/slices/priceSlice';
 import { DuelDuration, WinCondition } from '@/types/duel';
 import { mapDurationToNumber } from '@/utils/general/create-duels';
 import { getTransactionStatusMessage } from '@/utils/transaction';
-import { FC, useState } from 'react';
+import { FC, useState, useEffect } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
-import { useAccount } from 'wagmi';
+import { useAccount, usePublicClient } from 'wagmi';
 import DuelInfo from '../duel-info';
+import { CREDITS } from '@/abi/CREDITS';
+import { formatUnits, Hex } from 'viem';
 
 interface CoinDuelFormProps {
   onBack: () => void;
@@ -70,27 +72,65 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
     isApprovalMining ||
     isDuelMining;
   const [isButtonClicked, setIsButtonClicked] = useState(false);
+  const [creditsBalance, setCreditsBalance] = useState<string>('0');
+  const publicClient = usePublicClient();
+  const symbol = SERVER_CONFIG.PRODUCTION ? 'CRD' : 'FDCRD';
+  
+  // Add useEffect to check user's FDCRD balance
+  useEffect(() => {
+    const checkCreditsBalance = async () => {
+      if (!address || !publicClient) return;
+      
+      try {
+        const balance = await publicClient.readContract({
+          abi: CREDITS,
+          address: SERVER_CONFIG.CREDIT_CONTRACT as Hex,
+          functionName: 'balanceOf',
+          args: [address.toLowerCase()],
+        });
+        
+        setCreditsBalance(balance?.toString() || '0');
+      } catch (error) {
+        console.error('Error fetching credits balance:', error);
+      }
+    };
+    
+    checkCreditsBalance();
+  }, [address, publicClient]);
 
   const handleCreateDuel = async () => {
     if (!formData || isTransactionInProgress || isButtonClicked) return;
     setIsButtonClicked(true);
 
-    const durationNumber = mapDurationToNumber(selectedDuration, 'coin');
-    const triggerPrice = Number(formData.triggerPrice) * 10 ** 8;
-    const minWager = Number(formData.triggerPrice) * 10 ** 6;
-
-    const triggerType = 0;
-    const winCondition = formData.winCondition === WIN_CONDITIONS.ABOVE ? 0 : 1;
-    const duelData = {
-      symbol: selectedAsset?.symbol || '',
-      options: OPTIONS,
-      minWager,
-      triggerPrice,
-      triggerType,
-      winCondition,
-      durationNumber,
-    };
     try {
+      // Check if user has enough FDCRD tokens (at least 5)
+      const balanceInEther = parseFloat(formatUnits(BigInt(creditsBalance), 18));
+      if (balanceInEther < 5) {
+        toast({
+          title: `Insufficient ${symbol} Balance`,
+          description: `You need at least 5 ${symbol} to create a duel. Your current balance is ${balanceInEther.toFixed(2)} ${symbol}.`,
+          variant: 'destructive',
+        });
+        setIsButtonClicked(false);
+        return;
+      }
+      
+      // Continue with existing code
+      const durationNumber = mapDurationToNumber(selectedDuration, 'coin');
+      const triggerPrice = Number(formData.triggerPrice) * 10 ** 8;
+      const minWager = Number(formData.triggerPrice) * 10 ** 6;
+
+      const triggerType = 0;
+      const winCondition = formData.winCondition === WIN_CONDITIONS.ABOVE ? 0 : 1;
+      const duelData = {
+        symbol: selectedAsset?.symbol || '',
+        options: OPTIONS,
+        minWager,
+        triggerPrice,
+        triggerType,
+        winCondition,
+        durationNumber,
+      };
       console.log("creating coin duel", duelData);
       const result = await createCoinDuel(duelData);
 

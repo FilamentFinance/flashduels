@@ -31,6 +31,11 @@ import Image from 'next/image';
 import { FC, useState, useEffect } from 'react';
 import { useAccount } from 'wagmi';
 import { cn } from '@/shadcn/lib/utils';
+import { useToast } from '@/shadcn/components/ui/use-toast';
+import { usePublicClient } from 'wagmi';
+import { formatUnits } from 'ethers';
+import { Hex } from 'viem';
+import { CREDITS } from '@/abi/CREDITS';
 
 type FlashDuelFormProps = {
   onBack: () => void;
@@ -56,6 +61,10 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
   const { status, error, isApprovalMining, isDuelMining, createFlashDuel, isComplete } =
     useCreateFlashDuel();
   const [isButtonClicked, setIsButtonClicked] = useState(false);
+  const [creditsBalance, setCreditsBalance] = useState<string>('0');
+  const { toast } = useToast();
+  const publicClient = usePublicClient();
+  const symbol = SERVER_CONFIG.PRODUCTION ? 'CRD' : 'FDCRD';
 
   useEffect(() => {
     console.log('Completion Status Check:', {
@@ -98,6 +107,27 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
     handleCompletion();
   }, [isComplete, address]);
 
+  useEffect(() => {
+    const checkCreditsBalance = async () => {
+      if (!address || !publicClient) return;
+      
+      try {
+        const balance = await publicClient.readContract({
+          abi: CREDITS,
+          address: SERVER_CONFIG.CREDIT_CONTRACT as Hex,
+          functionName: 'balanceOf',
+          args: [address.toLowerCase()],
+        });
+        
+        setCreditsBalance(balance?.toString() || '0');
+      } catch (error) {
+        console.error('Error fetching credits balance:', error);
+      }
+    };
+    
+    checkCreditsBalance();
+  }, [address, publicClient]);
+
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -128,11 +158,23 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
 
     try {
       setIsSubmitting(true);
+      
+      const balanceInEther = parseFloat(formatUnits(BigInt(creditsBalance), 18));
+      if (balanceInEther < 5) {
+        toast({
+          title: `Insufficient ${symbol} Balance`,
+          description: `You need at least 5 ${symbol} to create a duel. Your current balance is ${balanceInEther.toFixed(2)} ${symbol}.`,
+          variant: 'destructive',
+        });
+        setIsButtonClicked(false);
+        setIsSubmitting(false);
+        return;
+      }
+      
       const categoryEnumIndex = mapCategoryToEnumIndex(selectedCategory);
       const durationNumber = mapDurationToNumber(selectedDuration);
       const duelText = (document.getElementById('duelText') as HTMLTextAreaElement)?.value || '';
 
-      // First, get the presigned URL for the image upload
       if (selectedImage) {
         const fileName = `${Date.now()}-${selectedImage.name}`;
         const presignedUrlResponse = await baseApiClient.post(
@@ -144,11 +186,9 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
           },
         );
 
-        // Trim the URL to get the base S3 path
         const fullUrl = presignedUrlResponse.data.url;
         const imageUrl = fullUrl.split('?')[0];
         setImageUrl(imageUrl);
-        // Upload the image directly to S3 using the presigned URL
         await fetch(presignedUrlResponse.data.url, {
           method: 'PUT',
           body: selectedImage,
