@@ -266,7 +266,7 @@ const ClaimAirdropButton: FC = () => {
                 <ol className="text-xs text-gray-500 space-y-1 list-decimal pl-4 mb-2">
                   <li>Click the button below to open MetaMask</li>
                   <li>Review the token details</li>
-                  <li>Click "Add Token" in your MetaMask wallet</li>
+                  <li>Click &quot;Add Token&quot; in your MetaMask wallet</li>
                 </ol>
                 <Button 
                   onClick={handleAddToMetamask} 
