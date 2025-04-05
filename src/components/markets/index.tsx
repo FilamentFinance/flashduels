@@ -102,7 +102,10 @@ const Markets: FC = () => {
           
           // Sort completed duels from latest to oldest based on completion time
           if (activeStatus === DUEL_STATUS.COMPLETED) {
-            // console.log('Sorting completed duels from latest to oldest based on completion time');
+            filteredDuels.sort((a: { createdAt: number; }, b: { createdAt: number; }) => b.createdAt - a.createdAt);
+          }
+          // Sort bootstrapping and live duels from latest to oldest based on creation time
+          else if (activeStatus === DUEL_STATUS.BOOTSTRAPPING || activeStatus === DUEL_STATUS.LIVE) {
             filteredDuels.sort((a: { createdAt: number; }, b: { createdAt: number; }) => b.createdAt - a.createdAt);
           }
           
