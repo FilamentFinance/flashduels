@@ -13,7 +13,8 @@ import { formatUnits, Hex } from 'viem';
 // import { privateKeyToAccount } from 'viem/accounts';
 // import { sei, seiTestnet } from 'viem/chains';
 import { CREDITS } from '@/abi/CREDITS';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/shadcn/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/shadcn/components/ui/dialog';
+import { X } from 'lucide-react';
 
 const symbol = SERVER_CONFIG.PRODUCTION ? 'CRD' : 'FDCRD';
 
@@ -186,12 +187,16 @@ const ClaimAirdropButton: FC = () => {
         disabled={false}
       >
         {status === TRANSACTION_STATUS.SUCCESS
-          ? `${formatUnits(BigInt(claimedAmount.toString()), 18)} ${symbol} Claimed 🎉`
+          ? `${parseFloat(formatUnits(BigInt(claimedAmount.toString()), 18)).toFixed(4)} ${symbol} Claimed 🎉`
           : `Claim ${symbol}`}
       </Button>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-[425px]">
+          <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none">
+            <X className="h-4 w-4" />
+            <span className="sr-only">Close</span>
+          </DialogClose>
           <DialogHeader>
             <DialogTitle className="text-center">Filament Credits ({symbol})</DialogTitle>
           </DialogHeader>
@@ -200,7 +205,7 @@ const ClaimAirdropButton: FC = () => {
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-500">Available Balance:</span>
               <span className="font-medium">
-                {parseFloat(formatUnits(BigInt(creditsBalance), 18)).toFixed(3)} {symbol}
+                {parseFloat(formatUnits(BigInt(creditsBalance), 18)).toFixed(4)} {symbol}
               </span>
             </div>
 
