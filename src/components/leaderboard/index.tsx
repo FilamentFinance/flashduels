@@ -34,7 +34,7 @@ const Leaderboard: FC = () => {
   }, [activeTab]);
 
   return (
-    <div className="flex flex-col items-center w-full">
+    <div className="flex flex-col items-center w-full pt-8">
       <Header activeTab={activeTab} setActiveTab={setActiveTab} />
       <Table data={data} isLoading={isLoading} isError={isError} />
     </div>
