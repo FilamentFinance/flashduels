@@ -118,12 +118,14 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
               <Image src="/logo/markets/dollar.svg" alt="Volume" width={16} height={16} />
               <span>{volume}</span>
             </div>
-            <div className="flex items-center gap-1.5 text-zinc-400 text-sm">
-              <Image src="/logo/markets/timer.svg" alt="Time" width={14} height={14} />
-              <div className="flex items-center gap-1">
-                <span>{timeLeft}</span>
+            {timeLeft !== '00:00:00' && timeLeft !== '00:00' && (
+              <div className="flex items-center gap-1.5 text-zinc-400 text-sm">
+                <Image src="/logo/markets/timer.svg" alt="Time" width={14} height={14} />
+                <div className="flex items-center gap-1">
+                  <span>{timeLeft}</span>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
 
