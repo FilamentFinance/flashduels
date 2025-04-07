@@ -96,6 +96,14 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
             address: address?.toLowerCase(),
           });
           console.log('API call successful');
+          
+          // Show toast notification about admin approval
+          toast({
+            title: "Flash Duel Created Successfully",
+            description: "Your Flash Duel is now pending admin approval. Please check your portfolio page for status updates.",
+            duration: 6000,
+          });
+          
           onComplete();
         } catch (error) {
           console.error('API Error:', error);
@@ -170,6 +178,13 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
         setIsSubmitting(false);
         return;
       }
+      
+      // Inform user about the approval process before proceeding
+      toast({
+        title: "Creating Flash Duel",
+        description: "After transaction completion, your duel will need admin approval before going live.",
+        duration: 5000,
+      });
       
       const categoryEnumIndex = mapCategoryToEnumIndex(selectedCategory);
       const durationNumber = mapDurationToNumber(selectedDuration);
