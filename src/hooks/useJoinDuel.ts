@@ -86,6 +86,11 @@ const useJoinDuel = () => {
         });
       }
 
+      // Auto refresh page after successful join
+      setTimeout(() => {
+        window.location.reload();
+      }, 150); // 0.15 milliseconds (150ms)
+
       return { success: true };
     } catch (error) {
       return handleError(error);

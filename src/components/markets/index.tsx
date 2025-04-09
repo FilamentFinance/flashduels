@@ -108,6 +108,10 @@ const Markets: FC = () => {
           else if (activeStatus === DUEL_STATUS.BOOTSTRAPPING || activeStatus === DUEL_STATUS.LIVE) {
             filteredDuels.sort((a: { createdAt: number; }, b: { createdAt: number; }) => b.createdAt - a.createdAt);
           }
+          // Sort yet to be resolved duels from latest to oldest based on creation time
+          else if (activeStatus === DUEL_STATUS.YET_TO_BE_RESOLVED) {
+            filteredDuels.sort((a: { createdAt: number; }, b: { createdAt: number; }) => b.createdAt - a.createdAt);
+          }
           
           setDuels(filteredDuels);
         }

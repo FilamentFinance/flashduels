@@ -19,6 +19,7 @@ interface AccountData {
   pnl: string;
   totalBets: number;
   totalDuelCreated: number;
+  totalCreatorFees?: number;
 }
 
 const AccountDetails: FC = () => {
@@ -28,6 +29,7 @@ const AccountDetails: FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { balance, decimals } = useBalance(address);
+  const [isCreator, setIsCreator] = useState<boolean | null>(null);
 
   const fetchPortfolio = useCallback(async () => {
     if (!address) {
@@ -42,6 +44,43 @@ const AccountDetails: FC = () => {
         userAddress: address.toLowerCase(),
       });
       setAccountData(response.data.portfolioData);
+      
+      // Check if user is a creator
+      try {
+        const creatorResponse = await baseApiClient.get(`${SERVER_CONFIG.API_URL}/user/creator/status`, {
+          params: {
+            address: address.toLowerCase()
+          }
+        });
+        setIsCreator(creatorResponse.data.isCreator);
+        
+        // If user is a creator, fetch their total fees
+        if (creatorResponse.data.isCreator) {
+          try {
+            const feesResponse = await baseApiClient.get(`${SERVER_CONFIG.API_URL}/user/creator/fees`, {
+              params: {
+                address: address.toLowerCase()
+              }
+            });
+            
+            // Update accountData with creator fees
+            setAccountData(prev => ({
+              ...prev!,
+              totalCreatorFees: feesResponse.data.totalFees || (prev?.totalDuelCreated || 0) * 5
+            }));
+          } catch (error) {
+            console.error("Error fetching creator fees:", error);
+            // Fallback calculation
+            setAccountData(prev => ({
+              ...prev!,
+              totalCreatorFees: (prev?.totalDuelCreated || 0) * 5
+            }));
+          }
+        }
+      } catch (error) {
+        console.error("Error checking creator status:", error);
+        setIsCreator(false);
+      }
     } catch (error) {
       console.error('Error fetching portfolio:', error);
       setError('Failed to load portfolio data');
@@ -139,7 +178,7 @@ const AccountDetails: FC = () => {
         {/* Stats Grid */}
         <div className="grid grid-cols-1 gap-2">
           <div className="flex justify-between items-center">
-            <div className="text-sm text-zinc-500">Positions Value</div>
+            <div className="text-sm text-zinc-500">Total Invested Value</div>
             <div className="text-sm font-medium text-white">{accountData.positionValue}</div>
           </div>
           <div className="flex justify-between items-center">
@@ -162,6 +201,16 @@ const AccountDetails: FC = () => {
             <div className="text-sm text-zinc-500">Duels Created</div>
             <div className="text-sm font-medium text-white">{accountData.totalDuelCreated}</div>
           </div>
+          
+          {/* Add Creator Fees if user is a creator */}
+          {isCreator && accountData.totalCreatorFees !== undefined && (
+            <div className="flex justify-between items-center">
+              <div className="text-sm text-zinc-500">Total Creator Fees Paid</div>
+              <div className="text-sm font-medium text-white">
+                {accountData.totalCreatorFees}
+              </div>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

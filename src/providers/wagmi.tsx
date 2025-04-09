@@ -20,6 +20,8 @@ import { ReactNode } from 'react';
 import { http } from 'viem';
 import { sei, seiTestnet } from 'viem/chains';
 import { WagmiProvider } from 'wagmi';
+import '@sei-js/sei-global-wallet/eip6963';
+
 const queryClient = new QueryClient();
 
 const config = getDefaultConfig({

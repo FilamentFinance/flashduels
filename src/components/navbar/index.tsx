@@ -21,10 +21,14 @@ import { WalletModal } from './wallet-modal';
 import GetGas from '../claim-faucet/get-gas';
 import ClaimAirdropButton from './claimAirdrop';
 import { useAppSelector } from '@/store/hooks';
+import { useBalance } from '@/hooks/useBalance';
+import { formatUnits } from 'viem';
+import { Loader2 } from 'lucide-react';
 
 const Navbar: FC = () => {
   const { address, isConnected } = useAccount();
   const { isAuthenticated } = useAppSelector((state: RootState) => state.auth, shallowEqual);
+  const { balance, symbol, decimals, isLoading } = useBalance(address);
   // const { isTradingEnabled = false } = useAppSelector((state: RootState) => state.user || {}, shallowEqual);
   const dispatch = useDispatch();
   const fetchCryptoAssets = async () => {
@@ -50,6 +54,15 @@ const Navbar: FC = () => {
   useEffect(() => {
     fetchCryptoAssets();
   }, []);
+
+  const formattedBalance =
+    balance && decimals
+      ? Number(formatUnits(balance, decimals)).toLocaleString(undefined, {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 2,
+        })
+      : '0';
+
   return (
     <nav className="w-full border-b border-gray-800 h-navbar-height px-navbar-padding flex items-center">
       <div className="mx-auto w-full flex items-center justify-between">
@@ -74,8 +87,13 @@ const Navbar: FC = () => {
             <GetGas />
             {isAuthenticated && <CreateDuel />}
             <WalletModal>
-              <Button className="rounded-default bg-glass hover:bg-glass-hover border border-zinc-800 transition-colors duration-200 hover:shadow-lg">
-                {truncateAddress(address)}
+              <Button className="rounded-default bg-glass hover:bg-glass-hover border border-zinc-800 transition-colors duration-200 hover:shadow-lg flex items-center gap-2">
+                {isLoading ? (
+                  <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                ) : (
+                  <span className="text-gray-300">{formattedBalance} {symbol}</span>
+                )}
+                <span className="border-l border-zinc-700 pl-2">{truncateAddress(address)}</span>
               </Button>
             </WalletModal>
             {/* <GenerateInvite /> */}

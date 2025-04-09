@@ -22,6 +22,7 @@ import { FlashDuelCoreFaucetAbi } from '@/abi/FlashDualCoreFaucet';
 // import { TRANSACTION_STATUS } from '@/constants/app';
 // import { TransactionStatusType } from '@/types/app';
 import { handleTransactionError } from '@/utils/token';
+import { Loader2 } from 'lucide-react';
 
 const symbol = SERVER_CONFIG.PRODUCTION ? 'CRD' : 'FDCRD';
 const ClaimFunds: FC = () => {
@@ -245,7 +246,14 @@ const ClaimFunds: FC = () => {
           onClick={handleWithdraw}
           disabled={isWithdrawing || !isValidAmount()}
         >
-          {isWithdrawing ? 'Withdrawing...' : 'Withdraw Earnings'}
+          {isWithdrawing ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Withdrawing...
+            </>
+          ) : (
+            'Withdraw Earnings'
+          )}
         </Button>
       </div>
     </Dialog>

@@ -24,6 +24,7 @@ import CreateCoinDuel from './coin-duel';
 import Duel from './duel';
 import FlashDuelForm from './flash-duel';
 import { CreatorVerify } from '../creator/verify';
+import { Loader2 } from 'lucide-react';
 
 const CreateDuel: FC = () => {
   const { address } = useAccount();
@@ -177,9 +178,14 @@ const CreateDuel: FC = () => {
           <Button
             className="w-full font-semibold bg-gradient-pink text-black disabled:opacity-50 disabled:pointer-events-none"
             onClick={!isCreator && selectedDuel === DUEL.FLASH ? () => setCreatorModalOpen(true) : handleNext}
-            disabled={!selectedDuel}
+            disabled={!selectedDuel || loading}
           >
-            {!isCreator && selectedDuel === DUEL.FLASH 
+            {loading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Loading...
+              </>
+            ) : !isCreator && selectedDuel === DUEL.FLASH 
               ? "Verify as Creator" 
               : CREATE_DUEL.BUTTONS.NEXT}
           </Button>
