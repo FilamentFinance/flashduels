@@ -47,6 +47,9 @@ importers:
       '@reduxjs/toolkit':
         specifier: ^2.5.1
         version: 2.5.1(react-redux@9.2.0(@types/react@19.0.8)(react@19.0.0)(redux@5.0.1))(react@19.0.0)
+      '@sei-js/sei-global-wallet':
+        specifier: ^1.3.3
+        version: 1.3.3(viem@2.23.1(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))
       '@tanstack/react-query':
         specifier: ^5.66.0
         version: 5.66.0(react@19.0.0)
@@ -181,6 +184,53 @@ packages:
 
   '@coinbase/wallet-sdk@4.3.0':
     resolution: {integrity: sha512-T3+SNmiCw4HzDm4we9wCHCxlP0pqCiwKe4sOwPH3YAK2KSKjxPRydKu6UQJrdONFVLG7ujXvbd/6ZqmvJb8rkw==}
+
+  '@dynamic-labs/assert-package-version@4.10.4':
+    resolution: {integrity: sha512-rBx3TA/dRB0u0IvvQDcasbQMmdGS+GbwnUOY6QAwDKkcGls7OrJ3FSAdcGPM4ZLPmprKVgcdCcEOdk22QHUoLA==}
+
+  '@dynamic-labs/global-wallet-client@4.10.4':
+    resolution: {integrity: sha512-Dn2WXCLDA4T30yfDO2fdj2Gv8ySuvkyqTIQoPii1rsJogjsV/37DK7DMPeYXz6febu3hMR43Dg6LnjWMd8Uyqw==}
+    peerDependencies:
+      '@solana/wallet-standard-features': ^1.2.0
+      '@solana/web3.js': 1.98.0
+      '@wallet-standard/base': ^1.0.1
+      '@wallet-standard/features': ^1.0.3
+      '@wallet-standard/wallet': ^1.1.0
+      viem: ^2.21.55
+    peerDependenciesMeta:
+      '@solana/wallet-standard-features':
+        optional: true
+      '@solana/web3.js':
+        optional: true
+      '@wallet-standard/base':
+        optional: true
+      '@wallet-standard/features':
+        optional: true
+      '@wallet-standard/wallet':
+        optional: true
+      viem:
+        optional: true
+
+  '@dynamic-labs/logger@4.10.4':
+    resolution: {integrity: sha512-qTObcPMvr68RKKS+3LjzhHKqUhL1SjqNC9iqQw8JkYndEvs9fZPVga5m+1+fxVSycz6RoA4Rrfn0cmoM/E2J9g==}
+
+  '@dynamic-labs/message-transport@4.10.4':
+    resolution: {integrity: sha512-90zcMGjqWkFpae6Jf9UJdl5Ut/aw2dnWkok3We4EjGqnRh4m3DzmrTq/eILkI09UpPZMMNOBu/CcKxWKIZuqhg==}
+
+  '@dynamic-labs/sdk-api-core@0.0.650':
+    resolution: {integrity: sha512-/dAOxwnh0OaFV2KUbnj4zRSzEDFZptsmoJm58dP6ACfQClx5aPI49WGHM8NKjBd5xbaB7oxzhuQWizOnT/6j9g==}
+
+  '@dynamic-labs/store@4.10.4':
+    resolution: {integrity: sha512-KHpDY1ph2IA4Qh8wMBLCRumKfnHXHLl+Ob3VDpxnc/Eq0lj6ET5Rw7Jl+1FLNBSNySEiv1XpvJDXwSYWtBYc5A==}
+
+  '@dynamic-labs/types@4.10.4':
+    resolution: {integrity: sha512-aMeIBE03g/BUGRaPBzNM9ed3M1wPpLa+txGOF04GxOKOb5sbU9fZOCQnnDEBNtXXW1c/Wmjd3vmdM+j1cr9VHg==}
+
+  '@dynamic-labs/utils@4.10.4':
+    resolution: {integrity: sha512-pyaSB/NOYLALTYS+syogWZQWTa7GFSCClAsQ3Lg/i/1EIPB4gTQMY7cvGgVn/bparZSCKI+g2M8xU4CQs6+Ufw==}
+
+  '@dynamic-labs/webauthn@4.10.4':
+    resolution: {integrity: sha512-C3lqAiCFQ70f2LSpPH3ChmDjR0b3B1D0gW626NmlrXeCKIdhWHyCFDulohwH9fPcSX0b8uu8N48kdGIlBhXyPg==}
 
   '@ecies/ciphers@0.2.2':
     resolution: {integrity: sha512-ylfGR7PyTd+Rm2PqQowG08BCKA22QuX8NzrL+LxAAvazN10DMwdJ2fWwAzRj05FI/M8vNFGm3cv9Wq/GFWCBLg==}
@@ -1048,6 +1098,35 @@ packages:
   '@scure/bip39@1.5.4':
     resolution: {integrity: sha512-TFM4ni0vKvCfBpohoh+/lY05i9gRbSwXWngAsF4CABQxoaOHijxuaZ2R6cStDQ5CHtHO9aGJTr4ksVJASRRyMA==}
 
+  '@sei-js/sei-global-wallet@1.3.3':
+    resolution: {integrity: sha512-GJjwtk9cbVucmuwZBRzafHzXYWJAAlf9E+pxX06moU/TkAkATCkjSw+Jkav59vuuMJQClow5Ckv/td2x4a3KaQ==}
+    peerDependencies:
+      '@solana/wallet-standard-features': ^1.2.0
+      '@solana/web3.js': ^1.92.1
+      '@wallet-standard/base': ^1.0.1
+      '@wallet-standard/features': ^1.0.3
+      '@wallet-standard/wallet': ^1.1.0
+      viem: ^2.7.12
+    peerDependenciesMeta:
+      '@solana/wallet-standard-features':
+        optional: true
+      '@solana/web3.js':
+        optional: true
+      '@wallet-standard/base':
+        optional: true
+      '@wallet-standard/features':
+        optional: true
+      '@wallet-standard/wallet':
+        optional: true
+      viem:
+        optional: true
+
+  '@simplewebauthn/browser@9.0.1':
+    resolution: {integrity: sha512-wD2WpbkaEP4170s13/HUxPcAV5y4ZXaKo1TfNklS5zDefPinIgXOpgz1kpEvobAsaLPa2KeH7AKKX/od1mrBJw==}
+
+  '@simplewebauthn/types@9.0.1':
+    resolution: {integrity: sha512-tGSRP1QvsAvsJmnOlRQyw/mvK9gnPtjEc5fg2+m8n+QUa+D7rvrKkOYyfpy42GTs90X3RDOnqJgfHt+qO67/+w==}
+
   '@socket.io/component-emitter@3.1.2':
     resolution: {integrity: sha512-9BCxFwvbGg/RsZK9tjXd8s4UcwR0MWeFQ1XEKIQVVvAGJyINdrqKMcTRyLoK8Rse1GjzLV9cwjWV1olXRWEXVA==}
 
@@ -1252,6 +1331,12 @@ packages:
     resolution: {integrity: sha512-oCHlQeYOBIJIA2yWy2GnY5wE2A7hGHDyJplJo4lb+KEIBcJWRnDJDg8ywDwQS5VfWJrBBO3drzYZPFpWQjAMiQ==}
     peerDependencies:
       '@vanilla-extract/css': ^1.0.0
+
+  '@vue/reactivity@3.5.13':
+    resolution: {integrity: sha512-NaCwtw8o48B9I6L1zl2p41OHo/2Z4wqYGGIK1Khu5T7yxrn+ATOixn/Udn2m+6kZKB/J7cuT9DbWWhRxqixACg==}
+
+  '@vue/shared@3.5.13':
+    resolution: {integrity: sha512-/hnE/qP5ZoGpol0a5mDi45bOd7t3tjYJBjsgCsivow7D48cJeV5l05RD82lPqi7gRiphZM37rnhW1l6ZoCNNnQ==}
 
   '@wagmi/connectors@5.7.7':
     resolution: {integrity: sha512-hveKxuR35ZQQyteLo7aiN/TBVECYKVbLNTYGGgqzTNHJ8vVoblTP9PwPrRPGOPi5ji8raYSFWShxNK7QpGL+Kg==}
@@ -3407,6 +3492,13 @@ packages:
   thread-stream@0.15.2:
     resolution: {integrity: sha512-UkEhKIg2pD+fjkHQKyJO3yoIvAP3N6RlNFt2dUhcS1FGvCD1cQa1M/PGknCLFIyZdtJOWQjejp7bdNqmN7zwdA==}
 
+  tldts-core@6.1.85:
+    resolution: {integrity: sha512-DTjUVvxckL1fIoPSb3KE7ISNtkWSawZdpfxGxwiIrZoO6EbHVDXXUIlIuWympPaeS+BLGyggozX/HTMsRAdsoA==}
+
+  tldts@6.0.16:
+    resolution: {integrity: sha512-TkEq38COU640mzOKPk4D1oH3FFVvwEtMaKIfw/+F/umVsy7ONWu8PPQH0c11qJ/Jq/zbcQGprXGsT8GcaDSmJg==}
+    hasBin: true
+
   to-regex-range@5.0.1:
     resolution: {integrity: sha512-65P7iz6X5yEr1cwcgvQxbbIw7Uk3gOy5dIdtZ4rDveLqhrdJP+Li/Hx6tyK0NEb+2GCyneCMJiGqrADCSNk8sQ==}
     engines: {node: '>=8.0'}
@@ -3798,6 +3890,66 @@ snapshots:
       clsx: 1.2.1
       eventemitter3: 5.0.1
       preact: 10.25.4
+
+  '@dynamic-labs/assert-package-version@4.10.4':
+    dependencies:
+      '@dynamic-labs/logger': 4.10.4
+
+  '@dynamic-labs/global-wallet-client@4.10.4(viem@2.23.1(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))':
+    dependencies:
+      '@dynamic-labs/assert-package-version': 4.10.4
+      '@dynamic-labs/logger': 4.10.4
+      '@dynamic-labs/message-transport': 4.10.4
+      '@dynamic-labs/store': 4.10.4
+      '@dynamic-labs/types': 4.10.4
+      '@dynamic-labs/utils': 4.10.4
+      eventemitter3: 5.0.1
+    optionalDependencies:
+      viem: 2.23.1(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2)
+
+  '@dynamic-labs/logger@4.10.4':
+    dependencies:
+      eventemitter3: 5.0.1
+
+  '@dynamic-labs/message-transport@4.10.4':
+    dependencies:
+      '@dynamic-labs/assert-package-version': 4.10.4
+      '@dynamic-labs/logger': 4.10.4
+      '@dynamic-labs/sdk-api-core': 0.0.650
+      '@dynamic-labs/types': 4.10.4
+      '@dynamic-labs/utils': 4.10.4
+      '@dynamic-labs/webauthn': 4.10.4
+      '@vue/reactivity': 3.5.13
+      eventemitter3: 5.0.1
+
+  '@dynamic-labs/sdk-api-core@0.0.650': {}
+
+  '@dynamic-labs/store@4.10.4':
+    dependencies:
+      '@dynamic-labs/assert-package-version': 4.10.4
+      '@dynamic-labs/logger': 4.10.4
+
+  '@dynamic-labs/types@4.10.4':
+    dependencies:
+      '@dynamic-labs/assert-package-version': 4.10.4
+      '@dynamic-labs/sdk-api-core': 0.0.650
+
+  '@dynamic-labs/utils@4.10.4':
+    dependencies:
+      '@dynamic-labs/assert-package-version': 4.10.4
+      '@dynamic-labs/logger': 4.10.4
+      '@dynamic-labs/sdk-api-core': 0.0.650
+      '@dynamic-labs/types': 4.10.4
+      buffer: 6.0.3
+      eventemitter3: 5.0.1
+      tldts: 6.0.16
+
+  '@dynamic-labs/webauthn@4.10.4':
+    dependencies:
+      '@dynamic-labs/assert-package-version': 4.10.4
+      '@dynamic-labs/logger': 4.10.4
+      '@simplewebauthn/browser': 9.0.1
+      '@simplewebauthn/types': 9.0.1
 
   '@ecies/ciphers@0.2.2(@noble/ciphers@1.2.1)':
     dependencies:
@@ -4735,6 +4887,18 @@ snapshots:
       '@noble/hashes': 1.7.1
       '@scure/base': 1.2.4
 
+  '@sei-js/sei-global-wallet@1.3.3(viem@2.23.1(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))':
+    dependencies:
+      '@dynamic-labs/global-wallet-client': 4.10.4(viem@2.23.1(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))
+    optionalDependencies:
+      viem: 2.23.1(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2)
+
+  '@simplewebauthn/browser@9.0.1':
+    dependencies:
+      '@simplewebauthn/types': 9.0.1
+
+  '@simplewebauthn/types@9.0.1': {}
+
   '@socket.io/component-emitter@3.1.2': {}
 
   '@stablelib/aead@1.0.1': {}
@@ -5014,6 +5178,12 @@ snapshots:
   '@vanilla-extract/sprinkles@1.6.3(@vanilla-extract/css@1.15.5)':
     dependencies:
       '@vanilla-extract/css': 1.15.5
+
+  '@vue/reactivity@3.5.13':
+    dependencies:
+      '@vue/shared': 3.5.13
+
+  '@vue/shared@3.5.13': {}
 
   '@wagmi/connectors@5.7.7(@types/react@19.0.8)(@wagmi/core@2.16.4(@tanstack/query-core@5.66.0)(@types/react@19.0.8)(immer@10.1.1)(react@19.0.0)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@19.0.0))(viem@2.23.1(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2)))(bufferutil@4.0.9)(react@19.0.0)(typescript@5.7.3)(utf-8-validate@5.0.10)(viem@2.23.1(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))(zod@3.24.2)':
     dependencies:
@@ -7709,6 +7879,12 @@ snapshots:
   thread-stream@0.15.2:
     dependencies:
       real-require: 0.1.0
+
+  tldts-core@6.1.85: {}
+
+  tldts@6.0.16:
+    dependencies:
+      tldts-core: 6.1.85
 
   to-regex-range@5.0.1:
     dependencies:
