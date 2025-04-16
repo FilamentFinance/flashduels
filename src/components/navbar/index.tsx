@@ -24,6 +24,7 @@ import { useAppSelector } from '@/store/hooks';
 import { useBalance } from '@/hooks/useBalance';
 import { formatUnits } from 'viem';
 import { Loader2 } from 'lucide-react';
+import { SERVER_CONFIG } from '@/config/server-config';
 
 const Navbar: FC = () => {
   const { address, isConnected } = useAccount();
@@ -33,9 +34,19 @@ const Navbar: FC = () => {
   const dispatch = useDispatch();
   const fetchCryptoAssets = async () => {
     try {
-      const response = await axios.get(
+      let response;
+      if (SERVER_CONFIG.PRODUCTION) {
+        response = await axios.get(
         'https://orderbookv3.filament.finance/flashduels/assets/list',
-      );
+        );
+        // response = await axios.get(
+        //   'https://testnetserver.flashduels.xyz/flashduels/assets/list',
+        // );
+      } else {
+        response = await axios.get(
+          'http://localhost:3004/flashduels/assets/list',
+        );
+      }
       const assetsWithImages = response.data
         .filter((asset: fetchAssetType) => asset.symbol.startsWith('Crypto.')) // Filter for crypto assets
         .map((asset: fetchAssetType) => {
