@@ -34,19 +34,8 @@ const Navbar: FC = () => {
   const dispatch = useDispatch();
   const fetchCryptoAssets = async () => {
     try {
-      let response;
-      if (SERVER_CONFIG.PRODUCTION) {
-        // response = await axios.get(
-        // 'https://orderbookv3.filament.finance/flashduels/assets/list',
-        // );
-        response = await axios.get(
-          'https://testnetserver.flashduels.xyz/flashduels/assets/list',
-        );
-      } else {
-        response = await axios.get(
-          'http://localhost:3004/flashduels/assets/list',
-        );
-      }
+      const response = await axios.get(`${SERVER_CONFIG.API_URL}/assets/list`);
+
       const assetsWithImages = response.data
         .filter((asset: fetchAssetType) => asset.symbol.startsWith('Crypto.')) // Filter for crypto assets
         .map((asset: fetchAssetType) => {
@@ -102,7 +91,9 @@ const Navbar: FC = () => {
                 {isLoading ? (
                   <Loader2 className="h-3 w-3 animate-spin mr-1" />
                 ) : (
-                  <span className="text-gray-300">{formattedBalance} {symbol}</span>
+                  <span className="text-gray-300">
+                    {formattedBalance} {symbol}
+                  </span>
                 )}
                 <span className="border-l border-zinc-700 pl-2">{truncateAddress(address)}</span>
               </Button>
