@@ -97,7 +97,12 @@ const postPricingData = async (
     };
   }
   try {
-    const response = await axios.post('https://orderbookv3.filament.finance/pricing', data, {
+    // const response = await axios.post('https://orderbookv3.filament.finance/pricing', data, {
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    // });
+    const response = await axios.post('https://testnetserver.flashduels.xyz/pricing', data, {
       headers: {
         'Content-Type': 'application/json',
       },

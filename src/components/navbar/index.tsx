@@ -36,12 +36,12 @@ const Navbar: FC = () => {
     try {
       let response;
       if (SERVER_CONFIG.PRODUCTION) {
-        response = await axios.get(
-        'https://orderbookv3.filament.finance/flashduels/assets/list',
-        );
         // response = await axios.get(
-        //   'https://testnetserver.flashduels.xyz/flashduels/assets/list',
+        // 'https://orderbookv3.filament.finance/flashduels/assets/list',
         // );
+        response = await axios.get(
+          'https://testnetserver.flashduels.xyz/flashduels/assets/list',
+        );
       } else {
         response = await axios.get(
           'http://localhost:3004/flashduels/assets/list',

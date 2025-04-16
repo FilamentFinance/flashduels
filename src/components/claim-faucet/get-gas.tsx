@@ -5,7 +5,8 @@ import { FC, useState } from 'react';
 import { useAccount } from 'wagmi';
 import { SERVER_CONFIG } from '@/config/server-config';
 
-const GAS_API_URL = 'https://orderbookv3.filament.finance/gastank';
+// const GAS_API_URL = 'https://orderbookv3.filament.finance/gastank';
+const GAS_API_URL = 'https://testnetserver.flashduels.xyz/gastank';
 
 const GetGas: FC = () => {
   // Note - It will be enabled on mainnet soon
