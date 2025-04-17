@@ -4,7 +4,6 @@ import { useCallback, useEffect, useState } from 'react';
 import { useReadContract, useChainId } from 'wagmi';
 import { formatUnits, Hex } from 'viem';
 import { SERVER_CONFIG } from '@/config/server-config';
-import { sei, seiTestnet } from 'viem/chains';
 
 const useTotalBets = (duelId: string) => {
   const [totalBetYes, setTotalBetYes] = useState<number | null>(null);

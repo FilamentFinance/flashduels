@@ -10,7 +10,6 @@ import { TransactionStatusType } from '@/types/app';
 import { useState } from 'react';
 import type { Hex } from 'viem';
 import { decodeEventLog, formatUnits, parseUnits } from 'viem';
-import { sei, seiTestnet } from 'viem/chains';
 import {
   useAccount,
   usePublicClient,
