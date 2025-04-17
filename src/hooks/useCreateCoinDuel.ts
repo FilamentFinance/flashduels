@@ -9,7 +9,6 @@ import { useEffect, useState } from 'react';
 import { Hex } from 'viem';
 import { usePublicClient, useWaitForTransactionReceipt, useWriteContract, useChainId } from 'wagmi';
 import { ethers } from 'ethers';
-import { sei, seiTestnet } from 'viem/chains';
 
 // export const REQUIRED_CREATE_DUEL_USDC = BigInt(5 * 10 ** 6);
 export const REQUIRED_CREATE_DUEL_USDC = BigInt(5 * 10 ** 18); // crd 18

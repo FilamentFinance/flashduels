@@ -1,6 +1,5 @@
 // import { FLASHUSDC } from '@/abi/FLASHUSDC';
 import { SERVER_CONFIG } from '@/config/server-config';
-import { sei, seiTestnet } from 'viem/chains';
 import { Hex } from 'viem';
 import { useReadContracts, useChainId } from 'wagmi';
 import { CREDITS } from '@/abi/CREDITS';

@@ -7,7 +7,6 @@ import { useToast } from '@/shadcn/components/ui/use-toast';
 import { mapCategoryToEnumIndex } from '@/utils/general/create-duels';
 import { useState } from 'react';
 import { Hex } from 'viem';
-import { sei, seiTestnet } from 'viem/chains';
 import { usePublicClient, useWriteContract, useAccount, useChainId } from 'wagmi';
 
 interface UseBuyOrderReturn {

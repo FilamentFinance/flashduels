@@ -9,7 +9,6 @@ import { useEffect, useState } from 'react';
 import { Hex } from 'viem';
 import { useWaitForTransactionReceipt, useWriteContract, useChainId } from 'wagmi';
 import { REQUIRED_CREATE_DUEL_USDC } from './useCreateCoinDuel';
-import { sei, seiTestnet } from 'viem/chains';
 
 interface CreateFlashDuelParams {
   topic: string;

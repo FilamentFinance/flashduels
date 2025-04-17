@@ -17,7 +17,7 @@ import {
 import { parseEther, formatEther, Hex } from 'viem';
 import { FlashDuelsViewFacetABI } from '@/abi/FlashDuelsViewFacet';
 import { useToast } from '@/shadcn/components/ui/use-toast';
-import { sei, seiTestnet } from 'viem/chains';
+import { sei } from 'viem/chains';
 import { SERVER_CONFIG } from '@/config/server-config';
 import { FlashDuelCoreFaucetAbi } from '@/abi/FlashDualCoreFaucet';
 // import { TRANSACTION_STATUS } from '@/constants/app';

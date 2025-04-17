@@ -6,7 +6,6 @@ import { TRANSACTION_STATUS } from '@/constants/app';
 import { useToast } from '@/shadcn/components/ui/use-toast';
 import { useState } from 'react';
 import { Hex } from 'viem';
-import { sei, seiTestnet } from 'viem/chains';
 import { usePublicClient, useWriteContract, useChainId } from 'wagmi';
 
 interface UseOrderReturn {
