@@ -17,6 +17,7 @@ import {
   useReadContract,
   useWaitForTransactionReceipt,
   useWriteContract,
+  useChainId,
 } from 'wagmi';
 
 interface UseSellOrderReturn {
@@ -53,12 +54,13 @@ const useSellOrder = (
   const { toast } = useToast();
   const { address } = useAccount();
   const publicClient = usePublicClient();
+  const chainId = useChainId();
 
   const { data: optionTokenAddress, isLoading: isReading } = useReadContract({
     abi: FlashDuelsViewFacetABI,
     functionName: 'getOptionIndexToOptionToken',
     address: SERVER_CONFIG.DIAMOND as Hex,
-    chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
+    chainId: chainId,
     args: [duelId, optionIndex],
   });
 
@@ -68,13 +70,13 @@ const useSellOrder = (
   // Watch approval transaction
   const { isLoading: isApprovalMining } = useWaitForTransactionReceipt({
     hash: approvalHash,
-    chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
+    chainId: chainId,
   });
 
   // Watch sell transaction
   const { isLoading: isSellMining } = useWaitForTransactionReceipt({
     hash: txHash,
-    chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
+    chainId: chainId,
   });
 
   const handleError = (error: unknown) => {
@@ -158,7 +160,7 @@ const useSellOrder = (
         abi: OptionTokenABI,
         address: optionTokenAddress as Hex,
         functionName: 'approve',
-        chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
+        chainId: chainId,
         args: [SERVER_CONFIG.DIAMOND, quantityInWei],
       });
       console.log('approveTx', approveTx);
@@ -184,12 +186,12 @@ const useSellOrder = (
       // Execute the sell
       setStatus(TRANSACTION_STATUS.CREATING_DUEL);
       console.log('before sellTx', optionTokenAddress, duelId, optionIndex, quantityInWei, totalValue);
-      console.log('chainId', SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id);
+      console.log('chainId', chainId);
       const sellTx = await sellAsync({
         abi: FlashDuelsMarketplaceFacet,
         address: SERVER_CONFIG.DIAMOND as Hex,
         functionName: 'sell',
-        chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
+        chainId: chainId,
         args: [duelId, optionTokenAddress, mapCategoryToEnumIndex(category), optionIndex, quantityInWei, totalValue],
       });
 

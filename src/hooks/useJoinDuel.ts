@@ -7,7 +7,7 @@ import { handleTransactionError, useTokenApproval } from '@/utils/token';
 import { useState } from 'react';
 import { Hex } from 'viem';
 import { sei, seiTestnet } from 'viem/chains';
-import { usePublicClient, useWaitForTransactionReceipt } from 'wagmi';
+import { usePublicClient, useWaitForTransactionReceipt, useChainId } from 'wagmi';
 
 const useJoinDuel = () => {
   const [status, setStatus] = useState<TransactionStatusType>(TRANSACTION_STATUS.IDLE);
@@ -20,11 +20,13 @@ const useJoinDuel = () => {
   const publicClient = usePublicClient();
   // const { checkAllowance, requestAllowance } = useTokenApproval(address, currentAmount);
   const { requestAllowance } = useTokenApproval();
+  const chainId = useChainId();
+
   // Watch approval transaction
   const { isLoading: isApprovalMining, isSuccess: isApprovalSuccess } =
     useWaitForTransactionReceipt({
       hash: approvalHash,
-      chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
+      chainId: chainId,
     });
 
   const handleError = (error: unknown) => {

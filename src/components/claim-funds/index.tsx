@@ -12,6 +12,7 @@ import {
   useReadContract,
   useWaitForTransactionReceipt,
   useWriteContract,
+  useChainId,
 } from 'wagmi';
 import { parseEther, formatEther, Hex } from 'viem';
 import { FlashDuelsViewFacetABI } from '@/abi/FlashDuelsViewFacet';
@@ -24,7 +25,6 @@ import { FlashDuelCoreFaucetAbi } from '@/abi/FlashDualCoreFaucet';
 import { handleTransactionError } from '@/utils/token';
 import { Loader2 } from 'lucide-react';
 
-const symbol = SERVER_CONFIG.PRODUCTION ? 'CRD' : 'FDCRD';
 const ClaimFunds: FC = () => {
   const [amount, setAmount] = useState('');
   const [earnings, setEarnings] = useState('0');
@@ -34,6 +34,8 @@ const ClaimFunds: FC = () => {
 
   const { toast } = useToast();
   const { address } = useAccount();
+  const chainId = useChainId();
+  const symbol = chainId === sei.id ? 'CRD' : 'FDCRD';
   const publicClient = usePublicClient();
   const { writeContractAsync } = useWriteContract();
 
@@ -43,12 +45,12 @@ const ClaimFunds: FC = () => {
     functionName: 'getAllTimeEarnings',
     address: SERVER_CONFIG.DIAMOND as Hex,
     args: [address],
-    chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
+    chainId: chainId,
   });
 
   const { isLoading: isWithdrawing } = useWaitForTransactionReceipt({
     hash: txHash,
-    chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
+    chainId: chainId,
   });
 
   // Update earnings when data changes

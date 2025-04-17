@@ -1,15 +1,15 @@
-import { getPublicClient } from '@/utils/client';
-import { sei, seiTestnet } from 'viem/chains';
-import { SERVER_CONFIG } from './server-config';
+// import { getPublicClient } from '@/utils/client';
+// import { sei, seiTestnet } from 'viem/chains';
+// import { SERVER_CONFIG } from './server-config';
 
-const SEI_RPC_URLS = ['https://evm-rpc.sei-apis.com/', 'https://sei-rpc.publicnode.com'];
+// const SEI_RPC_URLS = ['https://evm-rpc.sei-apis.com/', 'https://sei-rpc.publicnode.com'];
 
-const SEI_TESTNET_RPC_URLS = [
-  'https://wispy-thrumming-glade.sei-atlantic.quiknode.pro/deca7db932297f7feebd6fb28da49ff1bc63abc0/',
-  'https://sei-testnet-rpc.publicnode.com',
-];
+// const SEI_TESTNET_RPC_URLS = [
+//   'https://wispy-thrumming-glade.sei-atlantic.quiknode.pro/deca7db932297f7feebd6fb28da49ff1bc63abc0/',
+//   'https://sei-testnet-rpc.publicnode.com',
+// ];
 
-export const publicClient = getPublicClient({
-  chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
-  rpcUrls: SERVER_CONFIG.PRODUCTION ? SEI_RPC_URLS : SEI_TESTNET_RPC_URLS,
-});
+// export const publicClient = getPublicClient({
+//   chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
+//   rpcUrls: SERVER_CONFIG.PRODUCTION ? SEI_RPC_URLS : SEI_TESTNET_RPC_URLS,
+// });

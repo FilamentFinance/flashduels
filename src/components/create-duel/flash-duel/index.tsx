@@ -29,13 +29,14 @@ import { getTransactionStatusMessage } from '@/utils/transaction';
 import { Trash2, Upload } from 'lucide-react';
 import Image from 'next/image';
 import { FC, useState, useEffect } from 'react';
-import { useAccount } from 'wagmi';
+import { useAccount, useChainId } from 'wagmi';
 import { cn } from '@/shadcn/lib/utils';
 import { useToast } from '@/shadcn/components/ui/use-toast';
 import { usePublicClient } from 'wagmi';
 import { formatUnits } from 'ethers';
 import { Hex } from 'viem';
 import { CREDITS } from '@/abi/CREDITS';
+import { sei } from 'viem/chains';
 
 type FlashDuelFormProps = {
   onBack: () => void;
@@ -58,13 +59,14 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const { address } = useAccount();
+  const chainId = useChainId();
   const { status, error, isApprovalMining, isDuelMining, createFlashDuel, isComplete } =
     useCreateFlashDuel();
   const [isButtonClicked, setIsButtonClicked] = useState(false);
   const [creditsBalance, setCreditsBalance] = useState<string>('0');
   const { toast } = useToast();
   const publicClient = usePublicClient();
-  const symbol = SERVER_CONFIG.PRODUCTION ? 'CRD' : 'FDCRD';
+  const symbol = chainId === sei.id ? 'CRD' : 'FDCRD';
 
   useEffect(() => {
     console.log('Completion Status Check:', {
@@ -96,14 +98,15 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
             address: address?.toLowerCase(),
           });
           console.log('API call successful');
-          
+
           // Show toast notification about admin approval
           toast({
-            title: "Flash Duel Created Successfully",
-            description: "Your Flash Duel is now pending admin approval. Please check your portfolio page for status updates.",
+            title: 'Flash Duel Created Successfully',
+            description:
+              'Your Flash Duel is now pending admin approval. Please check your portfolio page for status updates.',
             duration: 6000,
           });
-          
+
           onComplete();
         } catch (error) {
           console.error('API Error:', error);
@@ -118,7 +121,7 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
   useEffect(() => {
     const checkCreditsBalance = async () => {
       if (!address || !publicClient) return;
-      
+
       try {
         const balance = await publicClient.readContract({
           abi: CREDITS,
@@ -126,13 +129,13 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
           functionName: 'balanceOf',
           args: [address.toLowerCase()],
         });
-        
+
         setCreditsBalance(balance?.toString() || '0');
       } catch (error) {
         console.error('Error fetching credits balance:', error);
       }
     };
-    
+
     checkCreditsBalance();
   }, [address, publicClient]);
 
@@ -166,7 +169,7 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
 
     try {
       setIsSubmitting(true);
-      
+
       const balanceInEther = parseFloat(formatUnits(BigInt(creditsBalance), 18));
       if (balanceInEther < 5) {
         toast({
@@ -178,14 +181,15 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
         setIsSubmitting(false);
         return;
       }
-      
+
       // Inform user about the approval process before proceeding
       toast({
-        title: "Creating Flash Duel",
-        description: "After transaction completion, your duel will need admin approval before going live.",
+        title: 'Creating Flash Duel',
+        description:
+          'After transaction completion, your duel will need admin approval before going live.',
         duration: 5000,
       });
-      
+
       const categoryEnumIndex = mapCategoryToEnumIndex(selectedCategory);
       const durationNumber = mapDurationToNumber(selectedDuration);
       const duelText = (document.getElementById('duelText') as HTMLTextAreaElement)?.value || '';

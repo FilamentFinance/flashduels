@@ -7,7 +7,7 @@ import { TransactionStatusType } from '@/types/app';
 import { handleTransactionError, useTokenApproval } from '@/utils/token';
 import { useEffect, useState } from 'react';
 import { Hex } from 'viem';
-import { usePublicClient, useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
+import { usePublicClient, useWaitForTransactionReceipt, useWriteContract, useChainId } from 'wagmi';
 import { ethers } from 'ethers';
 import { sei, seiTestnet } from 'viem/chains';
 
@@ -41,18 +41,19 @@ const useCreateCoinDuel = () => {
   // const { checkAllowance, requestAllowance } = useTokenApproval(address);
   const { requestAllowance } = useTokenApproval();
   const publicClient = usePublicClient();
+  const chainId = useChainId();
 
   // Watch approval transaction
   const { isLoading: isApprovalMining, isSuccess: isApprovalSuccess } =
     useWaitForTransactionReceipt({
       hash: approvalHash,
-      chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
+      chainId: chainId,
     });
 
   // Watch duel creation transaction
   const { isLoading: isDuelMining, isSuccess: isDuelSuccess } = useWaitForTransactionReceipt({
     hash: txHash,
-    chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
+    chainId: chainId,
   });
 
   const handleError = (error: unknown) => {
@@ -88,7 +89,7 @@ const useCreateCoinDuel = () => {
         address: SERVER_CONFIG.DIAMOND as Hex,
         abi: FlashDuelCoreFaucetAbi,
         functionName: 'requestCreateCryptoDuel',
-        chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
+        chainId: chainId,
         args: [
           params.symbol,
           params.options,

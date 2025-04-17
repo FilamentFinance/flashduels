@@ -5,12 +5,13 @@ import { SERVER_CONFIG } from '@/config/server-config';
 // import { SEI_TESTNET_CHAIN_ID } from '@/constants/app';
 import { Hex } from 'viem';
 import { sei, seiTestnet } from 'viem/chains';
-import { useWriteContract } from 'wagmi';
+import { useWriteContract, useChainId } from 'wagmi';
 
 // export const REQUIRED_ALLOWANCE = BigInt(5 * 10 ** 6);
 
 export const useTokenApproval = () => {
   const { writeContractAsync } = useWriteContract();
+  const chainId = useChainId();
 
   // const { data: allowance } = useReadContract({
   //   abi: FLASHUSDC,
@@ -26,19 +27,19 @@ export const useTokenApproval = () => {
   // };
 
   const requestAllowance = async (amount: bigint) => {
-  // for flashUSDC
-  //   const tx = await writeContractAsync({
-  //     abi: FLASHUSDC,
-  //     address: SERVER_CONFIG.FLASH_USDC as Hex,
-  //     functionName: 'increaseAllowance',
-  //     chainId: SEI_TESTNET_CHAIN_ID,
-  //     // args: [SERVER_CONFIG.DIAMOND as Hex, amount || REQUIRED_ALLOWANCE],
-  //     args: [SERVER_CONFIG.DIAMOND as Hex, amount],
-  //   });
+    // for flashUSDC
+    //   const tx = await writeContractAsync({
+    //     abi: FLASHUSDC,
+    //     address: SERVER_CONFIG.FLASH_USDC as Hex,
+    //     functionName: 'increaseAllowance',
+    //     chainId: SEI_TESTNET_CHAIN_ID,
+    //     // args: [SERVER_CONFIG.DIAMOND as Hex, amount || REQUIRED_ALLOWANCE],
+    //     args: [SERVER_CONFIG.DIAMOND as Hex, amount],
+    //   });
 
-  //   if (!tx) throw new Error('Failed to send approval transaction');
-  //   return tx;
-  // };
+    //   if (!tx) throw new Error('Failed to send approval transaction');
+    //   return tx;
+    // };
 
 
     // for CRD use
@@ -46,7 +47,7 @@ export const useTokenApproval = () => {
       abi: CREDITS,
       address: SERVER_CONFIG.CREDIT_CONTRACT as Hex,
       functionName: 'approve',
-      chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
+      chainId: chainId,
       // args: [SERVER_CONFIG.DIAMOND as Hex, amount || REQUIRED_ALLOWANCE],
       args: [SERVER_CONFIG.DIAMOND as Hex, amount],
     });

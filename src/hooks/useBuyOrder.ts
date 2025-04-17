@@ -8,7 +8,7 @@ import { mapCategoryToEnumIndex } from '@/utils/general/create-duels';
 import { useState } from 'react';
 import { Hex } from 'viem';
 import { sei, seiTestnet } from 'viem/chains';
-import { usePublicClient, useWriteContract, useAccount } from 'wagmi';
+import { usePublicClient, useWriteContract, useAccount, useChainId } from 'wagmi';
 
 interface UseBuyOrderReturn {
   buyOrder: (
@@ -31,6 +31,7 @@ const useBuyOrder = (duelId: string, category: string): UseBuyOrderReturn => {
   const publicClient = usePublicClient();
   const { writeContractAsync } = useWriteContract();
   const { address } = useAccount();
+  const chainId = useChainId();
 
   const buyOrder = async (
     sellId: number,
@@ -61,7 +62,7 @@ const useBuyOrder = (duelId: string, category: string): UseBuyOrderReturn => {
         abi: FlashDuelsMarketplaceFacet,
         address: SERVER_CONFIG.DIAMOND as Hex,
         functionName: 'buy',
-        chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
+        chainId: chainId,
         args: [
           duelId,
           address,

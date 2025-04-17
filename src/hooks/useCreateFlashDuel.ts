@@ -7,7 +7,7 @@ import { TransactionStatusType } from '@/types/app';
 import { handleTransactionError, useTokenApproval } from '@/utils/token';
 import { useEffect, useState } from 'react';
 import { Hex } from 'viem';
-import { useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
+import { useWaitForTransactionReceipt, useWriteContract, useChainId } from 'wagmi';
 import { REQUIRED_CREATE_DUEL_USDC } from './useCreateCoinDuel';
 import { sei, seiTestnet } from 'viem/chains';
 
@@ -31,18 +31,19 @@ const useCreateFlashDuel = () => {
   const { writeContractAsync } = useWriteContract();
   // const { checkAllowance, requestAllowance } = useTokenApproval(address);
   const { requestAllowance } = useTokenApproval();
+  const chainId = useChainId();
 
   // Watch approval transaction
   const { isLoading: isApprovalMining, isSuccess: isApprovalSuccess } =
     useWaitForTransactionReceipt({
       hash: approvalHash,
-      chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
+      chainId: chainId,
     });
 
   // Watch duel creation transaction
   // const { isLoading: isDuelMining, isSuccess: isDuelSuccess } = useWaitForTransactionReceipt({
   //   hash: txHash,
-  //   chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
+  //   chainId: chainId,
   // });
 
   // Handle approval success
@@ -61,7 +62,7 @@ const useCreateFlashDuel = () => {
   // Watch duel creation transaction
   const { isLoading: isDuelMining, isSuccess: isDuelSuccess } = useWaitForTransactionReceipt({
     hash: txHash,
-    chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
+    chainId: chainId,
   });
   // Handle duel success
   useEffect(() => {
@@ -95,7 +96,7 @@ const useCreateFlashDuel = () => {
         abi: FlashDuelCoreFaucetAbi,
         address: SERVER_CONFIG.DIAMOND as Hex,
         functionName: 'requestCreateDuel',
-        chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
+        chainId: chainId,
         args: [params.category, params.topic, params.options, params.duration],
       });
 

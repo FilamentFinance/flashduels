@@ -31,10 +31,11 @@ import { mapDurationToNumber } from '@/utils/general/create-duels';
 import { getTransactionStatusMessage } from '@/utils/transaction';
 import { FC, useState, useEffect } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
-import { useAccount, usePublicClient } from 'wagmi';
+import { useAccount, useChainId, usePublicClient } from 'wagmi';
 import DuelInfo from '../duel-info';
 import { CREDITS } from '@/abi/CREDITS';
 import { formatUnits, Hex } from 'viem';
+import { sei } from 'viem/chains';
 
 interface CoinDuelFormProps {
   onBack: () => void;
@@ -74,13 +75,14 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
   const [isButtonClicked, setIsButtonClicked] = useState(false);
   const [creditsBalance, setCreditsBalance] = useState<string>('0');
   const publicClient = usePublicClient();
-  const symbol = SERVER_CONFIG.PRODUCTION ? 'CRD' : 'FDCRD';
-  
+  const chainId = useChainId();
+  const symbol = chainId === sei.id ? 'CRD' : 'FDCRD';
+
   // Add useEffect to check user's FDCRD balance
   useEffect(() => {
     const checkCreditsBalance = async () => {
       if (!address || !publicClient) return;
-      
+
       try {
         const balance = await publicClient.readContract({
           abi: CREDITS,
@@ -88,13 +90,13 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
           functionName: 'balanceOf',
           args: [address.toLowerCase()],
         });
-        
+
         setCreditsBalance(balance?.toString() || '0');
       } catch (error) {
         console.error('Error fetching credits balance:', error);
       }
     };
-    
+
     checkCreditsBalance();
   }, [address, publicClient]);
 
@@ -114,7 +116,7 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
         setIsButtonClicked(false);
         return;
       }
-      
+
       // Continue with existing code
       const durationNumber = mapDurationToNumber(selectedDuration, 'coin');
       const triggerPrice = Number(formData.triggerPrice) * 10 ** 8;
@@ -131,7 +133,7 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
         winCondition,
         durationNumber,
       };
-      console.log("creating coin duel", duelData);
+      console.log('creating coin duel', duelData);
       const result = await createCoinDuel(duelData);
 
       if (result.success) {

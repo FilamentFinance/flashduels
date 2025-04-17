@@ -17,12 +17,13 @@ import { handleTransactionError, useTokenApproval } from '@/utils/token';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { formatUnits, parseUnits } from 'viem/utils';
-import { useAccount } from 'wagmi';
+import { useAccount, useChainId } from 'wagmi';
 import { NewDuelItem } from '@/types/duel';
 import { mapCategoryToEnumIndex } from '@/utils/general/create-duels';
 
 import PositionSelector from './position-selector';
 import { calculateTimeLeft } from '@/utils/time';
+import { sei } from 'viem/chains';
 
 interface BuyOrderProps {
   duelId: string;
@@ -35,8 +36,6 @@ interface BuyOrderProps {
   yesPrice: number | undefined;
   noPrice: number | undefined;
 }
-
-const symbol = SERVER_CONFIG.PRODUCTION ? 'CRD' : 'FDCRD';
 
 const BuyOrder: FC<BuyOrderProps> = ({
   duelId,
@@ -78,6 +77,8 @@ const BuyOrder: FC<BuyOrderProps> = ({
   const { balance } = useBalance(address);
   const { joinDuel } = useJoinDuel();
   const { toast } = useToast();
+  const chainId = useChainId();
+  const symbol = chainId === sei.id ? 'CRD' : 'FDCRD';
   // const { prices } = useSelector((state: RootState) => state.price, shallowEqual);
   // const { totalBetYes, totalBetNo } = useTotalBets(duelId);
 
@@ -128,12 +129,12 @@ const BuyOrder: FC<BuyOrderProps> = ({
   const handleMaxClick = useCallback(() => {
     // const maxAmount = formatUnits((balance ?? 0) as bigint, 6);
     const maxAmount = formatUnits((balance ?? 0) as bigint, 18); // CRD is 18 decimal
-    
+
     // Trim to 4 decimal places without rounding
     const trimmedAmount = String(maxAmount).includes('.')
       ? maxAmount.toString().split('.')[0] + '.' + maxAmount.toString().split('.')[1].slice(0, 4)
       : maxAmount;
-      
+
     validateAndSetAmount(trimmedAmount);
   }, [balance, validateAndSetAmount]);
 
@@ -234,7 +235,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
         betAmount: amount,
         index: optionIndex,
         userAddress: address?.toLowerCase(),
-        duelCategory: mapCategoryToEnumIndex(duel?.category || '' ),
+        duelCategory: mapCategoryToEnumIndex(duel?.category || ''),
       });
 
       // Show success message
@@ -367,12 +368,19 @@ const BuyOrder: FC<BuyOrderProps> = ({
               Amount
             </Label>
             <div className="text-zinc-400 text-sm">
-              Available: {
-                Number(formatUnits((balance ?? 0) as bigint, 18)).toString().includes('.')
-                  ? Number(formatUnits((balance ?? 0) as bigint, 18)).toString().split('.')[0] + '.' + 
-                    (Number(formatUnits((balance ?? 0) as bigint, 18)).toString().split('.')[1]?.slice(0, 4) || '0000')
-                  : Number(formatUnits((balance ?? 0) as bigint, 18)).toString()
-              }{' '}
+              Available:{' '}
+              {Number(formatUnits((balance ?? 0) as bigint, 18))
+                .toString()
+                .includes('.')
+                ? Number(formatUnits((balance ?? 0) as bigint, 18))
+                    .toString()
+                    .split('.')[0] +
+                  '.' +
+                  (Number(formatUnits((balance ?? 0) as bigint, 18))
+                    .toString()
+                    .split('.')[1]
+                    ?.slice(0, 4) || '0000')
+                : Number(formatUnits((balance ?? 0) as bigint, 18)).toString()}{' '}
               <button
                 onClick={handleMaxClick}
                 disabled={isLoading}
