@@ -35,6 +35,7 @@ const DuelsHistory: FC = () => {
         },
       );
       // Sort duels by createdAt timestamp in descending order (latest first)
+      //@eslint-disable-next-line @typescript-eslint/no-explicit-any
       const sortedDuels = response.data.sort((a: any, b: any) => {
         const timeA = a.duelDetails?.createdAt || 0;
         const timeB = b.duelDetails?.createdAt || 0;
@@ -65,6 +66,7 @@ const DuelsHistory: FC = () => {
         },
       );
       // Sort history by createdAt timestamp in descending order (latest first)
+      //@eslint-disable-next-line @typescript-eslint/no-explicit-any
       const sortedHistory = response.data.sort((a: any, b: any) => {
         const timeA = a.duelDetails?.createdAt || 0;
         const timeB = b.duelDetails?.createdAt || 0;
