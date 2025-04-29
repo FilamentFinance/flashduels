@@ -2,7 +2,7 @@
 
 import { baseApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
-import { useTotalBets } from '@/hooks/useTotalBets';
+// import { useTotalBets } from '@/hooks/useTotalBets';
 import { useTotalBetAmounts } from '@/hooks/useTotalBetAmounts';
 import { RootState } from '@/store';
 import { NewDuelItem, OptionBetType } from '@/types/duel';
