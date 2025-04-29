@@ -1,4 +1,4 @@
-import { useTotalBets } from '@/hooks/useTotalBets';
+// import { useTotalBets } from '@/hooks/useTotalBets';
 import { useTotalBetAmounts } from '@/hooks/useTotalBetAmounts';
 import { Card } from '@/shadcn/components/ui/card';
 import { Duel, Position } from '@/types/duel';
