@@ -2,7 +2,7 @@
 
 import { baseApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
-import { ActiveDuels } from '@/types/duel';
+import { ActiveDuels, TableDuel } from '@/types/duel';
 import React, { FC } from 'react';
 import { useAccount } from 'wagmi';
 import { DuelShimmer } from '../duels/duel-shimmer';
@@ -35,8 +35,7 @@ const DuelsHistory: FC = () => {
         },
       );
       // Sort duels by createdAt timestamp in descending order (latest first)
-      //@eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const sortedDuels = response.data.sort((a: any, b: any) => {
+      const sortedDuels = response.data.sort((a: TableDuel, b: TableDuel) => {
         const timeA = a.duelDetails?.createdAt || 0;
         const timeB = b.duelDetails?.createdAt || 0;
         return timeB - timeA;
@@ -66,8 +65,7 @@ const DuelsHistory: FC = () => {
         },
       );
       // Sort history by createdAt timestamp in descending order (latest first)
-      //@eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const sortedHistory = response.data.sort((a: any, b: any) => {
+      const sortedHistory = response.data.sort((a: TableDuel, b: TableDuel) => {
         const timeA = a.duelDetails?.createdAt || 0;
         const timeB = b.duelDetails?.createdAt || 0;
         return timeB - timeA;
