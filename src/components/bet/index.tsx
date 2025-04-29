@@ -137,10 +137,10 @@ const Bet: FC = () => {
 
   // const { totalBetYes, totalBetNo } = useTotalBets(id ?? '');
   const {
-    totalYesAmount,
-    totalNoAmount,
+    // totalYesAmount,
+    // totalNoAmount,
     yesPercentage,
-    noPercentage,
+    // noPercentage,
     loading: totalBetAmountsLoading,
     error: totalBetAmountsError,
   } = useTotalBetAmounts(id ?? '');
