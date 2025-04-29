@@ -9,7 +9,7 @@ import { calculateTimeLeft } from '@/utils/time';
 import { ArrowLeft } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { FC, useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useAccount } from 'wagmi';
 import ErrorState from './error-state';
 import Header from './header';
@@ -17,12 +17,16 @@ import LoadingSkeleton from './loading-skeleton';
 import OrderBook from './order-book';
 import { OrdersHistory } from './orders-history';
 import PlaceOrder from './place-order';
+import { selectedCryptoAsset as setSelectedCryptoAsset } from '@/store/slices/priceSlice';
 
 const Bet: FC = () => {
   const searchParams = useSearchParams();
   const id = searchParams.get('duelId');
   const router = useRouter();
+  const dispatch = useDispatch();
   const selectedPosition = useSelector((state: RootState) => state.bet.selectedPosition);
+  const currentPrice = useSelector((state: RootState) => state.price.price);
+  const { cryptoAsset } = useSelector((state: RootState) => state.price);
   const [duel, setDuel] = useState<NewDuelItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -46,12 +50,23 @@ const Bet: FC = () => {
         `${SERVER_CONFIG.API_URL}/user/duels/get-duel-by-id/${id}`,
         {
           params: {
-            userAddress: address?.toLowerCase(), // Add the address from useAccount() to the request params
+            userAddress: address?.toLowerCase(),
           },
         },
       );
       setDuel(response.data);
       setError(null);
+
+      // Set selected crypto asset for coinduels
+      if (response.data.duelType === 'COIN_DUEL' && response.data.token) {
+        const selectedAsset = cryptoAsset.find((asset) => {
+          const symbol = asset.symbol.split('/')[0].replace('Crypto.', '');
+          return symbol === response.data.token;
+        });
+        if (selectedAsset) {
+          dispatch(setSelectedCryptoAsset(selectedAsset));
+        }
+      }
     } catch (error) {
       console.error('Error fetching duel:', error);
       setError('Failed to fetch duel details.');
@@ -201,6 +216,7 @@ const Bet: FC = () => {
             percentage={displayPercentage}
             duelType={duel.duelType as 'COIN_DUEL' | 'FLASH_DUEL'}
             imageSrc={duel.betIcon}
+            currentPrice={currentPrice ? currentPrice.toString() : undefined}
           />
           <OrderBook yesBets={yesBets} noBets={noBets} handleBuyOrders={handleBuyOrders} />
           <OrdersHistory duelId={duel.duelId} />

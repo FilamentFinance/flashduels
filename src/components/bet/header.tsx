@@ -15,6 +15,7 @@ interface Props {
   duelType?: 'COIN_DUEL' | 'FLASH_DUEL';
   imageSrc?: string;
   category?: string;
+  currentPrice?: string;
 }
 
 const Header: FC<Props> = ({
@@ -26,6 +27,7 @@ const Header: FC<Props> = ({
   percentage,
   duelType,
   imageSrc,
+  currentPrice,
   // category,
 }) => {
   let symbol, iconPath;
@@ -72,7 +74,12 @@ const Header: FC<Props> = ({
 
         {/* Title and Details Button */}
         <div className="flex flex-1 items-center justify-between">
-          <h1 className="text-2xl font-bold text-white">{title}</h1>
+          <div className="flex flex-col">
+            <h1 className="text-2xl font-bold text-white">{title}</h1>
+            {duelType === 'COIN_DUEL' && currentPrice && (
+              <span className="text-zinc-400 text-sm mt-1">Market Price: ${currentPrice}</span>
+            )}
+          </div>
           <DetailsAndRules triggerPrice={triggerPrice} token={token} />
         </div>
       </div>
