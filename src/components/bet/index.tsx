@@ -3,6 +3,7 @@
 import { baseApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
 import { useTotalBets } from '@/hooks/useTotalBets';
+import { useTotalBetAmounts } from '@/hooks/useTotalBetAmounts';
 import { RootState } from '@/store';
 import { NewDuelItem, OptionBetType } from '@/types/duel';
 import { calculateTimeLeft } from '@/utils/time';
@@ -134,21 +135,27 @@ const Bet: FC = () => {
     }
   }, [duel]);
 
-  const { totalBetYes, totalBetNo } = useTotalBets(id ?? '');
+  // const { totalBetYes, totalBetNo } = useTotalBets(id ?? '');
+  const {
+    totalYesAmount,
+    totalNoAmount,
+    yesPercentage,
+    noPercentage,
+    loading: totalBetAmountsLoading,
+    error: totalBetAmountsError,
+  } = useTotalBetAmounts(id ?? '');
 
-  if (loading) {
+  if (loading || totalBetAmountsLoading) {
     return <LoadingSkeleton />;
   }
 
-  if (error || !duel) {
-    return <ErrorState error={error || 'Duel not found'} />;
+  if (error || totalBetAmountsError || !duel) {
+    return <ErrorState error={error || totalBetAmountsError || 'Duel not found'} />;
   }
 
-  const calculatedPercentage =
-    ((totalBetYes as number) / (Number(totalBetYes) + Number(totalBetNo))) * 100;
-  const displayPercentage = isNaN(calculatedPercentage)
-    ? 50
-    : Number(calculatedPercentage.toFixed(2));
+  // Use the percentages directly from the hook
+  const displayPercentage = Number(yesPercentage.toFixed(2));
+
   const handleBuyOrders = async (
     betOptionMarketId: string,
     quantity: string,

@@ -20,7 +20,7 @@ interface DuelRowProps {
 }
 
 const getIconPath = (duelType?: string, title?: string): string => {
-  console.log('getIconPath inputs:', { duelType, title });
+  // console.log('getIconPath inputs:', { duelType, title });
 
   if (title) {
     // Extract token name - works for both "Will AAVE be ABOVE 148" format

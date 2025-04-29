@@ -40,12 +40,12 @@ const GetGas: FC = () => {
       setIsLoading(false);
     }
   };
-  console.log({ chainId });
+  // console.log({ chainId });
   const chainidsei = sei.id;
-  console.log({ chainidsei });
+  // console.log({ chainidsei });
   const chainidseitestnet = seiTestnet.id;
-  console.log({ chainidseitestnet });
-  console.log(chainId === sei.id);
+  // console.log({ chainidseitestnet });
+  // console.log(chainId === sei.id);
   if (chainId === sei.id) {
     return (
       <Button

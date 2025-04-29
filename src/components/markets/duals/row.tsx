@@ -1,4 +1,5 @@
 import { useTotalBets } from '@/hooks/useTotalBets';
+import { useTotalBetAmounts } from '@/hooks/useTotalBetAmounts';
 import { Card } from '@/shadcn/components/ui/card';
 import { Duel, Position } from '@/types/duel';
 import Image from 'next/image';
@@ -14,7 +15,8 @@ interface Props {
 
 const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
   const { title, volume, status, winner, duelType, duelId } = data;
-  const { totalBetYes, totalBetNo } = useTotalBets(data.duelId);
+  // const { totalBetYes, totalBetNo } = useTotalBets(data.duelId);
+  const { totalYesAmount, totalNoAmount } = useTotalBetAmounts(data.duelId);
   const [timeLeft, setTimeLeft] = useState<string>('');
 
   const getIconPath = () => {
@@ -70,7 +72,7 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
   }, [data.createdAt, data.timeLeft, status]);
 
   const calculatedPercentage =
-    ((totalBetYes as number) / (Number(totalBetYes) + Number(totalBetNo))) * 100;
+    ((totalYesAmount as number) / (Number(totalYesAmount) + Number(totalNoAmount))) * 100;
   const displayPercentage = isNaN(calculatedPercentage)
     ? data.percentage
     : Number(calculatedPercentage.toFixed(2));

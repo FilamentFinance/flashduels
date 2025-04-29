@@ -50,7 +50,6 @@ const CreateDuel: FC = () => {
           address: address.toLowerCase()
         }
       });
-      console.log("response", response);
       setIsCreator(response.data.isCreator);
       setRequestStatus(response.data.request);
     } catch (error) {

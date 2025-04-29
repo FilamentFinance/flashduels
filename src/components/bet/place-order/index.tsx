@@ -37,7 +37,7 @@ const PlaceOrder: FC<PlaceOrderProps> = ({
   // category,
 }) => {
   const [orderType, setOrderType] = useState<OrderType>(ORDER_TYPE.BUY);
-  const { yesPrice, noPrice, ws } = useWebSocketPrices(asset);
+  const { yesPrice, noPrice, ws, isConnected } = useWebSocketPrices(asset);
   const { price } = useSelector((state: RootState) => state.price);
   const { totalBetYes, totalBetNo } = useTotalBets(duelId);
 
@@ -82,26 +82,34 @@ const PlaceOrder: FC<PlaceOrderProps> = ({
         </Tabs>
 
         {/* Order Form */}
-        {orderType === ORDER_TYPE.BUY ? (
-          <BuyOrder
-            duelId={duelId}
-            duelType={duelType}
-            asset={asset}
-            winCondition={winCondition}
-            endsIn={endsIn}
-            triggerPrice={triggerPrice}
-            token={token}
-            yesPrice={yesPrice}
-            noPrice={noPrice}
-          />
+        {!isConnected ? (
+          <div className="flex items-center justify-center py-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#F19ED2]"></div>
+          </div>
         ) : (
-          <SellOrder
-            duelId={duelId}
-            asset={asset}
-            yesPrice={yesPrice}
-            noPrice={noPrice}
-            duration={duration}
-          />
+          <>
+            {orderType === ORDER_TYPE.BUY ? (
+              <BuyOrder
+                duelId={duelId}
+                duelType={duelType}
+                asset={asset}
+                winCondition={winCondition}
+                endsIn={endsIn}
+                triggerPrice={triggerPrice}
+                token={token}
+                yesPrice={yesPrice}
+                noPrice={noPrice}
+              />
+            ) : (
+              <SellOrder
+                duelId={duelId}
+                asset={asset}
+                yesPrice={yesPrice}
+                noPrice={noPrice}
+                duration={duration}
+              />
+            )}
+          </>
         )}
       </CardContent>
     </Card>
