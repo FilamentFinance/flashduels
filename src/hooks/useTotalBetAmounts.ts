@@ -10,7 +10,7 @@ interface TotalBetAmounts {
 }
 
 interface WebSocketMessage {
-    availableOptions: any[];
+    availableOptions: [];
     totalBetAmounts: TotalBetAmounts;
 }
 
