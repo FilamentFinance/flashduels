@@ -34,7 +34,13 @@ const DuelsHistory: FC = () => {
           },
         },
       );
-      setDuels(response.data);
+      // Sort duels by createdAt timestamp in descending order (latest first)
+      const sortedDuels = response.data.sort((a: any, b: any) => {
+        const timeA = a.duelDetails.createdAt || 0;
+        const timeB = b.duelDetails.createdAt || 0;
+        return timeB - timeA;
+      });
+      setDuels(sortedDuels);
     } catch (error) {
       console.error('Error fetching duels data:', error);
       setError('Failed to fetch duels data. Please try again later.');
@@ -58,7 +64,13 @@ const DuelsHistory: FC = () => {
           },
         },
       );
-      setHistory(response.data);
+      // Sort history by createdAt timestamp in descending order (latest first)
+      const sortedHistory = response.data.sort((a: any, b: any) => {
+        const timeA = a.duelDetails.createdAt || 0;
+        const timeB = b.duelDetails.createdAt || 0;
+        return timeB - timeA;
+      });
+      setHistory(sortedHistory);
     } catch (error) {
       console.error('Error fetching history data:', error);
       setError('Failed to fetch history data. Please try again later.');

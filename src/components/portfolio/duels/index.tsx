@@ -189,7 +189,14 @@ const Duels: FC = () => {
         allDuels.push(...filteredPendingDuels);
       }
 
-      setDuels(allDuels);
+      // Sort duels by createdAt timestamp in descending order (latest first)
+      const sortedDuels = allDuels.sort((a, b) => {
+        const timeA = a.createdAt || 0;
+        const timeB = b.createdAt || 0;
+        return timeB - timeA;
+      });
+
+      setDuels(sortedDuels);
     } catch (error) {
       console.error('Error fetching duels:', error);
       setError('Failed to fetch duels. Please try again later.');
