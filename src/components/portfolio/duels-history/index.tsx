@@ -36,8 +36,8 @@ const DuelsHistory: FC = () => {
       );
       // Sort duels by createdAt timestamp in descending order (latest first)
       const sortedDuels = response.data.sort((a: any, b: any) => {
-        const timeA = a.duelDetails.createdAt || 0;
-        const timeB = b.duelDetails.createdAt || 0;
+        const timeA = a.duelDetails?.createdAt || 0;
+        const timeB = b.duelDetails?.createdAt || 0;
         return timeB - timeA;
       });
       setDuels(sortedDuels);
@@ -66,8 +66,8 @@ const DuelsHistory: FC = () => {
       );
       // Sort history by createdAt timestamp in descending order (latest first)
       const sortedHistory = response.data.sort((a: any, b: any) => {
-        const timeA = a.duelDetails.createdAt || 0;
-        const timeB = b.duelDetails.createdAt || 0;
+        const timeA = a.duelDetails?.createdAt || 0;
+        const timeB = b.duelDetails?.createdAt || 0;
         return timeB - timeA;
       });
       setHistory(sortedHistory);
