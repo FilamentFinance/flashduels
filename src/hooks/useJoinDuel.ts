@@ -57,12 +57,8 @@ const useJoinDuel = () => {
       setStatus(TRANSACTION_STATUS.CHECKING_ALLOWANCE);
       setError(null);
       setApprovalHash(undefined);
-      // setCurrentAmount(amount);
 
-
-      // const hasAllowance = await checkAllowance();
       const hasAllowance = false;
-
 
       if (!hasAllowance) {
         setStatus(TRANSACTION_STATUS.APPROVAL_NEEDED);
@@ -84,11 +80,6 @@ const useJoinDuel = () => {
           description: 'Token allowance increased successfully',
         });
       }
-
-      // Auto refresh page after successful join
-      setTimeout(() => {
-        window.location.reload();
-      }, 150); // 0.15 milliseconds (150ms)
 
       return { success: true };
     } catch (error) {

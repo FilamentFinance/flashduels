@@ -172,6 +172,11 @@ const BuyOrder: FC<BuyOrderProps> = ({
           title: 'Success!',
           description: `Successfully placed ${localPosition} bet for ${amount} ${symbol}`,
         });
+
+        // Auto refresh page after successful transaction and API call
+        setTimeout(() => {
+          window.location.reload();
+        }, 150); // 0.15 milliseconds (150ms)
       }
     } catch (error) {
       console.error('Error placing buy order:', error);
