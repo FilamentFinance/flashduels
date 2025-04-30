@@ -211,7 +211,7 @@ const Duels: FC = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col gap-4 mt-11">
+      <div className="flex flex-col gap-4 mt-10">
         <DuelShimmer />
       </div>
     );
@@ -230,10 +230,10 @@ const Duels: FC = () => {
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full h-full">
       <h1 className="text-xl p-2">Your Duels</h1>
-      <div className="w-full rounded-lg border border-neutral-800 shadow-sm bg-neutral-900">
-        <div className="max-h-[500px] overflow-auto">
+      <div className="w-full h-[calc(100%-3rem)] rounded-lg border border-neutral-800 shadow-sm bg-neutral-900">
+        <div className="h-full overflow-auto">
           <Table>
             <TableHeader className="sticky top-0 bg-neutral-900 z-10">
               <TableRow className="hover:bg-transparent border-neutral-800">

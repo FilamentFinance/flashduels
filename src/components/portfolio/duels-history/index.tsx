@@ -106,7 +106,7 @@ const DuelsHistory: FC = () => {
     return <DuelState type="error" message={error} />;
   }
   return (
-    <div className="flex flex-col max-h-[270px] overflow-y-auto w-full rounded-lg border border-neutral-800 shadow-sm bg-neutral-900">
+    <div className="flex flex-col h-full w-full rounded-lg border border-neutral-800 shadow-sm bg-neutral-900">
       {/* Header Section */}
       <div className="flex items-center w-full px-4 py-2 border-b border-neutral-800">
         <div className="flex items-center gap-4">
@@ -124,8 +124,7 @@ const DuelsHistory: FC = () => {
       </div>
 
       {/* Table Section */}
-      <div className="flex flex-col overflow-x-auto w-full">
-        {/* Table Header */}
+      <div className="flex flex-col h-[calc(100%-3rem)] overflow-auto w-full">
         {/* Table Header */}
         <div className="flex items-center px-4 py-2 text-sm font-semibold text-stone-300 border-b border-neutral-800">
           <TableHeader label="Duel" width="w-[35%]" />

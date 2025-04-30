@@ -45,9 +45,9 @@ const AccountDetails: FC = () => {
       const response = await baseApiClient.post('user/portfolio/accountDetails', {
         userAddress: address.toLowerCase(),
       });
-      setAccountData(response.data.portfolioData);
 
       // Check if user is a creator
+      let isUserCreator = false;
       try {
         const creatorResponse = await baseApiClient.get(
           `${SERVER_CONFIG.API_URL}/user/creator/status`,
@@ -57,39 +57,19 @@ const AccountDetails: FC = () => {
             },
           },
         );
-        setIsCreator(creatorResponse.data.isCreator);
-
-        // If user is a creator, fetch their total fees
-        if (creatorResponse.data.isCreator) {
-          try {
-            // const feesResponse = await baseApiClient.get(
-            //   `${SERVER_CONFIG.API_URL}/user/creator/fees`,
-            //   {
-            //     params: {
-            //       address: address.toLowerCase(),
-            //     },
-            //   },
-            // );
-
-            // Update accountData with creator fees
-            setAccountData((prev) => ({
-              ...prev!,
-              // totalCreatorFees: feesResponse.data.totalFees || (prev?.totalDuelCreated || 0) * 5,
-              totalCreatorFees: (prev?.totalDuelCreated || 0) * 5,
-            }));
-          } catch (error) {
-            console.error('Error fetching creator fees:', error);
-            // Fallback calculation
-            setAccountData((prev) => ({
-              ...prev!,
-              totalCreatorFees: (prev?.totalDuelCreated || 0) * 5,
-            }));
-          }
-        }
+        isUserCreator = creatorResponse.data.isCreator;
+        setIsCreator(isUserCreator);
       } catch (error) {
         console.error('Error checking creator status:', error);
         setIsCreator(false);
       }
+
+      // Set account data with creator fees if applicable
+      const portfolioData = response.data.portfolioData;
+      if (isUserCreator) {
+        portfolioData.totalCreatorFees = (portfolioData.totalDuelCreated || 0) * 5;
+      }
+      setAccountData(portfolioData);
     } catch (error) {
       console.error('Error fetching portfolio:', error);
       setError('Failed to load portfolio data');
@@ -104,7 +84,7 @@ const AccountDetails: FC = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col gap-4 w-[300px] mt-11">
+      <div className="flex flex-col gap-4 w-[300px] h-full mt-11 ml-auto">
         <AccountShimmer />
       </div>
     );
@@ -152,9 +132,9 @@ const AccountDetails: FC = () => {
   });
 
   return (
-    <div className="flex flex-col gap-4 w-[300px] mt-11 ml-auto">
-      <Card className="w-full bg-neutral-900/50 backdrop-blur-sm border-neutral-800">
-        <CardContent className="p-4">
+    <div className="flex flex-col gap-4 w-[300px] h-full mt-11 ml-auto">
+      <Card className="w-full h-full bg-neutral-900/50 backdrop-blur-sm border-neutral-800">
+        <CardContent className="p-4 h-full">
           {/* Header */}
           <div className="flex justify-between items-center mb-6">
             <div className="flex items-center gap-1.5">
