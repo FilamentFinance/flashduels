@@ -47,13 +47,13 @@ const CreateDuel: FC = () => {
       setLoading(true);
       const response = await baseApiClient.get(`${SERVER_CONFIG.API_URL}/user/creator/status`, {
         params: {
-          address: address.toLowerCase()
-        }
+          address: address.toLowerCase(),
+        },
       });
       setIsCreator(response.data.isCreator);
       setRequestStatus(response.data.request);
     } catch (error) {
-      console.error("Error checking creator status:", error);
+      console.error('Error checking creator status:', error);
       setIsCreator(false);
       setRequestStatus(null);
     } finally {
@@ -109,7 +109,7 @@ const CreateDuel: FC = () => {
   return (
     <Dialog
       title={
-        !isCreator && selectedDuel == DUEL.FLASH ? (
+        !isCreator && selectedDuel ? (
           'Creator Verification Required'
         ) : (
           <div className="flex flex-col items-center gap-4">
@@ -143,7 +143,7 @@ const CreateDuel: FC = () => {
       open={isOpen}
       onOpenChange={setIsOpen}
     >
-      {(!isCreator && selectedDuel == DUEL.FLASH && showForm) || creatorModalOpen ? (
+      {(!isCreator && selectedDuel && showForm) || creatorModalOpen ? (
         <div className="space-y-4">
           <div className="flex justify-center">
             <CreatorVerify onClose={() => setCreatorModalOpen(false)} />
@@ -176,7 +176,7 @@ const CreateDuel: FC = () => {
           </div>
           <Button
             className="w-full font-semibold bg-gradient-pink text-black disabled:opacity-50 disabled:pointer-events-none"
-            onClick={!isCreator && selectedDuel === DUEL.FLASH ? () => setCreatorModalOpen(true) : handleNext}
+            onClick={!isCreator && selectedDuel ? () => setCreatorModalOpen(true) : handleNext}
             disabled={!selectedDuel || loading}
           >
             {loading ? (
@@ -184,9 +184,11 @@ const CreateDuel: FC = () => {
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Loading...
               </>
-            ) : !isCreator && selectedDuel === DUEL.FLASH 
-              ? "Verify as Creator" 
-              : CREATE_DUEL.BUTTONS.NEXT}
+            ) : !isCreator && selectedDuel ? (
+              'Verify as Creator'
+            ) : (
+              CREATE_DUEL.BUTTONS.NEXT
+            )}
           </Button>
         </div>
       ) : (
