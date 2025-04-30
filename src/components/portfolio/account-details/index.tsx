@@ -103,7 +103,11 @@ const AccountDetails: FC = () => {
   }, [fetchPortfolio]);
 
   if (loading) {
-    return <AccountShimmer />;
+    return (
+      <div className="flex flex-col gap-4 w-[300px] mt-11">
+        <AccountShimmer />
+      </div>
+    );
   }
 
   const ErrorCard = () => (
@@ -148,79 +152,83 @@ const AccountDetails: FC = () => {
   });
 
   return (
-    <Card className="w-[300px] bg-neutral-900/50 backdrop-blur-sm border-neutral-800">
-      <CardContent className="p-4">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs font-medium text-zinc-500">{truncateAddress(address)}</span>
+    <div className="flex flex-col gap-4 w-[300px] mt-11 ml-auto">
+      <Card className="w-full bg-neutral-900/50 backdrop-blur-sm border-neutral-800">
+        <CardContent className="p-4">
+          {/* Header */}
+          <div className="flex justify-between items-center mb-6">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-medium text-zinc-500">{truncateAddress(address)}</span>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-5 w-5 p-0.5 text-zinc-500 hover:text-white hover:bg-transparent"
+                onClick={() =>
+                  openExternalLinkInNewTab(
+                    `https://seitrace.com/address/${address}?chain=atlantic-2`,
+                  )
+                }
+              >
+                <ExternalLink className="h-3 w-3" />
+              </Button>
+            </div>
             <Button
+              onClick={() => disconnect()}
               variant="ghost"
-              size="icon"
-              className="h-5 w-5 p-0.5 text-zinc-500 hover:text-white hover:bg-transparent"
-              onClick={() =>
-                openExternalLinkInNewTab(`https://seitrace.com/address/${address}?chain=atlantic-2`)
-              }
+              size="sm"
+              className="h-6 px-2 text-xs text-zinc-500 hover:text-white hover:bg-transparent"
             >
-              <ExternalLink className="h-3 w-3" />
+              <LogOut className="w-3 h-3 mr-1" />
+              Logout
             </Button>
           </div>
-          <Button
-            onClick={() => disconnect()}
-            variant="ghost"
-            size="sm"
-            className="h-6 px-2 text-xs text-zinc-500 hover:text-white hover:bg-transparent"
-          >
-            <LogOut className="w-3 h-3 mr-1" />
-            Logout
-          </Button>
-        </div>
 
-        {/* Account Value */}
-        <div className="mb-8">
-          <h2 className="text-sm font-medium text-zinc-500 mb-2">Account Value</h2>
-          <div className="text-[2rem] font-bold text-white leading-none">
-            {formattedBalance} <span className="text-[1.85rem]">{symbol}</span>
-          </div>
-        </div>
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 gap-2">
-          <div className="flex justify-between items-center">
-            <div className="text-sm text-zinc-500">Total Invested Value</div>
-            <div className="text-sm font-medium text-white">{accountData.positionValue}</div>
-          </div>
-          <div className="flex justify-between items-center">
-            <div className="text-sm text-zinc-500">PNL</div>
-            <div
-              className={`text-sm font-medium ${
-                Number(accountData.pnl.replace(/[^0-9.-]/g, '')) >= 0
-                  ? 'text-[#95DE64]'
-                  : 'text-red-500'
-              }`}
-            >
-              {accountData.pnl}
+          {/* Account Value */}
+          <div className="mb-8">
+            <h2 className="text-sm font-medium text-zinc-500 mb-2">Account Value</h2>
+            <div className="text-[2rem] font-bold text-white leading-none">
+              {formattedBalance} <span className="text-[1.85rem]">{symbol}</span>
             </div>
           </div>
-          <div className="flex justify-between items-center">
-            <div className="text-sm text-zinc-500">Duels Joined</div>
-            <div className="text-sm font-medium text-white">{accountData.totalBets}</div>
-          </div>
-          <div className="flex justify-between items-center">
-            <div className="text-sm text-zinc-500">Duels Created</div>
-            <div className="text-sm font-medium text-white">{accountData.totalDuelCreated}</div>
-          </div>
 
-          {/* Add Creator Fees if user is a creator */}
-          {isCreator && accountData.totalCreatorFees !== undefined && (
+          {/* Stats Grid */}
+          <div className="grid grid-cols-1 gap-2">
             <div className="flex justify-between items-center">
-              <div className="text-sm text-zinc-500">Total Creator Fees Paid</div>
-              <div className="text-sm font-medium text-white">{accountData.totalCreatorFees}</div>
+              <div className="text-sm text-zinc-500">Total Invested Value</div>
+              <div className="text-sm font-medium text-white">{accountData.positionValue}</div>
             </div>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+            <div className="flex justify-between items-center">
+              <div className="text-sm text-zinc-500">PNL</div>
+              <div
+                className={`text-sm font-medium ${
+                  Number(accountData.pnl.replace(/[^0-9.-]/g, '')) >= 0
+                    ? 'text-[#95DE64]'
+                    : 'text-red-500'
+                }`}
+              >
+                {accountData.pnl}
+              </div>
+            </div>
+            <div className="flex justify-between items-center">
+              <div className="text-sm text-zinc-500">Duels Joined</div>
+              <div className="text-sm font-medium text-white">{accountData.totalBets}</div>
+            </div>
+            <div className="flex justify-between items-center">
+              <div className="text-sm text-zinc-500">Duels Created</div>
+              <div className="text-sm font-medium text-white">{accountData.totalDuelCreated}</div>
+            </div>
+
+            {/* Add Creator Fees if user is a creator */}
+            {isCreator && accountData.totalCreatorFees !== undefined && (
+              <div className="flex justify-between items-center">
+                <div className="text-sm text-zinc-500">Total Creator Fees Paid</div>
+                <div className="text-sm font-medium text-white">{accountData.totalCreatorFees}</div>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

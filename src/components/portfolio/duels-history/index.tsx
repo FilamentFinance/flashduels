@@ -128,7 +128,7 @@ const DuelsHistory: FC = () => {
         {/* Table Header */}
         {/* Table Header */}
         <div className="flex items-center px-4 py-2 text-sm font-semibold text-stone-300 border-b border-neutral-800">
-          <TableHeader label="Duel" width="w-[25%]" />
+          <TableHeader label="Duel" width="w-[35%]" />
           <TableHeader label="Direction" width="w-[15%]" align="center" />
           <TableHeader label="Quantity" width="w-[15%]" align="center" />
           <TableHeader label="Avg. Price" width="w-[15%]" align="center" />

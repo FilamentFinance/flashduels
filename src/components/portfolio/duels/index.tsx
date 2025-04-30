@@ -210,7 +210,11 @@ const Duels: FC = () => {
   }, [address]);
 
   if (loading) {
-    return <DuelShimmer />;
+    return (
+      <div className="flex flex-col gap-4 mt-11">
+        <DuelShimmer />
+      </div>
+    );
   }
 
   if (error) {
