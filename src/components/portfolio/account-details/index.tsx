@@ -62,19 +62,20 @@ const AccountDetails: FC = () => {
         // If user is a creator, fetch their total fees
         if (creatorResponse.data.isCreator) {
           try {
-            const feesResponse = await baseApiClient.get(
-              `${SERVER_CONFIG.API_URL}/user/creator/fees`,
-              {
-                params: {
-                  address: address.toLowerCase(),
-                },
-              },
-            );
+            // const feesResponse = await baseApiClient.get(
+            //   `${SERVER_CONFIG.API_URL}/user/creator/fees`,
+            //   {
+            //     params: {
+            //       address: address.toLowerCase(),
+            //     },
+            //   },
+            // );
 
             // Update accountData with creator fees
             setAccountData((prev) => ({
               ...prev!,
-              totalCreatorFees: feesResponse.data.totalFees || (prev?.totalDuelCreated || 0) * 5,
+              // totalCreatorFees: feesResponse.data.totalFees || (prev?.totalDuelCreated || 0) * 5,
+              totalCreatorFees: (prev?.totalDuelCreated || 0) * 5,
             }));
           } catch (error) {
             console.error('Error fetching creator fees:', error);

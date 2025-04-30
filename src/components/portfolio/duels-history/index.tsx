@@ -191,7 +191,7 @@ const DuelsHistory: FC = () => {
                       startAt={item.duelDetails.startAt}
                       avgPrice={item.noBet.price as string}
                       quantity={item.noBet.quantity}
-                      amount={item?.yesBet?.amount as string}
+                      amount={item.noBet.amount as string}
                       resolvesIn={item.duelDetails.endsIn as number}
                       icon={item.duelDetails.betIcon}
                       pnl={item.pnl}
