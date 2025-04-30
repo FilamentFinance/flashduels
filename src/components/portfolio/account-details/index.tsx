@@ -205,6 +205,9 @@ const AccountDetails: FC = () => {
                 <div className="text-sm font-medium text-white">{accountData.totalCreatorFees}</div>
               </div>
             )}
+            <div className="text-xs text-zinc-500 mt-2 italic text-center">
+              (Note: All values are in <span className="text-white">{symbol}</span>)
+            </div>
           </div>
         </CardContent>
       </Card>
