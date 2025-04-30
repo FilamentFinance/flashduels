@@ -73,6 +73,11 @@ const useCreateFlashDuel = () => {
         description: 'Duel created successfully',
       });
       setPendingDuelParams(null);
+
+      // Auto refresh page after successful duel creation
+      setTimeout(() => {
+        window.location.reload();
+      }, 150); // 0.15 milliseconds (150ms)
     }
   }, [isDuelSuccess]);
 

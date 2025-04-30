@@ -132,6 +132,12 @@ const useCreateCoinDuel = () => {
           console.log("Error decoding log from provider:", error, log);
         }
       });
+
+      // Auto refresh page after successful duel creation
+      setTimeout(() => {
+        window.location.reload();
+      }, 150); // 0.15 milliseconds (150ms)
+
       return { duelId: duelId as string, createdAt: createdAt as number, success: receipt?.status === 'success' };
     } catch (error) {
       return handleError(error);
