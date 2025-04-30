@@ -36,6 +36,7 @@ import DuelInfo from '../duel-info';
 import { CREDITS } from '@/abi/CREDITS';
 import { formatUnits, Hex } from 'viem';
 import { sei } from 'viem/chains';
+import { Loader2 } from 'lucide-react';
 
 interface CoinDuelFormProps {
   onBack: () => void;
@@ -77,6 +78,7 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
   const publicClient = usePublicClient();
   const chainId = useChainId();
   const symbol = chainId === sei.id ? 'CRD' : 'FDCRD';
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Add useEffect to check user's FDCRD balance
   useEffect(() => {
@@ -103,6 +105,7 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
   const handleCreateDuel = async () => {
     if (!formData || isTransactionInProgress || isButtonClicked) return;
     setIsButtonClicked(true);
+    setIsSubmitting(true);
 
     try {
       // Check if user has enough FDCRD tokens (at least 5)
@@ -114,6 +117,7 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
           variant: 'destructive',
         });
         setIsButtonClicked(false);
+        setIsSubmitting(false);
         return;
       }
 
@@ -180,6 +184,7 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
       onComplete();
     } finally {
       setIsButtonClicked(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -425,11 +430,22 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
           }}
           disabled={isTransactionInProgress || isButtonClicked}
           className={cn(
-            'flex-1 bg-gradient-pink text-black',
+            'flex-1 bg-gradient-pink text-black relative overflow-hidden group',
             isTransactionInProgress || isButtonClicked ? 'opacity-50 cursor-not-allowed' : '',
           )}
         >
-          {isTransactionInProgress ? getTransactionStatusMessage(status, error) : 'Create Duel'}
+          <span
+            className={cn('relative z-10 flex items-center gap-2', isSubmitting && 'opacity-0')}
+          >
+            {isTransactionInProgress ? getTransactionStatusMessage(status, error) : 'Create Duel'}
+          </span>
+          {isSubmitting && (
+            <div className="absolute inset-0 flex items-center justify-center gap-2">
+              <Loader2 className="h-5 w-5 animate-spin" />
+              <span>Creating Coin Duel...</span>
+            </div>
+          )}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#F19ED2] to-[#F19ED2]/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         </Button>
       </div>
     </div>

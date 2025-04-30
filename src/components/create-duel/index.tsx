@@ -36,6 +36,7 @@ const CreateDuel: FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loading, setLoading] = useState(false);
   const [requestStatus, setRequestStatus] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const checkCreatorStatus = async () => {
     if (!address) {
@@ -84,7 +85,7 @@ const CreateDuel: FC = () => {
     setSelectedDuel(null);
   };
 
-  const handleCreateDuelClick = () => {
+  const handleCreateDuelClick = async () => {
     if (!address) {
       toast({
         title: 'Connect Wallet',
@@ -94,8 +95,13 @@ const CreateDuel: FC = () => {
       return;
     }
 
-    // Open the modal - the content will be determined by isCreator state
-    setIsOpen(true);
+    setIsLoading(true);
+    try {
+      // Open the modal - the content will be determined by isCreator state
+      setIsOpen(true);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // When the user successfully verifies as a creator
@@ -133,10 +139,23 @@ const CreateDuel: FC = () => {
       }
       trigger={
         <Button
-          className="font-semibold bg-gradient-pink text-black"
+          className={cn(
+            'font-semibold bg-gradient-pink text-black relative overflow-hidden group',
+            isLoading && 'cursor-not-allowed',
+          )}
           onClick={handleCreateDuelClick}
+          disabled={isLoading}
         >
-          {NAVBAR.CREATE_DUEL.BUTTON_TEXT}
+          <span className={cn('relative z-10 flex items-center gap-2', isLoading && 'opacity-0')}>
+            {NAVBAR.CREATE_DUEL.BUTTON_TEXT}
+          </span>
+          {isLoading && (
+            <div className="absolute inset-0 flex items-center justify-center gap-2">
+              <Loader2 className="h-5 w-5 animate-spin" />
+              <span>Creating Duel...</span>
+            </div>
+          )}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#F19ED2] to-[#F19ED2]/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         </Button>
       }
       className="max-w-md"

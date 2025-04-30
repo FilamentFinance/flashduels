@@ -26,7 +26,7 @@ import { Textarea } from '@/shadcn/components/ui/textarea';
 import { DuelDuration } from '@/types/duel';
 import { mapCategoryToEnumIndex, mapDurationToNumber } from '@/utils/general/create-duels';
 import { getTransactionStatusMessage } from '@/utils/transaction';
-import { Trash2, Upload } from 'lucide-react';
+import { Trash2, Upload, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { FC, useState, useEffect } from 'react';
 import { useAccount, useChainId } from 'wagmi';
@@ -391,11 +391,22 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
             isButtonClicked
           }
           className={cn(
-            'flex-1 bg-gradient-pink text-black',
+            'flex-1 bg-gradient-pink text-black relative overflow-hidden group',
             isTransactionInProgress || isButtonClicked ? 'opacity-50 cursor-not-allowed' : '',
           )}
         >
-          {isTransactionInProgress ? getTransactionStatusMessage(status, error) : 'Create Duel'}
+          <span
+            className={cn('relative z-10 flex items-center gap-2', isSubmitting && 'opacity-0')}
+          >
+            {isTransactionInProgress ? getTransactionStatusMessage(status, error) : 'Create Duel'}
+          </span>
+          {isSubmitting && (
+            <div className="absolute inset-0 flex items-center justify-center gap-2">
+              <Loader2 className="h-5 w-5 animate-spin" />
+              <span>Creating Flash Duel...</span>
+            </div>
+          )}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#F19ED2] to-[#F19ED2]/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         </Button>
       </div>
     </div>
