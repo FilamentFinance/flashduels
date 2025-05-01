@@ -82,17 +82,18 @@ const BuyOrder: FC<BuyOrderProps> = ({
   // const { prices } = useSelector((state: RootState) => state.price, shallowEqual);
   // const { totalBetYes, totalBetNo } = useTotalBets(duelId);
 
-  const handlePositionSelect = useCallback((position: OptionsType) => {
-    setLocalPosition(position);
-    setError('');
-  }, []);
-
   const validateAndSetAmount = useCallback(
     (value: string) => {
       setError('');
 
       if (value === '') {
         setAmount('');
+        return;
+      }
+
+      // Handle trailing decimal point
+      if (value.endsWith('.')) {
+        setAmount(value);
         return;
       }
 
@@ -114,11 +115,48 @@ const BuyOrder: FC<BuyOrderProps> = ({
         return;
       }
 
+      // Only show minimum amount error if the value is complete (no decimal point at end)
+      if (Number(value) > 0 && Number(value) < 5 && !value.endsWith('.')) {
+        setError(`Minimum trade size is 5 ${symbol}`);
+      }
+
       // Store the full value in state without trimming
       setAmount(value);
     },
-    [balance],
+    [balance, symbol],
   );
+
+  const handlePositionSelect = useCallback(
+    (position: OptionsType) => {
+      setLocalPosition(position);
+      // Validate current amount when switching positions
+      if (amount) {
+        if (amount.endsWith('.')) {
+          setError('Please enter a valid amount');
+        } else {
+          const numAmount = Number(amount);
+          if (isNaN(numAmount)) {
+            setError('Please enter a valid number');
+          } else if (numAmount < 0) {
+            setError('Amount cannot be negative');
+          } else if (numAmount > 0 && numAmount < 5) {
+            setError(`Minimum trade size is 5 ${symbol}`);
+          } else {
+            setError('');
+          }
+        }
+      } else {
+        setError('');
+      }
+    },
+    [amount, symbol],
+  );
+
+  const handleBlur = useCallback(() => {
+    if (amount.endsWith('.')) {
+      setError('Please enter a valid amount');
+    }
+  }, [amount]);
 
   const calculateShares = useCallback(() => {
     if (!localPosition || !amount) return 0;
@@ -191,10 +229,11 @@ const BuyOrder: FC<BuyOrderProps> = ({
     }
   }, [localPosition, amount, duelId, duelType, asset, winCondition, address, joinDuel, toast]);
 
-  const isFormValid = useMemo(
-    () => localPosition && amount && Number(amount) > 0 && !error,
-    [localPosition, amount, error],
-  );
+  const isFormValid = useMemo(() => {
+    if (!localPosition || !amount) return false;
+    const numAmount = Number(amount);
+    return !isNaN(numAmount) && numAmount >= 5 && !error;
+  }, [localPosition, amount, error]);
 
   // Import the token approval hook
   // const { checkAllowance, requestAllowance } = useTokenApproval(address);
@@ -402,6 +441,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
               type="text"
               value={amount}
               onChange={(e) => validateAndSetAmount(e.target.value)}
+              onBlur={handleBlur}
               disabled={isLoading}
               className={cn(
                 // 'w-full bg-zinc-800 rounded-xl py-6 pl-8 pr-20 text-xl text-white border-none focus:border-none focus:ring-0 focus-visible:ring-0',
