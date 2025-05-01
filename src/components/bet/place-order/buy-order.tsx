@@ -115,6 +115,17 @@ const BuyOrder: FC<BuyOrderProps> = ({
         return;
       }
 
+      // Check liquidity cap
+  
+      const currentLiquidity = duel?.totalBetAmount ? Number(duel.totalBetAmount) : 0;
+      const newLiquidity = currentLiquidity + Number(value);
+      if (newLiquidity > 20000) {
+        setError(
+          `Max Liquidity cap for duel is $20,000. You can add up to $${(20000 - currentLiquidity).toFixed(2)}`,
+        );
+        return;
+      }
+
       // Only show minimum amount error if the value is complete (no decimal point at end)
       if (Number(value) > 0 && Number(value) < 5 && !value.endsWith('.')) {
         setError(`Minimum trade size is 5 ${symbol}`);
@@ -123,7 +134,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
       // Store the full value in state without trimming
       setAmount(value);
     },
-    [balance, symbol],
+    [balance, symbol, duel?.totalBetAmount],
   );
 
   const handlePositionSelect = useCallback(
@@ -182,10 +193,22 @@ const BuyOrder: FC<BuyOrderProps> = ({
       return;
     }
 
+    const numAmount = Number(amount);
+    if (isNaN(numAmount) || numAmount < 5) {
+      setError(`Minimum trade size is 5 ${symbol}`);
+      return;
+    }
+
     setIsJoiningDuel(true);
     try {
-      // const parsedAmount = parseUnits(amount, 6);
-      const parsedAmount = parseUnits(amount, 18); // crd, todo @need to convert back to 6 for usdc
+      // Format the amount to avoid scientific notation and ensure it's a valid BigInt string
+      const formattedAmount = numAmount.toLocaleString('fullwide', {
+        useGrouping: false,
+        maximumFractionDigits: 18,
+      });
+
+      const parsedAmount = parseUnits(formattedAmount, 18); // crd, todo @need to convert back to 6 for usdc
+
       const { success } = await joinDuel(parsedAmount);
 
       if (success) {
@@ -227,7 +250,18 @@ const BuyOrder: FC<BuyOrderProps> = ({
     } finally {
       setIsJoiningDuel(false);
     }
-  }, [localPosition, amount, duelId, duelType, asset, winCondition, address, joinDuel, toast]);
+  }, [
+    localPosition,
+    amount,
+    duelId,
+    duelType,
+    asset,
+    winCondition,
+    address,
+    joinDuel,
+    toast,
+    symbol,
+  ]);
 
   const isFormValid = useMemo(() => {
     if (!localPosition || !amount) return false;
