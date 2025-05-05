@@ -24,6 +24,9 @@ import { FlashDuelCoreFaucetAbi } from '@/abi/FlashDualCoreFaucet';
 // import { TransactionStatusType } from '@/types/app';
 import { handleTransactionError } from '@/utils/token';
 import { Loader2 } from 'lucide-react';
+import { decodeEventLog } from 'viem';
+
+const MAX_AUTO_WITHDRAW = 5;
 
 const ClaimFunds: FC = () => {
   const [amount, setAmount] = useState('');
@@ -31,6 +34,7 @@ const ClaimFunds: FC = () => {
   // const [status, setStatus] = useState<TransactionStatusType>(TRANSACTION_STATUS.IDLE);
   // const [error, setError] = useState<string | null>(null);
   const [txHash, setTxHash] = useState<Hex | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState(false);
 
   const { toast } = useToast();
   const { address } = useAccount();
@@ -125,8 +129,7 @@ const ClaimFunds: FC = () => {
     }
 
     try {
-      // setStatus(TRANSACTION_STATUS.PENDING);
-      // setError(null);
+      setIsLoading(true);
       setTxHash(undefined);
 
       const tx = await writeContractAsync({
@@ -141,21 +144,68 @@ const ClaimFunds: FC = () => {
       }
 
       setTxHash(tx);
-      // setStatus(TRANSACTION_STATUS.PENDING);
 
-      const isWithdrawSuccess = await waitForTransaction(tx);
+      const receipt = await publicClient?.waitForTransactionReceipt({
+        hash: tx,
+        confirmations: 1,
+      });
+
+      // Parse logs for WithdrawalRequested event
+      if (receipt && receipt.logs) {
+        for (const log of receipt.logs) {
+          try {
+            const event = decodeEventLog({
+              abi: FlashDuelCoreFaucetAbi,
+              data: log.data,
+              topics: log.topics,
+            });
+            console.log({ event });
+            if (event.eventName === 'WithdrawalRequested') {
+              const { requestId, user, amount, timestamp } = event.args as any;
+              console.log({ requestId, user, amount, timestamp });
+              await fetch(`${SERVER_CONFIG.API_URL}/user/withdrawal-requests`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  requestId: requestId.toString(),
+                  user: user.toLowerCase(),
+                  amount: amount.toString(),
+                  timestamp: new Date(Number(timestamp) * 1000).toISOString(),
+                }),
+              });
+            }
+          } catch (e) {
+            // Not the event we're looking for, skip
+            console.log(e);
+          }
+        }
+      }
+
+      const isWithdrawSuccess = receipt?.status === 'success';
       if (!isWithdrawSuccess) {
         throw new Error('Withdrawal transaction failed');
       }
 
-      // setStatus(TRANSACTION_STATUS.SUCCESS);
       setAmount('');
-      toast({
-        title: 'Withdrawal Successful',
-        description: `Successfully withdrew ${amount} ${symbol}`,
-      });
+      setIsLoading(false);
+      if (parseFloat(amount) > MAX_AUTO_WITHDRAW) {
+        toast({
+          title: 'Withdrawal Requested',
+          description: `You will be credited ${amount} ${symbol} once admin approves your withdrawal request. Check the Portfolio page for Withdrawal History.`,
+          variant: 'default',
+        });
+      } else {
+        toast({
+          title: 'Withdrawal Successful',
+          description: `Successfully withdrew ${amount} ${symbol}`,
+        });
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
+      }
     } catch (error) {
       handleError(error);
+      setIsLoading(false);
     }
   };
 
@@ -231,6 +281,11 @@ const ClaimFunds: FC = () => {
           </div>
         </div>
 
+        {/* Message for admin approval */}
+        <div className="text-xs text-center text-gray-400 italic -mt-2">
+          (Note: Amounts greater than 5,000 require admin approval.)
+        </div>
+
         {/* Error Message - only show when amount is invalid and user has typed something */}
         {amount !== '' && !isValidAmount() && (
           <div className="text-red-500 text-xs">
@@ -246,13 +301,13 @@ const ClaimFunds: FC = () => {
           size="lg"
           className="w-full"
           onClick={handleWithdraw}
-          disabled={isWithdrawing || !isValidAmount()}
+          disabled={isLoading || isWithdrawing || !isValidAmount()}
         >
-          {isWithdrawing ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Withdrawing...
-            </>
+          {isLoading || isWithdrawing ? (
+            <div className="flex items-center justify-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <span>{isLoading ? 'Confirming...' : 'Processing Withdrawal...'}</span>
+            </div>
           ) : (
             'Withdraw Earnings'
           )}
