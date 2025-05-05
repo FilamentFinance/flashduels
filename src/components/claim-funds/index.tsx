@@ -87,18 +87,18 @@ const ClaimFunds: FC = () => {
     return { success: false, error: message };
   };
 
-  const waitForTransaction = async (hash: Hex): Promise<boolean> => {
-    try {
-      const receipt = await publicClient?.waitForTransactionReceipt({
-        hash,
-        confirmations: 1,
-      });
-      return receipt?.status === 'success';
-    } catch (error) {
-      console.error('Error waiting for transaction:', error);
-      return false;
-    }
-  };
+  // const waitForTransaction = async (hash: Hex): Promise<boolean> => {
+  //   try {
+  //     const receipt = await publicClient?.waitForTransactionReceipt({
+  //       hash,
+  //       confirmations: 1,
+  //     });
+  //     return receipt?.status === 'success';
+  //   } catch (error) {
+  //     console.error('Error waiting for transaction:', error);
+  //     return false;
+  //   }
+  // };
 
   const handleWithdraw = async () => {
     if (!address) {
