@@ -17,14 +17,14 @@ import { handleTransactionError, useTokenApproval } from '@/utils/token';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { formatUnits, parseUnits } from 'viem/utils';
-import { useAccount, useChainId } from 'wagmi';
+import { useAccount, useChainId, useReadContracts } from 'wagmi';
 import { NewDuelItem } from '@/types/duel';
 import { mapCategoryToEnumIndex } from '@/utils/general/create-duels';
 
 import PositionSelector from './position-selector';
 import { calculateTimeLeft } from '@/utils/time';
 import { sei } from 'viem/chains';
-
+import { FlashDuelsViewFacetABI } from '@/abi/FlashDuelsViewFacet';
 interface BuyOrderProps {
   duelId: string;
   duelType: string;
@@ -82,6 +82,27 @@ const BuyOrder: FC<BuyOrderProps> = ({
   // const { prices } = useSelector((state: RootState) => state.price, shallowEqual);
   // const { totalBetYes, totalBetNo } = useTotalBets(duelId);
 
+  // Add contract read for total protocol liquidity
+  const { data: totalProtocolLiquidity } = useReadContracts({
+    contracts: [
+      {
+        abi: FlashDuelsViewFacetABI,
+        address: SERVER_CONFIG.DIAMOND as `0x${string}`,
+        functionName: 'getTotalProtocolLiquidity',
+      },
+    ],
+  });
+
+  // Add function to format currency values
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(value);
+  };
+
   const validateAndSetAmount = useCallback(
     (value: string) => {
       setError('');
@@ -116,12 +137,22 @@ const BuyOrder: FC<BuyOrderProps> = ({
       }
 
       // Check liquidity cap
-  
       const currentLiquidity = duel?.totalBetAmount ? Number(duel.totalBetAmount) : 0;
       const newLiquidity = currentLiquidity + Number(value);
       if (newLiquidity > 20000) {
         setError(
-          `Max Liquidity cap for duel is $20,000. You can add up to $${(20000 - currentLiquidity).toFixed(2)}`,
+          `Max liquidity cap for duel is $20,000. You can add up to ${formatCurrency(20000 - currentLiquidity)}`,
+        );
+        return;
+      }
+      // Check protocol-wide liquidity cap
+      const currentProtocolLiquidity = totalProtocolLiquidity
+        ? Number(formatUnits(totalProtocolLiquidity[0].result as bigint, 18))
+        : 0;
+      const newProtocolLiquidity = currentProtocolLiquidity + Number(value);
+      if (newProtocolLiquidity > 200000) {
+        setError(
+          `Max protocol liquidity cap is ${formatCurrency(200000)}. Current liquidity is ${formatCurrency(currentProtocolLiquidity)}. You can add up to ${formatCurrency(200000 - currentProtocolLiquidity)}`,
         );
         return;
       }
@@ -134,7 +165,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
       // Store the full value in state without trimming
       setAmount(value);
     },
-    [balance, symbol, duel?.totalBetAmount],
+    [balance, symbol, duel?.totalBetAmount, totalProtocolLiquidity],
   );
 
   const handlePositionSelect = useCallback(

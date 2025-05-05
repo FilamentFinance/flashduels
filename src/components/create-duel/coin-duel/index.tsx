@@ -79,6 +79,7 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
   const chainId = useChainId();
   const symbol = chainId === sei.id ? 'CRD' : 'FDCRD';
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formError, setFormError] = useState<{ token?: string; triggerPrice?: string }>({});
 
   // Add useEffect to check user's FDCRD balance
   useEffect(() => {
@@ -103,6 +104,20 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
   }, [address, publicClient]);
 
   const handleCreateDuel = async () => {
+    // Validation for required fields
+    if (!selectedToken) {
+      setFormError({ token: 'Please select a token to create a duel.' });
+      return;
+    }
+    if (
+      !formData?.triggerPrice ||
+      isNaN(Number(formData.triggerPrice)) ||
+      Number(formData.triggerPrice) <= 0
+    ) {
+      setFormError({ triggerPrice: 'Please enter a valid trigger price.' });
+      return;
+    }
+    setFormError({}); // Clear errors if all good
     if (!formData || isTransactionInProgress || isButtonClicked) return;
     setIsButtonClicked(true);
     setIsSubmitting(true);
@@ -190,6 +205,8 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
 
   const handleTokenSelect = (value: string) => {
     setSelectedToken(value);
+    // Clear token error if a token is selected
+    setFormError((prev) => ({ ...prev, token: value ? undefined : prev.token }));
     const selectedAsset = cryptoAsset.find((asset) => {
       const symbol = asset.symbol.split('/')[0].replace('Crypto.', '');
       return symbol === value;
@@ -283,6 +300,7 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
               </div>
             </SelectContent>
           </Select>
+          {formError.token && <p className="text-red-500 text-xs mt-1">{formError.token}</p>}
         </div>
 
         <div className="space-y-2 flex justify-between items-center">
@@ -321,10 +339,17 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
                   winCondition: prevData?.winCondition || WIN_CONDITIONS.ABOVE,
                   duration: prevData?.duration || COIN_DUEL_DURATION.THREE_HOURS,
                 }));
+                // Clear triggerPrice error if valid
+                if (value && !isNaN(Number(value)) && Number(value) > 0) {
+                  setFormError((prev) => ({ ...prev, triggerPrice: undefined }));
+                }
               }
             }}
           />
         </div>
+        {formError.triggerPrice && (
+          <p className="text-red-500 text-xs mt-1">{formError.triggerPrice}</p>
+        )}
 
         <div className="flex items-center justify-between gap-4">
           <Label htmlFor="winCondition" className="text-zinc-400">

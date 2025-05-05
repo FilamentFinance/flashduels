@@ -67,6 +67,7 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
   const { toast } = useToast();
   const publicClient = usePublicClient();
   const symbol = chainId === sei.id ? 'CRD' : 'FDCRD';
+  const [formError, setFormError] = useState<{ category?: string; duelText?: string }>({});
 
   useEffect(() => {
     console.log('Completion Status Check:', {
@@ -164,6 +165,17 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
   };
 
   const handleCreateFlashDuel = async () => {
+    // Validation for required fields
+    if (!selectedCategory || selectedCategory === CATEGORIES['ALL_DUELS'].title) {
+      setFormError({ category: 'Please select a category to create a duel.' });
+      return;
+    }
+    const duelText = (document.getElementById('duelText') as HTMLTextAreaElement)?.value || '';
+    if (!duelText.trim()) {
+      setFormError({ duelText: 'Please enter a duel description.' });
+      return;
+    }
+    setFormError({}); // Clear errors if all good
     if (isTransactionInProgress || isButtonClicked) return;
     setIsButtonClicked(true);
 
@@ -192,7 +204,6 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
 
       const categoryEnumIndex = mapCategoryToEnumIndex(selectedCategory);
       const durationNumber = mapDurationToNumber(selectedDuration);
-      const duelText = (document.getElementById('duelText') as HTMLTextAreaElement)?.value || '';
 
       if (selectedImage) {
         const fileName = `${Date.now()}-${selectedImage.name}`;
@@ -249,7 +260,16 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
             Category*
           </Label>
           <div className="w-52">
-            <Select name="category" required onValueChange={(value) => setSelectedCategory(value)}>
+            <Select
+              name="category"
+              required
+              onValueChange={(value) => {
+                setSelectedCategory(value);
+                if (value && value !== CATEGORIES['ALL_DUELS'].title) {
+                  setFormError((prev) => ({ ...prev, category: undefined }));
+                }
+              }}
+            >
               <SelectTrigger className="bg-zinc-900 border-zinc-700">
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
@@ -265,6 +285,9 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
                 ))}
               </SelectContent>
             </Select>
+            {formError.category && (
+              <p className="text-red-500 text-xs mt-1">{formError.category}</p>
+            )}
           </div>
         </div>
 
@@ -278,7 +301,14 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
             placeholder="Enter your Text Here"
             className="bg-zinc-900 border-zinc-700 min-h-[50px]"
             required
+            onChange={(e) => {
+              const value = e.target.value;
+              if (value && value.trim().length > 0) {
+                setFormError((prev) => ({ ...prev, duelText: undefined }));
+              }
+            }}
           />
+          {formError.duelText && <p className="text-red-500 text-xs mt-1">{formError.duelText}</p>}
         </div>
 
         <div className="space-y-2">
