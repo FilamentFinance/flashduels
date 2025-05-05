@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-
+import { SERVER_CONFIG } from '@/config/server-config';
 interface WithdrawalRequest {
   requestId: string;
   amount: string;
@@ -7,6 +7,7 @@ interface WithdrawalRequest {
   timestamp: string;
   approvalTime?: string;
 }
+const MIN_AMOUNT = 5;
 
 const WithdrawalHistory: React.FC<{ address: string }> = ({ address }) => {
   const [requests, setRequests] = useState<WithdrawalRequest[]>([]);
@@ -18,7 +19,8 @@ const WithdrawalHistory: React.FC<{ address: string }> = ({ address }) => {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`http://localhost:3004/flashduels/user/withdrawal-requests?minAmount=5000&user=${address}`);
+        // const res = await fetch(`http://localhost:3004/flashduels/user/withdrawal-requests?minAmount=5000&user=${address}`);
+        const res = await fetch(`${SERVER_CONFIG.API_URL}/user/withdrawal-requests?minAmount=${MIN_AMOUNT}&user=${address}`);
         if (!res.ok) throw new Error('Failed to fetch withdrawal requests');
         const data = await res.json();
         setRequests(data);
