@@ -161,8 +161,13 @@ const ClaimFunds: FC = () => {
             });
             console.log({ event });
             if (event.eventName === 'WithdrawalRequested') {
-              // @ts-ignore
-              const { requestId, user, amount, timestamp } = event.args;
+              const args = event.args as unknown as {
+                requestId: bigint;
+                user: string;
+                amount: bigint;
+                timestamp: bigint;
+              };
+              const { requestId, user, amount, timestamp } = args;
               console.log({ requestId, user, amount, timestamp });
               await fetch(`${SERVER_CONFIG.API_URL}/user/withdrawal-requests`, {
                 method: 'POST',
