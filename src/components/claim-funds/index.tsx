@@ -14,7 +14,7 @@ import {
   useWriteContract,
   useChainId,
 } from 'wagmi';
-import { parseEther, formatEther, Hex } from 'viem';
+import { Hex } from 'viem';
 import { FlashDuelsViewFacetABI } from '@/abi/FlashDuelsViewFacet';
 import { useToast } from '@/shadcn/components/ui/use-toast';
 import { sei } from 'viem/chains';
@@ -22,7 +22,7 @@ import { SERVER_CONFIG } from '@/config/server-config';
 import { FlashDuelCoreFaucetAbi } from '@/abi/FlashDualCoreFaucet';
 // import { TRANSACTION_STATUS } from '@/constants/app';
 // import { TransactionStatusType } from '@/types/app';
-import { handleTransactionError } from '@/utils/token';
+import { handleTransactionError, parseTokenAmount, formatTokenAmount } from '@/utils/token';
 import { Loader2 } from 'lucide-react';
 import { decodeEventLog } from 'viem';
 
@@ -39,9 +39,9 @@ const ClaimFunds: FC = () => {
   const { toast } = useToast();
   const { address } = useAccount();
   const chainId = useChainId();
-  const symbol = chainId === sei.id ? 'CRD' : 'FDCRD';
   const publicClient = usePublicClient();
   const { writeContractAsync } = useWriteContract();
+  const defaultSymbol = SERVER_CONFIG.DEFAULT_TOKEN_SYMBOL || 'USDC';
 
   // Read earnings from contract
   const { data: earningsData } = useReadContract({
@@ -60,9 +60,9 @@ const ClaimFunds: FC = () => {
   // Update earnings when data changes
   useEffect(() => {
     if (earningsData) {
-      setEarnings(formatEther(earningsData as bigint));
+      setEarnings(formatTokenAmount(earningsData as bigint, chainId, defaultSymbol));
     }
-  }, [earningsData]);
+  }, [earningsData, chainId, defaultSymbol]);
 
   // Function to trim to 4 decimal places without rounding
   const trimToFourDecimals = (value: string): string => {
@@ -132,9 +132,18 @@ const ClaimFunds: FC = () => {
       setIsLoading(true);
       setTxHash(undefined);
 
-      console.log('parseEther(amount)', parseEther(amount));
-      console.log('parseEther(earnings)', parseEther(earnings));
-      console.log('parseEther(MAX_AUTO_WITHDRAW)', parseEther(MAX_AUTO_WITHDRAW.toString()));
+      console.log(
+        'parseTokenAmount(amount, chainId)',
+        parseTokenAmount(amount, chainId, defaultSymbol),
+      );
+      console.log(
+        'parseTokenAmount(earnings, chainId)',
+        parseTokenAmount(earnings, chainId, defaultSymbol),
+      );
+      console.log(
+        'parseTokenAmount(MAX_AUTO_WITHDRAW.toString(), chainId)',
+        parseTokenAmount(MAX_AUTO_WITHDRAW.toString(), chainId, defaultSymbol),
+      );
       console.log('SERVER_CONFIG.DIAMOND', SERVER_CONFIG.DIAMOND);
 
       const maxAutoWithdraw = await publicClient?.readContract({
@@ -148,7 +157,7 @@ const ClaimFunds: FC = () => {
         abi: FlashDuelCoreFaucetAbi,
         address: SERVER_CONFIG.DIAMOND as Hex,
         functionName: 'withdrawEarnings',
-        args: [parseEther(amount)],
+        args: [parseTokenAmount(amount, chainId, defaultSymbol).toString()],
       });
 
       if (!tx) {
@@ -209,13 +218,13 @@ const ClaimFunds: FC = () => {
       if (parseFloat(amount) > MAX_AUTO_WITHDRAW) {
         toast({
           title: 'Withdrawal Requested',
-          description: `You will be credited ${amount} ${symbol} once admin approves your withdrawal request. Check the Portfolio page for Withdrawal History.`,
+          description: `You will be credited ${amount} ${defaultSymbol} once admin approves your withdrawal request. Check the Portfolio page for Withdrawal History.`,
           variant: 'default',
         });
       } else {
         toast({
           title: 'Withdrawal Successful',
-          description: `Successfully withdrew ${amount} ${symbol}`,
+          description: `Successfully withdrew ${amount} ${defaultSymbol}`,
         });
         setTimeout(() => {
           window.location.reload();
@@ -263,7 +272,7 @@ const ClaimFunds: FC = () => {
         <div className="inline-flex items-center gap-2 px-3 bg-zinc-900 rounded-xl border border-zinc-800">
           <Image src="/logo/dollar.svg" alt="Funds" width={12} height={12} className="mr-2" />
           <span>
-            {trimToFourDecimals(earnings)} {symbol}
+            {trimToFourDecimals(earnings)} {defaultSymbol}
           </span>
           <Button variant="pink" size="sm" className="text-black font-bold">
             {CLAIM_FUNDS.TRIGGER.CLAIM_TEXT}
@@ -275,7 +284,7 @@ const ClaimFunds: FC = () => {
         <div className="flex items-center justify-between">
           <span className="text-zinc-400 text-sm">Available Balance:</span>
           <span className="text-white text-sm">
-            {trimToFourDecimals(earnings)} {symbol}
+            {trimToFourDecimals(earnings)} {defaultSymbol}
           </span>
         </div>
 
@@ -295,7 +304,7 @@ const ClaimFunds: FC = () => {
             >
               MAX
             </button>
-            <span>{symbol}</span>
+            <span>{defaultSymbol}</span>
           </div>
         </div>
 
@@ -308,7 +317,7 @@ const ClaimFunds: FC = () => {
         {amount !== '' && !isValidAmount() && (
           <div className="text-red-500 text-xs">
             {parseFloat(amount) > parseFloat(earnings)
-              ? `Amount exceeds available balance of ${trimToFourDecimals(earnings)} ${symbol}`
+              ? `Amount exceeds available balance of ${trimToFourDecimals(earnings)} ${defaultSymbol}`
               : 'Please enter a valid amount'}
           </div>
         )}

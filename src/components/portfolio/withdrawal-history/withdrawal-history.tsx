@@ -1,11 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { SERVER_CONFIG } from '@/config/server-config';
+import { useChainId } from 'wagmi';
+import { parseTokenAmount } from '@/utils/token';
+import { sei } from 'viem/chains';
+
 interface WithdrawalRequest {
   requestId: string;
   amount: string;
   status: string;
   timestamp: string;
   approvalTime?: string;
+  tokenSymbol?: string;
 }
 const MIN_AMOUNT = 5;
 
@@ -13,14 +18,17 @@ const WithdrawalHistory: React.FC<{ address: string }> = ({ address }) => {
   const [requests, setRequests] = useState<WithdrawalRequest[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const chainId = useChainId();
+  const defaultSymbol = SERVER_CONFIG.DEFAULT_TOKEN_SYMBOL || 'USDC';
 
   useEffect(() => {
     const fetchRequests = async () => {
       setLoading(true);
       setError(null);
       try {
-        // const res = await fetch(`http://localhost:3004/flashduels/user/withdrawal-requests?minAmount=5000&user=${address}`);
-        const res = await fetch(`${SERVER_CONFIG.API_URL}/user/withdrawal-requests?minAmount=${MIN_AMOUNT}&user=${address}`);
+        const res = await fetch(
+          `${SERVER_CONFIG.API_URL}/user/withdrawal-requests?minAmount=${MIN_AMOUNT}&user=${address}`,
+        );
         if (!res.ok) throw new Error('Failed to fetch withdrawal requests');
         const data = await res.json();
         setRequests(data);
@@ -31,7 +39,7 @@ const WithdrawalHistory: React.FC<{ address: string }> = ({ address }) => {
       }
     };
     fetchRequests();
-  }, []);
+  }, [address]);
 
   // Use 1/5 width for each column
   const colClass = 'w-1/5 px-2';
@@ -61,7 +69,9 @@ const WithdrawalHistory: React.FC<{ address: string }> = ({ address }) => {
               className="flex items-center px-4 py-2 text-sm text-stone-300 border-b border-neutral-800"
             >
               <div className={colClass + ' font-mono text-xs truncate'}>{req.requestId}</div>
-              <div className={colClass}>{req.amount}</div>
+              <div className={colClass}>
+                {parseTokenAmount(req.amount, chainId, req.tokenSymbol || defaultSymbol)}
+              </div>
               <div className={colClass}>{new Date(req.timestamp).toLocaleString()}</div>
               <div className={colClass}>
                 {req.approvalTime ? new Date(req.approvalTime).toLocaleString() : '-'}
