@@ -48,11 +48,11 @@ const WithdrawalHistory: React.FC<{ address: string }> = ({ address }) => {
     <div className="flex flex-col h-full w-full rounded-lg border border-neutral-800 shadow-sm bg-neutral-900">
       {/* Table Header - always visible */}
       <div className="flex items-center px-4 py-2 text-sm font-semibold text-stone-300 border-b border-neutral-800">
-        <div className={colClass}>Request ID</div>
-        <div className={colClass}>Amount ({defaultSymbol})</div>
-        <div className={colClass}>Request Time</div>
-        <div className={colClass}>Approval Time</div>
-        <div className={colClass}>Status</div>
+        <div className={colClass + ' text-center'}>Request ID</div>
+        <div className={colClass + ' text-center'}>Amount ({defaultSymbol})</div>
+        <div className={colClass + ' text-center'}>Request Time</div>
+        <div className={colClass + ' text-center'}>Approval Time</div>
+        <div className={colClass + ' text-center'}>Status</div>
       </div>
       {/* Table Rows or message */}
       <div className="flex flex-col w-full">
@@ -68,17 +68,21 @@ const WithdrawalHistory: React.FC<{ address: string }> = ({ address }) => {
               key={req.requestId}
               className="flex items-center px-4 py-2 text-sm text-stone-300 border-b border-neutral-800"
             >
-              <div className={colClass + ' font-mono text-xs truncate'}>{req.requestId}</div>
-              <div className={colClass}>
+              <div className={colClass + ' font-mono text-xs truncate text-center'}>
+                {req.requestId}
+              </div>
+              <div className={colClass + ' text-center'}>
                 {formatTokenAmount(BigInt(req.amount), chainId, req.tokenSymbol || defaultSymbol)}
               </div>
-              <div className={colClass}>{new Date(req.timestamp).toLocaleString()}</div>
-              <div className={colClass}>
+              <div className={colClass + ' text-center'}>
+                {new Date(req.timestamp).toLocaleString()}
+              </div>
+              <div className={colClass + ' text-center'}>
                 {req.status === 'approved' && req.updatedAt
                   ? new Date(req.updatedAt).toLocaleString()
                   : '-'}
               </div>
-              <div className={colClass + ' capitalize'}>{req.status}</div>
+              <div className={colClass + ' capitalize text-center'}>{req.status}</div>
             </div>
           ))
         )}
