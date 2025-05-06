@@ -188,7 +188,8 @@ const Duels: FC = () => {
               item.data.betString ||
               `Will ${item.data.token} be ${item.data.winCondition === 0 ? 'ABOVE' : 'BELOW'} ${item.data.triggerPrice}`,
             imageSrc: item.data.betIcon || '',
-            status: item.status === 'pending' ? 2 : item.status === 'approved' ? 3 : 4,
+            // status: item.status === 'pending' ? 2 : item.status === 'approved' ? 3 : 4,
+            status: item.status === 'pending' ? 2 : item.status === 'approved' ? -1 : 4,
             duelType: item.type,
             timeLeft: item.data.endsIn,
             token: item.data.token,
@@ -199,6 +200,12 @@ const Duels: FC = () => {
         );
         allDuels.push(...filteredPendingDuels);
       }
+
+      // Debug: Log createdAt, duelType, and title for each duel before sorting
+      console.log(
+        'Duels before sorting:',
+        allDuels.map((d) => ({ createdAt: d.createdAt, duelType: d.duelType, title: d.title })),
+      );
 
       // Sort duels by createdAt timestamp in descending order (latest first)
       const sortedDuels = allDuels.sort((a, b) => {
