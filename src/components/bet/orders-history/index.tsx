@@ -101,7 +101,9 @@ export const OrdersHistory = ({ duelId }: OrdersTableProps) => {
               }
               return parseInt(b.id) - parseInt(a.id);
             });
+          console.log("Active orders", activeOrders);
           setOpenOrders(activeOrders);
+          console.log("Open orders", openOrders);
         }
       },
       onOpen: () => console.info('Connected to the WebSocket server'),
