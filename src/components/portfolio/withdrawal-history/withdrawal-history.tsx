@@ -12,7 +12,7 @@ interface WithdrawalRequest {
   updatedAt?: string;
   tokenSymbol?: string;
 }
-const MIN_AMOUNT = 5;
+const MIN_AMOUNT = 5000;
 
 const WithdrawalHistory: React.FC<{ address: string }> = ({ address }) => {
   const [requests, setRequests] = useState<WithdrawalRequest[]>([]);

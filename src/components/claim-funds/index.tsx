@@ -26,7 +26,7 @@ import { handleTransactionError, parseTokenAmount, formatTokenAmount } from '@/u
 import { Loader2 } from 'lucide-react';
 import { decodeEventLog } from 'viem';
 
-const MAX_AUTO_WITHDRAW = 5;
+const MAX_AUTO_WITHDRAW = 5000;
 
 const ClaimFunds: FC = () => {
   const [amount, setAmount] = useState('');
