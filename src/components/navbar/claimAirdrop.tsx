@@ -228,7 +228,7 @@ const ClaimAirdropButton: FC = () => {
         disabled={false}
       >
         {status === TRANSACTION_STATUS.SUCCESS
-          ? `${parseFloat(formatUnits(BigInt(claimedAmount.toString()), 18)).toFixed(4)} ${symbol} Claimed 🎉`
+          ? `${parseFloat(formatUnits(BigInt(claimedAmount.toString()), 18))} ${symbol} Claimed 🎉`
           : `Claim ${symbol}`}
       </Button>
 
