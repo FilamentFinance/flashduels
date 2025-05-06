@@ -92,18 +92,28 @@ export const OrdersHistory = ({ duelId }: OrdersTableProps) => {
       url: `${SERVER_CONFIG.API_WS_URL}/openOrdersWebSocket`,
       onMessage: (message: OpenOrdersMessage) => {
         if (message.openOrders) {
+          console.log('Received orders:', message.openOrders);
           // Filter to show orders only from Bootstrapping and Active duels
           const activeOrders = message.openOrders
-            .filter((order) => order.duelStatus === 0 || order.duelStatus === -1) // Show orders from both Active and Bootstrapping duels
+            .filter((order) => {
+              console.log('Order status:', order.duelStatus, 'Type:', typeof order.duelStatus);
+              return order.duelStatus === 0 || order.duelStatus === -1;
+            })
             .sort((a, b) => {
-              if (a.createdAt && b.createdAt) {
-                return b.createdAt - a.createdAt;
+              // Convert createdAt to numbers if they're strings or BigInt
+              const aTime =
+                typeof a.createdAt === 'string' ? parseInt(a.createdAt) : Number(a.createdAt);
+              const bTime =
+                typeof b.createdAt === 'string' ? parseInt(b.createdAt) : Number(b.createdAt);
+
+              if (!isNaN(aTime) && !isNaN(bTime)) {
+                return bTime - aTime; // Latest first
               }
+              // Fallback to id sorting if createdAt is not available
               return parseInt(b.id) - parseInt(a.id);
             });
-          console.log("Active orders", activeOrders);
+          console.log('Filtered active orders:', activeOrders);
           setOpenOrders(activeOrders);
-          console.log("Open orders", openOrders);
         }
       },
       onOpen: () => console.info('Connected to the WebSocket server'),
