@@ -181,6 +181,8 @@ const Duels: FC = () => {
         allDuels.push(...filteredDuels);
       }
 
+      console.log('response.data.pendingDuels', response.data.pendingDuels);
+
       if (response.data.pendingDuels) {
         const filteredPendingDuels = response.data.pendingDuels.map(
           (item: { data: DuelResponseItem; status: string; type: string }) => ({
