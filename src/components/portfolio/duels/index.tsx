@@ -42,6 +42,7 @@ interface DuelItem {
   createdAt?: number;
   startAt?: number;
   duelId: string;
+  durationMinutes?: number;
 }
 const getIconPath = (duelType?: string, title?: string): string => {
   if (duelType === 'COIN_DUEL' && title) {
@@ -101,14 +102,19 @@ const StatusBadge: FC<{ status: number }> = ({ status }) => {
 
 const calculateTimeLeft = (duel: DuelItem): number => {
   if (duel.status === -1) {
-    const waitingPeriod = 30 * 60; // 30 minutes in seconds
-    const createdAtSec = duel.createdAt || 0;
+    // 30 minutes bootstrapping + duel duration (in seconds)
+    const bootstrappingPeriod = 30 * 60; // 30 minutes in seconds
+    const duelDurationSec = (duel.durationMinutes || 0) * 60;
+    const totalPeriod = bootstrappingPeriod + duelDurationSec;
+
+    const rawCreatedAt = duel.createdAt ?? 0;
+    const createdAtSec = rawCreatedAt > 1e12 ? Math.floor(rawCreatedAt / 1000) : rawCreatedAt;
     const now = Math.floor(Date.now() / 1000);
     const elapsed = now - createdAtSec;
-    const remaining = waitingPeriod - elapsed;
+    const remaining = totalPeriod - elapsed;
     return Math.max(remaining, 0);
   } else {
-    const endTimeSec = (duel.startAt || 0) + duel.timeLeft * 60;
+    const endTimeSec = (duel.startAt || 0) + (duel.durationMinutes || 0) * 60;
     const now = Math.floor(Date.now() / 1000);
     const remaining = endTimeSec - now;
     return Math.max(remaining, 0);
@@ -177,40 +183,52 @@ const Duels: FC = () => {
           createdAt: item.createdAt,
           startAt: item.startAt || 0,
           duelId: item.duelId,
+          durationMinutes: (item.endsIn || 0) * 60,
         }));
         allDuels.push(...filteredDuels);
       }
 
       if (response.data.pendingDuels) {
         const filteredPendingDuels = response.data.pendingDuels.map(
-          (item: { data: DuelResponseItem; status: string; type: string, createdAt: number }) => ({
-            title:
-              item.data.betString ||
-              `Will ${item.data.token} be ${item.data.winCondition === 0 ? 'ABOVE' : 'BELOW'} ${item.data.triggerPrice}`,
-            imageSrc: item.data.betIcon || '',
-            // status: item.status === 'pending' ? 2 : item.status === 'approved' ? 3 : 4,
-            status: item.status === 'pending' ? 2 : item.status === 'approved' ? -1 : 4,
-            duelType: item.type,
-            timeLeft: item.data.endsIn,
-            token: item.data.token,
-            createdAt: item.createdAt || 0,
-            startAt: item.data?.startAt || 0,
-            duelId: item.data.duelId,
-          }),
+          (item: { data: DuelResponseItem; status: string; type: string; createdAt: number }) => {
+            // Debug log to inspect the full pending duel item
+            // console.log('Full pending duel item:', item);
+            return {
+              title:
+                item.data.betString ||
+                `Will ${item.data.token} be ${item.data.winCondition === 0 ? 'ABOVE' : 'BELOW'} ${item.data.triggerPrice}`,
+              imageSrc: item.data.betIcon || '',
+              status: item.status === 'pending' ? 2 : item.status === 'approved' ? -1 : 4,
+              duelType: item.type,
+              timeLeft: item.data.endsIn,
+              token: item.data.token,
+              createdAt: item.createdAt || 0,
+              startAt: item.data?.startAt || 0,
+              duelId: item.data.duelId,
+              durationMinutes: (item.data.endsIn || 0) * 60,
+            };
+          },
         );
         allDuels.push(...filteredPendingDuels);
       }
 
-      // Debug: Log createdAt, duelType, and title for each duel before sorting
+      // Debug: Log duelType, title, and createdAt for each duel before sorting
       console.log(
-        'Duels before sorting:',
-        allDuels.map((d) => ({ createdAt: d.createdAt, duelType: d.duelType, title: d.title })),
+        'All duels before sorting:',
+        allDuels.map((d) => ({
+          type: d.duelType,
+          title: d.title,
+          createdAt: d.createdAt,
+        })),
       );
+
+      // Helper to normalize timestamps to seconds
+      const normalizeTimestamp = (ts: number) => (ts > 1e12 ? Math.floor(ts / 1000) : ts);
 
       // Sort duels by createdAt timestamp in descending order (latest first)
       const sortedDuels = allDuels.sort((a, b) => {
-        const timeA = a.createdAt || 0;
-        const timeB = b.createdAt || 0;
+        const timeA = normalizeTimestamp(a.createdAt || 0);
+        const timeB = normalizeTimestamp(b.createdAt || 0);
         return timeB - timeA;
       });
 

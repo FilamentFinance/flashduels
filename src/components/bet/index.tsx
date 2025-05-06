@@ -123,9 +123,16 @@ const Bet: FC = () => {
     if (duel) {
       const updateTime = () => {
         // endsIn is already in hours (e.g., 0.084 for 5 minutes)
-        setTimeLeft(
-          calculateTimeLeft(duel.status === -1 ? duel.createdAt : duel.startAt || 0, duel.endsIn),
-        );
+        let timeInSeconds = 0;
+        if (duel.endsIn > 0.5) {
+          timeInSeconds =
+            duel.status === -1 ? duel.createdAt + 1800 : (duel.startAt || 0) + 1800;
+          setTimeLeft(calculateTimeLeft(timeInSeconds, duel.endsIn));
+        } else {
+          timeInSeconds =
+            duel.status === -1 ? duel.createdAt + 1800 : (duel.startAt || 0);
+          setTimeLeft(calculateTimeLeft(timeInSeconds, duel.endsIn));
+        }
       };
 
       updateTime();
