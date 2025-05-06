@@ -132,18 +132,17 @@ const ClaimFunds: FC = () => {
       setIsLoading(true);
       setTxHash(undefined);
 
-      console.log("parseEther(amount)", parseEther(amount));
-      console.log("parseEther(earnings)", parseEther(earnings));
-      console.log("parseEther(MAX_AUTO_WITHDRAW)", parseEther(MAX_AUTO_WITHDRAW.toString()));
-      console.log("SERVER_CONFIG.DIAMOND", SERVER_CONFIG.DIAMOND);
+      console.log('parseEther(amount)', parseEther(amount));
+      console.log('parseEther(earnings)', parseEther(earnings));
+      console.log('parseEther(MAX_AUTO_WITHDRAW)', parseEther(MAX_AUTO_WITHDRAW.toString()));
+      console.log('SERVER_CONFIG.DIAMOND', SERVER_CONFIG.DIAMOND);
 
-      const res = await useReadContract({
+      const maxAutoWithdraw = await publicClient?.readContract({
         abi: FlashDuelsViewFacetABI,
         address: SERVER_CONFIG.DIAMOND as Hex,
         functionName: 'getMaxAutoWithdraw',
-        chainId: chainId,
       });
-      console.log("getMaxAutoWithdraw", res);
+      console.log('getMaxAutoWithdraw', maxAutoWithdraw);
 
       const tx = await writeContractAsync({
         abi: FlashDuelCoreFaucetAbi,
