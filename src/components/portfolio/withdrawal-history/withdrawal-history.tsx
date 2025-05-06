@@ -74,7 +74,9 @@ const WithdrawalHistory: React.FC<{ address: string }> = ({ address }) => {
               </div>
               <div className={colClass}>{new Date(req.timestamp).toLocaleString()}</div>
               <div className={colClass}>
-                {req.updatedAt ? new Date(req.updatedAt).toLocaleString() : '-'}
+                {req.updatedAt && req.updatedAt > req.timestamp
+                  ? new Date(req.updatedAt).toLocaleString()
+                  : '-'}
               </div>
               <div className={colClass + ' capitalize'}>{req.status}</div>
             </div>
