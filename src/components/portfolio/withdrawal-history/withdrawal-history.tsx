@@ -9,7 +9,7 @@ interface WithdrawalRequest {
   amount: string;
   status: string;
   timestamp: string;
-  approvalTime?: string;
+  updatedAt?: string;
   tokenSymbol?: string;
 }
 const MIN_AMOUNT = 5;
@@ -74,7 +74,7 @@ const WithdrawalHistory: React.FC<{ address: string }> = ({ address }) => {
               </div>
               <div className={colClass}>{new Date(req.timestamp).toLocaleString()}</div>
               <div className={colClass}>
-                {req.approvalTime ? new Date(req.approvalTime).toLocaleString() : '-'}
+                {req.updatedAt ? new Date(req.updatedAt).toLocaleString() : '-'}
               </div>
               <div className={colClass + ' capitalize'}>{req.status}</div>
             </div>

@@ -116,7 +116,7 @@ const DuelsHistory: FC = () => {
             onClick={() => setActiveTab('duels')}
           />
           <TabButton
-            label="History"
+            label="Trade History"
             active={activeTab === 'history'}
             onClick={() => setActiveTab('history')}
           />
