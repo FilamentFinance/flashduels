@@ -181,11 +181,9 @@ const Duels: FC = () => {
         allDuels.push(...filteredDuels);
       }
 
-      console.log('response.data.pendingDuels', response.data.pendingDuels);
-
       if (response.data.pendingDuels) {
         const filteredPendingDuels = response.data.pendingDuels.map(
-          (item: { data: DuelResponseItem; status: string; type: string }) => ({
+          (item: { data: DuelResponseItem; status: string; type: string, createdAt: number }) => ({
             title:
               item.data.betString ||
               `Will ${item.data.token} be ${item.data.winCondition === 0 ? 'ABOVE' : 'BELOW'} ${item.data.triggerPrice}`,
@@ -195,7 +193,7 @@ const Duels: FC = () => {
             duelType: item.type,
             timeLeft: item.data.endsIn,
             token: item.data.token,
-            createdAt: item.data?.createdAt || 0,
+            createdAt: item.createdAt || 0,
             startAt: item.data?.startAt || 0,
             duelId: item.data.duelId,
           }),
