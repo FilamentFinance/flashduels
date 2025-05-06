@@ -188,11 +188,10 @@ const Duels: FC = () => {
         allDuels.push(...filteredDuels);
       }
 
+      let filteredPendingDuels: DuelItem[] = [];
       if (response.data.pendingDuels) {
-        const filteredPendingDuels = response.data.pendingDuels.map(
+        filteredPendingDuels = response.data.pendingDuels.map(
           (item: { data: DuelResponseItem; status: string; type: string; createdAt: number }) => {
-            // Debug log to inspect the full pending duel item
-            // console.log('Full pending duel item:', item);
             return {
               title:
                 item.data.betString ||
@@ -225,10 +224,20 @@ const Duels: FC = () => {
       // Helper to normalize timestamps to seconds
       const normalizeTimestamp = (ts: number) => (ts > 1e12 ? Math.floor(ts / 1000) : ts);
 
-      // De-duplicate by duelId
-      const uniqueDuels = allDuels.filter(
-        (duel, index, self) => index === self.findIndex((d) => d.duelId === duel.duelId),
-      );
+      // Prefer pending/bootstrapping duels when de-duplicating
+      const duelMap = new Map<string, DuelItem>();
+      allDuels.forEach((duel) => {
+        duelMap.set(duel.duelId, duel);
+      });
+      if (response.data.pendingDuels) {
+        filteredPendingDuels.forEach((duel: DuelItem) => {
+          // If duel is pending or bootstrapping, overwrite any existing entry
+          if (duel.status === 2 || duel.status === -1) {
+            duelMap.set(duel.duelId, duel);
+          }
+        });
+      }
+      const uniqueDuels = Array.from(duelMap.values());
 
       // Sort duels by createdAt timestamp in descending order (latest first)
       const sortedDuels = uniqueDuels.sort((a, b) => {
