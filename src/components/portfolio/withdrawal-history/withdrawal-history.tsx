@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { SERVER_CONFIG } from '@/config/server-config';
 import { useChainId } from 'wagmi';
 import { parseTokenAmount } from '@/utils/token';
-import { sei } from 'viem/chains';
+// import { sei } from 'viem/chains';
 
 interface WithdrawalRequest {
   requestId: string;
