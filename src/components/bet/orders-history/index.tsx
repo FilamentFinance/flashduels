@@ -31,6 +31,7 @@ export interface OrderData {
   quantity: number;
   createdAt?: number;
   duelStatus?: number; // 0: Active, 1: Completed, 5: Cancelled
+  status?: string; // Add this line for string status like 'available' or 'bootstrapping'
 }
 
 // The message type now expects openOrders as an array of OrderData
@@ -92,27 +93,14 @@ export const OrdersHistory = ({ duelId }: OrdersTableProps) => {
       url: `${SERVER_CONFIG.API_WS_URL}/openOrdersWebSocket`,
       onMessage: (message: OpenOrdersMessage) => {
         if (message.openOrders) {
-          console.log('Received orders:', message.openOrders);
-          // Filter to show orders only from Bootstrapping and Active duels
+          // Show only orders from Bootstrapping (-1) and Active (0) duels
           const activeOrders = message.openOrders
-            .filter((order) => {
-              console.log('Order status:', order.duelStatus, 'Type:', typeof order.duelStatus);
-              return order.duelStatus === 0 || order.duelStatus === -1;
-            })
+            .filter((order) => order.duelStatus === 0 || order.duelStatus === -1)
             .sort((a, b) => {
-              // Convert createdAt to numbers if they're strings or BigInt
-              const aTime =
-                typeof a.createdAt === 'string' ? parseInt(a.createdAt) : Number(a.createdAt);
-              const bTime =
-                typeof b.createdAt === 'string' ? parseInt(b.createdAt) : Number(b.createdAt);
-
-              if (!isNaN(aTime) && !isNaN(bTime)) {
-                return bTime - aTime; // Latest first
-              }
-              // Fallback to id sorting if createdAt is not available
-              return parseInt(b.id) - parseInt(a.id);
+              const aTime = Number(a.createdAt);
+              const bTime = Number(b.createdAt);
+              return bTime - aTime;
             });
-          console.log('Filtered active orders:', activeOrders);
           setOpenOrders(activeOrders);
         }
       },
@@ -209,7 +197,7 @@ export const OrdersHistory = ({ duelId }: OrdersTableProps) => {
                         )}
                       </TableCell> */}
                       <TableCell className="py-3 text-center">
-                        {order.duelStatus !== 1 && order.duelStatus !== 5 && (
+                        {(order.duelStatus === 0 || order.duelStatus === -1) && (
                           <Button
                             variant="outline"
                             className="px-5 py-1 text-xs font-bold text-red-500 border-red-500 bg-red-600/10 hover:bg-red-600/20 hover:text-red-400"
