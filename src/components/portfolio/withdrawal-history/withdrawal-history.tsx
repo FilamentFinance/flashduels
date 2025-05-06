@@ -49,7 +49,7 @@ const WithdrawalHistory: React.FC<{ address: string }> = ({ address }) => {
       {/* Table Header - always visible */}
       <div className="flex items-center px-4 py-2 text-sm font-semibold text-stone-300 border-b border-neutral-800">
         <div className={colClass}>Request ID</div>
-        <div className={colClass}>Amount</div>
+        <div className={colClass}>Amount ({defaultSymbol})</div>
         <div className={colClass}>Request Time</div>
         <div className={colClass}>Approval Time</div>
         <div className={colClass}>Status</div>
