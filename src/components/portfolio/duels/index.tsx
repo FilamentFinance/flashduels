@@ -16,6 +16,7 @@ import { FC, useEffect, useState } from 'react';
 import { useAccount } from 'wagmi';
 import { DuelShimmer } from './duel-shimmer';
 import { DuelState } from './duel-state';
+import { useRouter } from 'next/navigation';
 
 interface DuelResponseItem {
   betString: string;
@@ -28,6 +29,7 @@ interface DuelResponseItem {
   startAt?: number;
   winCondition: number;
   triggerPrice: number;
+  duelId: string;
 }
 
 interface DuelItem {
@@ -39,6 +41,7 @@ interface DuelItem {
   token?: string;
   createdAt?: number;
   startAt?: number;
+  duelId: string;
 }
 const getIconPath = (duelType?: string, title?: string): string => {
   if (duelType === 'COIN_DUEL' && title) {
@@ -132,11 +135,16 @@ const TimeLeftCell: FC<{ duel: DuelItem }> = ({ duel }) => {
   return <TableCell className="text-gray-300 font-mono">{formatDuration(timeLeft)}</TableCell>;
 };
 
+const isDuelClickable = (status: number): boolean => {
+  return status === 0 || status === -1; // Active or Bootstrapping
+};
+
 const Duels: FC = () => {
   const [duels, setDuels] = useState<DuelItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const { address } = useAccount();
+  const router = useRouter();
 
   const fetchDuels = async () => {
     if (!address) {
@@ -167,6 +175,7 @@ const Duels: FC = () => {
           token: item.token,
           createdAt: item.createdAt,
           startAt: item.startAt || 0,
+          duelId: item.duelId,
         }));
         allDuels.push(...filteredDuels);
       }
@@ -184,6 +193,7 @@ const Duels: FC = () => {
             token: item.data.token,
             createdAt: item.data?.createdAt || 0,
             startAt: item.data?.startAt || 0,
+            duelId: item.data.duelId,
           }),
         );
         allDuels.push(...filteredPendingDuels);
@@ -245,7 +255,18 @@ const Duels: FC = () => {
             </TableHeader>
             <TableBody>
               {duels.map((duel, index) => (
-                <TableRow key={index} className="border-neutral-800 hover:bg-neutral-800/50">
+                <TableRow
+                  key={index}
+                  className={cn(
+                    'border-neutral-800',
+                    isDuelClickable(duel.status)
+                      ? 'hover:bg-neutral-800/50 cursor-pointer'
+                      : 'hover:bg-neutral-800/50 opacity-70',
+                  )}
+                  onClick={() =>
+                    isDuelClickable(duel.status) && router.push(`/bet?duelId=${duel.duelId}`)
+                  }
+                >
                   <TableCell className="flex items-center gap-3 font-medium text-gray-100">
                     <TokenIcon duelType={duel.duelType} title={duel.title} duel={duel} />
                     {duel.title}

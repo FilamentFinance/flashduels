@@ -218,7 +218,7 @@ const ClaimFunds: FC = () => {
       if (parseFloat(amount) > MAX_AUTO_WITHDRAW) {
         toast({
           title: 'Withdrawal Requested',
-          description: `You will be credited ${amount} ${defaultSymbol} once admin approves your withdrawal request. Check the Portfolio page for Withdrawal History.`,
+          description: `You will be credited ${amount} ${defaultSymbol} once admin approves your withdrawal request. Check the Portfolio page (Withdrawal History) for the status.`,
           variant: 'default',
         });
       } else {
