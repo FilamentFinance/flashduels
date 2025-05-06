@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { SERVER_CONFIG } from '@/config/server-config';
 import { useChainId } from 'wagmi';
-import { parseTokenAmount } from '@/utils/token';
+import { formatTokenAmount } from '@/utils/token';
 // import { sei } from 'viem/chains';
 
 interface WithdrawalRequest {
@@ -70,7 +70,7 @@ const WithdrawalHistory: React.FC<{ address: string }> = ({ address }) => {
             >
               <div className={colClass + ' font-mono text-xs truncate'}>{req.requestId}</div>
               <div className={colClass}>
-                {parseTokenAmount(req.amount, chainId, req.tokenSymbol || defaultSymbol)}
+                {formatTokenAmount(BigInt(req.amount), chainId, req.tokenSymbol || defaultSymbol)}
               </div>
               <div className={colClass}>{new Date(req.timestamp).toLocaleString()}</div>
               <div className={colClass}>
