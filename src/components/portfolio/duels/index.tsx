@@ -225,8 +225,13 @@ const Duels: FC = () => {
       // Helper to normalize timestamps to seconds
       const normalizeTimestamp = (ts: number) => (ts > 1e12 ? Math.floor(ts / 1000) : ts);
 
+      // De-duplicate by duelId
+      const uniqueDuels = allDuels.filter(
+        (duel, index, self) => index === self.findIndex((d) => d.duelId === duel.duelId),
+      );
+
       // Sort duels by createdAt timestamp in descending order (latest first)
-      const sortedDuels = allDuels.sort((a, b) => {
+      const sortedDuels = uniqueDuels.sort((a, b) => {
         const timeA = normalizeTimestamp(a.createdAt || 0);
         const timeB = normalizeTimestamp(b.createdAt || 0);
         return timeB - timeA;
