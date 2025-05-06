@@ -87,6 +87,7 @@ const StatusBadge: FC<{ status: number }> = ({ status }) => {
     2: { label: 'Pending', style: 'bg-yellow-500/20 text-yellow-500' },
     3: { label: 'Approved', style: 'bg-green-500/20 text-green-500' },
     4: { label: 'Rejected', style: 'bg-red-500/20 text-red-500' },
+    5: { label: 'Cancelled', style: 'bg-red-500/20 text-red-500' },
     [-1]: { label: 'Bootstrapping', style: 'bg-purple-500/20 text-purple-500' },
   };
 
