@@ -1,14 +1,14 @@
 import { FlashDuelsViewFacetABI } from '@/abi/FlashDuelsViewFacet';
 import axios from 'axios';
 import { useCallback, useEffect, useState } from 'react';
-import { useReadContract } from 'wagmi';
+import { useReadContract, useChainId } from 'wagmi';
 import { formatUnits, Hex } from 'viem';
 import { SERVER_CONFIG } from '@/config/server-config';
-import { sei, seiTestnet } from 'viem/chains';
 
 const useTotalBets = (duelId: string) => {
   const [totalBetYes, setTotalBetYes] = useState<number | null>(null);
   const [totalBetNo, setTotalBetNo] = useState<number | null>(null);
+  const chainId = useChainId();
 
   // Fetch total bets for "YES" option
   const {
@@ -20,7 +20,7 @@ const useTotalBets = (duelId: string) => {
     abi: FlashDuelsViewFacetABI,
     functionName: 'getTotalBetsOnOption',
     address: SERVER_CONFIG.DIAMOND as Hex,
-    chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
+    chainId: chainId,
     args: [duelId, 0, 'YES'],
   });
 
@@ -34,7 +34,7 @@ const useTotalBets = (duelId: string) => {
     abi: FlashDuelsViewFacetABI,
     functionName: 'getTotalBetsOnOption',
     address: SERVER_CONFIG.DIAMOND as Hex,
-    chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
+    chainId: chainId,
     args: [duelId, 1, 'NO'],
   });
 
@@ -97,7 +97,12 @@ const postPricingData = async (
     };
   }
   try {
-    const response = await axios.post('https://orderbookv3.filament.finance/pricing', data, {
+    // const response = await axios.post('https://orderbookv3.filament.finance/pricing', data, {
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    // });
+    const response = await axios.post('https://testnetserver.flashduels.xyz/pricing', data, {
       headers: {
         'Content-Type': 'application/json',
       },

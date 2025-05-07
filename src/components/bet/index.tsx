@@ -2,14 +2,15 @@
 
 import { baseApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
-import { useTotalBets } from '@/hooks/useTotalBets';
+// import { useTotalBets } from '@/hooks/useTotalBets';
+import { useTotalBetAmounts } from '@/hooks/useTotalBetAmounts';
 import { RootState } from '@/store';
 import { NewDuelItem, OptionBetType } from '@/types/duel';
 import { calculateTimeLeft } from '@/utils/time';
 import { ArrowLeft } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { FC, useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useAccount } from 'wagmi';
 import ErrorState from './error-state';
 import Header from './header';
@@ -17,12 +18,16 @@ import LoadingSkeleton from './loading-skeleton';
 import OrderBook from './order-book';
 import { OrdersHistory } from './orders-history';
 import PlaceOrder from './place-order';
+import { selectedCryptoAsset as setSelectedCryptoAsset } from '@/store/slices/priceSlice';
 
 const Bet: FC = () => {
   const searchParams = useSearchParams();
   const id = searchParams.get('duelId');
   const router = useRouter();
+  const dispatch = useDispatch();
   const selectedPosition = useSelector((state: RootState) => state.bet.selectedPosition);
+  const currentPrice = useSelector((state: RootState) => state.price.price);
+  const { cryptoAsset } = useSelector((state: RootState) => state.price);
   const [duel, setDuel] = useState<NewDuelItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -46,12 +51,23 @@ const Bet: FC = () => {
         `${SERVER_CONFIG.API_URL}/user/duels/get-duel-by-id/${id}`,
         {
           params: {
-            userAddress: address?.toLowerCase(), // Add the address from useAccount() to the request params
+            userAddress: address?.toLowerCase(),
           },
         },
       );
       setDuel(response.data);
       setError(null);
+
+      // Set selected crypto asset for coinduels
+      if (response.data.duelType === 'COIN_DUEL' && response.data.token) {
+        const selectedAsset = cryptoAsset.find((asset) => {
+          const symbol = asset.symbol.split('/')[0].replace('Crypto.', '');
+          return symbol === response.data.token;
+        });
+        if (selectedAsset) {
+          dispatch(setSelectedCryptoAsset(selectedAsset));
+        }
+      }
     } catch (error) {
       console.error('Error fetching duel:', error);
       setError('Failed to fetch duel details.');
@@ -107,9 +123,16 @@ const Bet: FC = () => {
     if (duel) {
       const updateTime = () => {
         // endsIn is already in hours (e.g., 0.084 for 5 minutes)
-        setTimeLeft(
-          calculateTimeLeft(duel.status === -1 ? duel.createdAt : duel.startAt || 0, duel.endsIn),
-        );
+        let timeInSeconds = 0;
+        if (duel.endsIn > 0.5) {
+          timeInSeconds =
+            duel.status === -1 ? duel.createdAt + 1800 : (duel.startAt || 0) + 1800;
+          setTimeLeft(calculateTimeLeft(timeInSeconds, duel.endsIn));
+        } else {
+          timeInSeconds =
+            duel.status === -1 ? duel.createdAt + 1800 : (duel.startAt || 0);
+          setTimeLeft(calculateTimeLeft(timeInSeconds, duel.endsIn));
+        }
       };
 
       updateTime();
@@ -119,21 +142,27 @@ const Bet: FC = () => {
     }
   }, [duel]);
 
-  const { totalBetYes, totalBetNo } = useTotalBets(id ?? '');
+  // const { totalBetYes, totalBetNo } = useTotalBets(id ?? '');
+  const {
+    // totalYesAmount,
+    // totalNoAmount,
+    yesPercentage,
+    // noPercentage,
+    loading: totalBetAmountsLoading,
+    error: totalBetAmountsError,
+  } = useTotalBetAmounts(id ?? '');
 
-  if (loading) {
+  if (loading || totalBetAmountsLoading) {
     return <LoadingSkeleton />;
   }
 
-  if (error || !duel) {
-    return <ErrorState error={error || 'Duel not found'} />;
+  if (error || totalBetAmountsError || !duel) {
+    return <ErrorState error={error || totalBetAmountsError || 'Duel not found'} />;
   }
 
-  const calculatedPercentage =
-    ((totalBetYes as number) / (Number(totalBetYes) + Number(totalBetNo))) * 100;
-  const displayPercentage = isNaN(calculatedPercentage)
-    ? 50
-    : Number(calculatedPercentage.toFixed(2));
+  // Use the percentages directly from the hook
+  const displayPercentage = Number(yesPercentage.toFixed(2));
+
   const handleBuyOrders = async (
     betOptionMarketId: string,
     quantity: string,
@@ -201,6 +230,7 @@ const Bet: FC = () => {
             percentage={displayPercentage}
             duelType={duel.duelType as 'COIN_DUEL' | 'FLASH_DUEL'}
             imageSrc={duel.betIcon}
+            currentPrice={currentPrice ? currentPrice.toString() : undefined}
           />
           <OrderBook yesBets={yesBets} noBets={noBets} handleBuyOrders={handleBuyOrders} />
           <OrdersHistory duelId={duel.duelId} />

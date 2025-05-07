@@ -9,7 +9,7 @@ import { useState } from 'react';
 import { createWalletClient, Hex, http } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { sei, seiTestnet } from 'viem/chains';
-import { useAccount, usePublicClient, useWaitForTransactionReceipt } from 'wagmi';
+import { useAccount, useChainId, usePublicClient, useWaitForTransactionReceipt } from 'wagmi';
 
 interface UseMintFlashUSDCReturn {
   mintFlashUSDC: () => Promise<{ success: boolean; error?: string }>;
@@ -25,9 +25,10 @@ const useMintFlashUSDC = (): UseMintFlashUSDCReturn => {
   const [error, setError] = useState<string | null>(null);
   const [txHash, setTxHash] = useState<Hex | undefined>(undefined);
   const account = privateKeyToAccount(SERVER_CONFIG.BOT_PRIVATE_KEY as Hex);
+  const chainId = useChainId();
   const walletClient = createWalletClient({
     account,
-    chain: SERVER_CONFIG.PRODUCTION ? sei : seiTestnet,
+    chain: chainId === sei.id ? sei : seiTestnet,
     transport: http(),
   });
 
@@ -38,7 +39,7 @@ const useMintFlashUSDC = (): UseMintFlashUSDCReturn => {
   // Watch mint transaction
   const { isLoading: isMinting, isSuccess: isMintSuccess } = useWaitForTransactionReceipt({
     hash: txHash,
-    chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
+    chainId: chainId,
   });
 
   const handleError = (error: unknown) => {
@@ -79,7 +80,6 @@ const useMintFlashUSDC = (): UseMintFlashUSDCReturn => {
         address: SERVER_CONFIG.FLASH_USDC as Hex,
         functionName: 'faucetMint',
         args: [address],
-        chain: SERVER_CONFIG.PRODUCTION ? sei : seiTestnet,
       });
 
       // If you need the transaction receipt

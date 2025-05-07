@@ -13,6 +13,7 @@ import {
   TableRow,
 } from '@/shadcn/components/ui/table';
 import { useToast } from '@/shadcn/components/ui/use-toast';
+// import { cn } from '@/shadcn/lib/utils';
 import { useCallback, useEffect, useState } from 'react';
 import { useAccount } from 'wagmi';
 
@@ -28,6 +29,9 @@ export interface OrderData {
   duelTitle: string;
   id: string;
   quantity: number;
+  createdAt?: number;
+  duelStatus?: number; // 0: Active, 1: Completed, 5: Cancelled
+  status?: string; // Add this line for string status like 'available' or 'bootstrapping'
 }
 
 // The message type now expects openOrders as an array of OrderData
@@ -84,14 +88,20 @@ export const OrdersHistory = ({ duelId }: OrdersTableProps) => {
     if (!address) {
       return null;
     }
-    // const token = localStorage.getItem(`Bearer_${address!.toLowerCase()}`);
-    // Create an instance of WebSocketManager by passing the address.
     const manager = new WebSocketManager<OpenOrdersMessage>({
-      address, // The manager will retrieve the token automatically.
+      address,
       url: `${SERVER_CONFIG.API_WS_URL}/openOrdersWebSocket`,
       onMessage: (message: OpenOrdersMessage) => {
         if (message.openOrders) {
-          setOpenOrders(message.openOrders);
+          // Show only orders from Bootstrapping (-1) and Active (0) duels
+          const activeOrders = message.openOrders
+            .filter((order) => order.duelStatus === 0 || order.duelStatus === -1)
+            .sort((a, b) => {
+              const aTime = Number(a.createdAt);
+              const bTime = Number(b.createdAt);
+              return bTime - aTime;
+            });
+          setOpenOrders(activeOrders);
         }
       },
       onOpen: () => console.info('Connected to the WebSocket server'),
@@ -146,6 +156,9 @@ export const OrdersHistory = ({ duelId }: OrdersTableProps) => {
                     <TableHead className="text-xs font-medium text-stone-500 text-center py-2">
                       Price
                     </TableHead>
+                    {/* <TableHead className="text-xs font-medium text-stone-500 text-center py-2">
+                      Status
+                    </TableHead> */}
                     <TableHead className="text-xs font-medium text-stone-500 text-center py-2">
                       Actions
                     </TableHead>
@@ -174,14 +187,25 @@ export const OrdersHistory = ({ duelId }: OrdersTableProps) => {
                       <TableCell className="py-3 text-xs font-medium text-white text-center">
                         {Number(order.price).toFixed(2)}
                       </TableCell>
+                      {/* <TableCell className="py-3 text-xs font-medium text-center">
+                        {order.duelStatus === 1 ? (
+                          <span className="text-blue-400">Settled</span>
+                        ) : order.duelStatus === 5 ? (
+                          <span className="text-red-400">Cancelled</span>
+                        ) : (
+                          <span className="text-green-400">Active</span>
+                        )}
+                      </TableCell> */}
                       <TableCell className="py-3 text-center">
-                        <Button
-                          variant="outline"
-                          className="px-5 py-1 text-xs font-bold text-red-500 border-red-500 bg-red-600/10 hover:bg-red-600/20 hover:text-red-400"
-                          onClick={() => handleCancel(order)}
-                        >
-                          Cancel
-                        </Button>
+                        {(order.duelStatus === 0 || order.duelStatus === -1) && (
+                          <Button
+                            variant="outline"
+                            className="px-5 py-1 text-xs font-bold text-red-500 border-red-500 bg-red-600/10 hover:bg-red-600/20 hover:text-red-400"
+                            onClick={() => handleCancel(order)}
+                          >
+                            Cancel
+                          </Button>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}

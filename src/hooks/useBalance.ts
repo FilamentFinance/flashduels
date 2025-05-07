@@ -1,36 +1,37 @@
 // import { FLASHUSDC } from '@/abi/FLASHUSDC';
 import { SERVER_CONFIG } from '@/config/server-config';
-import { sei, seiTestnet } from 'viem/chains';
 import { Hex } from 'viem';
-import { useReadContracts } from 'wagmi';
+import { useReadContracts, useChainId } from 'wagmi';
 import { CREDITS } from '@/abi/CREDITS';
 
 export const useBalance = (address: Hex | undefined) => {
+  const chainId = useChainId();
+
   // const { data, isLoading, isError, refetch } = useReadContracts({
   //   contracts: [
   //     {
   //       abi: FLASHUSDC,
   //       address: SERVER_CONFIG.FLASH_USDC as Hex,
-  //       chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
+  //       chainId: chainId,
   //       functionName: 'balanceOf',
   //       args: address ? [address] : undefined,
   //     },
   //     {
   //       abi: FLASHUSDC,
   //       address: SERVER_CONFIG.FLASH_USDC as Hex,
-  //       chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
+  //       chainId: chainId,
   //       functionName: 'symbol',
   //     },
   //     {
   //       abi: FLASHUSDC,
   //       address: SERVER_CONFIG.FLASH_USDC as Hex,
-  //       chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
+  //       chainId: chainId,
   //       functionName: 'decimals',
   //     },
   //     {
   //       abi: FLASHUSDC,
   //       address: SERVER_CONFIG.FLASH_USDC as Hex,
-  //       chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
+  //       chainId: chainId,
   //       functionName: 'name',
   //     },
   //   ],
@@ -41,26 +42,26 @@ export const useBalance = (address: Hex | undefined) => {
       {
         abi: CREDITS,
         address: SERVER_CONFIG.CREDIT_CONTRACT as Hex,
-        chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
+        chainId: chainId,
         functionName: 'balanceOf',
         args: address ? [address] : undefined,
       },
       {
         abi: CREDITS,
         address: SERVER_CONFIG.CREDIT_CONTRACT as Hex,
-        chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
+        chainId: chainId,
         functionName: 'symbol',
       },
       {
         abi: CREDITS,
         address: SERVER_CONFIG.CREDIT_CONTRACT as Hex,
-        chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
+        chainId: chainId,
         functionName: 'decimals',
       },
       {
         abi: CREDITS,
         address: SERVER_CONFIG.CREDIT_CONTRACT as Hex,
-        chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
+        chainId: chainId,
         functionName: 'name',
       },
     ],

@@ -20,7 +20,7 @@ interface DuelRowProps {
 }
 
 const getIconPath = (duelType?: string, title?: string): string => {
-  console.log('getIconPath inputs:', { duelType, title });
+  // console.log('getIconPath inputs:', { duelType, title });
 
   if (title) {
     // Extract token name - works for both "Will AAVE be ABOVE 148" format
@@ -103,7 +103,7 @@ export const DuelRow: React.FC<DuelRowProps> = ({
 
   return (
     <div className="flex items-center px-4 py-2 text-sm text-stone-300 border-b border-neutral-800">
-      <div className="w-[25%] flex items-center gap-2">
+      <div className="w-[35%] flex items-center gap-2">
         {iconPath && (
           <Image
             src={iconPath}

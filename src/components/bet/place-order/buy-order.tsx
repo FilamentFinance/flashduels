@@ -17,13 +17,14 @@ import { handleTransactionError, useTokenApproval } from '@/utils/token';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { formatUnits, parseUnits } from 'viem/utils';
-import { useAccount } from 'wagmi';
+import { useAccount, useChainId, useReadContracts } from 'wagmi';
 import { NewDuelItem } from '@/types/duel';
 import { mapCategoryToEnumIndex } from '@/utils/general/create-duels';
 
 import PositionSelector from './position-selector';
 import { calculateTimeLeft } from '@/utils/time';
-
+import { sei } from 'viem/chains';
+import { FlashDuelsViewFacetABI } from '@/abi/FlashDuelsViewFacet';
 interface BuyOrderProps {
   duelId: string;
   duelType: string;
@@ -35,8 +36,6 @@ interface BuyOrderProps {
   yesPrice: number | undefined;
   noPrice: number | undefined;
 }
-
-const symbol = SERVER_CONFIG.PRODUCTION ? 'CRD' : 'FDCRD';
 
 const BuyOrder: FC<BuyOrderProps> = ({
   duelId,
@@ -78,13 +77,31 @@ const BuyOrder: FC<BuyOrderProps> = ({
   const { balance } = useBalance(address);
   const { joinDuel } = useJoinDuel();
   const { toast } = useToast();
+  const chainId = useChainId();
+  const symbol = chainId === sei.id ? 'USDC' : 'CRD';
   // const { prices } = useSelector((state: RootState) => state.price, shallowEqual);
   // const { totalBetYes, totalBetNo } = useTotalBets(duelId);
 
-  const handlePositionSelect = useCallback((position: OptionsType) => {
-    setLocalPosition(position);
-    setError('');
-  }, []);
+  // Add contract read for total protocol liquidity
+  const { data: totalProtocolLiquidity } = useReadContracts({
+    contracts: [
+      {
+        abi: FlashDuelsViewFacetABI,
+        address: SERVER_CONFIG.DIAMOND as `0x${string}`,
+        functionName: 'getTotalProtocolLiquidity',
+      },
+    ],
+  });
+
+  // Add function to format currency values
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(value);
+  };
 
   const validateAndSetAmount = useCallback(
     (value: string) => {
@@ -92,6 +109,12 @@ const BuyOrder: FC<BuyOrderProps> = ({
 
       if (value === '') {
         setAmount('');
+        return;
+      }
+
+      // Handle trailing decimal point
+      if (value.endsWith('.')) {
+        setAmount(value);
         return;
       }
 
@@ -113,11 +136,69 @@ const BuyOrder: FC<BuyOrderProps> = ({
         return;
       }
 
+      // Check liquidity cap
+      const currentLiquidity = duel?.totalBetAmount ? Number(duel.totalBetAmount) : 0;
+      const newLiquidity = currentLiquidity + Number(value);
+      if (newLiquidity > 20000) {
+        setError(
+          `Max liquidity cap for duel is $20,000. You can add up to ${formatCurrency(20000 - currentLiquidity)}`,
+        );
+        return;
+      }
+      // Check protocol-wide liquidity cap
+      const currentProtocolLiquidity = totalProtocolLiquidity
+        ? Number(formatUnits(totalProtocolLiquidity[0].result as bigint, 18))
+        : 0;
+      const newProtocolLiquidity = currentProtocolLiquidity + Number(value);
+      if (newProtocolLiquidity > 200000) {
+        setError(
+          `Max protocol liquidity cap is ${formatCurrency(200000)}. Current liquidity is ${formatCurrency(currentProtocolLiquidity)}. You can add up to ${formatCurrency(200000 - currentProtocolLiquidity)}`,
+        );
+        return;
+      }
+
+      // Only show minimum amount error if the value is complete (no decimal point at end)
+      if (Number(value) > 0 && Number(value) < 5 && !value.endsWith('.')) {
+        setError(`Minimum trade size is 5 ${symbol}`);
+      }
+
       // Store the full value in state without trimming
       setAmount(value);
     },
-    [balance],
+    [balance, symbol, duel?.totalBetAmount, totalProtocolLiquidity],
   );
+
+  const handlePositionSelect = useCallback(
+    (position: OptionsType) => {
+      setLocalPosition(position);
+      // Validate current amount when switching positions
+      if (amount) {
+        if (amount.endsWith('.')) {
+          setError('Please enter a valid amount');
+        } else {
+          const numAmount = Number(amount);
+          if (isNaN(numAmount)) {
+            setError('Please enter a valid number');
+          } else if (numAmount < 0) {
+            setError('Amount cannot be negative');
+          } else if (numAmount > 0 && numAmount < 5) {
+            setError(`Minimum trade size is 5 ${symbol}`);
+          } else {
+            setError('');
+          }
+        }
+      } else {
+        setError('');
+      }
+    },
+    [amount, symbol],
+  );
+
+  const handleBlur = useCallback(() => {
+    if (amount.endsWith('.')) {
+      setError('Please enter a valid amount');
+    }
+  }, [amount]);
 
   const calculateShares = useCallback(() => {
     if (!localPosition || !amount) return 0;
@@ -128,12 +209,12 @@ const BuyOrder: FC<BuyOrderProps> = ({
   const handleMaxClick = useCallback(() => {
     // const maxAmount = formatUnits((balance ?? 0) as bigint, 6);
     const maxAmount = formatUnits((balance ?? 0) as bigint, 18); // CRD is 18 decimal
-    
+
     // Trim to 4 decimal places without rounding
     const trimmedAmount = String(maxAmount).includes('.')
       ? maxAmount.toString().split('.')[0] + '.' + maxAmount.toString().split('.')[1].slice(0, 4)
       : maxAmount;
-      
+
     validateAndSetAmount(trimmedAmount);
   }, [balance, validateAndSetAmount]);
 
@@ -143,10 +224,22 @@ const BuyOrder: FC<BuyOrderProps> = ({
       return;
     }
 
+    const numAmount = Number(amount);
+    if (isNaN(numAmount) || numAmount < 5) {
+      setError(`Minimum trade size is 5 ${symbol}`);
+      return;
+    }
+
     setIsJoiningDuel(true);
     try {
-      // const parsedAmount = parseUnits(amount, 6);
-      const parsedAmount = parseUnits(amount, 18); // crd, todo @need to convert back to 6 for usdc
+      // Format the amount to avoid scientific notation and ensure it's a valid BigInt string
+      const formattedAmount = numAmount.toLocaleString('fullwide', {
+        useGrouping: false,
+        maximumFractionDigits: 18,
+      });
+
+      const parsedAmount = parseUnits(formattedAmount, 18); // crd, todo @need to convert back to 6 for usdc
+
       const { success } = await joinDuel(parsedAmount);
 
       if (success) {
@@ -171,6 +264,11 @@ const BuyOrder: FC<BuyOrderProps> = ({
           title: 'Success!',
           description: `Successfully placed ${localPosition} bet for ${amount} ${symbol}`,
         });
+
+        // Auto refresh page after successful transaction and API call
+        setTimeout(() => {
+          window.location.reload();
+        }, 150); // 0.15 milliseconds (150ms)
       }
     } catch (error) {
       console.error('Error placing buy order:', error);
@@ -183,12 +281,24 @@ const BuyOrder: FC<BuyOrderProps> = ({
     } finally {
       setIsJoiningDuel(false);
     }
-  }, [localPosition, amount, duelId, duelType, asset, winCondition, address, joinDuel, toast]);
+  }, [
+    localPosition,
+    amount,
+    duelId,
+    duelType,
+    asset,
+    winCondition,
+    address,
+    joinDuel,
+    toast,
+    symbol,
+  ]);
 
-  const isFormValid = useMemo(
-    () => localPosition && amount && Number(amount) > 0 && !error,
-    [localPosition, amount, error],
-  );
+  const isFormValid = useMemo(() => {
+    if (!localPosition || !amount) return false;
+    const numAmount = Number(amount);
+    return !isNaN(numAmount) && numAmount >= 5 && !error;
+  }, [localPosition, amount, error]);
 
   // Import the token approval hook
   // const { checkAllowance, requestAllowance } = useTokenApproval(address);
@@ -234,7 +344,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
         betAmount: amount,
         index: optionIndex,
         userAddress: address?.toLowerCase(),
-        duelCategory: mapCategoryToEnumIndex(duel?.category || '' ),
+        duelCategory: mapCategoryToEnumIndex(duel?.category || ''),
       });
 
       // Show success message
@@ -367,12 +477,19 @@ const BuyOrder: FC<BuyOrderProps> = ({
               Amount
             </Label>
             <div className="text-zinc-400 text-sm">
-              Available: {
-                Number(formatUnits((balance ?? 0) as bigint, 18)).toString().includes('.')
-                  ? Number(formatUnits((balance ?? 0) as bigint, 18)).toString().split('.')[0] + '.' + 
-                    (Number(formatUnits((balance ?? 0) as bigint, 18)).toString().split('.')[1]?.slice(0, 4) || '0000')
-                  : Number(formatUnits((balance ?? 0) as bigint, 18)).toString()
-              }{' '}
+              Available:{' '}
+              {Number(formatUnits((balance ?? 0) as bigint, 18))
+                .toString()
+                .includes('.')
+                ? Number(formatUnits((balance ?? 0) as bigint, 18))
+                    .toString()
+                    .split('.')[0] +
+                  '.' +
+                  (Number(formatUnits((balance ?? 0) as bigint, 18))
+                    .toString()
+                    .split('.')[1]
+                    ?.slice(0, 4) || '0000')
+                : Number(formatUnits((balance ?? 0) as bigint, 18)).toString()}{' '}
               <button
                 onClick={handleMaxClick}
                 disabled={isLoading}
@@ -389,6 +506,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
               type="text"
               value={amount}
               onChange={(e) => validateAndSetAmount(e.target.value)}
+              onBlur={handleBlur}
               disabled={isLoading}
               className={cn(
                 // 'w-full bg-zinc-800 rounded-xl py-6 pl-8 pr-20 text-xl text-white border-none focus:border-none focus:ring-0 focus-visible:ring-0',

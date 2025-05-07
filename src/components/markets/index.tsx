@@ -56,17 +56,14 @@ const Markets: FC = () => {
               const endTime = item.startAt! + item.endsIn;
 
               if (activeStatus === DUEL_STATUS.LIVE) {
-                // if (item.duelType === 'FLASH_DUEL') {
-                  // For FLASH_DUELS in LIVE section:
-                  // Show if status is 0 (live) and either:
-                  // 1. End time hasn't been reached, or
-                  // 2. End time has been reached but admin hasn't resolved yet
-                  return item.status === 0;
-                // } else {
-                //   // For CRYPTO_DUELS in LIVE section:
-                //   // Only show if status is 0 (live) and end time hasn't been reached
-                  // return item.status === 0;
-                // }
+                // For FLASH_DUELS in LIVE section:
+                // Show if status is 0 (live) and end time hasn't been reached
+                if (item.duelType === 'FLASH_DUEL') {
+                  const endTime = (item.startAt || 0) + item.endsIn * 60 * 60;
+                  return item.status === 0 && endTime > currentTime;
+                }
+                // For other duels in LIVE section:
+                return item.status === 0;
               } else if (activeStatus === DUEL_STATUS.BOOTSTRAPPING) {
                 return item.status === -1; // Only bootstrapping duels
               } else if (activeStatus === DUEL_STATUS.COMPLETED) {
@@ -99,16 +96,29 @@ const Markets: FC = () => {
               winCondition: item.winCondition,
               winner: item.winner,
             }));
-          
+
           // Sort completed duels from latest to oldest based on completion time
           if (activeStatus === DUEL_STATUS.COMPLETED) {
-            filteredDuels.sort((a: { createdAt: number; }, b: { createdAt: number; }) => b.createdAt - a.createdAt);
+            filteredDuels.sort(
+              (a: { createdAt: number }, b: { createdAt: number }) => b.createdAt - a.createdAt,
+            );
           }
           // Sort bootstrapping and live duels from latest to oldest based on creation time
-          else if (activeStatus === DUEL_STATUS.BOOTSTRAPPING || activeStatus === DUEL_STATUS.LIVE) {
-            filteredDuels.sort((a: { createdAt: number; }, b: { createdAt: number; }) => b.createdAt - a.createdAt);
+          else if (
+            activeStatus === DUEL_STATUS.BOOTSTRAPPING ||
+            activeStatus === DUEL_STATUS.LIVE
+          ) {
+            filteredDuels.sort(
+              (a: { createdAt: number }, b: { createdAt: number }) => b.createdAt - a.createdAt,
+            );
           }
-          
+          // Sort yet to be resolved duels from latest to oldest based on creation time
+          else if (activeStatus === DUEL_STATUS.YET_TO_BE_RESOLVED) {
+            filteredDuels.sort(
+              (a: { createdAt: number }, b: { createdAt: number }) => b.createdAt - a.createdAt,
+            );
+          }
+
           setDuels(filteredDuels);
         }
       };
@@ -143,7 +153,17 @@ const Markets: FC = () => {
   const handleDuelRowClick = (duelId: string, status: number) => {
     // Do nothing if the duel is completed (status === 1)
     if (status === 1) return;
-    
+
+    // For To Be Resolved tab, check if timer has ended
+    if (activeStatus === DUEL_STATUS.YET_TO_BE_RESOLVED) {
+      const duel = duels.find((d) => d.duelId === duelId);
+      if (duel) {
+        const endTime = (duel.startAt || 0) + duel.timeLeft * 60 * 60;
+        const currentTime = Math.floor(Date.now() / 1000);
+        if (endTime < currentTime) return; // Don't allow click if timer has ended
+      }
+    }
+
     dispatch(setSelectedPosition(null)); // Reset position when clicking the row
     router.push(`/bet?duelId=${duelId}`);
   };
@@ -151,7 +171,17 @@ const Markets: FC = () => {
   const handlePositionSelect = (duelId: string, position: Position, status: number) => {
     // Do nothing if the duel is completed (status === 1)
     if (status === 1) return;
-    
+
+    // For To Be Resolved tab, check if timer has ended
+    if (activeStatus === DUEL_STATUS.YET_TO_BE_RESOLVED) {
+      const duel = duels.find((d) => d.duelId === duelId);
+      if (duel) {
+        const endTime = (duel.startAt || 0) + duel.timeLeft * 60 * 60;
+        const currentTime = Math.floor(Date.now() / 1000);
+        if (endTime < currentTime) return; // Don't allow click if timer has ended
+      }
+    }
+
     dispatch(setSelectedPosition(position));
     router.push(`/bet?duelId=${duelId}`);
   };
@@ -169,9 +199,7 @@ const Markets: FC = () => {
           onPositionSelect={handlePositionSelect}
         />
       </div>
-      {isVerifyModalOpen && (
-        <CreatorVerify onClose={() => setVerifyModalOpen(false)} />
-      )}
+      {isVerifyModalOpen && <CreatorVerify onClose={() => setVerifyModalOpen(false)} />}
     </div>
   );
 };

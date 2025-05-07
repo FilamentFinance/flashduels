@@ -103,7 +103,7 @@ export interface OrderData {
   sellId: number;
 }
 
-type TableDuel = {
+export type TableDuel = {
   pnl: number;
   betId: string | null;
   duelId: string;

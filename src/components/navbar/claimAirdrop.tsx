@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { FC, useState, useEffect } from 'react';
 import { Button } from '@/shadcn/components/ui/button';
-import { useAccount, usePublicClient, useWriteContract } from 'wagmi';
+import { useAccount, usePublicClient, useWriteContract, useChainId } from 'wagmi';
 import { SERVER_CONFIG } from '@/config/server-config';
 // import { SEI_TESTNET_CHAIN_ID, TRANSACTION_STATUS } from '@/constants/app';
 import { TRANSACTION_STATUS } from '@/constants/app';
@@ -11,13 +11,11 @@ import { handleTransactionError } from '@/utils/token';
 // import { createWalletClient, formatUnits, Hex, http, parseUnits } from 'viem';
 import { formatUnits, Hex } from 'viem';
 // import { privateKeyToAccount } from 'viem/accounts';
-// import { sei, seiTestnet } from 'viem/chains';
+import { sei } from 'viem/chains';
 import { CREDITS } from '@/abi/CREDITS';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/shadcn/components/ui/dialog';
 import { X } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
-
-const symbol = SERVER_CONFIG.PRODUCTION ? 'CRD' : 'FDCRD';
 
 const ClaimAirdropButton: FC = () => {
   const [status, setStatus] = useState<TransactionStatusType>(TRANSACTION_STATUS.IDLE);
@@ -28,10 +26,12 @@ const ClaimAirdropButton: FC = () => {
   const [claimedAmount, setClaimedAmount] = useState<string>('');
   const { toast } = useToast();
   const { address } = useAccount();
+  const chainId = useChainId();
   const publicClient = usePublicClient();
   const { writeContractAsync } = useWriteContract();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAddingToMetamask, setIsAddingToMetamask] = useState(false);
+  const symbol = chainId === sei.id ? 'CRD' : 'CRD';
 
   // const { isLoading: isClaiming, isSuccess: isClaimSuccess } = useWaitForTransactionReceipt({
   //   hash: txHash,
@@ -174,16 +174,16 @@ const ClaimAirdropButton: FC = () => {
   const handleAddToMetamask = async () => {
     if (!window.ethereum) {
       toast({
-        title: "MetaMask not found",
-        description: "Please install MetaMask extension first",
-        variant: "destructive"
+        title: 'MetaMask not found',
+        description: 'Please install MetaMask extension first',
+        variant: 'destructive',
       });
       return;
     }
-    
+
     try {
       setIsAddingToMetamask(true);
-      
+
       const wasAdded = await window.ethereum.request({
         method: 'wallet_watchAsset',
         params: {
@@ -195,24 +195,24 @@ const ClaimAirdropButton: FC = () => {
           },
         },
       });
-      
+
       if (wasAdded) {
         toast({
-          title: "Success",
+          title: 'Success',
           description: `${symbol} has been added to your MetaMask wallet`,
         });
       } else {
         toast({
-          title: "Cancelled",
-          description: "You cancelled adding the token to MetaMask",
+          title: 'Cancelled',
+          description: 'You cancelled adding the token to MetaMask',
         });
       }
     } catch (error) {
-      console.error("Error adding to MetaMask:", error);
+      console.error('Error adding to MetaMask:', error);
       toast({
-        title: "Error",
-        description: "Failed to add token to MetaMask",
-        variant: "destructive"
+        title: 'Error',
+        description: 'Failed to add token to MetaMask',
+        variant: 'destructive',
       });
     } finally {
       setIsAddingToMetamask(false);
@@ -228,7 +228,7 @@ const ClaimAirdropButton: FC = () => {
         disabled={false}
       >
         {status === TRANSACTION_STATUS.SUCCESS
-          ? `${parseFloat(formatUnits(BigInt(claimedAmount.toString()), 18)).toFixed(4)} ${symbol} Claimed 🎉`
+          ? `${parseFloat(formatUnits(BigInt(claimedAmount.toString()), 18))} ${symbol} Claimed 🎉`
           : `Claim ${symbol}`}
       </Button>
 
@@ -250,7 +250,7 @@ const ClaimAirdropButton: FC = () => {
                   {parseFloat(formatUnits(BigInt(creditsBalance), 18)).toFixed(4)} {symbol}
                 </span>
               </div>
-              
+
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-500">Available to Claim:</span>
                 <span className="font-medium">
@@ -286,9 +286,9 @@ const ClaimAirdropButton: FC = () => {
                   <li>Review the token details</li>
                   <li>Click &quot;Add Token&quot; in your MetaMask wallet</li>
                 </ol>
-                <Button 
-                  onClick={handleAddToMetamask} 
-                  variant="outline" 
+                <Button
+                  onClick={handleAddToMetamask}
+                  variant="outline"
                   className="w-full"
                   disabled={isAddingToMetamask}
                 >
@@ -306,7 +306,8 @@ const ClaimAirdropButton: FC = () => {
 
             {status === TRANSACTION_STATUS.SUCCESS && (
               <div className="text-center text-sm text-green-500">
-                Congratulations 🎉 You have claimed {formatUnits(BigInt(claimedAmount.toString()), 18)} {symbol}!
+                Congratulations 🎉 You have claimed{' '}
+                {formatUnits(BigInt(claimedAmount.toString()), 18)} {symbol}!
               </div>
             )}
           </div>

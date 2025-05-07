@@ -31,10 +31,12 @@ import { mapDurationToNumber } from '@/utils/general/create-duels';
 import { getTransactionStatusMessage } from '@/utils/transaction';
 import { FC, useState, useEffect } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
-import { useAccount, usePublicClient } from 'wagmi';
+import { useAccount, useChainId, usePublicClient } from 'wagmi';
 import DuelInfo from '../duel-info';
 import { CREDITS } from '@/abi/CREDITS';
 import { formatUnits, Hex } from 'viem';
+import { sei } from 'viem/chains';
+import { Loader2 } from 'lucide-react';
 
 interface CoinDuelFormProps {
   onBack: () => void;
@@ -74,13 +76,16 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
   const [isButtonClicked, setIsButtonClicked] = useState(false);
   const [creditsBalance, setCreditsBalance] = useState<string>('0');
   const publicClient = usePublicClient();
-  const symbol = SERVER_CONFIG.PRODUCTION ? 'CRD' : 'FDCRD';
-  
-  // Add useEffect to check user's FDCRD balance
+  const chainId = useChainId();
+  const symbol = chainId === sei.id ? 'USDC' : 'CRD';
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formError, setFormError] = useState<{ token?: string; triggerPrice?: string }>({});
+
+  // Add useEffect to check user's CRD balance
   useEffect(() => {
     const checkCreditsBalance = async () => {
       if (!address || !publicClient) return;
-      
+
       try {
         const balance = await publicClient.readContract({
           abi: CREDITS,
@@ -88,22 +93,37 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
           functionName: 'balanceOf',
           args: [address.toLowerCase()],
         });
-        
+
         setCreditsBalance(balance?.toString() || '0');
       } catch (error) {
         console.error('Error fetching credits balance:', error);
       }
     };
-    
+
     checkCreditsBalance();
   }, [address, publicClient]);
 
   const handleCreateDuel = async () => {
+    // Validation for required fields
+    if (!selectedToken) {
+      setFormError({ token: 'Please select a token to create a duel.' });
+      return;
+    }
+    if (
+      !formData?.triggerPrice ||
+      isNaN(Number(formData.triggerPrice)) ||
+      Number(formData.triggerPrice) <= 0
+    ) {
+      setFormError({ triggerPrice: 'Please enter a valid trigger price.' });
+      return;
+    }
+    setFormError({}); // Clear errors if all good
     if (!formData || isTransactionInProgress || isButtonClicked) return;
     setIsButtonClicked(true);
+    setIsSubmitting(true);
 
     try {
-      // Check if user has enough FDCRD tokens (at least 5)
+      // Check if user has enough CRD tokens (at least 5)
       const balanceInEther = parseFloat(formatUnits(BigInt(creditsBalance), 18));
       if (balanceInEther < 5) {
         toast({
@@ -112,9 +132,10 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
           variant: 'destructive',
         });
         setIsButtonClicked(false);
+        setIsSubmitting(false);
         return;
       }
-      
+
       // Continue with existing code
       const durationNumber = mapDurationToNumber(selectedDuration, 'coin');
       const triggerPrice = Number(formData.triggerPrice) * 10 ** 8;
@@ -131,7 +152,7 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
         winCondition,
         durationNumber,
       };
-      console.log("creating coin duel", duelData);
+      console.log('creating coin duel', duelData);
       const result = await createCoinDuel(duelData);
 
       if (result.success) {
@@ -178,11 +199,14 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
       onComplete();
     } finally {
       setIsButtonClicked(false);
+      setIsSubmitting(false);
     }
   };
 
   const handleTokenSelect = (value: string) => {
     setSelectedToken(value);
+    // Clear token error if a token is selected
+    setFormError((prev) => ({ ...prev, token: value ? undefined : prev.token }));
     const selectedAsset = cryptoAsset.find((asset) => {
       const symbol = asset.symbol.split('/')[0].replace('Crypto.', '');
       return symbol === value;
@@ -276,6 +300,7 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
               </div>
             </SelectContent>
           </Select>
+          {formError.token && <p className="text-red-500 text-xs mt-1">{formError.token}</p>}
         </div>
 
         <div className="space-y-2 flex justify-between items-center">
@@ -314,10 +339,17 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
                   winCondition: prevData?.winCondition || WIN_CONDITIONS.ABOVE,
                   duration: prevData?.duration || COIN_DUEL_DURATION.THREE_HOURS,
                 }));
+                // Clear triggerPrice error if valid
+                if (value && !isNaN(Number(value)) && Number(value) > 0) {
+                  setFormError((prev) => ({ ...prev, triggerPrice: undefined }));
+                }
               }
             }}
           />
         </div>
+        {formError.triggerPrice && (
+          <p className="text-red-500 text-xs mt-1">{formError.triggerPrice}</p>
+        )}
 
         <div className="flex items-center justify-between gap-4">
           <Label htmlFor="winCondition" className="text-zinc-400">
@@ -423,11 +455,22 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
           }}
           disabled={isTransactionInProgress || isButtonClicked}
           className={cn(
-            'flex-1 bg-gradient-pink text-black',
+            'flex-1 bg-gradient-pink text-black relative overflow-hidden group',
             isTransactionInProgress || isButtonClicked ? 'opacity-50 cursor-not-allowed' : '',
           )}
         >
-          {isTransactionInProgress ? getTransactionStatusMessage(status, error) : 'Create Duel'}
+          <span
+            className={cn('relative z-10 flex items-center gap-2', isSubmitting && 'opacity-0')}
+          >
+            {isTransactionInProgress ? getTransactionStatusMessage(status, error) : 'Create Duel'}
+          </span>
+          {isSubmitting && (
+            <div className="absolute inset-0 flex items-center justify-center gap-2">
+              <Loader2 className="h-5 w-5 animate-spin" />
+              <span>Creating Coin Duel...</span>
+            </div>
+          )}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#F19ED2] to-[#F19ED2]/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         </Button>
       </div>
     </div>

@@ -26,16 +26,17 @@ import { Textarea } from '@/shadcn/components/ui/textarea';
 import { DuelDuration } from '@/types/duel';
 import { mapCategoryToEnumIndex, mapDurationToNumber } from '@/utils/general/create-duels';
 import { getTransactionStatusMessage } from '@/utils/transaction';
-import { Trash2, Upload } from 'lucide-react';
+import { Trash2, Upload, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { FC, useState, useEffect } from 'react';
-import { useAccount } from 'wagmi';
+import { useAccount, useChainId } from 'wagmi';
 import { cn } from '@/shadcn/lib/utils';
 import { useToast } from '@/shadcn/components/ui/use-toast';
 import { usePublicClient } from 'wagmi';
 import { formatUnits } from 'ethers';
 import { Hex } from 'viem';
 import { CREDITS } from '@/abi/CREDITS';
+import { sei } from 'viem/chains';
 
 type FlashDuelFormProps = {
   onBack: () => void;
@@ -58,13 +59,15 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const { address } = useAccount();
+  const chainId = useChainId();
   const { status, error, isApprovalMining, isDuelMining, createFlashDuel, isComplete } =
     useCreateFlashDuel();
   const [isButtonClicked, setIsButtonClicked] = useState(false);
   const [creditsBalance, setCreditsBalance] = useState<string>('0');
   const { toast } = useToast();
   const publicClient = usePublicClient();
-  const symbol = SERVER_CONFIG.PRODUCTION ? 'CRD' : 'FDCRD';
+  const symbol = chainId === sei.id ? 'USDC' : 'CRD';
+  const [formError, setFormError] = useState<{ category?: string; duelText?: string }>({});
 
   useEffect(() => {
     console.log('Completion Status Check:', {
@@ -96,6 +99,15 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
             address: address?.toLowerCase(),
           });
           console.log('API call successful');
+
+          // Show toast notification about admin approval
+          toast({
+            title: 'Flash Duel Created Successfully',
+            description:
+              'Your Flash Duel is now pending admin approval. Please check your portfolio page for status updates.',
+            duration: 6000,
+          });
+
           onComplete();
         } catch (error) {
           console.error('API Error:', error);
@@ -110,7 +122,7 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
   useEffect(() => {
     const checkCreditsBalance = async () => {
       if (!address || !publicClient) return;
-      
+
       try {
         const balance = await publicClient.readContract({
           abi: CREDITS,
@@ -118,13 +130,13 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
           functionName: 'balanceOf',
           args: [address.toLowerCase()],
         });
-        
+
         setCreditsBalance(balance?.toString() || '0');
       } catch (error) {
         console.error('Error fetching credits balance:', error);
       }
     };
-    
+
     checkCreditsBalance();
   }, [address, publicClient]);
 
@@ -153,12 +165,23 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
   };
 
   const handleCreateFlashDuel = async () => {
+    // Validation for required fields
+    if (!selectedCategory || selectedCategory === CATEGORIES['ALL_DUELS'].title) {
+      setFormError({ category: 'Please select a category to create a duel.' });
+      return;
+    }
+    const duelText = (document.getElementById('duelText') as HTMLTextAreaElement)?.value || '';
+    if (!duelText.trim()) {
+      setFormError({ duelText: 'Please enter a duel description.' });
+      return;
+    }
+    setFormError({}); // Clear errors if all good
     if (isTransactionInProgress || isButtonClicked) return;
     setIsButtonClicked(true);
 
     try {
       setIsSubmitting(true);
-      
+
       const balanceInEther = parseFloat(formatUnits(BigInt(creditsBalance), 18));
       if (balanceInEther < 5) {
         toast({
@@ -170,10 +193,17 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
         setIsSubmitting(false);
         return;
       }
-      
+
+      // Inform user about the approval process before proceeding
+      toast({
+        title: 'Creating Flash Duel',
+        description:
+          'After transaction completion, your duel will need admin approval before going live.',
+        duration: 5000,
+      });
+
       const categoryEnumIndex = mapCategoryToEnumIndex(selectedCategory);
       const durationNumber = mapDurationToNumber(selectedDuration);
-      const duelText = (document.getElementById('duelText') as HTMLTextAreaElement)?.value || '';
 
       if (selectedImage) {
         const fileName = `${Date.now()}-${selectedImage.name}`;
@@ -230,7 +260,16 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
             Category*
           </Label>
           <div className="w-52">
-            <Select name="category" required onValueChange={(value) => setSelectedCategory(value)}>
+            <Select
+              name="category"
+              required
+              onValueChange={(value) => {
+                setSelectedCategory(value);
+                if (value && value !== CATEGORIES['ALL_DUELS'].title) {
+                  setFormError((prev) => ({ ...prev, category: undefined }));
+                }
+              }}
+            >
               <SelectTrigger className="bg-zinc-900 border-zinc-700">
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
@@ -246,6 +285,9 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
                 ))}
               </SelectContent>
             </Select>
+            {formError.category && (
+              <p className="text-red-500 text-xs mt-1">{formError.category}</p>
+            )}
           </div>
         </div>
 
@@ -259,7 +301,14 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
             placeholder="Enter your Text Here"
             className="bg-zinc-900 border-zinc-700 min-h-[50px]"
             required
+            onChange={(e) => {
+              const value = e.target.value;
+              if (value && value.trim().length > 0) {
+                setFormError((prev) => ({ ...prev, duelText: undefined }));
+              }
+            }}
           />
+          {formError.duelText && <p className="text-red-500 text-xs mt-1">{formError.duelText}</p>}
         </div>
 
         <div className="space-y-2">
@@ -372,11 +421,22 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
             isButtonClicked
           }
           className={cn(
-            'flex-1 bg-gradient-pink text-black',
+            'flex-1 bg-gradient-pink text-black relative overflow-hidden group',
             isTransactionInProgress || isButtonClicked ? 'opacity-50 cursor-not-allowed' : '',
           )}
         >
-          {isTransactionInProgress ? getTransactionStatusMessage(status, error) : 'Create Duel'}
+          <span
+            className={cn('relative z-10 flex items-center gap-2', isSubmitting && 'opacity-0')}
+          >
+            {isTransactionInProgress ? getTransactionStatusMessage(status, error) : 'Create Duel'}
+          </span>
+          {isSubmitting && (
+            <div className="absolute inset-0 flex items-center justify-center gap-2">
+              <Loader2 className="h-5 w-5 animate-spin" />
+              <span>Creating Flash Duel...</span>
+            </div>
+          )}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#F19ED2] to-[#F19ED2]/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         </Button>
       </div>
     </div>

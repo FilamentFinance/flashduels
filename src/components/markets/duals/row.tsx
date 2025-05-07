@@ -1,4 +1,5 @@
-import { useTotalBets } from '@/hooks/useTotalBets';
+// import { useTotalBets } from '@/hooks/useTotalBets';
+import { useTotalBetAmounts } from '@/hooks/useTotalBetAmounts';
 import { Card } from '@/shadcn/components/ui/card';
 import { Duel, Position } from '@/types/duel';
 import Image from 'next/image';
@@ -14,7 +15,8 @@ interface Props {
 
 const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
   const { title, volume, status, winner, duelType, duelId } = data;
-  const { totalBetYes, totalBetNo } = useTotalBets(data.duelId);
+  // const { totalBetYes, totalBetNo } = useTotalBets(data.duelId);
+  const { totalYesAmount, totalNoAmount } = useTotalBetAmounts(data.duelId);
   const [timeLeft, setTimeLeft] = useState<string>('');
 
   const getIconPath = () => {
@@ -70,7 +72,7 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
   }, [data.createdAt, data.timeLeft, status]);
 
   const calculatedPercentage =
-    ((totalBetYes as number) / (Number(totalBetYes) + Number(totalBetNo))) * 100;
+    ((totalYesAmount as number) / (Number(totalYesAmount) + Number(totalNoAmount))) * 100;
   const displayPercentage = isNaN(calculatedPercentage)
     ? data.percentage
     : Number(calculatedPercentage.toFixed(2));
@@ -118,12 +120,14 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
               <Image src="/logo/markets/dollar.svg" alt="Volume" width={16} height={16} />
               <span>{volume}</span>
             </div>
-            <div className="flex items-center gap-1.5 text-zinc-400 text-sm">
-              <Image src="/logo/markets/timer.svg" alt="Time" width={14} height={14} />
-              <div className="flex items-center gap-1">
-                <span>{timeLeft}</span>
+            {timeLeft !== '00:00:00' && timeLeft !== '00:00' && (
+              <div className="flex items-center gap-1.5 text-zinc-400 text-sm">
+                <Image src="/logo/markets/timer.svg" alt="Time" width={14} height={14} />
+                <div className="flex items-center gap-1">
+                  <span>{timeLeft}</span>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
 
@@ -132,22 +136,28 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
 
       {(status == -1 || status == 0) && (
         <div className="flex gap-2">
-          <YesNoButton
-            position="YES"
-            onClick={(e: React.MouseEvent) => {
-              e.stopPropagation();
-              onPositionSelect(duelId, 'YES', status);
-            }}
-            // disabled={status === -1}
-          />
-          <YesNoButton
-            position="NO"
-            onClick={(e: React.MouseEvent) => {
-              e.stopPropagation();
-              onPositionSelect(duelId, 'NO', status);
-            }}
-            // disabled={status === -1}
-          />
+          {timeLeft === '00:00:00' || timeLeft === '00:00' ? (
+            <div className="px-4 py-2 text-zinc-400 bg-zinc-800/50 rounded-xl">
+              Pending Resolution
+            </div>
+          ) : (
+            <>
+              <YesNoButton
+                position="YES"
+                onClick={(e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  onPositionSelect(duelId, 'YES', status);
+                }}
+              />
+              <YesNoButton
+                position="NO"
+                onClick={(e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  onPositionSelect(duelId, 'NO', status);
+                }}
+              />
+            </>
+          )}
         </div>
       )}
       {(winner === 0 || winner === 1) && (

@@ -1,13 +1,11 @@
 // import { SEI_TESTNET_CHAIN_ID, TRANSACTION_STATUS } from '@/constants/app';
-import { SERVER_CONFIG } from '@/config/server-config';
 import { TRANSACTION_STATUS } from '@/constants/app';
 import { useToast } from '@/shadcn/components/ui/use-toast';
 import { TransactionStatusType } from '@/types/app';
 import { handleTransactionError, useTokenApproval } from '@/utils/token';
 import { useState } from 'react';
 import { Hex } from 'viem';
-import { sei, seiTestnet } from 'viem/chains';
-import { usePublicClient, useWaitForTransactionReceipt } from 'wagmi';
+import { usePublicClient, useWaitForTransactionReceipt, useChainId } from 'wagmi';
 
 const useJoinDuel = () => {
   const [status, setStatus] = useState<TransactionStatusType>(TRANSACTION_STATUS.IDLE);
@@ -18,13 +16,14 @@ const useJoinDuel = () => {
   const { toast } = useToast();
   // const { address } = useAccount();
   const publicClient = usePublicClient();
+  const chainId = useChainId();
   // const { checkAllowance, requestAllowance } = useTokenApproval(address, currentAmount);
   const { requestAllowance } = useTokenApproval();
   // Watch approval transaction
   const { isLoading: isApprovalMining, isSuccess: isApprovalSuccess } =
     useWaitForTransactionReceipt({
       hash: approvalHash,
-      chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
+      chainId: chainId,
     });
 
   const handleError = (error: unknown) => {
@@ -58,12 +57,8 @@ const useJoinDuel = () => {
       setStatus(TRANSACTION_STATUS.CHECKING_ALLOWANCE);
       setError(null);
       setApprovalHash(undefined);
-      // setCurrentAmount(amount);
 
-
-      // const hasAllowance = await checkAllowance();
       const hasAllowance = false;
-
 
       if (!hasAllowance) {
         setStatus(TRANSACTION_STATUS.APPROVAL_NEEDED);

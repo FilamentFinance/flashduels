@@ -27,6 +27,16 @@ export const FlashDuelsMarketplaceFacet = [
         "type": "error"
     },
     {
+        "inputs": [],
+        "name": "FlashDuelsMarketplaceFacet__AmountMustBeGreaterThanZero",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "FlashDuelsMarketplaceFacet__BuyerCannotBeTheBot",
+        "type": "error"
+    },
+    {
         "inputs": [
             {
                 "internalType": "string",
@@ -34,12 +44,87 @@ export const FlashDuelsMarketplaceFacet = [
                 "type": "string"
             }
         ],
-        "name": "FlashDuelsMarketplace__DuelEnded",
+        "name": "FlashDuelsMarketplaceFacet__DuelEnded",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "FlashDuelsMarketplaceFacet__DuelNotBootStrappedOrLive",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "FlashDuelsMarketplaceFacet__InsufficientAllowance",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "FlashDuelsMarketplaceFacet__InsufficientTokenBalance",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "FlashDuelsMarketplaceFacet__InvalidBot",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "FlashDuelsMarketplaceFacet__InvalidOption",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "FlashDuelsMarketplaceFacet__MarketBuyNotAllowedForShortDurationDuels",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "FlashDuelsMarketplaceFacet__MarketBuyNotAllowedYet",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "FlashDuelsMarketplaceFacet__MismatchedArrayLengths",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "FlashDuelsMarketplaceFacet__NoActiveSale",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "FlashDuelsMarketplaceFacet__NotEnoughTokensAvailable",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "FlashDuelsMarketplaceFacet__NotTheSeller",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "FlashDuelsMarketplaceFacet__PricePerTokenMustBeGreaterThanZero",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "FlashDuelsMarketplaceFacet__SellerCannotBuyOwnTokens",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "FlashDuelsMarketplaceFacet__SellingNotAllowedForShortDurationDuels",
         "type": "error"
     },
     {
         "inputs": [],
         "name": "InvalidInitialization",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "LibDiamond__MustBeContractOwner",
         "type": "error"
     },
     {
