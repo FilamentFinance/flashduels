@@ -154,6 +154,16 @@ const Markets: FC = () => {
     // Do nothing if the duel is completed (status === 1)
     if (status === 1) return;
 
+    // For To Be Resolved tab, check if timer has ended
+    if (activeStatus === DUEL_STATUS.YET_TO_BE_RESOLVED) {
+      const duel = duels.find((d) => d.duelId === duelId);
+      if (duel) {
+        const endTime = (duel.startAt || 0) + duel.timeLeft * 60 * 60;
+        const currentTime = Math.floor(Date.now() / 1000);
+        if (endTime < currentTime) return; // Don't allow click if timer has ended
+      }
+    }
+
     dispatch(setSelectedPosition(null)); // Reset position when clicking the row
     router.push(`/bet?duelId=${duelId}`);
   };
@@ -161,6 +171,16 @@ const Markets: FC = () => {
   const handlePositionSelect = (duelId: string, position: Position, status: number) => {
     // Do nothing if the duel is completed (status === 1)
     if (status === 1) return;
+
+    // For To Be Resolved tab, check if timer has ended
+    if (activeStatus === DUEL_STATUS.YET_TO_BE_RESOLVED) {
+      const duel = duels.find((d) => d.duelId === duelId);
+      if (duel) {
+        const endTime = (duel.startAt || 0) + duel.timeLeft * 60 * 60;
+        const currentTime = Math.floor(Date.now() / 1000);
+        if (endTime < currentTime) return; // Don't allow click if timer has ended
+      }
+    }
 
     dispatch(setSelectedPosition(position));
     router.push(`/bet?duelId=${duelId}`);

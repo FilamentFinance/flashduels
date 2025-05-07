@@ -136,22 +136,28 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
 
       {(status == -1 || status == 0) && (
         <div className="flex gap-2">
-          <YesNoButton
-            position="YES"
-            onClick={(e: React.MouseEvent) => {
-              e.stopPropagation();
-              onPositionSelect(duelId, 'YES', status);
-            }}
-            // disabled={status === -1}
-          />
-          <YesNoButton
-            position="NO"
-            onClick={(e: React.MouseEvent) => {
-              e.stopPropagation();
-              onPositionSelect(duelId, 'NO', status);
-            }}
-            // disabled={status === -1}
-          />
+          {timeLeft === '00:00:00' || timeLeft === '00:00' ? (
+            <div className="px-4 py-2 text-zinc-400 bg-zinc-800/50 rounded-xl">
+              Pending Resolution
+            </div>
+          ) : (
+            <>
+              <YesNoButton
+                position="YES"
+                onClick={(e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  onPositionSelect(duelId, 'YES', status);
+                }}
+              />
+              <YesNoButton
+                position="NO"
+                onClick={(e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  onPositionSelect(duelId, 'NO', status);
+                }}
+              />
+            </>
+          )}
         </div>
       )}
       {(winner === 0 || winner === 1) && (
