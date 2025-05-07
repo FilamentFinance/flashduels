@@ -31,7 +31,7 @@ const AccountDetails: FC = () => {
   const { balance, decimals } = useBalance(address);
   const [isCreator, setIsCreator] = useState<boolean | null>(null);
   const chainId = useChainId();
-  const symbol = chainId === sei.id ? 'CRD' : 'FDCRD';
+  const symbol = chainId === sei.id ? 'USDC' : 'CRD';
 
   const fetchPortfolio = useCallback(async () => {
     if (!address) {

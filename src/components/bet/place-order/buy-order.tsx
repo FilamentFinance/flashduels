@@ -78,7 +78,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
   const { joinDuel } = useJoinDuel();
   const { toast } = useToast();
   const chainId = useChainId();
-  const symbol = chainId === sei.id ? 'CRD' : 'FDCRD';
+  const symbol = chainId === sei.id ? 'USDC' : 'CRD';
   // const { prices } = useSelector((state: RootState) => state.price, shallowEqual);
   // const { totalBetYes, totalBetNo } = useTotalBets(duelId);
 

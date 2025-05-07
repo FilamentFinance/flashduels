@@ -77,11 +77,11 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
   const [creditsBalance, setCreditsBalance] = useState<string>('0');
   const publicClient = usePublicClient();
   const chainId = useChainId();
-  const symbol = chainId === sei.id ? 'CRD' : 'FDCRD';
+  const symbol = chainId === sei.id ? 'USDC' : 'CRD';
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<{ token?: string; triggerPrice?: string }>({});
 
-  // Add useEffect to check user's FDCRD balance
+  // Add useEffect to check user's CRD balance
   useEffect(() => {
     const checkCreditsBalance = async () => {
       if (!address || !publicClient) return;
@@ -123,7 +123,7 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
     setIsSubmitting(true);
 
     try {
-      // Check if user has enough FDCRD tokens (at least 5)
+      // Check if user has enough CRD tokens (at least 5)
       const balanceInEther = parseFloat(formatUnits(BigInt(creditsBalance), 18));
       if (balanceInEther < 5) {
         toast({

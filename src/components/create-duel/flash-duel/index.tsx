@@ -66,7 +66,7 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
   const [creditsBalance, setCreditsBalance] = useState<string>('0');
   const { toast } = useToast();
   const publicClient = usePublicClient();
-  const symbol = chainId === sei.id ? 'CRD' : 'FDCRD';
+  const symbol = chainId === sei.id ? 'USDC' : 'CRD';
   const [formError, setFormError] = useState<{ category?: string; duelText?: string }>({});
 
   useEffect(() => {

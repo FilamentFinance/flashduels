@@ -31,7 +31,7 @@ const ClaimAirdropButton: FC = () => {
   const { writeContractAsync } = useWriteContract();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAddingToMetamask, setIsAddingToMetamask] = useState(false);
-  const symbol = chainId === sei.id ? 'CRD' : 'FDCRD';
+  const symbol = chainId === sei.id ? 'CRD' : 'CRD';
 
   // const { isLoading: isClaiming, isSuccess: isClaimSuccess } = useWaitForTransactionReceipt({
   //   hash: txHash,
