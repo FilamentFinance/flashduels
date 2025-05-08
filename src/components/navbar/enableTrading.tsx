@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 import { Dialog } from '@/components/ui/custom-modal';
 import { NAVBAR } from '@/constants/content/navbar';
@@ -18,6 +19,7 @@ import { SERVER_CONFIG } from '@/config/server-config';
 import { RootState } from '@/store';
 import { shallowEqual } from 'react-redux';
 import { getAirdrop } from '@/utils/general/get-airdrop';
+import { Sparkle } from 'lucide-react';
 
 interface WalletError extends Error {
   code: number;
@@ -184,7 +186,8 @@ const EnableTrading: FC = () => {
         </div>
       }
       trigger={
-        <Button className="font-semibold text-black bg-gradient-to-r from-pink-300 via-purple-300 to-pink-300 bg-[length:200%_100%] animate-gradient hover:animate-none shadow-[0_0_15px_rgba(241,158,210,0.5)] hover:shadow-[0_0_20px_rgba(241,158,210,0.7)] transition-all duration-300">
+        <Button className="font-semibold text-black bg-gradient-to-r from-pink-300 via-purple-300 to-pink-300 bg-[length:200%_100%] animate-gradient hover:animate-none shadow-[0_0_15px_rgba(241,158,210,0.5)] hover:shadow-[0_0_20px_rgba(241,158,210,0.7)] transition-all duration-300 relative group">
+          <Sparkle className="absolute -top-2 -right-2 w-4 h-4 text-pink-300 animate-pulse" />
           {NAVBAR.ENABLE_TRADING.BUTTON_TEXT}
         </Button>
       }

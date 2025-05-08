@@ -3,14 +3,11 @@ import { FC, useState, useEffect } from 'react';
 import { Button } from '@/shadcn/components/ui/button';
 import { useAccount, usePublicClient, useWriteContract, useChainId } from 'wagmi';
 import { SERVER_CONFIG } from '@/config/server-config';
-// import { SEI_TESTNET_CHAIN_ID, TRANSACTION_STATUS } from '@/constants/app';
 import { TRANSACTION_STATUS } from '@/constants/app';
 import { useToast } from '@/shadcn/components/ui/use-toast';
 import { TransactionStatusType } from '@/types/app';
 import { handleTransactionError } from '@/utils/token';
-// import { createWalletClient, formatUnits, Hex, http, parseUnits } from 'viem';
 import { formatUnits, Hex } from 'viem';
-// import { privateKeyToAccount } from 'viem/accounts';
 import { sei } from 'viem/chains';
 import { CREDITS } from '@/abi/CREDITS';
 import {
@@ -33,8 +30,6 @@ import { shallowEqual } from 'react-redux';
 
 const ClaimAirdropButton: FC = () => {
   const [status, setStatus] = useState<TransactionStatusType>(TRANSACTION_STATUS.IDLE);
-  // const [error, setError] = useState<string | null>(null);
-  // const [txHash, setTxHash] = useState<Hex | undefined>(undefined);
   const [creditsBalance, setCreditsBalance] = useState<string>('0');
   const [availableToClaim, setAvailableToClaim] = useState<string>('0');
   const [claimedAmount, setClaimedAmount] = useState<string>('');
@@ -52,11 +47,6 @@ const ClaimAirdropButton: FC = () => {
     (state: RootState) => state.auth.isAuthenticated,
     shallowEqual,
   );
-
-  // const { isLoading: isClaiming, isSuccess: isClaimSuccess } = useWaitForTransactionReceipt({
-  //   hash: txHash,
-  //   chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
-  // });
 
   useEffect(() => {
     const checkClaimedAmount = async () => {
@@ -101,7 +91,6 @@ const ClaimAirdropButton: FC = () => {
   const handleError = (error: unknown) => {
     const { message, type } = handleTransactionError(error);
     console.error('Transaction error:', { message, type });
-    // setError(message);
     setStatus(TRANSACTION_STATUS.FAILED);
     toast({
       title: type === 'user_rejected' ? 'Transaction rejected' : 'Error',
