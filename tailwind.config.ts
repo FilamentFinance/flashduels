@@ -93,11 +93,40 @@ export default {
       },
       animation: {
         fadeIn: 'fadeIn 0.5s ease-in-out',
+        gradient: 'gradient 3s ease infinite',
+        sparkle: 'sparkle 3s linear infinite',
       },
       keyframes: {
         fadeIn: {
           '0%': { opacity: '0', transform: 'translateY(10px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        gradient: {
+          '0%': { backgroundPosition: '0% 50%' },
+          '50%': { backgroundPosition: '100% 50%' },
+          '100%': { backgroundPosition: '0% 50%' },
+        },
+        sparkle: {
+          '0%': {
+            transform: 'rotate(0deg) scale(1)',
+            filter: 'brightness(1)',
+          },
+          '25%': {
+            transform: 'rotate(90deg) scale(1.1)',
+            filter: 'brightness(1.3)',
+          },
+          '50%': {
+            transform: 'rotate(180deg) scale(1)',
+            filter: 'brightness(1)',
+          },
+          '75%': {
+            transform: 'rotate(270deg) scale(1.1)',
+            filter: 'brightness(1.3)',
+          },
+          '100%': {
+            transform: 'rotate(360deg) scale(1)',
+            filter: 'brightness(1)',
+          },
         },
       },
     },

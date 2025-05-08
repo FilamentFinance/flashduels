@@ -3,24 +3,33 @@ import { FC, useState, useEffect } from 'react';
 import { Button } from '@/shadcn/components/ui/button';
 import { useAccount, usePublicClient, useWriteContract, useChainId } from 'wagmi';
 import { SERVER_CONFIG } from '@/config/server-config';
-// import { SEI_TESTNET_CHAIN_ID, TRANSACTION_STATUS } from '@/constants/app';
 import { TRANSACTION_STATUS } from '@/constants/app';
 import { useToast } from '@/shadcn/components/ui/use-toast';
 import { TransactionStatusType } from '@/types/app';
 import { handleTransactionError } from '@/utils/token';
-// import { createWalletClient, formatUnits, Hex, http, parseUnits } from 'viem';
 import { formatUnits, Hex } from 'viem';
-// import { privateKeyToAccount } from 'viem/accounts';
 import { sei } from 'viem/chains';
 import { CREDITS } from '@/abi/CREDITS';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/shadcn/components/ui/dialog';
-import { X } from 'lucide-react';
-import { Loader2 } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogClose,
+} from '@/shadcn/components/ui/dialog';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/shadcn/components/ui/tooltip';
+import { X, Loader2 } from 'lucide-react';
+import { useAppSelector } from '@/store/hooks';
+import { RootState } from '@/store';
+import { shallowEqual } from 'react-redux';
 
 const ClaimAirdropButton: FC = () => {
   const [status, setStatus] = useState<TransactionStatusType>(TRANSACTION_STATUS.IDLE);
-  // const [error, setError] = useState<string | null>(null);
-  // const [txHash, setTxHash] = useState<Hex | undefined>(undefined);
   const [creditsBalance, setCreditsBalance] = useState<string>('0');
   const [availableToClaim, setAvailableToClaim] = useState<string>('0');
   const [claimedAmount, setClaimedAmount] = useState<string>('');
@@ -33,10 +42,11 @@ const ClaimAirdropButton: FC = () => {
   const [isAddingToMetamask, setIsAddingToMetamask] = useState(false);
   const symbol = chainId === sei.id ? 'CRD' : 'CRD';
 
-  // const { isLoading: isClaiming, isSuccess: isClaimSuccess } = useWaitForTransactionReceipt({
-  //   hash: txHash,
-  //   chainId: SERVER_CONFIG.PRODUCTION ? sei.id : seiTestnet.id,
-  // });
+  // Add authentication state
+  const isAuthenticated = useAppSelector(
+    (state: RootState) => state.auth.isAuthenticated,
+    shallowEqual,
+  );
 
   useEffect(() => {
     const checkClaimedAmount = async () => {
@@ -81,7 +91,6 @@ const ClaimAirdropButton: FC = () => {
   const handleError = (error: unknown) => {
     const { message, type } = handleTransactionError(error);
     console.error('Transaction error:', { message, type });
-    // setError(message);
     setStatus(TRANSACTION_STATUS.FAILED);
     toast({
       title: type === 'user_rejected' ? 'Transaction rejected' : 'Error',
@@ -221,16 +230,34 @@ const ClaimAirdropButton: FC = () => {
 
   return (
     <>
-      <Button
-        onClick={() => setIsModalOpen(true)}
-        className="text-pink-300 border border-pink-300 bg-transparent hover:shadow-lg hover:scale-[1.02] hover:bg-pink-300/10 text-pink-300 font-bold h-10 px-4"
-        size="default"
-        disabled={false}
-      >
-        {status === TRANSACTION_STATUS.SUCCESS
-          ? `${parseFloat(formatUnits(BigInt(claimedAmount.toString()), 18))} ${symbol} Claimed 🎉`
-          : `Claim ${symbol}`}
-      </Button>
+      <TooltipProvider delayDuration={300}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span>
+              <Button
+                onClick={() => setIsModalOpen(true)}
+                className="text-pink-300 border border-pink-300 bg-transparent hover:shadow-lg hover:scale-[1.02] hover:bg-pink-300/10 text-pink-300 font-bold h-10 px-4"
+                size="default"
+                disabled={!isAuthenticated}
+              >
+                {!isAuthenticated
+                  ? `Claim ${symbol}`
+                  : status === TRANSACTION_STATUS.SUCCESS
+                    ? `${parseFloat(formatUnits(BigInt(claimedAmount.toString()), 18))} ${symbol} Claimed 🎉`
+                    : `Claim ${symbol}`}
+              </Button>
+            </span>
+          </TooltipTrigger>
+          {!isAuthenticated && (
+            <TooltipContent
+              side="bottom"
+              className="bg-black/90 text-white border border-pink-300/50 px-4 py-2"
+            >
+              <p className="text-sm">Enable Trading to Claim ${symbol}</p>
+            </TooltipContent>
+          )}
+        </Tooltip>
+      </TooltipProvider>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-[425px]">
@@ -243,72 +270,80 @@ const ClaimAirdropButton: FC = () => {
           </DialogHeader>
 
           <div className="flex flex-col gap-4 py-4">
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-500">Current Balance:</span>
-                <span className="font-medium">
-                  {parseFloat(formatUnits(BigInt(creditsBalance), 18)).toFixed(4)} {symbol}
-                </span>
+            {!isAuthenticated ? (
+              <div className="text-center text-sm text-yellow-500">
+                Please enable trading first to claim {symbol}
               </div>
+            ) : (
+              <>
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-500">Current Balance:</span>
+                    <span className="font-medium">
+                      {parseFloat(formatUnits(BigInt(creditsBalance), 18)).toFixed(4)} {symbol}
+                    </span>
+                  </div>
 
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-500">Available to Claim:</span>
-                <span className="font-medium">
-                  {parseFloat(formatUnits(BigInt(availableToClaim), 18)).toFixed(4)} {symbol}
-                </span>
-              </div>
-            </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-500">Available to Claim:</span>
+                    <span className="font-medium">
+                      {parseFloat(formatUnits(BigInt(availableToClaim), 18)).toFixed(4)} {symbol}
+                    </span>
+                  </div>
+                </div>
 
-            <div className="flex flex-col gap-3">
-              {status !== TRANSACTION_STATUS.SUCCESS && (
-                <Button
-                  onClick={handleClaimAirdrop}
-                  className="text-pink-300 border border-pink-300 bg-transparent hover:shadow-lg hover:scale-[1.02] hover:bg-pink-300/10 w-full"
-                  disabled={status === TRANSACTION_STATUS.PENDING || availableToClaim === '0'}
-                >
-                  {status === TRANSACTION_STATUS.PENDING ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Claiming...
-                    </>
-                  ) : availableToClaim === '0' ? (
-                    `No ${symbol} Available to Claim`
-                  ) : (
-                    `Claim ${parseFloat(formatUnits(BigInt(availableToClaim), 18)).toFixed(4)} ${symbol}`
+                <div className="flex flex-col gap-3">
+                  {status !== TRANSACTION_STATUS.SUCCESS && (
+                    <Button
+                      onClick={handleClaimAirdrop}
+                      className="text-pink-300 border border-pink-300 bg-transparent hover:shadow-lg hover:scale-[1.02] hover:bg-pink-300/10 w-full"
+                      disabled={status === TRANSACTION_STATUS.PENDING || availableToClaim === '0'}
+                    >
+                      {status === TRANSACTION_STATUS.PENDING ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Claiming...
+                        </>
+                      ) : availableToClaim === '0' ? (
+                        `No ${symbol} Available to Claim`
+                      ) : (
+                        `Claim ${parseFloat(formatUnits(BigInt(availableToClaim), 18)).toFixed(4)} ${symbol}`
+                      )}
+                    </Button>
                   )}
-                </Button>
-              )}
 
-              <div className="mt-2">
-                <h4 className="text-sm font-medium mb-2">Add to MetaMask:</h4>
-                <ol className="text-xs text-gray-500 space-y-1 list-decimal pl-4 mb-2">
-                  <li>Click the button below to open MetaMask</li>
-                  <li>Review the token details</li>
-                  <li>Click &quot;Add Token&quot; in your MetaMask wallet</li>
-                </ol>
-                <Button
-                  onClick={handleAddToMetamask}
-                  variant="outline"
-                  className="w-full"
-                  disabled={isAddingToMetamask}
-                >
-                  {isAddingToMetamask ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Adding to MetaMask...
-                    </>
-                  ) : (
-                    `Add ${symbol} to MetaMask`
-                  )}
-                </Button>
-              </div>
-            </div>
+                  <div className="mt-2">
+                    <h4 className="text-sm font-medium mb-2">Add to MetaMask:</h4>
+                    <ol className="text-xs text-gray-500 space-y-1 list-decimal pl-4 mb-2">
+                      <li>Click the button below to open MetaMask</li>
+                      <li>Review the token details</li>
+                      <li>Click &quot;Add Token&quot; in your MetaMask wallet</li>
+                    </ol>
+                    <Button
+                      onClick={handleAddToMetamask}
+                      variant="outline"
+                      className="w-full"
+                      disabled={isAddingToMetamask}
+                    >
+                      {isAddingToMetamask ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Adding to MetaMask...
+                        </>
+                      ) : (
+                        `Add ${symbol} to MetaMask`
+                      )}
+                    </Button>
+                  </div>
+                </div>
 
-            {status === TRANSACTION_STATUS.SUCCESS && (
-              <div className="text-center text-sm text-green-500">
-                Congratulations 🎉 You have claimed{' '}
-                {formatUnits(BigInt(claimedAmount.toString()), 18)} {symbol}!
-              </div>
+                {status === TRANSACTION_STATUS.SUCCESS && (
+                  <div className="text-center text-sm text-green-500">
+                    Congratulations 🎉 You have claimed{' '}
+                    {formatUnits(BigInt(claimedAmount.toString()), 18)} {symbol}!
+                  </div>
+                )}
+              </>
             )}
           </div>
         </DialogContent>
