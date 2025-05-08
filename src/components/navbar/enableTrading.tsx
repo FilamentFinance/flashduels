@@ -135,7 +135,7 @@ const EnableTrading: FC = () => {
 
         // Call getAirdrop function
         try {
-          console.log("airdrop ")
+          console.log('airdrop ');
           const airdropData = await getAirdrop(address);
           console.log('Airdrop data:', airdropData);
         } catch (error) {
@@ -146,6 +146,11 @@ const EnableTrading: FC = () => {
           title: 'Success',
           description: 'Trading enabled successfully',
         });
+
+        // Refresh the page after a short delay to ensure all states are updated
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
       }
     } catch (error) {
       console.error('Error enabling trading:', error);
@@ -179,7 +184,7 @@ const EnableTrading: FC = () => {
         </div>
       }
       trigger={
-        <Button className="font-semibold bg-gradient-pink text-black">
+        <Button className="font-semibold text-black bg-gradient-to-r from-pink-300 via-purple-300 to-pink-300 bg-[length:200%_100%] animate-gradient hover:animate-none shadow-[0_0_15px_rgba(241,158,210,0.5)] hover:shadow-[0_0_20px_rgba(241,158,210,0.7)] transition-all duration-300">
           {NAVBAR.ENABLE_TRADING.BUTTON_TEXT}
         </Button>
       }
