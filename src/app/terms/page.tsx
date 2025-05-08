@@ -14,8 +14,8 @@ export default function TermsPage() {
         <section>
           <h2 className="text-xl font-semibold mb-4">1. Acceptance of Terms</h2>
           <p className="mb-4">
-            By accessing and using Flash Duels ("the Platform"), you agree to be bound by these
-            Terms of Use. If you do not agree to these terms, please do not use the Platform.
+            By accessing and using Flash Duels (&quot;the Platform&quot;), you agree to be bound by
+            these Terms of Use. If you do not agree to these terms, please do not use the Platform.
           </p>
         </section>
 
