@@ -26,11 +26,11 @@ const PercentageBlocks: React.FC<PercentageBlocksProps> = ({ yesAmount, noAmount
     }
   }
 
-  const blocks = 10;
-  let filledBlocks = 0;
-  if (total !== 0) {
-    filledBlocks = Math.round((Math.abs(percentage) / 100) * blocks);
-  }
+  // const blocks = 10;
+  // let filledBlocks = 0;
+  // if (total !== 0) {
+  //   filledBlocks = Math.round((Math.abs(percentage) / 100) * blocks);
+  // }
   // // Center is between 4 and 5 (0-based index)
   // const centerLeft = 4;
   // const centerRight = 5;
