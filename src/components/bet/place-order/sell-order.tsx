@@ -4,7 +4,7 @@ import { TRANSACTION_STATUS } from '@/constants/app';
 import { OPTIONS_TYPE } from '@/constants/duel';
 import useSellOrder from '@/hooks/useSellOrder';
 import { Button } from '@/shadcn/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/shadcn/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/shadcn/components/ui/card';
 import { Input } from '@/shadcn/components/ui/input';
 import { Label } from '@/shadcn/components/ui/label';
 import { useToast } from '@/shadcn/components/ui/use-toast';

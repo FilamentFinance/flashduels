@@ -160,7 +160,7 @@ const Bet: FC = () => {
   }
 
   // Use the percentages directly from the hook
-  const displayPercentage = Number(yesPercentage.toFixed(2));
+  // const displayPercentage = Number(yesPercentage.toFixed(2));
 
   const handleBuyOrders = async (
     betOptionMarketId: string,

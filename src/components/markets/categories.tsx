@@ -19,7 +19,7 @@ const Categories: FC<CategoriesProps> = ({ activeCategory, setActiveCategory }) 
   return (
     <div className="flex items-center gap-4 py-4">
       {Object.entries(CATEGORIES)
-        .filter(([_, cat]) => !cat.hidden)
+        .filter(([, cat]) => !cat.hidden)
         .map(([key, { title, icon, comingSoon }]) => {
           const isActive = title === activeCategory;
           const isComingSoon = Boolean(comingSoon);
