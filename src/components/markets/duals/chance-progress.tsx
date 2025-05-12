@@ -21,21 +21,21 @@ const ChanceProgress: React.FC<ChanceProgressProps> = ({
     percentage = Math.round(((yes - no) / total) * 100);
   }
   let color = '#A1A1AA'; // gray
-  let sentimentLabel = 'NEUTRAL';
+  // let sentimentLabel = 'NEUTRAL';
   if (percentage > 0) {
     color = '#95DE64'; // green
-    sentimentLabel = 'LONG';
+    // sentimentLabel = 'LONG';
   } else if (percentage < 0) {
     color = '#F87171'; // red
-    sentimentLabel = 'SHORT';
+    // sentimentLabel = 'SHORT';
   }
 
   return (
     <div className={cn('flex items-center justify-center', className)}>
       <Arc percentage={percentage} color={color} label="Sentiment" labelClassName="-mt-6" />
-      <span className="ml-4 text-lg font-bold uppercase opacity-70" style={{ color }}>
+      {/* <span className="ml-4 text-lg font-bold uppercase opacity-70" style={{ color }}>
         {sentimentLabel}
-      </span>
+      </span> */}
     </div>
   );
 };
