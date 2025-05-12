@@ -2,47 +2,78 @@ import { cn } from '@/shadcn/lib/utils';
 import React from 'react';
 
 interface ChanceProgressProps {
-  percentage: number;
+  yesPercentage: number;
+  noPercentage: number;
   className?: string;
 }
 
-const ChanceProgress: React.FC<ChanceProgressProps> = ({ percentage, className }) => {
-  const size = 90; // Smaller size
-  const strokeWidth = 6; // Thinner stroke
+const Arc: React.FC<{
+  percentage: number;
+  color: string;
+  label: string;
+  labelClassName?: string;
+}> = ({ percentage, color, label, labelClassName }) => {
+  const size = 80;
+  const strokeWidth = 8;
   const radius = (size - strokeWidth) / 2;
-  const circumference = radius * Math.PI;
-  const progressOffset = ((100 - percentage) / 100) * circumference;
+  const center = size / 2;
+  // Semicircle arc
+  const arcLength = Math.PI * radius;
+  const dashArray = arcLength;
+  const dashOffset = arcLength * (1 - percentage / 100);
 
   return (
-    <div className={cn('relative flex flex-col items-center justify-center', className)}>
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="transform p-1">
-        {/* Background Arc */}
+    <div className="flex flex-col items-center">
+      <svg width={size} height={size / 1.2} viewBox={`0 0 ${size} ${size / 1.2}`}>
+        {/* Background arc */}
         <path
-          d={`M ${strokeWidth / 2} ${size / 2} a ${radius} ${radius} 0 0 1 ${size - strokeWidth} 0`}
+          d={`M ${center - radius} ${center} A ${radius} ${radius} 0 0 1 ${center + radius} ${center}`}
           fill="none"
-          stroke="#1E1E1E"
+          stroke="#23272b"
           strokeWidth={strokeWidth}
-          className="transition-all duration-500 ease-in-out"
         />
-
-        {/* Progress Arc */}
+        {/* Foreground arc */}
         <path
-          d={`M ${strokeWidth / 2} ${size / 2} a ${radius} ${radius} 0 0 1 ${size - strokeWidth} 0`}
+          d={`M ${center - radius} ${center} A ${radius} ${radius} 0 0 1 ${center + radius} ${center}`}
           fill="none"
-          stroke="#95DE64"
+          stroke={color}
           strokeWidth={strokeWidth}
-          strokeDasharray={circumference}
-          strokeDashoffset={progressOffset}
+          strokeDasharray={dashArray}
+          strokeDashoffset={dashOffset}
           strokeLinecap="round"
-          className="transition-all duration-500 ease-in-out"
         />
+        {/* Percentage label inside arc */}
+        <text
+          x={center}
+          y={center - 5}
+          textAnchor="middle"
+          fill={color}
+          fontSize="15"
+          fontWeight="bold"
+          fontFamily="inherit"
+        >
+          {percentage}%
+        </text>
       </svg>
+      <span className={cn('text-xs font-medium', labelClassName)} style={{ color }}>
+        {label}
+      </span>
+    </div>
+  );
+};
 
-      {/* Percentage Text */}
-      <div className="absolute flex flex-col items-center">
-        <span className="text-base font-bold text-[#95DE64] ">{percentage}%</span>
-        <span className="text-zinc-400 text-xs mt-0.5">Chance</span>
+const ChanceProgress: React.FC<ChanceProgressProps> = ({
+  yesPercentage,
+  noPercentage,
+  className,
+}) => {
+  return (
+    <div className={cn('flex flex-col items-center justify-center', className)}>
+      <div className="flex flex-row gap-2">
+        <Arc percentage={noPercentage} color="#F87171" label="NO" labelClassName="-mt-6" />
+        <Arc percentage={yesPercentage} color="#95DE64" label="YES" labelClassName="-mt-6" />
       </div>
+      <span className="mt-1 text-white text-sm font-medium">Chance</span>
     </div>
   );
 };

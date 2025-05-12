@@ -104,8 +104,9 @@ const calculateTimeLeft = (duel: DuelItem): number => {
   if (duel.status === -1) {
     // 30 minutes bootstrapping + duel duration (in seconds)
     const bootstrappingPeriod = 30 * 60; // 30 minutes in seconds
-    const duelDurationSec = (duel.durationMinutes || 0) * 60;
-    const totalPeriod = bootstrappingPeriod + duelDurationSec;
+    // const duelDurationSec = (duel.durationMinutes || 0) * 60;
+    // const totalPeriod = bootstrappingPeriod + duelDurationSec;
+    const totalPeriod = bootstrappingPeriod;
 
     const rawCreatedAt = duel.createdAt ?? 0;
     const createdAtSec = rawCreatedAt > 1e12 ? Math.floor(rawCreatedAt / 1000) : rawCreatedAt;
@@ -174,7 +175,7 @@ const Duels: FC = () => {
         const filteredDuels = response.data.allDuels.map((item: DuelResponseItem) => ({
           title:
             item.betString ||
-            `Will ${item.token} be ${item.winCondition === 0 ? 'ABOVE' : 'BELOW'} ${item.triggerPrice}`,
+            `Will ${item.token} be ${item.winCondition === 0 ? 'ABOVE' : 'BELOW'} $${item.triggerPrice}`,
           imageSrc: item.betIcon || '',
           status: item.status,
           duelType: item.duelType,
@@ -195,7 +196,7 @@ const Duels: FC = () => {
             return {
               title:
                 item.data.betString ||
-                `Will ${item.data.token} be ${item.data.winCondition === 0 ? 'ABOVE' : 'BELOW'} ${item.data.triggerPrice}`,
+                `Will ${item.data.token} be ${item.data.winCondition === 0 ? 'ABOVE' : 'BELOW'} $${item.data.triggerPrice}`,
               imageSrc: item.data.betIcon || '',
               status: item.status === 'pending' ? 2 : item.status === 'approved' ? -1 : 4,
               duelType: item.type,

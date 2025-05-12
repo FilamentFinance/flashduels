@@ -108,7 +108,7 @@ const GetGas: FC = () => {
         className="font-semibold bg-gradient-pink text-black opacity-50 cursor-not-allowed
         border border-pink-300
         hover:shadow-lg hover:scale-[1.02]"
-        title="Will be available on Mainnet soon"
+        title="It will be available on Mainnet soon"
       >
         <span className="flex items-center gap-1">
           <svg

@@ -18,52 +18,54 @@ interface CategoriesProps {
 const Categories: FC<CategoriesProps> = ({ activeCategory, setActiveCategory }) => {
   return (
     <div className="flex items-center gap-4 py-4">
-      {Object.entries(CATEGORIES).map(([key, { title, icon, comingSoon }]) => {
-        const isActive = title === activeCategory;
-        const isComingSoon = Boolean(comingSoon);
+      {Object.entries(CATEGORIES)
+        .filter(([_, cat]) => !cat.hidden)
+        .map(([key, { title, icon, comingSoon }]) => {
+          const isActive = title === activeCategory;
+          const isComingSoon = Boolean(comingSoon);
 
-        // Create the button content
-        const buttonContent = (
-          <button
-            key={`button-${key}`}
-            onClick={() => !isComingSoon && setActiveCategory(title)}
-            className={cn(
-              'group flex items-center transition-all duration-200 rounded-md p-2 gap-1',
-              isActive
-                ? 'bg-[#F19ED2]/20 border border-[#F19ED2]'
-                : 'bg-[#44464933] hover:bg-zinc-800/50',
-              isComingSoon && 'opacity-60 cursor-not-allowed',
-            )}
-          >
-            <div
+          // Create the button content
+          const buttonContent = (
+            <button
+              key={`button-${key}`}
+              onClick={() => !isComingSoon && setActiveCategory(title)}
               className={cn(
-                'flex items-center justify-center w-6 h-6 rounded-md',
-                isActive ? 'bg-[#F19ED2]' : 'bg-zinc-900',
+                'group flex items-center transition-all duration-200 rounded-md p-2 gap-1',
+                isActive
+                  ? 'bg-[#F19ED2]/20 border border-[#F19ED2]'
+                  : 'bg-[#44464933] hover:bg-zinc-800/50',
+                isComingSoon && 'opacity-60 cursor-not-allowed',
               )}
             >
-              <span className="text-md">{icon}</span>
-            </div>
-            <span className="text-md font-medium whitespace-nowrap">{title}</span>
-          </button>
-        );
-
-        // If coming soon, wrap in tooltip
-        if (isComingSoon) {
-          return (
-            <TooltipProvider key={`tooltip-${key}`}>
-              <Tooltip>
-                <TooltipTrigger asChild>{buttonContent}</TooltipTrigger>
-                <TooltipContent>
-                  <p className="font-semibold">Coming Soon</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+              <div
+                className={cn(
+                  'flex items-center justify-center w-6 h-6 rounded-md',
+                  isActive ? 'bg-[#F19ED2]' : 'bg-zinc-900',
+                )}
+              >
+                <span className="text-md">{icon}</span>
+              </div>
+              <span className="text-md font-medium whitespace-nowrap">{title}</span>
+            </button>
           );
-        }
 
-        // Otherwise return the button directly
-        return buttonContent;
-      })}
+          // If coming soon, wrap in tooltip
+          if (isComingSoon) {
+            return (
+              <TooltipProvider key={`tooltip-${key}`}>
+                <Tooltip>
+                  <TooltipTrigger asChild>{buttonContent}</TooltipTrigger>
+                  <TooltipContent>
+                    <p className="font-semibold">Coming Soon</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            );
+          }
+
+          // Otherwise return the button directly
+          return buttonContent;
+        })}
     </div>
   );
 };

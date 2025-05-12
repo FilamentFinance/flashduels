@@ -2,6 +2,7 @@ import Image from 'next/image';
 import { FC } from 'react';
 import DetailsAndRules from './details-and-rules';
 import PercentageBlocks from './percentage-blocks';
+import React from 'react';
 
 interface Props {
   title: string;
@@ -11,11 +12,15 @@ interface Props {
   token?: string;
   liquidity?: string;
   endsIn: string;
-  percentage?: number;
+  yesPercentage?: number;
+  noPercentage?: number;
   duelType?: 'COIN_DUEL' | 'FLASH_DUEL';
   imageSrc?: string;
   category?: string;
   currentPrice?: string;
+  duelDuration?: number;
+  duelStatus?: number;
+  bootstrappingStartTime?: number;
 }
 
 const Header: FC<Props> = ({
@@ -24,10 +29,14 @@ const Header: FC<Props> = ({
   token,
   liquidity,
   endsIn,
-  percentage,
+  yesPercentage = 50,
+  noPercentage = 50,
   duelType,
   imageSrc,
   currentPrice,
+  duelDuration = 0,
+  duelStatus = 0,
+  bootstrappingStartTime,
   // category,
 }) => {
   let symbol, iconPath;
@@ -35,6 +44,28 @@ const Header: FC<Props> = ({
     symbol = title.split(' ')[1];
     iconPath = `/crypto-icons/light/crypto-${symbol.toLowerCase()}-usd.inline.svg`;
   }
+
+  // Helper for dynamic 30-minute bootstrapping countdown
+  const [bootstrappingTime, setBootstrappingTime] = React.useState(0);
+  React.useEffect(() => {
+    if (duelStatus === -1 && bootstrappingStartTime) {
+      const normalizeTimestamp = (ts: number) => (ts > 1e12 ? Math.floor(ts / 1000) : ts);
+      const update = () => {
+        const now = Math.floor(Date.now() / 1000);
+        const start = normalizeTimestamp(bootstrappingStartTime);
+        const end = start + 1800;
+        setBootstrappingTime(Math.max(end - now, 0));
+      };
+      update();
+      const interval = setInterval(update, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [duelStatus, bootstrappingStartTime]);
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}m ${s.toString().padStart(2, '0')}s`;
+  };
 
   return (
     <div className="flex flex-col items-center gap-6 w-full">
@@ -84,19 +115,33 @@ const Header: FC<Props> = ({
         </div>
       </div>
 
-      <div className="w-full flex justify-between items-center  px-4 py-2 rounded-lg">
-        <div className="flex flex-col">
+      <div className="w-full grid grid-cols-[minmax(80px,120px)_1fr_1fr_1.5fr] items-center px-4 py-2 rounded-lg">
+        <div className="flex flex-col items-start justify-center">
           <span className="text-zinc-500 text-sm">Liquidity</span>
           <span className="text-white font-medium">${liquidity}</span>
         </div>
-
-        <div className="flex flex-col items-center">
-          <span className="text-zinc-500 text-sm">Ends in</span>
-          <span className="text-white font-medium">{endsIn}</span>
+        <div className="flex flex-col items-center justify-center">
+          <span className="text-zinc-500 text-sm">Duration</span>
+          <span className="text-white font-medium">
+            {(() => {
+              const dur = Number(duelDuration);
+              if (isNaN(dur)) return '-';
+              if (dur < 1) return `${Math.round(dur * 60)}m`;
+              return `${dur}h`;
+            })()}
+          </span>
         </div>
-
-        <div className="flex items-center gap-2">
-          <PercentageBlocks percentage={percentage || 50} />
+        <div className="flex flex-col items-center justify-center ml-8">
+          <span className="text-zinc-500 text-sm">
+            {duelStatus === -1 ? 'Bootstrapping' : 'Ends in'}
+          </span>
+          <span className="text-white font-medium">
+            {duelStatus === -1 ? formatTime(bootstrappingTime) : endsIn}
+          </span>
+        </div>
+        <div className="flex flex-col items-center ml-20">
+          <span className="text-zinc-500 text-sm">Chance</span>
+          <PercentageBlocks leftPercentage={noPercentage} rightPercentage={yesPercentage} />
         </div>
       </div>
     </div>

@@ -16,8 +16,9 @@ interface Props {
 const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
   const { title, volume, status, winner, duelType, duelId } = data;
   // const { totalBetYes, totalBetNo } = useTotalBets(data.duelId);
-  const { totalYesAmount, totalNoAmount } = useTotalBetAmounts(data.duelId);
+  // const { totalYesAmount, totalNoAmount } = useTotalBetAmounts(data.duelId);
   const [timeLeft, setTimeLeft] = useState<string>('');
+  const { yesPercentage, noPercentage } = useTotalBetAmounts(duelId);
 
   const getIconPath = () => {
     if (duelType === 'COIN_DUEL' && title) {
@@ -70,12 +71,6 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
 
     return () => clearInterval(timer);
   }, [data.createdAt, data.timeLeft, status]);
-
-  const calculatedPercentage =
-    ((totalYesAmount as number) / (Number(totalYesAmount) + Number(totalNoAmount))) * 100;
-  const displayPercentage = isNaN(calculatedPercentage)
-    ? data.percentage
-    : Number(calculatedPercentage.toFixed(2));
 
   return (
     <Card
@@ -131,7 +126,11 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
           </div>
         </div>
 
-        <ChanceProgress percentage={displayPercentage} className="ml-4" />
+        <ChanceProgress
+          yesPercentage={yesPercentage}
+          noPercentage={noPercentage}
+          className="ml-4"
+        />
       </div>
 
       {(status == -1 || status == 0) && (

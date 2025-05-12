@@ -172,7 +172,7 @@ export const OrdersHistory = ({ duelId }: OrdersTableProps) => {
                     >
                       <TableCell className="py-3 text-xs font-medium text-white">
                         <div className="flex items-center gap-2">
-                          <div className="px-2 py-1 rounded text-[10px]">{order.duelTitle}</div>
+                          <div className="px-2 py-1 rounded text-[12px]">{order.duelTitle}</div>
                         </div>
                       </TableCell>
                       <TableCell

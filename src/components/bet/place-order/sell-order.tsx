@@ -133,9 +133,11 @@ const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice, duration }) 
     if (selectedBet) {
       // Trim to 4 decimal places without rounding
       const trimmedQuantity = String(selectedBet.quantity).includes('.')
-        ? selectedBet.quantity.toString().split('.')[0] + '.' + selectedBet.quantity.toString().split('.')[1].slice(0, 4)
+        ? selectedBet.quantity.toString().split('.')[0] +
+          '.' +
+          selectedBet.quantity.toString().split('.')[1].slice(0, 4)
         : selectedBet.quantity;
-        
+
       setAmount(trimmedQuantity);
       setError('');
     }
@@ -303,12 +305,14 @@ const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice, duration }) 
   const handleBetSelect = useCallback((bet: OptionBetType) => {
     const position = bet.index === 0 ? OPTIONS_TYPE.YES : OPTIONS_TYPE.NO;
     setSelectedPosition(position);
-    
+
     // Trim to 4 decimal places without rounding
-    const trimmedQuantity = String(bet.quantity).includes('.') 
-      ? bet.quantity.toString().split('.')[0] + '.' + bet.quantity.toString().split('.')[1].slice(0, 4)
+    const trimmedQuantity = String(bet.quantity).includes('.')
+      ? bet.quantity.toString().split('.')[0] +
+        '.' +
+        bet.quantity.toString().split('.')[1].slice(0, 4)
       : bet.quantity;
-      
+
     setAmount(trimmedQuantity);
     setPrice(bet.price);
     setBetOptionId(bet.id);
@@ -397,7 +401,10 @@ const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice, duration }) 
 
         <Card className="bg-transparent border-none">
           <CardHeader className="px-0 py-2">
-            <CardTitle className="text-gray-400 text-base font-normal">Your Bets</CardTitle>
+            <div className="flex justify-between items-center">
+              <span className="text-zinc-400 text-sm">Your Bets</span>
+              <span className="text-zinc-400 text-sm">Average Price</span>
+            </div>
           </CardHeader>
           <CardContent className="p-0 space-y-4">
             {yesBets.length > 0 && (

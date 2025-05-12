@@ -201,7 +201,6 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
           'After transaction completion, your duel will need admin approval before going live.',
         duration: 5000,
       });
-
       const categoryEnumIndex = mapCategoryToEnumIndex(selectedCategory);
       const durationNumber = mapDurationToNumber(selectedDuration);
 
@@ -274,15 +273,17 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
               <SelectContent className="bg-[#1C1C1C] border-zinc-700">
-                {Object.values(FLASH_DUEL_CATEGORIES).map((category) => (
-                  <SelectItem
-                    key={category}
-                    value={category}
-                    className="text-white focus:bg-zinc-800 focus:text-white"
-                  >
-                    {category}
-                  </SelectItem>
-                ))}
+                {Object.values(FLASH_DUEL_CATEGORIES).map((category) => {
+                  return (
+                    <SelectItem
+                      key={category}
+                      value={category}
+                      className="text-white focus:bg-zinc-800 focus:text-white"
+                    >
+                      {category.charAt(0).toUpperCase() + category.slice(1)}
+                    </SelectItem>
+                  );
+                })}
               </SelectContent>
             </Select>
             {formError.category && (
