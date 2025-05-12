@@ -146,7 +146,9 @@ const Markets: FC = () => {
   const filteredDuels = duels.filter((duel) => {
     const matchesSearch = duel.title.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory =
-      activeCategory === 'All Duels' ? true : duel.category === activeCategory.toLowerCase();
+      activeCategory === 'All Duels'
+        ? true
+        : duel.category.toLowerCase() === activeCategory.toLowerCase();
     return matchesSearch && matchesCategory;
   });
 
