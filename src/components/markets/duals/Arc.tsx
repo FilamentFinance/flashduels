@@ -50,10 +50,10 @@ const Arc: React.FC<{
         </text>
       </svg>
       <span className={cn('text-xs font-medium', labelClassName)} style={{ color }}>
-        Sentiment
+        {label}
       </span>
     </div>
   );
 };
 
-export default Arc; 
+export default Arc;
