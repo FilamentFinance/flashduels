@@ -24,10 +24,10 @@ const ChanceProgress: React.FC<ChanceProgressProps> = ({
   let sentimentLabel = 'NEUTRAL';
   if (percentage > 0) {
     color = '#95DE64'; // green
-    sentimentLabel = 'YES';
+    sentimentLabel = 'LONG';
   } else if (percentage < 0) {
     color = '#F87171'; // red
-    sentimentLabel = 'NO';
+    sentimentLabel = 'SHORT';
   }
 
   return (

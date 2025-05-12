@@ -142,17 +142,17 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
           ) : (
             <>
               <YesNoButton
-                position="YES"
+                position="LONG"
                 onClick={(e: React.MouseEvent) => {
                   e.stopPropagation();
-                  onPositionSelect(duelId, 'YES', status);
+                  onPositionSelect(duelId, 'LONG', status);
                 }}
               />
               <YesNoButton
-                position="NO"
+                position="SHORT"
                 onClick={(e: React.MouseEvent) => {
                   e.stopPropagation();
-                  onPositionSelect(duelId, 'NO', status);
+                  onPositionSelect(duelId, 'SHORT', status);
                 }}
               />
             </>
@@ -164,9 +164,9 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
           <p className="text-zinc-400">
             Winner:{' '}
             {winner === 0 ? (
-              <span className="text-green-500 font-bold ">YES</span>
+              <span className="text-green-500 font-bold ">LONG</span>
             ) : (
-              <span className="text-red-500 font-bold ">NO</span>
+              <span className="text-red-500 font-bold ">SHORT</span>
             )}
           </p>
         </div>

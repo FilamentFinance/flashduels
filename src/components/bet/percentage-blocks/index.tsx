@@ -18,10 +18,10 @@ const PercentageBlocks: React.FC<PercentageBlocksProps> = ({ yesAmount, noAmount
   if (total !== 0) {
     percentage = Math.round(((yes - no) / total) * 100);
     if (percentage > 0) {
-      sentimentLabel = 'YES';
+      sentimentLabel = 'LONG';
       color = '#95DE64'; // green
     } else if (percentage < 0) {
-      sentimentLabel = 'NO';
+      sentimentLabel = 'SHORT';
       color = '#F87171'; // red
     }
   }
@@ -42,7 +42,7 @@ const PercentageBlocks: React.FC<PercentageBlocksProps> = ({ yesAmount, noAmount
         {/* Center-outwards blocks visualization */}
         {/* <div className="flex gap-0.5 mr-4 justify-center items-center">
           {Array.from({ length: blocks }).map((_, idx) => {
-            if (sentimentLabel === 'NO') {
+            if (sentimentLabel === 'SHORT') {
               // Fill from center to left
               return (
                 <div
@@ -55,7 +55,7 @@ const PercentageBlocks: React.FC<PercentageBlocksProps> = ({ yesAmount, noAmount
                   }
                 />
               );
-            } else if (sentimentLabel === 'YES') { */}
+            } else if (sentimentLabel === 'LONG') { */}
               {/* // Fill from center to right */}
               {/* return (
                 <div
