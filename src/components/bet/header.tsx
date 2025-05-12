@@ -140,8 +140,8 @@ const Header: FC<Props> = ({
           </span>
         </div>
         <div className="flex flex-col items-center ml-20">
-          <span className="text-zinc-500 text-sm">Chance</span>
-          <PercentageBlocks leftPercentage={noPercentage} rightPercentage={yesPercentage} />
+          {/* <span className="text-zinc-500 text-sm">Sentiment</span> */}
+          <PercentageBlocks yesAmount={yesPercentage} noAmount={noPercentage} />
         </div>
       </div>
     </div>

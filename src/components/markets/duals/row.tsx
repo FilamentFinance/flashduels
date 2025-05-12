@@ -127,8 +127,8 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
         </div>
 
         <ChanceProgress
-          yesPercentage={yesPercentage}
-          noPercentage={noPercentage}
+          totalYesAmount={yesPercentage}
+          totalNoAmount={noPercentage}
           className="ml-4"
         />
       </div>

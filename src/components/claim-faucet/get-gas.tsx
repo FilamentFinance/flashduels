@@ -105,27 +105,54 @@ const GetGas: FC = () => {
   } else if (chainId === seiTestnet.id) {
     return (
       <Button
-        className="font-semibold bg-gradient-pink text-black opacity-50 cursor-not-allowed
-        border border-pink-300
-        hover:shadow-lg hover:scale-[1.02]"
-        title="It will be available on Mainnet soon"
+        // className="font-semibold bg-gradient-pink text-black opacity-50 cursor-not-allowed
+        //   border border-pink-300
+        //   hover:shadow-lg hover:scale-[1.02]"
+        //   title="It will be available on Mainnet soon"
+        // >
+        //   <span className="flex items-center gap-1">
+        //     <svg
+        //       xmlns="http://www.w3.org/2000/svg"
+        //       fill="none"
+        //       viewBox="0 0 24 24"
+        //       stroke="currentColor"
+        //     >
+        //       <path
+        //         strokeLinecap="round"
+        //         strokeLinejoin="round"
+        //         strokeWidth={2}
+        //         d="M13 10V3L4 14h7v7l9-11h-7z"
+        //       />
+        //     </svg>
+        //     Get Gas
+        //   </span>
+
+        asChild
+        className="font-semibold bg-gradient-pink text-black border border-pink-300 hover:shadow-lg hover:scale-[1.02]"
       >
-        <span className="flex items-center gap-1">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M13 10V3L4 14h7v7l9-11h-7z"
-            />
-          </svg>
-          Get Gas
-        </span>
+        <a
+          href="https://www.docs.sei.io/learn/faucet"
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Go to Sei Faucet"
+        >
+          <span className="flex items-center gap-1">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 10V3L4 14h7v7l9-11h-7z"
+              />
+            </svg>
+            Get Gas
+          </span>
+        </a>
       </Button>
     );
   }
