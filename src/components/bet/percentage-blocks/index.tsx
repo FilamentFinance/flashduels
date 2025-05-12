@@ -13,15 +13,15 @@ const PercentageBlocks: React.FC<PercentageBlocksProps> = ({ yesAmount, noAmount
   const no = typeof noAmount === 'string' ? parseFloat(noAmount) : noAmount;
   const total = yes + no;
   let percentage = 0;
-  let sentimentLabel = 'NEUTRAL';
+  // let sentimentLabel = 'NEUTRAL';
   let color = '#A1A1AA'; // gray
   if (total !== 0) {
     percentage = Math.round(((yes - no) / total) * 100);
     if (percentage > 0) {
-      sentimentLabel = 'LONG';
+      // sentimentLabel = 'LONG';
       color = '#95DE64'; // green
     } else if (percentage < 0) {
-      sentimentLabel = 'SHORT';
+      // sentimentLabel = 'SHORT';
       color = '#F87171'; // red
     }
   }
