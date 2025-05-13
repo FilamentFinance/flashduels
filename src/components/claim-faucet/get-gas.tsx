@@ -1,48 +1,49 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Button } from '@/shadcn/components/ui/button';
-import axios from 'axios';
-import { FC, useState } from 'react';
-import { useAccount, useChainId } from 'wagmi';
+// import { Button } from '@/shadcn/components/ui/button';
+// import axios from 'axios';
+// import { FC, useState } from 'react';
+import { FC } from 'react';
+// import { useAccount, useChainId } from 'wagmi';
 // import { SERVER_CONFIG } from '@/config/server-config';
-import { sei, seiTestnet } from 'viem/chains';
+// import { sei, seiTestnet } from 'viem/chains';
 
 // const GAS_API_URL = 'https://orderbookv3.filament.finance/gastank';
-const GAS_API_URL = 'https://testnetserver.flashduels.xyz/gastank';
+// const GAS_API_URL = 'https://testnetserver.flashduels.xyz/gastank';
 
 const GetGas: FC = () => {
   // Note - It will be enabled on mainnet soon
 
-  const { address } = useAccount();
-  const chainId = useChainId();
-  const [gasClaimed, setGasClaimed] = useState(() => {
-    // Check localStorage when component mounts
-    return localStorage.getItem('gas_claimed') === 'true';
-  });
-  const [isLoading, setIsLoading] = useState(false);
+  // const { address } = useAccount();
+  // const chainId = useChainId();
+  // const [gasClaimed, setGasClaimed] = useState(() => {
+  //   // Check localStorage when component mounts
+  //   return localStorage.getItem('gas_claimed') === 'true';
+  // });
+  // const [isLoading, setIsLoading] = useState(false);
 
-  const getGas = async () => {
-    setIsLoading(true);
-    try {
-      await axios.post(`${GAS_API_URL}/api/transfer`, {
-        address: address?.toLowerCase() ?? '',
-        app: 'flash_duels',
-      });
-      setGasClaimed(true);
-      localStorage.setItem('gas_claimed', 'true');
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      console.log('Error', error.message);
-      if (error.message === 'Not Eligible') {
-        localStorage.setItem('gas_claimed', 'true');
-        setGasClaimed(true);
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // const getGas = async () => {
+  //   setIsLoading(true);
+  //   try {
+  //     await axios.post(`${GAS_API_URL}/api/transfer`, {
+  //       address: address?.toLowerCase() ?? '',
+  //       app: 'flash_duels',
+  //     });
+  //     setGasClaimed(true);
+  //     localStorage.setItem('gas_claimed', 'true');
+  //     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  //   } catch (error: any) {
+  //     console.log('Error', error.message);
+  //     if (error.message === 'Not Eligible') {
+  //       localStorage.setItem('gas_claimed', 'true');
+  //       setGasClaimed(true);
+  //     }
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
-  const chainidsei = sei.id;
-  const chainidseitestnet = seiTestnet.id;
+  // const chainidsei = sei.id;
+  // const chainidseitestnet = seiTestnet.id;
 
   // Commenting out the Get Gas button UI
   /*
