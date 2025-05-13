@@ -40,12 +40,12 @@ const GetGas: FC = () => {
       setIsLoading(false);
     }
   };
-  // console.log({ chainId });
+
   const chainidsei = sei.id;
-  // console.log({ chainidsei });
   const chainidseitestnet = seiTestnet.id;
-  // console.log({ chainidseitestnet });
-  // console.log(chainId === sei.id);
+
+  // Commenting out the Get Gas button UI
+  /*
   if (chainId === sei.id) {
     return (
       <Button
@@ -156,6 +156,10 @@ const GetGas: FC = () => {
       </Button>
     );
   }
+  */
+
+  // Return null to hide the component
+  return null;
 };
 
 export default GetGas;
