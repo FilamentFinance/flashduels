@@ -256,12 +256,12 @@ export const CreatorVerify = ({ onClose }: { onClose: () => void }) => {
                 </p>
               ) : (
                 <p className="text-sm text-muted-foreground">
-                  You need to be a verified creator to create duels on the platform.
+                  You need to be a verified user to create duels on the platform.
                 </p>
               )
             ) : (
               <p className="text-sm text-muted-foreground">
-                You need to be a verified creator to create duels on the platform.
+                You need to be a verified user to create duels on the platform.
               </p>
             )}
           </div>

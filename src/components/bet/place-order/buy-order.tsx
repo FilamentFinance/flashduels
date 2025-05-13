@@ -50,15 +50,15 @@ const BuyOrder: FC<BuyOrderProps> = ({
 }) => {
   const selectedPosition = useSelector((state: RootState) => state.bet.selectedPosition);
   const [localPosition, setLocalPosition] = useState<OptionsType | null>(() => {
-    if (selectedPosition === 'YES') return OPTIONS_TYPE.YES;
-    if (selectedPosition === 'NO') return OPTIONS_TYPE.NO;
+    if (selectedPosition === 'LONG') return OPTIONS_TYPE.LONG;
+    if (selectedPosition === 'SHORT') return OPTIONS_TYPE.SHORT;
     return null;
   });
 
   // Update local position when Redux state changes
   useEffect(() => {
-    if (selectedPosition === 'YES') setLocalPosition(OPTIONS_TYPE.YES);
-    else if (selectedPosition === 'NO') setLocalPosition(OPTIONS_TYPE.NO);
+    if (selectedPosition === 'LONG') setLocalPosition(OPTIONS_TYPE.LONG);
+    else if (selectedPosition === 'SHORT') setLocalPosition(OPTIONS_TYPE.SHORT);
   }, [selectedPosition]);
 
   const [amount, setAmount] = useState('');
@@ -202,7 +202,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
 
   const calculateShares = useCallback(() => {
     if (!localPosition || !amount) return 0;
-    const price = localPosition === OPTIONS_TYPE.YES ? yesPrice : noPrice;
+    const price = localPosition === OPTIONS_TYPE.LONG ? yesPrice : noPrice;
     return Number(amount) / Number(price || 0.15);
   }, [amount, localPosition, yesPrice, noPrice]);
 
@@ -248,7 +248,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
           bet: localPosition,
           address: address?.toLowerCase(),
           betAmount: Number(amount),
-          optionIndex: localPosition === OPTIONS_TYPE.YES ? 0 : 1,
+          optionIndex: localPosition === OPTIONS_TYPE.LONG ? 0 : 1,
           duelId,
           duelType,
           asset,
@@ -313,7 +313,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
 
     setIsMarketBuying(true);
     try {
-      const optionIndex = localPosition === OPTIONS_TYPE.YES ? 0 : 1;
+      const optionIndex = localPosition === OPTIONS_TYPE.LONG ? 0 : 1;
 
       // Check token allowance first
       // const hasAllowance = await checkAllowance();
@@ -457,7 +457,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
   return (
     <Card className="bg-transparent border-none space-y-6">
       <CardContent className="p-0 space-y-6">
-        {/* YES/NO Buttons */}
+        {/* LONG/SHORT Buttons */}
         <PositionSelector
           selectedPosition={localPosition}
           onPositionSelect={handlePositionSelect}
@@ -542,7 +542,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
                 {calculateShares().toFixed(2)} {localPosition}
               </div>
               <div className="text-sm text-gray-400">
-                ${localPosition === OPTIONS_TYPE.YES ? yesPrice?.toFixed(2) : noPrice?.toFixed(2)}
+                ${localPosition === OPTIONS_TYPE.LONG ? yesPrice?.toFixed(2) : noPrice?.toFixed(2)}
               </div>
             </div>
           </CardContent>

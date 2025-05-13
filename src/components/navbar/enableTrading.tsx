@@ -195,10 +195,10 @@ const EnableTrading: FC = () => {
     >
       <div className="grid gap-6 py-4">
         <div className="space-y-6">
-          <div className="space-y-4">
-            <h3 className="font-medium">By accessing Filament, you agree to the following:</h3>
+          {/* <div className="space-y-4">
+            <h3 className="font-medium">By accessing Filament, you agree to the following:</h3> */}
 
-            <div className="space-y-4">
+            {/* <div className="space-y-4">
               <div>
                 <h4 className="font-medium">Eligibility:</h4>
                 <p className="text-sm text-gray-400">
@@ -239,8 +239,8 @@ const EnableTrading: FC = () => {
                   .
                 </p>
               </div>
-            </div>
-          </div>
+            </div> */}
+          {/* </div> */}
 
           <div className="flex items-center space-x-2">
             <Checkbox
@@ -252,7 +252,8 @@ const EnableTrading: FC = () => {
               htmlFor="terms"
               className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             >
-              I agree to the terms and conditions
+              {/* I agree to the terms and conditions */}
+              I agree to enable trading
             </label>
           </div>
         </div>

@@ -16,8 +16,9 @@ interface Props {
 const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
   const { title, volume, status, winner, duelType, duelId } = data;
   // const { totalBetYes, totalBetNo } = useTotalBets(data.duelId);
-  const { totalYesAmount, totalNoAmount } = useTotalBetAmounts(data.duelId);
+  // const { totalYesAmount, totalNoAmount } = useTotalBetAmounts(data.duelId);
   const [timeLeft, setTimeLeft] = useState<string>('');
+  const { yesPercentage, noPercentage } = useTotalBetAmounts(duelId);
 
   const getIconPath = () => {
     if (duelType === 'COIN_DUEL' && title) {
@@ -70,12 +71,6 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
 
     return () => clearInterval(timer);
   }, [data.createdAt, data.timeLeft, status]);
-
-  const calculatedPercentage =
-    ((totalYesAmount as number) / (Number(totalYesAmount) + Number(totalNoAmount))) * 100;
-  const displayPercentage = isNaN(calculatedPercentage)
-    ? data.percentage
-    : Number(calculatedPercentage.toFixed(2));
 
   return (
     <Card
@@ -131,7 +126,11 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
           </div>
         </div>
 
-        <ChanceProgress percentage={displayPercentage} className="ml-4" />
+        <ChanceProgress
+          totalYesAmount={yesPercentage}
+          totalNoAmount={noPercentage}
+          className="ml-4"
+        />
       </div>
 
       {(status == -1 || status == 0) && (
@@ -143,17 +142,17 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
           ) : (
             <>
               <YesNoButton
-                position="YES"
+                position="LONG"
                 onClick={(e: React.MouseEvent) => {
                   e.stopPropagation();
-                  onPositionSelect(duelId, 'YES', status);
+                  onPositionSelect(duelId, 'LONG', status);
                 }}
               />
               <YesNoButton
-                position="NO"
+                position="SHORT"
                 onClick={(e: React.MouseEvent) => {
                   e.stopPropagation();
-                  onPositionSelect(duelId, 'NO', status);
+                  onPositionSelect(duelId, 'SHORT', status);
                 }}
               />
             </>
@@ -165,9 +164,9 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
           <p className="text-zinc-400">
             Winner:{' '}
             {winner === 0 ? (
-              <span className="text-green-500 font-bold ">YES</span>
+              <span className="text-green-500 font-bold ">LONG</span>
             ) : (
-              <span className="text-red-500 font-bold ">NO</span>
+              <span className="text-red-500 font-bold ">SHORT</span>
             )}
           </p>
         </div>

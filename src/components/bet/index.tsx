@@ -125,12 +125,10 @@ const Bet: FC = () => {
         // endsIn is already in hours (e.g., 0.084 for 5 minutes)
         let timeInSeconds = 0;
         if (duel.endsIn > 0.5) {
-          timeInSeconds =
-            duel.status === -1 ? duel.createdAt + 1800 : (duel.startAt || 0) + 1800;
+          timeInSeconds = duel.status === -1 ? duel.createdAt + 1800 : (duel.startAt || 0) + 1800;
           setTimeLeft(calculateTimeLeft(timeInSeconds, duel.endsIn));
         } else {
-          timeInSeconds =
-            duel.status === -1 ? duel.createdAt + 1800 : (duel.startAt || 0);
+          timeInSeconds = duel.status === -1 ? duel.createdAt + 1800 : duel.startAt || 0;
           setTimeLeft(calculateTimeLeft(timeInSeconds, duel.endsIn));
         }
       };
@@ -147,10 +145,11 @@ const Bet: FC = () => {
     // totalYesAmount,
     // totalNoAmount,
     yesPercentage,
-    // noPercentage,
+    noPercentage,
     loading: totalBetAmountsLoading,
     error: totalBetAmountsError,
   } = useTotalBetAmounts(id ?? '');
+
 
   if (loading || totalBetAmountsLoading) {
     return <LoadingSkeleton />;
@@ -161,7 +160,7 @@ const Bet: FC = () => {
   }
 
   // Use the percentages directly from the hook
-  const displayPercentage = Number(yesPercentage.toFixed(2));
+  // const displayPercentage = Number(yesPercentage.toFixed(2));
 
   const handleBuyOrders = async (
     betOptionMarketId: string,
@@ -219,7 +218,7 @@ const Bet: FC = () => {
           <Header
             title={
               duel.betString ??
-              `Will ${duel.token} be ${duel.winCondition === 0 ? 'ABOVE' : 'BELOW'} ${duel.triggerPrice}`
+              `Will ${duel.token} be ${duel.winCondition === 0 ? 'ABOVE' : 'BELOW'} $${duel.triggerPrice}`
             }
             logo={getIconPath(duel.token)}
             triggerPrice={duel.triggerPrice || '0'}
@@ -227,10 +226,14 @@ const Bet: FC = () => {
             token={duel.token || ''}
             liquidity={duel.totalBetAmount.toString()}
             endsIn={timeLeft}
-            percentage={displayPercentage}
+            yesPercentage={Number(yesPercentage.toFixed(2))}
+            noPercentage={Number(noPercentage.toFixed(2))}
             duelType={duel.duelType as 'COIN_DUEL' | 'FLASH_DUEL'}
             imageSrc={duel.betIcon}
             currentPrice={currentPrice ? currentPrice.toString() : undefined}
+            duelDuration={duel.endsIn}
+            duelStatus={duel.status}
+            bootstrappingStartTime={duel.createdAt}
           />
           <OrderBook yesBets={yesBets} noBets={noBets} handleBuyOrders={handleBuyOrders} />
           <OrdersHistory duelId={duel.duelId} />

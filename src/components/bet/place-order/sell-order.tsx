@@ -4,7 +4,7 @@ import { TRANSACTION_STATUS } from '@/constants/app';
 import { OPTIONS_TYPE } from '@/constants/duel';
 import useSellOrder from '@/hooks/useSellOrder';
 import { Button } from '@/shadcn/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/shadcn/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/shadcn/components/ui/card';
 import { Input } from '@/shadcn/components/ui/input';
 import { Label } from '@/shadcn/components/ui/label';
 import { useToast } from '@/shadcn/components/ui/use-toast';
@@ -84,8 +84,8 @@ const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice, duration }) 
       // Auto-select the first bet that matches the position
       const matchingBets = betsData.filter(
         (bet) =>
-          (position === OPTIONS_TYPE.YES && bet.index === 0) ||
-          (position === OPTIONS_TYPE.NO && bet.index === 1),
+          (position === OPTIONS_TYPE.LONG && bet.index === 0) ||
+          (position === OPTIONS_TYPE.SHORT && bet.index === 1),
       );
 
       if (matchingBets.length > 0) {
@@ -133,9 +133,11 @@ const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice, duration }) 
     if (selectedBet) {
       // Trim to 4 decimal places without rounding
       const trimmedQuantity = String(selectedBet.quantity).includes('.')
-        ? selectedBet.quantity.toString().split('.')[0] + '.' + selectedBet.quantity.toString().split('.')[1].slice(0, 4)
+        ? selectedBet.quantity.toString().split('.')[0] +
+          '.' +
+          selectedBet.quantity.toString().split('.')[1].slice(0, 4)
         : selectedBet.quantity;
-        
+
       setAmount(trimmedQuantity);
       setError('');
     }
@@ -301,14 +303,16 @@ const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice, duration }) 
   }, [duelId, address]);
 
   const handleBetSelect = useCallback((bet: OptionBetType) => {
-    const position = bet.index === 0 ? OPTIONS_TYPE.YES : OPTIONS_TYPE.NO;
+    const position = bet.index === 0 ? OPTIONS_TYPE.LONG : OPTIONS_TYPE.SHORT;
     setSelectedPosition(position);
-    
+
     // Trim to 4 decimal places without rounding
-    const trimmedQuantity = String(bet.quantity).includes('.') 
-      ? bet.quantity.toString().split('.')[0] + '.' + bet.quantity.toString().split('.')[1].slice(0, 4)
+    const trimmedQuantity = String(bet.quantity).includes('.')
+      ? bet.quantity.toString().split('.')[0] +
+        '.' +
+        bet.quantity.toString().split('.')[1].slice(0, 4)
       : bet.quantity;
-      
+
     setAmount(trimmedQuantity);
     setPrice(bet.price);
     setBetOptionId(bet.id);
@@ -397,7 +401,10 @@ const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice, duration }) 
 
         <Card className="bg-transparent border-none">
           <CardHeader className="px-0 py-2">
-            <CardTitle className="text-gray-400 text-base font-normal">Your Bets</CardTitle>
+            <div className="flex justify-between items-center">
+              <span className="text-zinc-400 text-sm">Your Bets</span>
+              <span className="text-zinc-400 text-sm">Average Price</span>
+            </div>
           </CardHeader>
           <CardContent className="p-0 space-y-4">
             {yesBets.length > 0 && (
@@ -415,7 +422,7 @@ const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice, duration }) 
                     )}
                   >
                     <span>
-                      {Number(bet.quantity).toFixed(4)} {OPTIONS_TYPE.YES}
+                      {Number(bet.quantity).toFixed(4)} {OPTIONS_TYPE.LONG}
                     </span>
                     <span>${bet.price}</span>
                   </Button>
@@ -438,7 +445,7 @@ const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice, duration }) 
                     )}
                   >
                     <span>
-                      {Number(bet.quantity).toFixed(4)} {OPTIONS_TYPE.NO}
+                      {Number(bet.quantity).toFixed(4)} {OPTIONS_TYPE.SHORT}
                     </span>
                     <span>${bet.price}</span>
                   </Button>
