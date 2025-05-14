@@ -119,6 +119,13 @@ const Header: FC<Props> = ({
                   rel="noopener noreferrer"
                   className="inline-flex items-center hover:text-blue-400 group"
                 >
+                  <Image
+                    src="/logo/x.png"
+                    alt="X"
+                    width={20}
+                    height={20}
+                    className="inline-block invert"
+                  />
                   {/* {!creator.startsWith('0x') && (
                     <Image
                       src={`https://twitter.com/${creator}/profile_image?size=original`}
