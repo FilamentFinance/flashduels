@@ -175,7 +175,7 @@ const Duels: FC = () => {
         const filteredDuels = response.data.allDuels.map((item: DuelResponseItem) => ({
           title:
             item.betString ||
-            `Will ${item.token} be ${item.winCondition === 0 ? 'ABOVE' : 'BELOW'} $${item.triggerPrice}`,
+            `Will ${item.token} be ${item.winCondition === 0 ? 'ABOVE' : 'BELOW'} $${item.triggerPrice} ?`,
           imageSrc: item.betIcon || '',
           status: item.status,
           duelType: item.duelType,
@@ -196,7 +196,7 @@ const Duels: FC = () => {
             return {
               title:
                 item.data.betString ||
-                `Will ${item.data.token} be ${item.data.winCondition === 0 ? 'ABOVE' : 'BELOW'} $${item.data.triggerPrice}`,
+                `Will ${item.data.token} be ${item.data.winCondition === 0 ? 'ABOVE' : 'BELOW'} $${item.data.triggerPrice} ?`,
               imageSrc: item.data.betIcon || '',
               status: item.status === 'pending' ? 2 : item.status === 'approved' ? -1 : 4,
               duelType: item.type,

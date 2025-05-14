@@ -44,43 +44,49 @@ export const OrdersHistory = ({ duelId }: OrdersTableProps) => {
   const { address } = useAccount();
   const { toast } = useToast();
   const { cancelSell } = useCancelOrder();
+  const [cancellingOrderId, setCancellingOrderId] = useState<string | null>(null);
   // const [wsManager, setWsManager] = useState<WebSocketManager<OpenOrdersMessage> | null>(null);
 
   const handleCancel = async (order: OrderData) => {
-    if (order.sellId === undefined) {
-      toast({
-        title: 'Error',
-        description: 'Invalid order ID',
-        variant: 'destructive',
-      });
-      return;
-    }
+    setCancellingOrderId(order.id);
+    try {
+      if (order.sellId === undefined) {
+        toast({
+          title: 'Error',
+          description: 'Invalid order ID',
+          variant: 'destructive',
+        });
+        return;
+      }
 
-    const result = await cancelSell(duelId, order.betOptionIndex, order.sellId);
+      const result = await cancelSell(duelId, order.betOptionIndex, order.sellId);
 
-    if (result.success) {
-      // Update backend
-      await baseApiClient.delete(`${SERVER_CONFIG.API_URL}/user/betOption/cancel`, {
-        data: {
-          duelId,
-          betOptionMarketId: order.id,
-          userAddress: address?.toLowerCase(),
-        },
-      });
+      if (result.success) {
+        // Update backend
+        await baseApiClient.delete(`${SERVER_CONFIG.API_URL}/user/betOption/cancel`, {
+          data: {
+            duelId,
+            betOptionMarketId: order.id,
+            userAddress: address?.toLowerCase(),
+          },
+        });
 
-      // Remove the cancelled order from the UI
-      setOpenOrders((prevOrders) => prevOrders.filter((o) => o.sellId !== order.sellId));
+        // Remove the cancelled order from the UI
+        setOpenOrders((prevOrders) => prevOrders.filter((o) => o.sellId !== order.sellId));
 
-      toast({
-        title: 'Success',
-        description: 'Order cancelled successfully',
-      });
-    } else {
-      toast({
-        title: 'Error',
-        description: result.error || 'Failed to cancel order',
-        variant: 'destructive',
-      });
+        toast({
+          title: 'Success',
+          description: 'Order cancelled successfully',
+        });
+      } else {
+        toast({
+          title: 'Error',
+          description: result.error || 'Failed to cancel order',
+          variant: 'destructive',
+        });
+      }
+    } finally {
+      setCancellingOrderId(null);
     }
   };
 
@@ -146,7 +152,9 @@ export const OrdersHistory = ({ duelId }: OrdersTableProps) => {
               <Table>
                 <TableHeader className="sticky top-0 bg-neutral-900 z-10">
                   <TableRow className="hover:bg-transparent border-b border-neutral-800">
-                    <TableHead className="text-xs font-medium text-stone-500 py-2">Bet</TableHead>
+                    <TableHead className="text-xs font-medium text-stone-500 py-2">
+                      Market
+                    </TableHead>
                     <TableHead className="text-xs font-medium text-stone-500 text-center py-2">
                       Direction
                     </TableHead>
@@ -159,7 +167,7 @@ export const OrdersHistory = ({ duelId }: OrdersTableProps) => {
                     {/* <TableHead className="text-xs font-medium text-stone-500 text-center py-2">
                       Status
                     </TableHead> */}
-                    <TableHead className="text-xs font-medium text-stone-500 text-center py-2">
+                    <TableHead className="text-xs font-medium text-stone-500 text-center align-middle py-2">
                       Actions
                     </TableHead>
                   </TableRow>
@@ -196,14 +204,26 @@ export const OrdersHistory = ({ duelId }: OrdersTableProps) => {
                           <span className="text-green-400">Active</span>
                         )}
                       </TableCell> */}
-                      <TableCell className="py-3 text-center">
+                      <TableCell className="py-3 text-center align-middle">
                         {(order.duelStatus === 0 || order.duelStatus === -1) && (
                           <Button
                             variant="outline"
-                            className="px-5 py-1 text-xs font-bold text-red-500 border-red-500 bg-red-600/10 hover:bg-red-600/20 hover:text-red-400"
+                            className="mx-auto px-2 py-1 text-xs font-bold text-red-500 border-red-500 bg-red-600/10 hover:bg-red-600/20 hover:text-red-400 flex items-center justify-center gap-2"
+                            style={{ display: 'block', width: 110 }}
                             onClick={() => handleCancel(order)}
+                            disabled={cancellingOrderId === order.id}
                           >
-                            Cancel
+                            {cancellingOrderId === order.id ? (
+                              <>
+                                <span
+                                  className="inline-block h-4 w-3 animate-spin rounded-full border-2 border-red-500 border-t-transparent align-middle mr-1"
+                                  style={{ minWidth: '1rem', minHeight: '1rem' }}
+                                />
+                                <span className="text-xs font-bold align-middle">Cancelling</span>
+                              </>
+                            ) : (
+                              <span className="text-xs font-bold align-middle">Cancel</span>
+                            )}
                           </Button>
                         )}
                       </TableCell>

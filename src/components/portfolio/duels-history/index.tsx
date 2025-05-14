@@ -170,9 +170,10 @@ const DuelsHistory: FC = () => {
                             item.duelDetails.betString ||
                             `Will ${item.duelDetails.token} be ${
                               item.duelDetails.winCondition === 0 ? 'ABOVE' : 'BELOW'
-                            } $${item.duelDetails.triggerPrice}`
+                            } $${item.duelDetails.triggerPrice} ?`
                           }
-                          direction="Yes"
+                          // direction="Yes"
+                          direction="LONG"
                           status={item.duelDetails.status}
                           createdAt={item.duelDetails.createdAt}
                           startAt={item.duelDetails.startAt}
@@ -193,9 +194,10 @@ const DuelsHistory: FC = () => {
                             item.duelDetails.betString ||
                             `Will ${item.duelDetails.token} be ${
                               item.duelDetails.winCondition === 0 ? 'ABOVE' : 'BELOW'
-                            } $${item.duelDetails.triggerPrice}`
+                            } $${item.duelDetails.triggerPrice} ?`
                           }
-                          direction="No"
+                          // direction="No"
+                          direction="SHORT"
                           status={item.duelDetails.status}
                           createdAt={item.duelDetails.createdAt}
                           startAt={item.duelDetails.startAt}

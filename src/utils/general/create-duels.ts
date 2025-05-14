@@ -12,6 +12,8 @@ export const mapCategoryToEnumIndex = (category: string): number => {
       return 5;
     case 'news':
       return 6;
+    case 'formula_one':
+      return 7;
     default:
       return 0;
   }
