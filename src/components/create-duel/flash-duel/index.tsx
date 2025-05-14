@@ -201,14 +201,11 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
           'After transaction completion, your duel will need admin approval before going live.',
         duration: 5000,
       });
-      // console.log('selectedCategory', selectedCategory);
-      const backendCategory =
-        FLASH_DUEL_CATEGORIES[selectedCategory as keyof typeof FLASH_DUEL_CATEGORIES].value;
-      // console.log('backendCategory', backendCategory);
+      console.log('selectedCategory', selectedCategory);
+      const backendCategory = selectedCategory;
       const categoryEnumIndex = mapCategoryToEnumIndex(backendCategory);
-      // console.log('categoryEnumIndex', categoryEnumIndex);
+      console.log('categoryEnumIndex', categoryEnumIndex);
       const durationNumber = mapDurationToNumber(selectedDuration);
-      // console.log('durationNumber', durationNumber);
       if (selectedImage) {
         const fileName = `${Date.now()}-${selectedImage.name}`;
         const presignedUrlResponse = await baseApiClient.post(
@@ -276,9 +273,11 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
               name="category"
               required
               onValueChange={(value) => {
+                console.log('selected category', value);
                 setSelectedCategory(value);
-                if (value && value !== CATEGORIES['ALL_DUELS'].title) {
-                  setFormError((prev) => ({ ...prev, category: undefined }));
+                // Clear error if a valid category is selected
+                if (value && value !== 'any') {
+                  setFormError({ category: undefined });
                 }
               }}
             >
@@ -286,22 +285,28 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
               <SelectContent className="bg-[#1C1C1C] border-zinc-700">
-                {Object.keys(FLASH_DUEL_CATEGORIES)
-                  .filter((category) => (FLASH_DUEL_CATEGORIES as any)[category].enabled)
-                  .map((category) => (
-                    <SelectItem
-                      key={category}
-                      value={category}
-                      className="text-white focus:bg-zinc-800 focus:text-white"
-                    >
-                      {CATEGORIES[category]?.title ||
-                        category
-                          .toLowerCase()
-                          .split('_')
-                          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                          .join(' ')}
-                    </SelectItem>
-                  ))}
+                {Object.entries(FLASH_DUEL_CATEGORIES)
+                  .filter(([_, cat]) => cat.enabled)
+                  .map(([key, cat]) => {
+                    const categoryTitle = CATEGORIES[key]?.title;
+                    if (!categoryTitle) {
+                      console.warn(`Missing category title for key: ${key}`);
+                    }
+                    return (
+                      <SelectItem
+                        key={key}
+                        value={cat.value}
+                        className="text-white focus:bg-zinc-800 focus:text-white"
+                      >
+                        {categoryTitle ||
+                          key
+                            .toLowerCase()
+                            .split('_')
+                            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                            .join(' ')}
+                      </SelectItem>
+                    );
+                  })}
               </SelectContent>
             </Select>
             {formError.category && (

@@ -5,7 +5,7 @@ import { GhostIcon } from 'lucide-react';
 
 const NoDuels = () => {
   return (
-    <div className="w-full px-4 py-12">
+    <div className="px-4 py-12 flex justify-center">
       <Card className="mx-auto max-w-md bg-neutral-900 border-2 border-neutral-800 rounded-xl">
         <CardContent className="pt-8 pb-6">
           <div className="flex flex-col items-center space-y-4">

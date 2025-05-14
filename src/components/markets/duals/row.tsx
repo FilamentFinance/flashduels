@@ -20,6 +20,48 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
   const [timeLeft, setTimeLeft] = useState<string>('');
   const { yesPercentage, noPercentage } = useTotalBetAmounts(duelId);
 
+  const getCategoryColor = (category: string) => {
+    switch (category.toLowerCase()) {
+      case 'crypto':
+        return 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30';
+      case 'politics':
+        return 'bg-blue-500/20 text-blue-400 border border-blue-500/30';
+      case 'sports':
+        return 'bg-green-500/20 text-green-400 border border-green-500/30';
+      case 'twitter':
+        return 'bg-sky-500/20 text-sky-400 border border-sky-500/30';
+      case 'nfts':
+        return 'bg-purple-500/20 text-purple-400 border border-purple-500/30';
+      case 'news':
+        return 'bg-red-500/20 text-red-400 border border-red-500/30';
+      case 'formula_one':
+        return 'bg-red-500/20 text-rose-400 border border-red-500/30';
+      default:
+        return 'bg-zinc-800 text-zinc-300';
+    }
+  };
+
+  const formatCategoryDisplay = (category: string) => {
+    switch (category.toLowerCase()) {
+      case 'formula_one':
+        return 'Formula One (F1)';
+      case 'crypto':
+        return 'Crypto';
+      case 'politics':
+        return 'Politics';
+      case 'sports':
+        return 'Sports';
+      case 'twitter':
+        return 'Twitter';
+      case 'nfts':
+        return 'NFTs';
+      case 'news':
+        return 'News';
+      default:
+        return category || 'Other';
+    }
+  };
+
   const getIconPath = () => {
     if (duelType === 'COIN_DUEL' && title) {
       const symbol = title.split(' ')[1];
@@ -74,11 +116,12 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
 
   return (
     <Card
-      className="flex items-center justify-between p-3 bg-zinc-900 border-zinc-800 hover:bg-zinc-900/90 transition-colors cursor-pointer"
+      className="flex items-center p-2 bg-zinc-900 border-zinc-800 hover:bg-zinc-900/90 transition-colors cursor-pointer"
       onClick={onClick}
     >
-      <div className="flex items-center gap-4">
-        <div className="relative w-14 h-14">
+      {/* Left: Icon, Title, Volume, Time */}
+      <div className="flex items-center gap-2 flex-1 min-w-0">
+        <div className="relative w-16 h-16 flex-shrink-0">
           {duelType === 'COIN_DUEL' && iconPath && iconPath.startsWith('/') ? (
             <Image
               src={iconPath}
@@ -107,9 +150,15 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
             </div>
           )}
         </div>
-
-        <div className="flex flex-col">
-          <span className="text-white font-medium text-base">{title}</span>
+        <div className="flex flex-col min-w-0">
+          {/* Duel Category Tag First */}
+          <span
+            className={`mb-1 inline-block px-3 py-0.5 rounded-full text-xs font-semibold ${getCategoryColor(data.category)} w-fit`}
+          >
+            {formatCategoryDisplay(data.category)}
+          </span>
+          {/* Duel Title Below */}
+          <span className="text-white font-semibold text-base mb-1 truncate">{title}</span>
           <div className="flex items-center gap-3 mt-1">
             <div className="flex items-center gap-1.5 text-zinc-400 text-sm">
               <Image src="/logo/markets/dollar.svg" alt="Volume" width={16} height={16} />
@@ -125,52 +174,54 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
             )}
           </div>
         </div>
-
-        <ChanceProgress
-          totalYesAmount={yesPercentage}
-          totalNoAmount={noPercentage}
-          className="ml-4"
-        />
       </div>
 
-      {(status == -1 || status == 0) && (
-        <div className="flex gap-2">
-          {timeLeft === '00:00:00' || timeLeft === '00:00' ? (
-            <div className="px-4 py-2 text-zinc-400 bg-zinc-800/50 rounded-xl">
-              Pending Resolution
-            </div>
-          ) : (
-            <>
-              <YesNoButton
-                position="LONG"
-                onClick={(e: React.MouseEvent) => {
-                  e.stopPropagation();
-                  onPositionSelect(duelId, 'LONG', status);
-                }}
-              />
-              <YesNoButton
-                position="SHORT"
-                onClick={(e: React.MouseEvent) => {
-                  e.stopPropagation();
-                  onPositionSelect(duelId, 'SHORT', status);
-                }}
-              />
-            </>
-          )}
+      {/* Right: Sentiment Arc and Winner/Buttons */}
+      <div className="flex flex-col items-center flex-shrink-0 min-w-[180px] ml-4 gap-2">
+        {/* Sentiment Arc Centered */}
+        <div className="flex flex-col items-center">
+          <ChanceProgress totalYesAmount={yesPercentage} totalNoAmount={noPercentage} />
+          {/* <span className="text-xs text-zinc-400 mt-1">Sentiment</span> */}
         </div>
-      )}
-      {(winner === 0 || winner === 1) && (
-        <div className="px-16 text-left">
-          <p className="text-zinc-400">
-            Winner:{' '}
-            {winner === 0 ? (
-              <span className="text-green-500 font-bold ">LONG</span>
+        {/* Buttons or Status Centered Below Arc */}
+        {(status == -1 || status == 0) && (
+          <div className="flex gap-2 mt-2 justify-center">
+            {timeLeft === '00:00:00' || timeLeft === '00:00' ? (
+              <div className="px-4 py-2 text-xs text-zinc-400 bg-zinc-800/50 rounded-xl">
+                Pending Resolution
+              </div>
             ) : (
-              <span className="text-red-500 font-bold ">SHORT</span>
+              <>
+                <YesNoButton
+                  position="LONG"
+                  onClick={(e: React.MouseEvent) => {
+                    e.stopPropagation();
+                    onPositionSelect(duelId, 'LONG', status);
+                  }}
+                />
+                <YesNoButton
+                  position="SHORT"
+                  onClick={(e: React.MouseEvent) => {
+                    e.stopPropagation();
+                    onPositionSelect(duelId, 'SHORT', status);
+                  }}
+                />
+              </>
             )}
-          </p>
-        </div>
-      )}
+          </div>
+        )}
+        {/* Winner Centered Below Arc */}
+        {(winner === 0 || winner === 1) && (
+          <div className="px-4 text-center mt-2">
+            <span className="text-xs text-zinc-400">Winner: </span>
+            {winner === 0 ? (
+              <span className="text-green-500 font-bold text-sm">LONG</span>
+            ) : (
+              <span className="text-red-500 font-bold text-sm">SHORT</span>
+            )}
+          </div>
+        )}
+      </div>
     </Card>
   );
 };

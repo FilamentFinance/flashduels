@@ -148,7 +148,8 @@ const Markets: FC = () => {
     const matchesCategory =
       activeCategory === 'All Duels'
         ? true
-        : duel.category.toLowerCase() === activeCategory.toLowerCase();
+        : duel.category.toLowerCase() === activeCategory.toLowerCase() ||
+          (activeCategory === 'Formula One (F1)' && duel.category.toLowerCase() === 'formula_one');
     return matchesSearch && matchesCategory;
   });
 
@@ -194,13 +195,23 @@ const Markets: FC = () => {
         <DuelStatus activeStatus={activeStatus} setActiveStatus={setActiveStatus} />
         <SearchDuels placeholder="Search Duels" onSearch={setSearchQuery} />
       </div>
-      <div className="max-h-sm">
-        <Duels
-          data={filteredDuels}
-          handleDuelRowClick={handleDuelRowClick}
-          onPositionSelect={handlePositionSelect}
-        />
-      </div>
+      {filteredDuels.length === 0 ? (
+        <div className="h-[60vh] flex justify-center items-center">
+          <Duels
+            data={filteredDuels}
+            handleDuelRowClick={handleDuelRowClick}
+            onPositionSelect={handlePositionSelect}
+          />
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[calc(100vh-200px)] overflow-y-auto mt-2">
+          <Duels
+            data={filteredDuels}
+            handleDuelRowClick={handleDuelRowClick}
+            onPositionSelect={handlePositionSelect}
+          />
+        </div>
+      )}
       {isVerifyModalOpen && <CreatorVerify onClose={() => setVerifyModalOpen(false)} />}
     </div>
   );
