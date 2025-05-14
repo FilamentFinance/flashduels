@@ -229,14 +229,14 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
         });
       }
 
-      const duelData = {
-        type: DUEL_TYPE.FLASH_DUEL,
-        category: backendCategory,
-        betIcon: imageUrl,
-        betString: duelText,
-        minimumWager: '',
-        endsIn: DURATIONS[durationNumber],
-      };
+      // const duelData = {
+      //   type: DUEL_TYPE.FLASH_DUEL,
+      //   category: backendCategory,
+      //   betIcon: imageUrl,
+      //   betString: duelText,
+      //   minimumWager: '',
+      //   endsIn: DURATIONS[durationNumber],
+      // };
       const createDuelData = {
         topic: duelText,
         category: categoryEnumIndex,
@@ -286,7 +286,7 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
               </SelectTrigger>
               <SelectContent className="bg-[#1C1C1C] border-zinc-700">
                 {Object.entries(FLASH_DUEL_CATEGORIES)
-                  .filter(([_, cat]) => cat.enabled)
+                  .filter(([, cat]) => cat.enabled)
                   .map(([key, cat]) => {
                     const categoryTitle = CATEGORIES[key]?.title;
                     if (!categoryTitle) {
