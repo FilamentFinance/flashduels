@@ -57,9 +57,23 @@ const InviteGate: React.FC<InviteGateProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Try to sign in whenever the address changes
+  // Check authentication state from localStorage first
   useEffect(() => {
     if (address) {
+      const token = localStorage.getItem(`Bearer_${address.toLowerCase()}`);
+      const signingKey = localStorage.getItem(`signingKey_${address.toLowerCase()}`);
+      const signingKeyExpiry = localStorage.getItem(`signingKeyExpiry_${address.toLowerCase()}`);
+
+      if (token && signingKey && signingKeyExpiry) {
+        // Check if signing key has expired
+        const expiryDate = new Date(signingKeyExpiry);
+        if (expiryDate > new Date()) {
+          setIsAuthenticated(true);
+          setLoading(false);
+          return;
+        }
+      }
+      // If no valid auth data found, try to sign in
       attemptSignIn();
     } else {
       setIsAuthenticated(false);
@@ -130,10 +144,6 @@ const InviteGate: React.FC<InviteGateProps> = ({ children }) => {
 
       if (response.data.success) {
         setIsAuthenticated(true);
-        // Show a success message about signup bonus
-        // alert(
-        //   `Welcome! You've received ${response.data.data?.signupBonus} tokens as a signup bonus.`,
-        // );
       } else {
         setErrorMessage(response.data.error?.description || 'Invalid invite code.');
       }
