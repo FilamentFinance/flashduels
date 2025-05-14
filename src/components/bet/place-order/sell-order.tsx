@@ -13,6 +13,7 @@ import { OptionsType } from '@/types/duel';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { useAccount } from 'wagmi';
 import PositionSelector from './position-selector';
+import { Loader2 } from 'lucide-react';
 
 interface SellOrderProps {
   duelId: string;
@@ -52,6 +53,7 @@ const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice, duration }) 
   const [error, setError] = useState('');
   const { toast } = useToast();
   const [showDialog, setShowDialog] = useState(false);
+  const [isSelling, setIsSelling] = useState(false);
 
   console.log('amount before useSellOrder', amount);
   console.log(
@@ -187,11 +189,6 @@ const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice, duration }) 
       return;
     }
 
-    // if (!price || Number(price) <= 0 || Number(price) > 1) {
-    //   setPriceError('Please enter a valid price between 0 and 1');
-    //   return;
-    // }
-
     if (!price || Number(price) <= 0) {
       setPriceError('Please enter a valid price');
       return;
@@ -206,6 +203,7 @@ const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice, duration }) 
     }
 
     try {
+      setIsSelling(true);
       const result = await sellOrder();
       console.log('Sell order result:', result);
       if (!result.success) {
@@ -218,7 +216,6 @@ const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice, duration }) 
         amount,
         price,
         betOptionId,
-        // amount: result.amount,
         sellId: result.sellId,
       });
       // Update backend
@@ -261,6 +258,8 @@ const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice, duration }) 
         description: error instanceof Error ? error.message : 'Failed to place sell order',
         variant: 'destructive',
       });
+    } finally {
+      setIsSelling(false);
     }
   }, [
     isShortDurationDuel,
@@ -466,15 +465,27 @@ const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice, duration }) 
         >
           <Button
             onClick={handlePlaceOrder}
-            disabled={!isFormValid || status !== TRANSACTION_STATUS.IDLE || isShortDurationDuel}
+            disabled={
+              !isFormValid || status !== TRANSACTION_STATUS.IDLE || isShortDurationDuel || isSelling
+            }
             className={cn(
               'w-full py-6 text-lg font-medium',
-              isFormValid && status === TRANSACTION_STATUS.IDLE && !isShortDurationDuel
+              isFormValid &&
+                status === TRANSACTION_STATUS.IDLE &&
+                !isShortDurationDuel &&
+                !isSelling
                 ? 'bg-[#F19ED2] hover:bg-[#F19ED2]/90 text-white'
                 : 'bg-zinc-800 text-zinc-400',
             )}
           >
-            Sell Bet
+            {isSelling ? (
+              <div className="flex items-center justify-center gap-2">
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                <span>Selling Option...</span>
+              </div>
+            ) : (
+              'Sell Option'
+            )}
           </Button>
 
           {/* Hover Message Box */}
@@ -485,7 +496,7 @@ const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice, duration }) 
                          text-center text-red-400 text-sm
                          shadow-lg z-50"
             >
-              Sell Bet is unavailable for 5 and 15 mins duration duels
+              Sell Option is unavailable for 5 and 15 mins duration duels
             </div>
           )}
         </div>

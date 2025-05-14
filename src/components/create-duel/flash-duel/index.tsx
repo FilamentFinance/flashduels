@@ -320,8 +320,9 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
             placeholder="Enter your Text Here"
             className="bg-zinc-900 border-zinc-700 min-h-[50px]"
             required
+            maxLength={60}
             onChange={(e) => {
-              const value = e.target.value;
+              const value = e.target.value.slice(0, 60);
               if (value && value.trim().length > 0) {
                 setFormError((prev) => ({ ...prev, duelText: undefined }));
               }

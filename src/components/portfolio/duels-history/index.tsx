@@ -172,7 +172,8 @@ const DuelsHistory: FC = () => {
                               item.duelDetails.winCondition === 0 ? 'ABOVE' : 'BELOW'
                             } $${item.duelDetails.triggerPrice} ?`
                           }
-                          direction="Yes"
+                          // direction="Yes"
+                          direction="LONG"
                           status={item.duelDetails.status}
                           createdAt={item.duelDetails.createdAt}
                           startAt={item.duelDetails.startAt}
@@ -195,7 +196,8 @@ const DuelsHistory: FC = () => {
                               item.duelDetails.winCondition === 0 ? 'ABOVE' : 'BELOW'
                             } $${item.duelDetails.triggerPrice} ?`
                           }
-                          direction="No"
+                          // direction="No"
+                          direction="SHORT"
                           status={item.duelDetails.status}
                           createdAt={item.duelDetails.createdAt}
                           startAt={item.duelDetails.startAt}
