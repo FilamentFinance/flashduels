@@ -78,7 +78,7 @@ const Markets: FC = () => {
             .map((item: NewDuelItem) => ({
               title:
                 item.betString ||
-                `Will ${item.token} be ${item.winCondition === 0 ? 'ABOVE' : 'BELOW'} $${item.triggerPrice}`,
+                `Will ${item.token} be ${item.winCondition === 0 ? 'ABOVE' : 'BELOW'} $${item.triggerPrice} ?`,
               imageSrc: item.betIcon || 'empty-string',
               volume: `$${item.totalBetAmount}`,
               category: item.category,

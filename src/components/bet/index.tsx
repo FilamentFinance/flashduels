@@ -218,7 +218,7 @@ const Bet: FC = () => {
           <Header
             title={
               duel.betString ??
-              `Will ${duel.token} be ${duel.winCondition === 0 ? 'ABOVE' : 'BELOW'} $${duel.triggerPrice}`
+              `Will ${duel.token} be ${duel.winCondition === 0 ? 'ABOVE' : 'BELOW'} $${duel.triggerPrice} ?`
             }
             logo={getIconPath(duel.token)}
             triggerPrice={duel.triggerPrice || '0'}

@@ -399,6 +399,13 @@ const BuyOrder: FC<BuyOrderProps> = ({
   useEffect(() => {
     if (duel) {
       const updateTime = () => {
+        // If duel is in Bootstrapping stage, don't show timer
+        if (duel.status === -1) {
+          setMarketBuyEnabled(false);
+          setCountdown('');
+          return;
+        }
+
         if (duel.endsIn < 0.5) {
           setMarketBuyEnabled(true);
           return;
@@ -407,11 +414,9 @@ const BuyOrder: FC<BuyOrderProps> = ({
           duel.status === -1 ? duel.createdAt : duel.startAt || 0,
           duel.endsIn,
         );
-        // console.log(timeleftForEnd);
 
         // Extract hours, minutes, and seconds using regex
         const timeMatch = timeleftForEnd.match(/(?:(\d+)h\s)?(?:(\d+)m\s)?(\d+)s/);
-        // console.log(timeMatch);
         if (timeMatch) {
           const hours = timeMatch[1] ? parseInt(timeMatch[1], 10) : 0;
           const minutes = timeMatch[2] ? parseInt(timeMatch[2], 10) : 0;
@@ -573,6 +578,15 @@ const BuyOrder: FC<BuyOrderProps> = ({
           onMouseEnter={() => isShortDurationDuel && setShowMarketBuyMessage(true)}
           onMouseLeave={() => setShowMarketBuyMessage(false)}
         >
+          {/* Add informative message */}
+          <div className="text-zinc-500 text-xs italic mb-2 px-1">
+            (Note: <span className="font-semibold">Market Buy</span> will be available when the duel
+            is in <span className="font-semibold">Live</span> stage. For{' '}
+            <span className="font-semibold">30 min</span> duels, it opens{' '}
+            <span className="font-semibold">10 mins</span> before the duel resolves. For duels
+            longer than <span className="font-semibold">1 hour</span>, it opens{' '}
+            <span className="font-semibold">30 mins</span> before the duel resolves.)
+          </div>
           <Button
             onClick={handleMarketBuy}
             disabled={!isFormValid || isLoading || !marketBuyEnabled || isShortDurationDuel}
@@ -588,6 +602,8 @@ const BuyOrder: FC<BuyOrderProps> = ({
                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                 <span>Processing Order...</span>
               </div>
+            ) : duel?.status === -1 ? (
+              'Market Buy'
             ) : marketBuyEnabled && !isShortDurationDuel ? (
               'Market Buy'
             ) : isShortDurationDuel ? (
