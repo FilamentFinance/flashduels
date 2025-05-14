@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { FC, useEffect, useState } from 'react';
+import { FC } from 'react';
 import DetailsAndRules from './details-and-rules';
 import PercentageBlocks from './percentage-blocks';
 import React from 'react';

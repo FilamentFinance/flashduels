@@ -13,7 +13,6 @@ import { OptionsType } from '@/types/duel';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { useAccount } from 'wagmi';
 import PositionSelector from './position-selector';
-import { Loader2 } from 'lucide-react';
 
 interface SellOrderProps {
   duelId: string;
