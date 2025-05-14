@@ -204,7 +204,7 @@ const Markets: FC = () => {
           />
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[calc(100vh-200px)] overflow-y-auto mt-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-h-[calc(100vh-200px)] overflow-y-auto mt-2">
           <Duels
             data={filteredDuels}
             handleDuelRowClick={handleDuelRowClick}

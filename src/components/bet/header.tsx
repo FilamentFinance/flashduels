@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { FC } from 'react';
+import { FC, useEffect, useState } from 'react';
 import DetailsAndRules from './details-and-rules';
 import PercentageBlocks from './percentage-blocks';
 import React from 'react';
@@ -21,6 +21,7 @@ interface Props {
   duelDuration?: number;
   duelStatus?: number;
   bootstrappingStartTime?: number;
+  creator?: string;
 }
 
 const Header: FC<Props> = ({
@@ -37,6 +38,7 @@ const Header: FC<Props> = ({
   duelDuration = 0,
   duelStatus = 0,
   bootstrappingStartTime,
+  creator,
   // category,
 }) => {
   let symbol, iconPath;
@@ -107,6 +109,43 @@ const Header: FC<Props> = ({
         <div className="flex flex-1 items-center justify-between">
           <div className="flex flex-col">
             <h1 className="text-2xl font-bold text-white">{title}</h1>
+            {/* Created by info, client-only rendering to avoid hydration errors */}
+            {typeof window !== 'undefined' && creator && (
+              <span className="text-xs text-zinc-400 mt-1 flex items-center gap-1">
+                Created by:
+                <a
+                  href={`https://x.com/${creator}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center hover:text-blue-400 group"
+                >
+                  {/* {!creator.startsWith('0x') && (
+                    <Image
+                      src={`https://twitter.com/${creator}/profile_image?size=original`}
+                      alt="Twitter Profile"
+                      width={24}
+                      height={24}
+                      className="rounded-full mr-1"
+                    />
+                  )} */}
+                  @{creator}
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="ml-1 w-3 h-3 opacity-0 group-hover:opacity-100 transition"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M17 7l-10 10M17 7h-6m6 0v6"
+                    />
+                  </svg>
+                </a>
+              </span>
+            )}
             {duelType === 'COIN_DUEL' && currentPrice && (
               <span className="text-zinc-400 text-sm mt-1">Market Price: ${currentPrice}</span>
             )}

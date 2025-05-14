@@ -159,6 +159,8 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
           </span>
           {/* Duel Title Below */}
           <span className="text-white font-semibold text-base mb-1 truncate">{title}</span>
+          {/* Creator Info Below Title */}
+          <span className="text-xs text-zinc-400 mb-1 truncate">Created by: {data.createdBy}</span>
           <div className="flex items-center gap-3 mt-1">
             <div className="flex items-center gap-1.5 text-zinc-400 text-sm">
               <Image src="/logo/markets/dollar.svg" alt="Volume" width={16} height={16} />

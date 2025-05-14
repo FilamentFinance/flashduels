@@ -19,6 +19,7 @@ import OrderBook from './order-book';
 import { OrdersHistory } from './orders-history';
 import PlaceOrder from './place-order';
 import { selectedCryptoAsset as setSelectedCryptoAsset } from '@/store/slices/priceSlice';
+import { truncateAddress } from '@/utils/general/getEllipsisTxt';
 
 const Bet: FC = () => {
   const searchParams = useSearchParams();
@@ -150,7 +151,6 @@ const Bet: FC = () => {
     error: totalBetAmountsError,
   } = useTotalBetAmounts(id ?? '');
 
-
   if (loading || totalBetAmountsLoading) {
     return <LoadingSkeleton />;
   }
@@ -234,6 +234,7 @@ const Bet: FC = () => {
             duelDuration={duel.endsIn}
             duelStatus={duel.status}
             bootstrappingStartTime={duel.createdAt}
+            creator={duel.user?.twitterUsername || truncateAddress(duel.user?.address)}
           />
           <OrderBook yesBets={yesBets} noBets={noBets} handleBuyOrders={handleBuyOrders} />
           <OrdersHistory duelId={duel.duelId} />
