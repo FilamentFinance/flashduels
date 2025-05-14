@@ -201,9 +201,14 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
           'After transaction completion, your duel will need admin approval before going live.',
         duration: 5000,
       });
-      const categoryEnumIndex = mapCategoryToEnumIndex(selectedCategory);
+      // console.log('selectedCategory', selectedCategory);
+      const backendCategory =
+        FLASH_DUEL_CATEGORIES[selectedCategory as keyof typeof FLASH_DUEL_CATEGORIES].value;
+      // console.log('backendCategory', backendCategory);
+      const categoryEnumIndex = mapCategoryToEnumIndex(backendCategory);
+      // console.log('categoryEnumIndex', categoryEnumIndex);
       const durationNumber = mapDurationToNumber(selectedDuration);
-
+      // console.log('durationNumber', durationNumber);
       if (selectedImage) {
         const fileName = `${Date.now()}-${selectedImage.name}`;
         const presignedUrlResponse = await baseApiClient.post(
@@ -227,6 +232,14 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
         });
       }
 
+      const duelData = {
+        type: DUEL_TYPE.FLASH_DUEL,
+        category: backendCategory,
+        betIcon: imageUrl,
+        betString: duelText,
+        minimumWager: '',
+        endsIn: DURATIONS[durationNumber],
+      };
       const createDuelData = {
         topic: duelText,
         category: categoryEnumIndex,
@@ -273,17 +286,22 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
               <SelectContent className="bg-[#1C1C1C] border-zinc-700">
-                {Object.values(FLASH_DUEL_CATEGORIES).map((category) => {
-                  return (
+                {Object.keys(FLASH_DUEL_CATEGORIES)
+                  .filter((category) => (FLASH_DUEL_CATEGORIES as any)[category].enabled)
+                  .map((category) => (
                     <SelectItem
                       key={category}
                       value={category}
                       className="text-white focus:bg-zinc-800 focus:text-white"
                     >
-                      {category.charAt(0).toUpperCase() + category.slice(1)}
+                      {CATEGORIES[category]?.title ||
+                        category
+                          .toLowerCase()
+                          .split('_')
+                          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                          .join(' ')}
                     </SelectItem>
-                  );
-                })}
+                  ))}
               </SelectContent>
             </Select>
             {formError.category && (
