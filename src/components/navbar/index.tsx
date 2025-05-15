@@ -25,10 +25,15 @@ import { useBalance } from '@/hooks/useBalance';
 import { formatUnits } from 'viem';
 import { Loader2 } from 'lucide-react';
 import { SERVER_CONFIG } from '@/config/server-config';
+import { setCreatorStatus } from '@/store/slices/authSlice';
+import { baseApiClient } from '@/config/api-client';
 
 const Navbar: FC = () => {
   const { address, isConnected } = useAccount();
-  const { isAuthenticated } = useAppSelector((state: RootState) => state.auth, shallowEqual);
+  const { isAuthenticated, isCreator } = useAppSelector(
+    (state: RootState) => state.auth,
+    shallowEqual,
+  );
   const { balance, symbol, decimals, isLoading } = useBalance(address);
   // const { isTradingEnabled = false } = useAppSelector((state: RootState) => state.user || {}, shallowEqual);
   const dispatch = useDispatch();
@@ -54,6 +59,21 @@ const Navbar: FC = () => {
   useEffect(() => {
     fetchCryptoAssets();
   }, []);
+
+  useEffect(() => {
+    if (isConnected && address) {
+      baseApiClient
+        .get(`${SERVER_CONFIG.API_URL}/user/creator/status`, {
+          params: { address: address.toLowerCase() },
+        })
+        .then((res) => {
+          dispatch(setCreatorStatus(res.data.isCreator));
+        })
+        .catch(() => {
+          dispatch(setCreatorStatus(false));
+        });
+    }
+  }, [isConnected, address, dispatch]);
 
   const formattedBalance =
     balance && decimals
@@ -85,7 +105,11 @@ const Navbar: FC = () => {
             {/* <ClaimFaucet /> */}
             <EnableTrading />
             <GetGas />
-            {isAuthenticated && <CreateDuel />}
+            {isAuthenticated && (
+              <div className="flex items-center gap-2">
+                <CreateDuel />
+              </div>
+            )}
             <WalletModal>
               <Button className="rounded-default bg-glass hover:bg-glass-hover border border-zinc-800 transition-colors duration-200 hover:shadow-lg flex items-center gap-2">
                 {isLoading ? (
@@ -95,7 +119,18 @@ const Navbar: FC = () => {
                     {formattedBalance} {symbol}
                   </span>
                 )}
-                <span className="border-l border-zinc-700 pl-2">{truncateAddress(address)}</span>
+                <span className="border-l border-zinc-700 pl-2 flex flex-col items-center">
+                  <span>{truncateAddress(address)}</span>
+                  {isCreator ? (
+                    <span className="text-xs text-center font-medium text-green-500 mt-1">
+                      ✓ Verified Creator
+                    </span>
+                  ) : (
+                    <span className="text-xs text-center font-medium text-yellow-500 mt-1">
+                      ⚠️ Not Verified Creator
+                    </span>
+                  )}
+                </span>
               </Button>
             </WalletModal>
             {/* <GenerateInvite /> */}

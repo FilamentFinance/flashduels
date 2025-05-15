@@ -137,20 +137,26 @@ const AccountDetails: FC = () => {
         <CardContent className="p-4 h-full">
           {/* Header */}
           <div className="flex justify-between items-center mb-6">
-            <div className="flex items-center gap-1.5">
-              <span className="text-xs font-medium text-zinc-500">{truncateAddress(address)}</span>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-5 w-5 p-0.5 text-zinc-500 hover:text-white hover:bg-transparent"
-                onClick={() =>
-                  openExternalLinkInNewTab(
-                    `https://seitrace.com/address/${address}?chain=atlantic-2`,
-                  )
-                }
-              >
-                <ExternalLink className="h-3 w-3" />
-              </Button>
+            <div className="flex flex-col">
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-medium text-zinc-500 flex items-center gap-1.5">
+                  {isCreator === true && <span className="text-green-500">✓</span>}
+                  {isCreator === false && <span className="text-orange-400">⚠️</span>}
+                  {truncateAddress(address)}
+                </span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-5 w-5 p-0.5 text-zinc-500 hover:text-white hover:bg-transparent"
+                  onClick={() =>
+                    openExternalLinkInNewTab(
+                      `https://seitrace.com/address/${address}?chain=atlantic-2`,
+                    )
+                  }
+                >
+                  <ExternalLink className="h-3 w-3" />
+                </Button>
+              </div>
             </div>
             <Button
               onClick={() => disconnect()}
@@ -175,7 +181,9 @@ const AccountDetails: FC = () => {
           <div className="grid grid-cols-1 gap-2">
             <div className="flex justify-between items-center">
               <div className="text-sm text-zinc-500">Total Invested Value</div>
-              <div className="text-sm font-medium text-white">{accountData.positionValue}</div>
+              <div className="text-sm font-medium text-white">
+                {accountData.positionValue} {symbol}
+              </div>
             </div>
             <div className="flex justify-between items-center">
               <div className="text-sm text-zinc-500">PNL</div>
@@ -186,7 +194,7 @@ const AccountDetails: FC = () => {
                     : 'text-red-500'
                 }`}
               >
-                {accountData.pnl}
+                {accountData.pnl} {symbol}
               </div>
             </div>
             <div className="flex justify-between items-center">
@@ -201,13 +209,15 @@ const AccountDetails: FC = () => {
             {/* Add Creator Fees if user is a creator */}
             {isCreator && accountData.totalCreatorFees !== undefined && (
               <div className="flex justify-between items-center">
-                <div className="text-sm text-zinc-500">Total Creator Fees Paid</div>
-                <div className="text-sm font-medium text-white">{accountData.totalCreatorFees}</div>
+                <div className="text-sm text-zinc-500">Total Creation Fees Paid</div>
+                <div className="text-sm font-medium text-white">
+                  {accountData.totalCreatorFees} {symbol}
+                </div>
               </div>
             )}
-            <div className="text-xs text-zinc-500 mt-2 italic text-center">
+            {/* <div className="text-xs text-zinc-500 mt-2 italic text-center">
               (Note: All values are in <span className="text-white">{symbol}</span>)
-            </div>
+            </div> */}
           </div>
         </CardContent>
       </Card>
