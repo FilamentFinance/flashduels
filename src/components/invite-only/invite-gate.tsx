@@ -86,10 +86,11 @@ const InviteGate: React.FC<InviteGateProps> = ({ children }) => {
   // Handle smooth transition when loading state changes
   useEffect(() => {
     if (!loading) {
-      // Ensure content is ready before showing
-      requestAnimationFrame(() => {
+      // Use setTimeout instead of requestAnimationFrame for better SSR compatibility
+      const timer = setTimeout(() => {
         setShowContent(true);
-      });
+      }, 0);
+      return () => clearTimeout(timer);
     } else {
       setShowContent(false);
     }

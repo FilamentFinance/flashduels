@@ -1,5 +1,5 @@
 'use client';
-import { FC, useState } from 'react';
+import { FC, useState, useEffect } from 'react';
 import AccountDetails from './account-details';
 import Duels from './duels';
 import DuelsHistory from './duels-history';
@@ -8,11 +8,13 @@ const Portfolio: FC = () => {
   const [showContent, setShowContent] = useState(false);
 
   // Show content after initial render
-  useState(() => {
-    requestAnimationFrame(() => {
+  useEffect(() => {
+    // Use setTimeout instead of requestAnimationFrame for better SSR compatibility
+    const timer = setTimeout(() => {
       setShowContent(true);
-    });
-  });
+    }, 0);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div className="flex justify-stretch w-full h-full py-2 gap-2">
