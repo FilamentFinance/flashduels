@@ -107,8 +107,8 @@ const Header: FC<Props> = ({
 
         {/* Title and Details Button */}
         <div className="flex flex-1 items-center justify-between">
-          <div className="flex flex-col">
-            <h1 className="text-2xl font-bold text-white">{title}</h1>
+          <div className="flex flex-col max-w-[70vw] md:max-w-lg">
+            <h1 className="text-2xl font-bold text-white break-words">{title}</h1>
             {/* Created by info, client-only rendering to avoid hydration errors */}
             {typeof window !== 'undefined' && creator && (
               <span className="text-xs text-zinc-400 mt-1 flex items-center gap-1">

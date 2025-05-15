@@ -158,7 +158,9 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
             {formatCategoryDisplay(data.category)}
           </span>
           {/* Duel Title Below */}
-          <span className="text-white font-semibold text-base mb-1 truncate">{title}</span>
+          <span className="text-white font-semibold text-base mb-1 break-words max-w-[60vw] md:max-w-xs whitespace-normal">
+            {title}
+          </span>
           {/* Creator Info Below Title */}
           <span className="text-xs text-zinc-400 mb-1 truncate">Created by: {data.createdBy}</span>
           <div className="flex items-center gap-3 mt-1">
