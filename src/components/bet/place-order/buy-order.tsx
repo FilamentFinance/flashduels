@@ -553,6 +553,36 @@ const BuyOrder: FC<BuyOrderProps> = ({
           </CardContent>
         </Card>
 
+        {/* Win Condition Message for Crypto Duels */}
+        {duelType === 'COIN_DUEL' && winCondition !== undefined && (
+          <p className="text-xs text-zinc-400 flex items-center gap-2">
+            {duel?.token && (
+              <img
+                src={
+                  duelType === 'COIN_DUEL'
+                    ? `/crypto-icons/light/crypto-${duel.token.toLowerCase()}-usd.inline.svg`
+                    : duel.betIcon || '/empty-string.png'
+                }
+                alt={duel.token}
+                width={32}
+                height={32}
+                className="mt-0.5"
+                onError={(e) => {
+                  console.error('Error loading image');
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
+            )}
+            <span>
+              <strong className="text-green-500">LONG</strong> wins if mark price is{' '}
+              {winCondition === 0 ? <strong>ABOVE</strong> : <strong>BELOW</strong>} $
+              {duel?.triggerPrice}, or <strong className="text-red-500">SHORT</strong> wins if{' '}
+              {winCondition === 0 ? <strong>BELOW</strong> : <strong>ABOVE</strong>} after{' '}
+              <strong>{duel?.endsIn} hours</strong>
+            </span>
+          </p>
+        )}
+
         {/* Action Button */}
         <Button
           onClick={handleJoinDuel}
