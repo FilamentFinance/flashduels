@@ -94,8 +94,8 @@ export const getAssetImage = (symbol: string) => {
 export const OPTIONS = ['LONG', 'SHORT'];
 
 export const WIN_CONDITIONS = {
-  ABOVE: 'above',
-  BELOW: 'below',
+  ABOVE: 'Above',
+  BELOW: 'Below',
 } as const;
 
 export const DUEL_TYPE = {
