@@ -56,6 +56,8 @@ const InviteGate: React.FC<InviteGateProps> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showInviteGate, setShowInviteGate] = useState(false);
+  const [showContent, setShowContent] = useState(false);
 
   // Check authentication state from localStorage first
   useEffect(() => {
@@ -80,6 +82,18 @@ const InviteGate: React.FC<InviteGateProps> = ({ children }) => {
       setLoading(false);
     }
   }, [address]);
+
+  // Handle smooth transition when loading state changes
+  useEffect(() => {
+    if (!loading) {
+      // Ensure content is ready before showing
+      requestAnimationFrame(() => {
+        setShowContent(true);
+      });
+    } else {
+      setShowContent(false);
+    }
+  }, [loading]);
 
   const attemptSignIn = async () => {
     if (!address) return;
@@ -119,6 +133,10 @@ const InviteGate: React.FC<InviteGateProps> = ({ children }) => {
       }
     } finally {
       setLoading(false);
+      // Only show invite gate if not authenticated
+      if (!isAuthenticated) {
+        setTimeout(() => setShowInviteGate(true), 300);
+      }
     }
   };
 
@@ -130,6 +148,7 @@ const InviteGate: React.FC<InviteGateProps> = ({ children }) => {
 
     setLoading(true);
     setErrorMessage(null);
+    setShowInviteGate(false);
 
     try {
       const response = await axios.post<SignUpResponse>(
@@ -146,34 +165,66 @@ const InviteGate: React.FC<InviteGateProps> = ({ children }) => {
         setIsAuthenticated(true);
       } else {
         setErrorMessage(response.data.error?.description || 'Invalid invite code.');
+        setShowInviteGate(true);
       }
     } catch (error: unknown) {
       console.error('Error during sign up:', error);
-
-      // Cast error to AxiosError with the correct type
       const axiosError = error as AxiosError<ErrorResponse>;
       setErrorMessage(
         axiosError.response?.data?.error?.description || 'Error validating invite code.',
       );
+      setShowInviteGate(true);
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading)
-    return (
-      <div className="fixed inset-0 flex items-center justify-center">
+  return (
+    <div className="relative min-h-screen">
+      {/* Loading Overlay */}
+      <div
+        className={`fixed inset-0 flex items-center justify-center transition-all duration-500 ease-in-out ${
+          loading ? 'opacity-100 backdrop-blur-[2px]' : 'opacity-0 pointer-events-none'
+        }`}
+      >
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
       </div>
-    );
 
-  return (
-    <>
-      <div className={isAuthenticated ? '' : 'blur-sm'}>{children}</div>
-      {!isAuthenticated && (
-        <InviteOnly onSubmit={handleInviteCodeSubmit} errorMessage={errorMessage} />
+      {/* Main Content */}
+      <div
+        className={`transition-all duration-500 ease-in-out ${
+          !loading && showContent ? 'opacity-100' : 'opacity-0'
+        } ${isAuthenticated ? '' : 'blur-sm'}`}
+        style={{
+          visibility: !loading && showContent ? 'visible' : 'hidden',
+          filter: loading ? 'blur(2px)' : 'none',
+          transform: loading ? 'scale(0.98)' : 'scale(1)',
+          transition: 'all 500ms cubic-bezier(0.4, 0, 0.2, 1)',
+          position: 'relative',
+          zIndex: loading ? -1 : 0,
+          pointerEvents: loading ? 'none' : 'auto',
+        }}
+      >
+        {children}
+      </div>
+
+      {/* Invite Gate */}
+      {!isAuthenticated && showInviteGate && (
+        <div
+          className="fixed inset-0 flex items-center justify-center transition-all duration-500 ease-in-out"
+          style={{
+            backdropFilter: 'blur(4px)',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            opacity: showInviteGate ? 1 : 0,
+            transform: showInviteGate ? 'scale(1)' : 'scale(0.98)',
+            transition: 'all 500ms cubic-bezier(0.4, 0, 0.2, 1)',
+            zIndex: 50,
+          }}
+        >
+          <InviteOnly onSubmit={handleInviteCodeSubmit} errorMessage={errorMessage} />
+        </div>
       )}
-    </>
+    </div>
   );
 };
 
