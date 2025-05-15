@@ -19,7 +19,7 @@ import { FlashDuelsViewFacetABI } from '@/abi/FlashDuelsViewFacet';
 import { useToast } from '@/shadcn/components/ui/use-toast';
 // import { sei } from 'viem/chains';
 import { SERVER_CONFIG } from '@/config/server-config';
-import { FlashDuelCoreFaucetAbi } from '@/abi/FlashDualCoreFaucet';
+import { FlashDuelCoreFacetAbi } from '@/abi/FlashDuelCoreFacet';
 // import { TRANSACTION_STATUS } from '@/constants/app';
 // import { TransactionStatusType } from '@/types/app';
 import { handleTransactionError, parseTokenAmount, formatTokenAmount } from '@/utils/token';
@@ -154,7 +154,7 @@ const ClaimFunds: FC = () => {
       console.log('getMaxAutoWithdraw', maxAutoWithdraw);
 
       const tx = await writeContractAsync({
-        abi: FlashDuelCoreFaucetAbi,
+        abi: FlashDuelCoreFacetAbi,
         address: SERVER_CONFIG.DIAMOND as Hex,
         functionName: 'withdrawEarnings',
         args: [parseTokenAmount(amount, chainId, defaultSymbol).toString()],
@@ -176,7 +176,7 @@ const ClaimFunds: FC = () => {
         for (const log of receipt.logs) {
           try {
             const event = decodeEventLog({
-              abi: FlashDuelCoreFaucetAbi,
+              abi: FlashDuelCoreFacetAbi,
               data: log.data,
               topics: log.topics,
             });

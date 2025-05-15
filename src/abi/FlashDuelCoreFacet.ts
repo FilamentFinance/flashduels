@@ -1,4 +1,4 @@
-export const FlashDuelCoreFaucetAbi = [
+export const FlashDuelCoreFacetAbi = [
     {
         "inputs": [],
         "name": "EnforcedPause",

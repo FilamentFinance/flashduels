@@ -1,4 +1,4 @@
-import { FlashDuelCoreFaucetAbi } from '@/abi/FlashDualCoreFaucet';
+import { FlashDuelCoreFacetAbi } from '@/abi/FlashDuelCoreFacet';
 import { SERVER_CONFIG } from '@/config/server-config';
 // import { SEI_TESTNET_CHAIN_ID, TRANSACTION_STATUS } from '@/constants/app';
 import { TRANSACTION_STATUS } from '@/constants/app';
@@ -86,7 +86,7 @@ const useCreateCoinDuel = () => {
       setStatus(TRANSACTION_STATUS.CREATING_DUEL);
       const tx = await writeContractAsync({
         address: SERVER_CONFIG.DIAMOND as Hex,
-        abi: FlashDuelCoreFaucetAbi,
+        abi: FlashDuelCoreFacetAbi,
         functionName: 'requestCreateCryptoDuel',
         chainId: chainId,
         args: [
@@ -121,7 +121,7 @@ const useCreateCoinDuel = () => {
           if (!log || !log.topics || !log.data) {
             throw new Error('Invalid log format');
           }
-          const iface = new ethers.Interface(FlashDuelCoreFaucetAbi);
+          const iface = new ethers.Interface(FlashDuelCoreFacetAbi);
           const decodedLog = iface.parseLog(log);
 
           if (decodedLog?.name === "CryptoDuelCreated") {

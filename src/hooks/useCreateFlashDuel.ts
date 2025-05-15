@@ -1,4 +1,4 @@
-import { FlashDuelCoreFaucetAbi } from '@/abi/FlashDualCoreFaucet';
+import { FlashDuelCoreFacetAbi } from '@/abi/FlashDuelCoreFacet';
 import { SERVER_CONFIG } from '@/config/server-config';
 // import { SEI_TESTNET_CHAIN_ID, TRANSACTION_STATUS } from '@/constants/app';
 import { TRANSACTION_STATUS } from '@/constants/app';
@@ -97,7 +97,7 @@ const useCreateFlashDuel = () => {
     try {
       setStatus(TRANSACTION_STATUS.CREATING_DUEL);
       const tx = await writeContractAsync({
-        abi: FlashDuelCoreFaucetAbi,
+        abi: FlashDuelCoreFacetAbi,
         address: SERVER_CONFIG.DIAMOND as Hex,
         functionName: 'requestCreateDuel',
         chainId: chainId,
