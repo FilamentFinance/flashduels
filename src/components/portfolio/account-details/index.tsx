@@ -35,6 +35,11 @@ import { FlashDuelCoreFacetAbi } from '@/abi/FlashDuelCoreFacet';
 import { Hex } from 'viem';
 import { useToast } from '@/shadcn/components/ui/use-toast';
 import { Toaster } from '@/shadcn/components/ui/toaster';
+import { useCreatorPnl } from '@/hooks/useCreatorPnl';
+import { useAllTimeEarnings } from '@/hooks/useAllTimeEarnings';
+// import { handleTransactionError, parseTokenAmount, formatTokenAmount } from '@/utils/token';
+// import { decodeEventLog } from 'viem';
+// import ClaimFunds from '@/components/claim-funds';
 
 interface AccountData {
   positionValue: string;
@@ -43,6 +48,8 @@ interface AccountData {
   totalDuelCreated: number;
   totalCreatorFees?: number;
 }
+
+// const MAX_AUTO_WITHDRAW = 5000;
 
 const AccountDetails: FC = () => {
   const { address } = useAccount();
@@ -57,7 +64,7 @@ const AccountDetails: FC = () => {
   const publicClient = usePublicClient();
   const { toast } = useToast();
 
-  // Creator Earnings
+  // Contract-based Creator Earnings (for Creator box)
   const {
     data: creatorEarningsRaw,
     isLoading: isEarningsLoading,
@@ -72,12 +79,55 @@ const AccountDetails: FC = () => {
   const [isWithdrawing, setIsWithdrawing] = useState(false);
   const { writeContractAsync } = useWriteContract();
   const [withdrawError, setWithdrawError] = useState<string | null>(null);
+  const [txHash, setTxHash] = useState<Hex | undefined>(undefined);
+  const defaultSymbol = SERVER_CONFIG.DEFAULT_TOKEN_SYMBOL || 'USDC';
   const creatorEarnings = creatorEarningsRaw
     ? Number(formatUnits(creatorEarningsRaw as bigint, 18)).toLocaleString('en-US', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       })
     : '0.00';
+
+  // Backend Creator PNL (for Account Stats/Trader box)
+  const { pnl: creatorPnl, loading: pnlLoading } = useCreatorPnl(address);
+
+  // All-time earnings for Trading PNL in Trader box
+  const { earnings: tradingPnl, isLoading: isTradingPnlLoading } = useAllTimeEarnings(address);
+
+  // Withdraw Creator Fee function (for Creator box)
+  const withdrawCreatorFee = async () => {
+    setWithdrawError(null);
+    if (!address) return;
+    try {
+      setIsWithdrawing(true);
+      const tx = await writeContractAsync({
+        abi: FlashDuelCoreFacetAbi,
+        address: SERVER_CONFIG.DIAMOND as Hex,
+        functionName: 'withdrawCreatorFee',
+        args: [],
+        chainId: chainId,
+      });
+      if (!tx) throw new Error('Failed to send withdraw transaction');
+      // Wait for transaction to be mined
+      await publicClient?.waitForTransactionReceipt({ hash: tx, confirmations: 1 });
+      refetchEarnings();
+      toast({
+        title: 'Success',
+        description: 'Creator earnings withdrawn successfully',
+      });
+      // Refresh the page after successful withdrawal
+      window.location.reload();
+    } catch (err: any) {
+      console.error('Error withdrawing creator earnings:', err);
+      toast({
+        title: 'Error',
+        description: 'Error Withdrawing Creator Earnings',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsWithdrawing(false);
+    }
+  };
 
   const fetchPortfolio = useCallback(async () => {
     if (!address) {
@@ -128,41 +178,6 @@ const AccountDetails: FC = () => {
     fetchPortfolio();
   }, [fetchPortfolio]);
 
-  // Withdraw Creator Fee function
-  const withdrawCreatorFee = async () => {
-    setWithdrawError(null);
-    if (!address) return;
-    try {
-      setIsWithdrawing(true);
-      const tx = await writeContractAsync({
-        abi: FlashDuelCoreFacetAbi,
-        address: SERVER_CONFIG.DIAMOND as Hex,
-        functionName: 'withdrawCreatorFee',
-        args: [],
-        chainId: chainId,
-      });
-      if (!tx) throw new Error('Failed to send withdraw transaction');
-      // Wait for transaction to be mined
-      await publicClient?.waitForTransactionReceipt({ hash: tx, confirmations: 1 });
-      refetchEarnings();
-      toast({
-        title: 'Success',
-        description: 'Creator earnings withdrawn successfully',
-      });
-      // Refresh the page after successful withdrawal
-      window.location.reload();
-    } catch (err: any) {
-      console.error('Error withdrawing creator earnings:', err);
-      toast({
-        title: 'Error',
-        description: 'Error Withdrawing Creator Earnings',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsWithdrawing(false);
-    }
-  };
-
   if (loading) {
     return (
       <div className="flex flex-col gap-4 w-[300px] h-full mt-11 ml-auto">
@@ -212,6 +227,13 @@ const AccountDetails: FC = () => {
     maximumFractionDigits: 2,
   });
 
+  const getPnlColor = (value: string) => {
+    const num = Number(value.replace(/[^0-9.-]/g, ''));
+    if (num > 0) return 'text-green-400';
+    if (num < 0) return 'text-red-500';
+    return 'text-zinc-400';
+  };
+
   return (
     <div className="flex flex-col gap-4 w-[300px] h-full mt-11 ml-auto">
       <Card className="w-full h-full bg-neutral-900/50 backdrop-blur-sm border-neutral-800">
@@ -260,54 +282,28 @@ const AccountDetails: FC = () => {
                   <Wallet className="w-3 h-3 text-zinc-400" />
                   <span className="text-zinc-400">Current Balance</span>
                 </div>
-                <span className="text-white font-semibold">
+                <span className="text-zinc-400 font-semibold">
                   {formattedBalance} {symbol}
                 </span>
               </div>
-              {/* Creator Earnings */}
+              {/* Creator PNL (only in Account Stats/Trader box) */}
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2 min-w-[110px]">
-                  <Trophy className="w-3 h-3 text-green-400" />
-                  <span className="text-green-400">Creator Earnings</span>
+                  <Trophy className={`w-3 h-3 ${getPnlColor(creatorPnl ?? '0')}`} />
+                  <span className={getPnlColor(creatorPnl ?? '0')}>Creator PNL</span>
                 </div>
-                <span className="text-green-400 font-semibold">
-                  {creatorEarnings} {symbol}
+                <span className={`font-semibold ${getPnlColor(creatorPnl ?? '0')}`}>
+                  {pnlLoading ? '...' : creatorPnl !== null ? `${creatorPnl} ${symbol}` : '--'}
                 </span>
               </div>
-              {/* Trading PNL */}
+              {/* Trading PNL (use all-time earnings) */}
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2 min-w-[110px]">
-                  <TrendingUp
-                    className={`w-3 h-3 ${
-                      Number(accountData.pnl.replace(/[^0-9.-]/g, '')) > 0
-                        ? 'text-green-400'
-                        : Number(accountData.pnl.replace(/[^0-9.-]/g, '')) < 0
-                          ? 'text-red-400'
-                          : 'text-white'
-                    }`}
-                  />
-                  <span
-                    className={`${
-                      Number(accountData.pnl.replace(/[^0-9.-]/g, '')) > 0
-                        ? 'text-green-400'
-                        : Number(accountData.pnl.replace(/[^0-9.-]/g, '')) < 0
-                          ? 'text-red-400'
-                          : 'text-zinc-400'
-                    }`}
-                  >
-                    Trading PNL
-                  </span>
+                  <TrendingUp className={`w-3 h-3 ${getPnlColor(tradingPnl)}`} />
+                  <span className={getPnlColor(tradingPnl)}>Trading PNL</span>
                 </div>
-                <span
-                  className={`font-semibold ${
-                    Number(accountData.pnl.replace(/[^0-9.-]/g, '')) > 0
-                      ? 'text-green-400'
-                      : Number(accountData.pnl.replace(/[^0-9.-]/g, '')) < 0
-                        ? 'text-red-400'
-                        : 'text-zinc-400'
-                  }`}
-                >
-                  {accountData.pnl} {symbol}
+                <span className={`font-medium ${getPnlColor(tradingPnl)}`}>
+                  {tradingPnl} {symbol}
                 </span>
               </div>
               {/* Total */}
@@ -318,8 +314,8 @@ const AccountDetails: FC = () => {
                 <span className="text-white text-lg font-bold">
                   {(
                     Number(formattedBalance.replace(/,/g, '')) +
-                    Number(creatorEarnings.replace(/,/g, '')) +
-                    Number(accountData.pnl.replace(/[^0-9.-]/g, ''))
+                    Number(creatorPnl?.replace(/[^0-9.-]/g, '')) +
+                    Number(tradingPnl.replace(/[^0-9.-]/g, ''))
                   ).toLocaleString('en-US', {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
@@ -333,7 +329,7 @@ const AccountDetails: FC = () => {
           {/* Stats Grid */}
           <div className="grid grid-cols-1 gap-2">
             {isCreator && (
-              <div className="mt-4">
+              <div className="mt-2">
                 <div className="rounded-xl border border-zinc-700 bg-gradient-to-br from-green-500/10 to-pink-500/10 p-4 flex flex-col gap-1 shadow-md">
                   <div className="text-base text-center font-bold text-white mb-2">Creator</div>
                   <div className="flex justify-between items-center">
@@ -352,8 +348,12 @@ const AccountDetails: FC = () => {
                   )}
                   <div className="flex justify-between items-center">
                     <div className="text-sm text-zinc-500">Creator Earnings</div>
-                    <span className="text-sm font-medium text-green-400">
-                      {creatorEarnings} {symbol}
+                    <span className={`text-sm font-medium ${getPnlColor(creatorEarnings)}`}>
+                      {isEarningsLoading || isWithdrawing ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        `${creatorEarnings} ${symbol}`
+                      )}
                     </span>
                   </div>
                   <div className="flex justify-end -mr-2">
@@ -376,11 +376,14 @@ const AccountDetails: FC = () => {
                       )}
                     </Button>
                   </div>
+                  {withdrawError && (
+                    <div className="text-xs text-red-500 mt-1 text-center">{withdrawError}</div>
+                  )}
                 </div>
               </div>
             )}
 
-            <div className="rounded-xl border border-zinc-700 bg-gradient-to-br from-pink-500/10 to-green-500/10 p-4 flex flex-col gap-1 shadow-md">
+            <div className="rounded-xl border border-zinc-700 bg-gradient-to-br from-pink-500/10 to-green-500/10 p-4 flex flex-col gap-2 shadow-md">
               <div className="text-base text-center font-bold text-white mb-2">Trader</div>
               <div className="flex justify-between items-center">
                 <div className="text-sm text-zinc-500">Duels Joined</div>
@@ -393,17 +396,17 @@ const AccountDetails: FC = () => {
                 </div>
               </div>
               <div className="flex justify-between items-center">
-                <div className="text-sm text-zinc-500">Trading PNL</div>
-                <div
-                  className={`text-sm font-medium ${
-                    Number(accountData.pnl.replace(/[^0-9.-]/g, '')) >= 0
-                      ? 'text-green-400'
-                      : 'text-red-500'
-                  }`}
-                >
-                  {accountData.pnl} {symbol}
-                </div>
+                <div className="text-sm text-zinc-500">Trading Profits</div>
+                <span className={`text-sm font-medium ${getPnlColor(tradingPnl)}`}>
+                  {isTradingPnlLoading ? '...' : `${tradingPnl} ${symbol}`}
+                </span>
               </div>
+              {/* <div className="flex justify-end -mr-2">
+                <ClaimFunds />
+              </div>
+              {withdrawError && (
+                <div className="text-xs text-red-500 mt-1 text-center">{withdrawError}</div>
+              )} */}
             </div>
           </div>
         </CardContent>

@@ -4,7 +4,7 @@ import { Dialog } from '@/components/ui/custom-modal';
 // import { LOGOS } from '@/constants/app/logos';
 import { CLAIM_FUNDS } from '@/constants/content/claim-funds';
 import { Button } from '@/shadcn/components/ui/button';
-import Image from 'next/image';
+// import Image from 'next/image';
 import { FC, useState, useEffect } from 'react';
 import {
   useAccount,
@@ -73,6 +73,7 @@ const ClaimFunds: FC = () => {
 
   // Check if user has funds to withdraw
   const hasEarnings = parseFloat(earnings) > 0;
+  const canWithdraw = hasEarnings;
 
   const handleError = (error: unknown) => {
     const { message, type } = handleTransactionError(error);
@@ -264,21 +265,28 @@ const ClaimFunds: FC = () => {
     return !isNaN(numAmount) && numAmount > 0 && numAmount <= parseFloat(earnings);
   };
 
-  return hasEarnings ? (
+  return (
     <Dialog
       title={CLAIM_FUNDS.DIALOG.TITLE}
       maxWidth="max-w-md"
       trigger={
-        <div className="inline-flex items-center gap-2 px-3 bg-zinc-900 rounded-xl border border-zinc-800">
-          <Image src="/logo/dollar.svg" alt="Funds" width={12} height={12} className="mr-2" />
-          <span>
+        <Button
+          type="button"
+          disabled={!canWithdraw}
+          className={`flex items-center w-full rounded-xl px-2 py-1 min-w-[180px] transition-all duration-200 font-bold text-black justify-between ${canWithdraw ? 'bg-gradient-to-b from-[#F19ED2] to-[#B67BE9]' : 'bg-gradient-to-b from-[#F19ED2]/40 to-[#B67BE9]/40 cursor-not-allowed'}`}
+        >
+          <span className="flex items-center font-medium ml-2">
             {trimToFourDecimals(earnings)} {defaultSymbol}
           </span>
-          <Button variant="pink" size="sm" className="text-black font-bold">
-            {CLAIM_FUNDS.TRIGGER.CLAIM_TEXT}
-          </Button>
-        </div>
+          <span className="ml-6 mr-2 h-5 border-l border-zinc-300/40" />
+          <span className="font-bold">Withdraw</span>
+        </Button>
       }
+      open={undefined}
+      onOpenChange={(open) => {
+        // Only allow opening if user has earnings
+        if (!canWithdraw && open) return;
+      }}
     >
       <div className="flex flex-col space-y-6">
         <div className="flex items-center justify-between">
@@ -341,7 +349,7 @@ const ClaimFunds: FC = () => {
         </Button>
       </div>
     </Dialog>
-  ) : null;
+  );
 };
 
 export default ClaimFunds;

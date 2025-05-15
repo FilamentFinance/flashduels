@@ -11,32 +11,39 @@ const Leaderboard: FC = () => {
   const [activeTab, setActiveTab] = useState<LeaderboardTab>(LEADERBOARD_TABS.CREATORS);
   const [data, setData] = useState<LeaderboardItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isError, setIsError] = useState(false);
-  const [showContent, setShowContent] = useState(false);
+  // const [isError, setIsError] = useState(false);
+  // const [showContent, setShowContent] = useState(false);
 
   const fetchData = async () => {
     try {
       setIsLoading(true);
-      setIsError(false);
+      // setIsError(false);
       const response = await baseApiClient.get(
         `/leaderboard/${activeTab === LEADERBOARD_TABS.CREATORS ? 'creators' : 'traders'}`,
+        {
+          params: {
+            page: 1,
+            limit: 10,
+          },
+        },
       );
-      setData(response.data.userProfits);
+      // Update to match backend response format
+      setData(response.data.data);
     } catch (error) {
       console.error('Error fetching data:', error);
-      setIsError(true);
+      // setIsError(true);
     } finally {
       setIsLoading(false);
       // Use setTimeout instead of requestAnimationFrame for better SSR compatibility
-      const timer = setTimeout(() => {
-        setShowContent(true);
-      }, 0);
-      return () => clearTimeout(timer);
+      // const timer = setTimeout(() => {
+      //   setShowContent(true);
+      // }, 0);
+      // return () => clearTimeout(timer);
     }
   };
 
   useEffect(() => {
-    setShowContent(false);
+    // setShowContent(false);
     fetchData();
   }, [activeTab]);
 
@@ -46,15 +53,15 @@ const Leaderboard: FC = () => {
         <div className="relative">
           <div
             className={`transition-all duration-500 ease-in-out ${
-              !isLoading && showContent ? 'opacity-100' : 'opacity-0'
+              !isLoading ? 'opacity-100' : 'opacity-0'
             }`}
             style={{
-              visibility: !isLoading && showContent ? 'visible' : 'hidden',
+              visibility: !isLoading ? 'visible' : 'hidden',
               filter: isLoading ? 'blur(2px)' : 'none',
             }}
           >
             <Header activeTab={activeTab} setActiveTab={setActiveTab} />
-            <Table data={data} isLoading={isLoading} isError={isError} />
+            <Table data={data} isLoading={isLoading} isError={false} />
           </div>
           {isLoading && (
             <div className="absolute inset-0 flex items-center justify-center bg-transparent backdrop-blur-[2px]">
