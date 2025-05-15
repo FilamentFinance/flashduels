@@ -33,13 +33,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Providers>
             <InviteGate>
               <PriceWrapper>
-                {/* <BetProvider> */}
-                  <div className="flex min-h-full flex-col">
-                    <Navbar />
-                    <main className="flex-1 mx-auto w-full px-4 sm:px-6 lg:px-8">{children}</main>
-                    <Toaster />
-                  </div>
-                {/* </BetProvider> */}
+                <div className="flex min-h-full flex-col">
+                  <Navbar />
+                  <main className="flex-1 mx-auto w-full px-4 sm:px-6 lg:px-8">{children}</main>
+                  <Toaster />
+                </div>
               </PriceWrapper>
             </InviteGate>
           </Providers>
