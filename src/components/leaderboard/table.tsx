@@ -75,15 +75,15 @@ const Table: FC<Props> = ({ data, isLoading, isError, activeTab }) => {
     >
       {/* Header */}
       {activeTab === LEADERBOARD_TABS.TRADERS ? (
-        <div className="grid grid-cols-[80px_220px_130px_130px_140px] p-2 bg-zinc-900/50 text-zinc-400 text-sm items-center">
+        <div className="grid grid-cols-[80px_220px_130px_130px_135px] p-2 bg-zinc-900/50 text-zinc-400 text-sm items-center">
           <div className="text-center">Rank</div>
           <div className="text-center">Account</div>
           <div className="text-center">Total Traded Value</div>
           <div className="text-center">Earnings</div>
-          <div className="text-center">Profit/Loss (CRD)</div>
+          <div className="text-center">P&L (CRD)</div>
         </div>
       ) : (
-        <div className="grid grid-cols-[80px_220px_130px_130px_140px] p-2 bg-zinc-900/50 text-zinc-400 text-sm items-center">
+        <div className="grid grid-cols-[80px_220px_130px_130px_135px] p-2 bg-zinc-900/50 text-zinc-400 text-sm items-center">
           <div className="text-center">{LEADERBOARD.TABLE.HEADERS.RANK}</div>
           <div className="text-center">{LEADERBOARD.TABLE.HEADERS.ACCOUNT}</div>
           <div className="text-center">Fees Paid</div>

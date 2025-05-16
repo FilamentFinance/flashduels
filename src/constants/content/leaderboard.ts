@@ -4,7 +4,7 @@ export const LEADERBOARD = {
     HEADERS: {
       RANK: 'Rank',
       ACCOUNT: 'Account',
-      PROFIT: 'Profit/Loss (CRD)',
+      PROFIT: 'P&L (CRD)',
     },
   },
   EMPTY_STATE: {
