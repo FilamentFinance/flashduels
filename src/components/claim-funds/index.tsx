@@ -273,13 +273,15 @@ const ClaimFunds: FC = () => {
         <Button
           type="button"
           disabled={!canWithdraw}
-          className={`flex items-center w-full rounded-xl px-2 py-1 min-w-[180px] transition-all duration-200 font-bold text-black justify-between ${canWithdraw ? 'bg-gradient-to-b from-[#F19ED2] to-[#B67BE9]' : 'bg-gradient-to-b from-[#F19ED2]/40 to-[#B67BE9]/40 cursor-not-allowed'}`}
+          className={`flex rounded-l px-0 py-1 min-w-[180px] transition-all duration-200 font-bold text-black ${
+            canWithdraw ? 'bg-gradient-pink' : 'bg-gradient-to-b from-[#F19ED2]/80 to-[#B67BE9]/80'
+          }`}
         >
-          <span className="flex items-center font-medium ml-2">
+          <span className="flex flex items-center justify-center font-bold">
             {trimToFourDecimals(earnings)} {defaultSymbol}
           </span>
-          <span className="ml-6 mr-2 h-5 border-l border-zinc-300/40" />
-          <span className="font-bold">Withdraw</span>
+          <span className="h-6 border-l border-black/40" />
+          <span className="flex flex items-center justify-center font-bold">Withdraw</span>
         </Button>
       }
       open={undefined}

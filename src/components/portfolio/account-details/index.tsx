@@ -273,14 +273,14 @@ const AccountDetails: FC = () => {
           </div>
 
           {/* Account Value */}
-          <div className="rounded-lg bg-zinc-900/70 border border-zinc-800 p-4 mb-2">
+          <div className="rounded-lg bg-gradient-to-br from-pink-300/20 to-zinc-900/50 border border-zinc-800 p-4 mb-2">
             {/* <h2 className="text-sm font-medium text-zinc-500 mb-2">Account Stats</h2> */}
             <div className="flex flex-col gap-1 text-sm">
               {/* Balance */}
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2 min-w-[110px]">
                   <Wallet className="w-3 h-3 text-zinc-400" />
-                  <span className="text-zinc-400">Current Balance</span>
+                  <span className="text-zinc-400">Wallet Balance</span>
                 </div>
                 <span className="text-zinc-400 font-semibold">
                   {formattedBalance} {symbol}
@@ -293,7 +293,7 @@ const AccountDetails: FC = () => {
                   <span className={getPnlColor(creatorPnl ?? '0')}>Creator PNL</span>
                 </div>
                 <span className={`font-semibold ${getPnlColor(creatorPnl ?? '0')}`}>
-                  {pnlLoading ? '...' : creatorPnl !== null ? `${creatorPnl} ${symbol}` : '--'}
+                  {creatorPnl} {symbol}
                 </span>
               </div>
               {/* Trading PNL (use all-time earnings) */}
@@ -396,11 +396,21 @@ const AccountDetails: FC = () => {
                 </div>
               </div>
               <div className="flex justify-between items-center">
-                <div className="text-sm text-zinc-500">Trading Profits</div>
+                <div className="text-sm text-zinc-500">Profits (Withdrawable)</div>
                 <span className={`text-sm font-medium ${getPnlColor(tradingPnl)}`}>
                   {isTradingPnlLoading ? '...' : `${tradingPnl} ${symbol}`}
                 </span>
               </div>
+              {/* <div className="flex justify-end -mr-2">
+                    <Button
+                      size="sm"
+                      className="hover:bg-green-500/30 text-green-400 border border-green-400 rounded-md px-2 h-6 text-xs flex items-center gap-1"
+                      disabled={isWithdrawing || isEarningsLoading || Number(creatorEarnings) === 0}
+                      onClick={withdrawCreatorFee}
+                    >
+                    Withdraw
+                </Button>
+              </div> */}
               {/* <div className="flex justify-end -mr-2">
                 <ClaimFunds />
               </div>
