@@ -396,7 +396,7 @@ const AccountDetails: FC = () => {
                 </div>
               </div>
               <div className="flex justify-between items-center">
-                <div className="text-sm text-zinc-500">Profits (Withdrawable)</div>
+                <div className="text-sm text-zinc-500">Earnings (Withdrawable)</div>
                 <span className={`text-sm font-medium ${getPnlColor(tradingPnl)}`}>
                   {isTradingPnlLoading ? '...' : `${tradingPnl} ${symbol}`}
                 </span>
