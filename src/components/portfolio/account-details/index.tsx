@@ -117,7 +117,7 @@ const AccountDetails: FC = () => {
       });
       // Refresh the page after successful withdrawal
       window.location.reload();
-    } catch (err: any) {
+    } catch (err) {
       console.error('Error withdrawing creator earnings:', err);
       toast({
         title: 'Error',
