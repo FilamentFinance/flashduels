@@ -79,8 +79,8 @@ const AccountDetails: FC = () => {
   const [isWithdrawing, setIsWithdrawing] = useState(false);
   const { writeContractAsync } = useWriteContract();
   const [withdrawError, setWithdrawError] = useState<string | null>(null);
-  const [txHash, setTxHash] = useState<Hex | undefined>(undefined);
-  const defaultSymbol = SERVER_CONFIG.DEFAULT_TOKEN_SYMBOL || 'USDC';
+  // const [txHash, setTxHash] = useState<Hex | undefined>(undefined);
+  // const defaultSymbol = SERVER_CONFIG.DEFAULT_TOKEN_SYMBOL || 'USDC';
   const creatorEarnings = creatorEarningsRaw
     ? Number(formatUnits(creatorEarningsRaw as bigint, 18)).toLocaleString('en-US', {
         minimumFractionDigits: 2,
