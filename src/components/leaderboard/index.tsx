@@ -28,7 +28,7 @@ const Leaderboard: FC = () => {
         },
       );
       // Add rank numbers to the data
-      const dataWithRanks = response.data.data.map((item: any, index: number) => ({
+      const dataWithRanks = response.data.data.map((item: LeaderboardItem, index: number) => ({
         ...item,
         rank: index + 1 + (response.data.page - 1) * response.data.limit,
       }));
