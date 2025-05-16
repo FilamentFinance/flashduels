@@ -328,7 +328,7 @@ const AccountDetails: FC = () => {
                   <span className={getPnlColor(creatorPnl ?? '0')}>Creator PNL</span>
                 </div>
                 <span className={`font-semibold ${getPnlColor(creatorPnl ?? '0')}`}>
-                  {creatorPnl} {symbol}
+                  {Number(creatorPnl ?? 0).toFixed(2)} {symbol}
                 </span>
               </div>
               {/* Trading PNL (use all-time earnings) */}
@@ -337,11 +337,11 @@ const AccountDetails: FC = () => {
                   <TrendingUp className={`w-3 h-3 ${getPnlColor(tradingPnl ?? '0')}`} />
                   <span className={getPnlColor(tradingPnl ?? '0')}>Trading PNL</span>
                 </div>
-                <span className={`font-medium ${getPnlColor(tradingPnl ?? '0')}`}>
+                <span className={`font-bold ${getPnlColor(tradingPnl ?? '0')}`}>
                   {isTradingPnlLoading ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
-                    `${tradingPnl ?? '0'} ${symbol}`
+                    `${Number(tradingPnl ?? 0).toFixed(2)} ${symbol}`
                   )}
                 </span>
               </div>
@@ -397,7 +397,7 @@ const AccountDetails: FC = () => {
                       <span
                         className={`text-xs font-medium text-[#F19ED2] px-2 py-1 border-r border-[#F19ED2] whitespace-nowrap`}
                       >
-                        {creatorEarnings} {symbol}
+                        {Number(creatorEarnings ?? 0).toFixed(2)} {symbol}
                       </span>
                       <Button
                         size="sm"
