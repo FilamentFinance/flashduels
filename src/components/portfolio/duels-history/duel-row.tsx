@@ -132,9 +132,9 @@ export const DuelRow: React.FC<DuelRowProps> = ({
       <div className={cn(winner !== undefined ? 'w-[20%] text-center ' : 'hidden')}>
         {(winner === 0 || winner === 1) &&
           (winner === 0 ? (
-            <span className="text-green-500">Yes</span>
+            <span className="text-green-500">LONG</span>
           ) : (
-            <span className="text-red-500">No</span>
+            <span className="text-red-500">SHORT</span>
           ))}
       </div>
     </div>

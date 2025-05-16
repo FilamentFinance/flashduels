@@ -6,6 +6,7 @@ interface AuthState {
   token: string | null;
   signingKey: string | null;
   signingKeyExpiry: string | null;
+  isCreator: boolean;
 }
 
 const initialState: AuthState = {
@@ -14,6 +15,7 @@ const initialState: AuthState = {
   token: null,
   signingKey: null,
   signingKeyExpiry: null,
+  isCreator: false,
 };
 
 const authSlice = createSlice({
@@ -33,14 +35,19 @@ const authSlice = createSlice({
         token: string;
         signingKey: string;
         signingKeyExpiry: string;
+        isCreator?: boolean;
       }>,
     ) => {
-      const { address, token, signingKey, signingKeyExpiry } = action.payload;
+      const { address, token, signingKey, signingKeyExpiry, isCreator } = action.payload;
       state.address = address;
       state.token = token;
       state.signingKey = signingKey;
       state.signingKeyExpiry = signingKeyExpiry;
       state.isAuthenticated = true;
+      state.isCreator = isCreator || false;
+    },
+    setCreatorStatus: (state, action: PayloadAction<boolean>) => {
+      state.isCreator = action.payload;
     },
     clearAuth: (state) => {
       state.isAuthenticated = false;
@@ -48,9 +55,10 @@ const authSlice = createSlice({
       state.token = null;
       state.signingKey = null;
       state.signingKeyExpiry = null;
+      state.isCreator = false;
     },
   },
 });
 
-export const { setAuthenticated, setAddress, setAuthData, clearAuth } = authSlice.actions;
+export const { setAuthenticated, setAddress, setAuthData, setCreatorStatus, clearAuth } = authSlice.actions;
 export default authSlice.reducer;

@@ -4,7 +4,7 @@ import { Dialog } from '@/components/ui/custom-modal';
 // import { LOGOS } from '@/constants/app/logos';
 import { CLAIM_FUNDS } from '@/constants/content/claim-funds';
 import { Button } from '@/shadcn/components/ui/button';
-import Image from 'next/image';
+// import Image from 'next/image';
 import { FC, useState, useEffect } from 'react';
 import {
   useAccount,
@@ -19,7 +19,7 @@ import { FlashDuelsViewFacetABI } from '@/abi/FlashDuelsViewFacet';
 import { useToast } from '@/shadcn/components/ui/use-toast';
 // import { sei } from 'viem/chains';
 import { SERVER_CONFIG } from '@/config/server-config';
-import { FlashDuelCoreFaucetAbi } from '@/abi/FlashDualCoreFaucet';
+import { FlashDuelCoreFacetAbi } from '@/abi/FlashDuelCoreFacet';
 // import { TRANSACTION_STATUS } from '@/constants/app';
 // import { TransactionStatusType } from '@/types/app';
 import { handleTransactionError, parseTokenAmount, formatTokenAmount } from '@/utils/token';
@@ -73,6 +73,7 @@ const ClaimFunds: FC = () => {
 
   // Check if user has funds to withdraw
   const hasEarnings = parseFloat(earnings) > 0;
+  const canWithdraw = hasEarnings;
 
   const handleError = (error: unknown) => {
     const { message, type } = handleTransactionError(error);
@@ -154,7 +155,7 @@ const ClaimFunds: FC = () => {
       console.log('getMaxAutoWithdraw', maxAutoWithdraw);
 
       const tx = await writeContractAsync({
-        abi: FlashDuelCoreFaucetAbi,
+        abi: FlashDuelCoreFacetAbi,
         address: SERVER_CONFIG.DIAMOND as Hex,
         functionName: 'withdrawEarnings',
         args: [parseTokenAmount(amount, chainId, defaultSymbol).toString()],
@@ -176,7 +177,7 @@ const ClaimFunds: FC = () => {
         for (const log of receipt.logs) {
           try {
             const event = decodeEventLog({
-              abi: FlashDuelCoreFaucetAbi,
+              abi: FlashDuelCoreFacetAbi,
               data: log.data,
               topics: log.topics,
             });
@@ -264,21 +265,30 @@ const ClaimFunds: FC = () => {
     return !isNaN(numAmount) && numAmount > 0 && numAmount <= parseFloat(earnings);
   };
 
-  return hasEarnings ? (
+  return (
     <Dialog
       title={CLAIM_FUNDS.DIALOG.TITLE}
       maxWidth="max-w-md"
       trigger={
-        <div className="inline-flex items-center gap-2 px-3 bg-zinc-900 rounded-xl border border-zinc-800">
-          <Image src="/logo/dollar.svg" alt="Funds" width={12} height={12} className="mr-2" />
-          <span>
+        <Button
+          type="button"
+          disabled={!canWithdraw}
+          className={`flex rounded-l px-0 py-1 min-w-[180px] transition-all duration-200 font-bold text-black ${
+            canWithdraw ? 'bg-gradient-pink' : 'bg-gradient-to-b from-[#F19ED2]/80 to-[#B67BE9]/80'
+          }`}
+        >
+          <span className="flex flex items-center justify-center font-bold">
             {trimToFourDecimals(earnings)} {defaultSymbol}
           </span>
-          <Button variant="pink" size="sm" className="text-black font-bold">
-            {CLAIM_FUNDS.TRIGGER.CLAIM_TEXT}
-          </Button>
-        </div>
+          <span className="h-6 border-l border-black/40" />
+          <span className="flex flex items-center justify-center font-bold">Withdraw</span>
+        </Button>
       }
+      open={undefined}
+      onOpenChange={(open) => {
+        // Only allow opening if user has earnings
+        if (!canWithdraw && open) return;
+      }}
     >
       <div className="flex flex-col space-y-6">
         <div className="flex items-center justify-between">
@@ -341,7 +351,7 @@ const ClaimFunds: FC = () => {
         </Button>
       </div>
     </Dialog>
-  ) : null;
+  );
 };
 
 export default ClaimFunds;

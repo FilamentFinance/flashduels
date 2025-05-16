@@ -6,4 +6,14 @@ export interface LeaderboardItem {
   rank: number;
   address: string;
   pnl: string;
+  feesPaid?: string;
+  earnings?: string;
+}
+
+export interface TraderLeaderboardItem {
+  rank: number;
+  address: string;
+  pnl: string;
+  totalTradedValue: string;
+  earnings: string;
 }
