@@ -20,7 +20,7 @@ export function useCreatorPnl(address?: string) {
             .then((res) => setPnl(res.data.pnl))
             .catch((err) => {
                 if (err.response && err.response.status === 404) {
-                    setPnl('--'); // Not found, show fallback
+                    setPnl('0');
                     setError(null);
                 } else {
                     setError('Failed to fetch Creator PNL');

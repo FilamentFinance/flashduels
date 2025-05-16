@@ -19,6 +19,7 @@ export const WalletContent: FC = () => {
   const { balance, symbol, decimals, isLoading, isError } = useBalance(address);
   const { isCreator } = useAppSelector((state: RootState) => state.auth);
   const [verifyOpen, setVerifyOpen] = useState(false);
+  const [isRequestSubmitted, setIsRequestSubmitted] = useState(false);
 
   if (!address) return null;
 
@@ -59,8 +60,9 @@ export const WalletContent: FC = () => {
             variant="outline"
             className="bg-glass items-center justify-center hover:bg-glass-hover border border-zinc-800 text-yellow-500 hover:text-yellow-400"
             onClick={() => setVerifyOpen(true)}
+            disabled={isRequestSubmitted}
           >
-            ⚡ Verify as Creator
+            {isRequestSubmitted ? '⏳ Creator Request Under Review' : '⚡ Verify as Creator'}
           </Button>
         </div>
       )}
@@ -70,7 +72,12 @@ export const WalletContent: FC = () => {
         title="Verify as Creator"
         maxWidth="max-w-lg"
       >
-        <CreatorVerify onClose={() => setVerifyOpen(false)} />
+        <CreatorVerify
+          onClose={() => {
+            setVerifyOpen(false);
+            setIsRequestSubmitted(true);
+          }}
+        />
       </Dialog>
       <Button variant="destructive" className="w-full" onClick={() => disconnect()}>
         {NAVBAR.WALLET_MODAL.DISCONNECT_BUTTON}

@@ -37,9 +37,7 @@ import { useToast } from '@/shadcn/components/ui/use-toast';
 import { Toaster } from '@/shadcn/components/ui/toaster';
 import { useCreatorPnl } from '@/hooks/useCreatorPnl';
 import { useAllTimeEarnings } from '@/hooks/useAllTimeEarnings';
-// import { handleTransactionError, parseTokenAmount, formatTokenAmount } from '@/utils/token';
-// import { decodeEventLog } from 'viem';
-// import ClaimFunds from '@/components/claim-funds';
+import axios from 'axios';
 
 interface AccountData {
   positionValue: string;
@@ -50,6 +48,41 @@ interface AccountData {
 }
 
 // const MAX_AUTO_WITHDRAW = 5000;
+
+// Add new hook for trading PNL
+function useTradingPnl(address?: string) {
+  const [pnl, setPnl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!address) {
+      setPnl(null);
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    console.log('Fetching trading PNL for address:', address);
+    axios
+      .get(`${SERVER_CONFIG.API_URL}/leaderboard/traders/pnl?address=${address}`)
+      .then((res) => {
+        console.log('Trading PNL response:', res.data);
+        setPnl(res.data.pnl);
+      })
+      .catch((err) => {
+        console.error('Error fetching trading PNL:', err.response || err);
+        if (err.response && err.response.status === 404) {
+          setPnl('0');
+          setError(null);
+        } else {
+          setError('Failed to fetch Trading PNL');
+        }
+      })
+      .finally(() => setLoading(false));
+  }, [address]);
+
+  return { pnl, loading, error };
+}
 
 const AccountDetails: FC = () => {
   const { address } = useAccount();
@@ -89,10 +122,12 @@ const AccountDetails: FC = () => {
     : '0.00';
 
   // Backend Creator PNL (for Account Stats/Trader box)
-  const { pnl: creatorPnl, loading: pnlLoading } = useCreatorPnl(address);
+  const { pnl: creatorPnl } = useCreatorPnl(address);
+  const { pnl: tradingPnl, loading: isTradingPnlLoading } = useTradingPnl(address);
 
   // All-time earnings for Trading PNL in Trader box
-  const { earnings: tradingPnl, isLoading: isTradingPnlLoading } = useAllTimeEarnings(address);
+  const { earnings: allTimeEarnings, isLoading: isAllTimeEarningsLoading } =
+    useAllTimeEarnings(address);
 
   // Withdraw Creator Fee function (for Creator box)
   const withdrawCreatorFee = async () => {
@@ -273,7 +308,7 @@ const AccountDetails: FC = () => {
           </div>
 
           {/* Account Value */}
-          <div className="rounded-lg bg-gradient-to-br from-pink-300/20 to-zinc-900/50 border border-zinc-800 p-4 mb-2">
+          <div className="rounded-lg border border-zinc-800 p-4 mb-2">
             {/* <h2 className="text-sm font-medium text-zinc-500 mb-2">Account Stats</h2> */}
             <div className="flex flex-col gap-1 text-sm">
               {/* Balance */}
@@ -299,11 +334,15 @@ const AccountDetails: FC = () => {
               {/* Trading PNL (use all-time earnings) */}
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2 min-w-[110px]">
-                  <TrendingUp className={`w-3 h-3 ${getPnlColor(tradingPnl)}`} />
-                  <span className={getPnlColor(tradingPnl)}>Trading PNL</span>
+                  <TrendingUp className={`w-3 h-3 ${getPnlColor(tradingPnl ?? '0')}`} />
+                  <span className={getPnlColor(tradingPnl ?? '0')}>Trading PNL</span>
                 </div>
-                <span className={`font-medium ${getPnlColor(tradingPnl)}`}>
-                  {tradingPnl} {symbol}
+                <span className={`font-medium ${getPnlColor(tradingPnl ?? '0')}`}>
+                  {isTradingPnlLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    `${tradingPnl ?? '0'} ${symbol}`
+                  )}
                 </span>
               </div>
               {/* Total */}
@@ -315,7 +354,7 @@ const AccountDetails: FC = () => {
                   {(
                     Number(formattedBalance.replace(/,/g, '')) +
                     Number(creatorPnl?.replace(/[^0-9.-]/g, '')) +
-                    Number(tradingPnl.replace(/[^0-9.-]/g, ''))
+                    Number(tradingPnl?.replace(/[^0-9.-]/g, '') || '0')
                   ).toLocaleString('en-US', {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
@@ -330,51 +369,53 @@ const AccountDetails: FC = () => {
           <div className="grid grid-cols-1 gap-2">
             {isCreator && (
               <div className="mt-2">
-                <div className="rounded-xl border border-zinc-700 bg-gradient-to-br from-green-500/10 to-pink-500/10 p-4 flex flex-col gap-1 shadow-md">
+                <div className="rounded-xl border border-zinc-700 p-4 flex flex-col gap-1 shadow-md">
                   <div className="text-base text-center font-bold text-white mb-2">Creator</div>
                   <div className="flex justify-between items-center">
                     <div className="text-sm text-zinc-500">Duels Created</div>
-                    <div className="text-sm font-medium text-pink-400">
+                    <div className="text-sm font-medium text-zinc-400">
                       {accountData.totalDuelCreated}
                     </div>
                   </div>
                   {accountData.totalCreatorFees !== undefined && (
                     <div className="flex justify-between items-center">
                       <div className="text-sm text-zinc-500">Creation Fees Paid</div>
-                      <div className="text-sm font-medium text-red-300">
+                      <div className="text-sm font-medium text-zinc-400">
                         {accountData.totalCreatorFees} {symbol}
                       </div>
                     </div>
                   )}
                   <div className="flex justify-between items-center">
-                    <div className="text-sm text-zinc-500">Creator Earnings</div>
-                    <span className={`text-sm font-medium ${getPnlColor(creatorEarnings)}`}>
-                      {isEarningsLoading || isWithdrawing ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : (
-                        `${creatorEarnings} ${symbol}`
-                      )}
-                    </span>
-                  </div>
-                  <div className="flex justify-end -mr-2">
-                    <Button
-                      size="sm"
-                      className="hover:bg-green-500/30 text-green-400 border border-green-400 rounded-md px-2 h-6 text-xs flex items-center gap-1"
-                      disabled={isWithdrawing || isEarningsLoading || Number(creatorEarnings) === 0}
-                      onClick={withdrawCreatorFee}
-                    >
-                      {isWithdrawing ? (
-                        <>
-                          <Loader2 className="w-3 h-3 animate-spin mr-1" />
-                          Withdrawing...
-                        </>
-                      ) : (
-                        <>
-                          Withdraw
-                          <LogOut className="w-3 h-3 -rotate-90" />
-                        </>
-                      )}
-                    </Button>
+                    <div className="text-sm text-zinc-500 flex items-center gap-1 group relative">
+                      <span>Earnings</span>
+                      <span className="text-xs text-zinc-400">*</span>
+                      <div className="absolute left-0 top-8 w-48 p-2 bg-zinc-800 text-xs text-pink-300 rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 transform translate-y-2 group-hover:translate-y-0">
+                        1% of each duel volume earned by the creator when duel settles
+                      </div>
+                    </div>
+                    <div className="flex items-center rounded-md border border-[#F19ED2]/50">
+                      <span
+                        className={`text-xs font-medium text-[#F19ED2] px-2 py-1 border-r border-[#F19ED2] whitespace-nowrap`}
+                      >
+                        {creatorEarnings} {symbol}
+                      </span>
+                      <Button
+                        size="sm"
+                        className="hover:bg-[#F19ED2]/20 text-[#F19ED2] text-xs flex items-center w-[70px] justify-center"
+                        disabled={
+                          isWithdrawing || isEarningsLoading || Number(creatorEarnings) === 0
+                        }
+                        onClick={withdrawCreatorFee}
+                      >
+                        {isWithdrawing ? (
+                          <>
+                            <Loader2 className="w-2.5 h-2.5 animate-spin mr-1" />
+                          </>
+                        ) : (
+                          <>Withdraw</>
+                        )}
+                      </Button>
+                    </div>
                   </div>
                   {withdrawError && (
                     <div className="text-xs text-red-500 mt-1 text-center">{withdrawError}</div>
@@ -383,22 +424,22 @@ const AccountDetails: FC = () => {
               </div>
             )}
 
-            <div className="rounded-xl border border-zinc-700 bg-gradient-to-br from-pink-500/10 to-green-500/10 p-4 flex flex-col gap-2 shadow-md">
+            <div className="rounded-xl border border-zinc-700 p-4 flex flex-col gap-2 shadow-md">
               <div className="text-base text-center font-bold text-white mb-2">Trader</div>
               <div className="flex justify-between items-center">
                 <div className="text-sm text-zinc-500">Duels Joined</div>
-                <div className="text-sm font-medium text-orange-400">{accountData.totalBets}</div>
+                <div className="text-sm font-medium text-zinc-400">{accountData.totalBets}</div>
               </div>
               <div className="flex justify-between items-center">
                 <div className="text-sm text-zinc-500">Total Traded Value</div>
-                <div className="text-sm font-medium text-red-300">
+                <div className="text-sm font-medium text-zinc-400">
                   {accountData.positionValue} {symbol}
                 </div>
               </div>
               <div className="flex justify-between items-center">
                 <div className="text-sm text-zinc-500">Earnings (Withdrawable)</div>
-                <span className={`text-sm font-medium ${getPnlColor(tradingPnl)}`}>
-                  {isTradingPnlLoading ? '...' : `${tradingPnl} ${symbol}`}
+                <span className={`text-sm font-medium text-zinc-400`}>
+                  {isAllTimeEarningsLoading ? '...' : `${allTimeEarnings} ${symbol}`}
                 </span>
               </div>
               {/* <div className="flex justify-end -mr-2">
