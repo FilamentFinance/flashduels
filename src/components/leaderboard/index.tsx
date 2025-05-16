@@ -27,8 +27,12 @@ const Leaderboard: FC = () => {
           },
         },
       );
-      // Update to match backend response format
-      setData(response.data.data);
+      // Add rank numbers to the data
+      const dataWithRanks = response.data.data.map((item: any, index: number) => ({
+        ...item,
+        rank: index + 1 + (response.data.page - 1) * response.data.limit,
+      }));
+      setData(dataWithRanks);
     } catch (error) {
       console.error('Error fetching data:', error);
       // setIsError(true);
@@ -61,7 +65,7 @@ const Leaderboard: FC = () => {
             }}
           >
             <Header activeTab={activeTab} setActiveTab={setActiveTab} />
-            <Table data={data} isLoading={isLoading} isError={false} />
+            <Table data={data} isLoading={isLoading} isError={false} activeTab={activeTab} />
           </div>
           {isLoading && (
             <div className="absolute inset-0 flex items-center justify-center bg-transparent backdrop-blur-[2px]">
