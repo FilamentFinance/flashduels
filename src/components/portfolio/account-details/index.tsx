@@ -381,7 +381,7 @@ const AccountDetails: FC = () => {
                     <div className="flex justify-between items-center">
                       <div className="text-sm text-zinc-500">Creation Fees Paid</div>
                       <div className="text-sm font-medium text-zinc-400">
-                        {accountData.totalCreatorFees} {symbol}
+                        {Number(accountData.totalCreatorFees ?? 0).toFixed(2)} {symbol}
                       </div>
                     </div>
                   )}
@@ -428,18 +428,18 @@ const AccountDetails: FC = () => {
               <div className="text-base text-center font-bold text-white mb-2">Trader</div>
               <div className="flex justify-between items-center">
                 <div className="text-sm text-zinc-500">Duels Joined</div>
-                <div className="text-sm font-medium text-zinc-400">{accountData.totalBets}</div>
+                <div className="text-sm font-medium text-zinc-400">{Number(accountData.totalBets ?? 0).toFixed(2)}</div>
               </div>
               <div className="flex justify-between items-center">
                 <div className="text-sm text-zinc-500">Total Traded Value</div>
                 <div className="text-sm font-medium text-zinc-400">
-                  {accountData.positionValue} {symbol}
+                  {Number(accountData.positionValue ?? 0).toFixed(2)} {symbol}
                 </div>
               </div>
               <div className="flex justify-between items-center">
                 <div className="text-sm text-zinc-500">Earnings (Withdrawable)</div>
                 <span className={`text-sm font-medium text-zinc-400`}>
-                  {isAllTimeEarningsLoading ? '...' : `${allTimeEarnings} ${symbol}`}
+                  {isAllTimeEarningsLoading ? '...' : `${Number(allTimeEarnings ?? 0).toFixed(2)} ${symbol}`}
                 </span>
               </div>
               {/* <div className="flex justify-end -mr-2">
