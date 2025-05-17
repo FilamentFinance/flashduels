@@ -278,7 +278,7 @@ const ClaimFunds: FC = () => {
           }`}
         >
           <span className="flex flex items-center justify-center font-bold">
-            {trimToFourDecimals(earnings)} {defaultSymbol}
+            {Number(earnings).toFixed(2)} {defaultSymbol}
           </span>
           <span className="h-6 border-l border-black/40" />
           <span className="flex flex items-center justify-center font-bold">Withdraw</span>
