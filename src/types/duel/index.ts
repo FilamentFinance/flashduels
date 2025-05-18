@@ -32,6 +32,7 @@ export type DuelStatus = (typeof DUEL_STATUS)[keyof typeof DUEL_STATUS];
 export type User = {
   id: string;
   twitterUsername?: string;
+  twitterImageUrl?: string;
   address: string;
 };
 
