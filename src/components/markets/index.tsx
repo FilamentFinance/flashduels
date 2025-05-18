@@ -90,6 +90,7 @@ const Markets: FC = () => {
               createdAt: item.createdAt,
               percentage: 50,
               createdBy: item.user.twitterUsername || truncateAddress(item.user.address),
+              creatorTwitterImage: item.user.twitterImageUrl,
               token: item.token,
               triggerPrice: item.triggerPrice,
               totalBetAmount: item.totalBetAmount,
