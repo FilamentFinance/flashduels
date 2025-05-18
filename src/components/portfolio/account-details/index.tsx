@@ -390,8 +390,8 @@ const AccountDetails: FC = () => {
                       <span>Earnings</span>
                       <span className="text-xs text-zinc-400">*</span>
                       <div className="absolute left-0 top-8 w-48 p-2 bg-zinc-800 text-xs text-pink-300 rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 transform translate-y-2 group-hover:translate-y-0">
-                        Creators earn 1% of the duel volume when it settles. Click 'Withdraw' to
-                        claim.
+                        Creators earn 1% of the duel volume when it settles. Click
+                        &apos;Withdraw&apos; to claim.
                       </div>
                     </div>
                     <div className="flex items-center rounded-md border border-[#F19ED2]/50">
@@ -442,8 +442,8 @@ const AccountDetails: FC = () => {
                   <span>Earnings</span>
                   <span className="text-xs text-zinc-400">*</span>
                   <div className="absolute left-0 top-8 w-48 p-2 bg-zinc-800 text-xs text-pink-300 rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 transform translate-y-2 group-hover:translate-y-0">
-                    Profits from settled duels you've joined. Click 'Withdraw' at the top of the
-                    page to claim them.
+                    Profits from settled duels you&apos;ve joined. Click &apos;Withdraw&apos; at the
+                    top of the page to claim them.
                   </div>
                 </div>
                 <span className="text-sm font-medium text-zinc-400">
