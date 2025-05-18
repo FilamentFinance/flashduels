@@ -78,6 +78,7 @@ export type Duel = {
   totalBetAmount: number;
   triggerPrice?: string;
   winner?: number;
+  creatorTwitterImage?: string;
 };
 
 export type Position = (typeof POSITION)[keyof typeof POSITION];

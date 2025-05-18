@@ -136,13 +136,13 @@ const Header: FC<Props> = ({
                       />
                     </div>
                   )}
-                  <Image
+                  {/* <Image
                     src="/logo/x.png"
                     alt="X"
                     width={20}
                     height={20}
                     className="inline-block invert"
-                  />
+                  /> */}
                   @{creator}
                   <svg
                     xmlns="http://www.w3.org/2000/svg"

@@ -162,7 +162,27 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
             {title}
           </span>
           {/* Creator Info Below Title */}
-          <span className="text-xs text-zinc-400 mb-1 truncate">Created by: {data.createdBy}</span>
+          <span className="text-xs text-zinc-400 mb-1 truncate flex items-center gap-1">
+            Created by:
+            {data.creatorTwitterImage && (
+              <Image
+                src={data.creatorTwitterImage}
+                alt="Twitter"
+                width={20}
+                height={20}
+                className="rounded-full"
+                style={{ display: 'inline-block' }}
+              />
+            )}
+            {/* <Image
+              src="/logo/x.png"
+              alt="X"
+              width={20}
+              height={20}
+              className="inline-block invert"
+            /> */}
+            @{data.createdBy}
+          </span>
           <div className="flex items-center gap-3 mt-1">
             <div className="flex items-center gap-1.5 text-zinc-400 text-sm">
               <Image src="/logo/markets/dollar.svg" alt="Volume" width={16} height={16} />
