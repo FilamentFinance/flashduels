@@ -235,6 +235,7 @@ const Bet: FC = () => {
             duelStatus={duel.status}
             bootstrappingStartTime={duel.createdAt}
             creator={duel.user?.twitterUsername || truncateAddress(duel.user?.address)}
+            creatorTwitterImage={duel.user?.twitterImageUrl}
           />
           <OrderBook yesBets={yesBets} noBets={noBets} handleBuyOrders={handleBuyOrders} />
           <OrdersHistory duelId={duel.duelId} />

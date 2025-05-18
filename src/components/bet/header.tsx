@@ -3,12 +3,6 @@ import { FC } from 'react';
 import DetailsAndRules from './details-and-rules';
 import PercentageBlocks from './percentage-blocks';
 import React from 'react';
-import { SERVER_CONFIG } from '@/config/server-config';
-
-// Cache for storing profile pictures
-const profilePictureCache: { [key: string]: { url: string; timestamp: number } } = {};
-const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-
 interface Props {
   title: string;
   logo: string;
@@ -27,6 +21,7 @@ interface Props {
   duelStatus?: number;
   bootstrappingStartTime?: number;
   creator?: string;
+  creatorTwitterImage?: string;
 }
 
 const Header: FC<Props> = ({
@@ -44,6 +39,7 @@ const Header: FC<Props> = ({
   duelStatus = 0,
   bootstrappingStartTime,
   creator,
+  creatorTwitterImage,
   // category,
 }) => {
   let symbol, iconPath;
@@ -73,75 +69,6 @@ const Header: FC<Props> = ({
     const s = seconds % 60;
     return `${m}m ${s.toString().padStart(2, '0')}s`;
   };
-
-  // Add state for profile picture
-  const [profilePicture, setProfilePicture] = React.useState<string | null>(null);
-
-  // Fetch profile picture when creator changes
-  React.useEffect(() => {
-    if (creator && !creator.startsWith('0x')) {
-      const fetchProfilePicture = async () => {
-        try {
-          // Check cache first
-          const cachedData = profilePictureCache[creator];
-          const now = Date.now();
-
-          if (cachedData && now - cachedData.timestamp < CACHE_DURATION) {
-            console.log('Using cached profile picture for:', creator);
-            setProfilePicture(cachedData.url);
-            return;
-          }
-
-          const response = await fetch(
-            `${SERVER_CONFIG.API_URL}/user/profile/twitter-profile?username=${creator}`,
-          );
-          console.log('Response status:', response.status);
-          const data = await response.json();
-          // let data = {
-          //   profileImageUrl: 'https://pbs.twimg.com/profile_images/1644950041306562560/5jjvqnt2_normal.jpg',
-          // };
-          console.log('Response data:', data);
-          // Check if we have a valid profile image URL in the response
-          if (data && data.profileImageUrl) {
-            const imageUrl = data.profileImageUrl;
-            // Ensure we have a valid Twitter profile image URL
-            if (imageUrl.startsWith('https://pbs.twimg.com/profile_images/')) {
-              console.log('Setting profile picture:', imageUrl);
-              // Store in cache
-              profilePictureCache[creator] = {
-                url: imageUrl,
-                timestamp: now,
-              };
-              setProfilePicture(imageUrl);
-            } else {
-              console.warn('Invalid Twitter profile image URL format:', imageUrl);
-            }
-          } else {
-            console.warn('No profile image URL in response data:', data);
-            // If we have a cached value, use it even if expired
-            if (cachedData) {
-              console.log('Using expired cached profile picture for:', creator);
-              setProfilePicture(cachedData.url);
-            }
-          }
-        } catch (error) {
-          console.error('Error fetching Twitter profile picture:', error);
-          // If we have a cached value, use it on error
-          const cachedData = profilePictureCache[creator];
-          if (cachedData) {
-            console.log('Using cached profile picture after error for:', creator);
-            setProfilePicture(cachedData.url);
-          }
-        }
-      };
-      fetchProfilePicture();
-    }
-  }, [creator]);
-
-  // Add debug logging for profile picture state
-  React.useEffect(() => {
-    console.log('Current profile picture state:', profilePicture);
-  }, [profilePicture]);
 
   return (
     <div className="flex flex-col items-center gap-6 w-full">
@@ -193,17 +120,17 @@ const Header: FC<Props> = ({
                   rel="noopener noreferrer"
                   className="inline-flex items-center hover:text-blue-400 group"
                 >
-                  {profilePicture && (
+                  {creatorTwitterImage && (
                     <div className="relative w-5 h-5 mr-1">
                       <Image
-                        src={profilePicture}
+                        src={creatorTwitterImage}
                         alt="Twitter Profile"
                         fill
                         sizes="20px"
                         className="rounded-full object-cover"
                         unoptimized={true}
                         onError={(e) => {
-                          console.error('Error loading profile image:', profilePicture);
+                          console.error('Error loading profile image:', creatorTwitterImage);
                           e.currentTarget.style.display = 'none';
                         }}
                       />
