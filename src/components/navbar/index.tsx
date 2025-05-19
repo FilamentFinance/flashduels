@@ -30,7 +30,7 @@ import { baseApiClient } from '@/config/api-client';
 import { useNetworkConfig } from '@/hooks/useNetworkConfig';
 // import { getSupportedChainIds } from '@/config/contract-config';
 import { useToast } from '@/shadcn/components/ui/use-toast';
-import { base, sei, seiTestnet } from 'viem/chains';
+import { sei } from 'viem/chains';
 
 const Navbar: FC = () => {
   const { address, isConnected } = useAccount();

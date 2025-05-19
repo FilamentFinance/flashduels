@@ -16,7 +16,7 @@ interface InviteOnlyProps {
 
 const InviteOnly: FC<InviteOnlyProps> = ({ onSubmit, errorMessage }) => {
   const { isConnected } = useAccount();
-  const { chainId, isChainSupported, getCurrentNetworkName } = useNetworkConfig();
+  const { chainId, isChainSupported } = useNetworkConfig();
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-transparent overflow-hidden">
@@ -45,7 +45,7 @@ const InviteOnly: FC<InviteOnlyProps> = ({ onSubmit, errorMessage }) => {
             <>
               <WalletInfo />
               <div className="mt-4">
-                <InviteCodeInput onSubmit={onSubmit} disabled={!isChainSupported(chainId)} />
+                <InviteCodeInput onSubmit={onSubmit} />
               </div>
             </>
           )}

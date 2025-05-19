@@ -1,4 +1,4 @@
-import { getContractAddresses, getRpcUrl, getSupportedChainIds } from './contract-config';
+import { getContractAddresses, getRpcUrl } from './contract-config';
 
 interface ServerConfig {
   PRODUCTION: boolean;
@@ -74,12 +74,14 @@ const createConfig = (): ServerConfig => {
     throw new Error(`Missing required environment variables: ${missingVars.join(', ')}`);
   }
 
+
   // Function to get RPC URL based on chain ID
   const getRpcUrlForChain = (chainId: number) => {
     // First try to get from contract-config
     try {
       return getRpcUrl(chainId);
     } catch (error) {
+      console.error('Error getting RPC URL for chain:', error);
       // Fallback to environment variable if chain not found in contract-config
       return process.env.NEXT_PUBLIC_RPC_URL as string;
     }
@@ -92,6 +94,7 @@ const createConfig = (): ServerConfig => {
       return getContractAddresses(chainId);
     } catch (error) {
       // Fallback to environment variables if chain not found in contract-config
+      console.error('Error getting contract addresses for chain:', error);
       return {
         DIAMOND: process.env.NEXT_PUBLIC_DIAMOND as string,
         FLASH_USDC: process.env.NEXT_PUBLIC_FLASH_USDC as string,
