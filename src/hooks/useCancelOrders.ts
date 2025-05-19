@@ -37,11 +37,11 @@ const useCancelOrder = (): UseOrderReturn => {
     try {
       setStatus(TRANSACTION_STATUS.PENDING);
       setError(null);
-
+      const DIAMOND_ADDRESS = SERVER_CONFIG.getContractAddresses(chainId).DIAMOND;
       // Get the option token address
       const optionTokenAddress = await publicClient?.readContract({
         abi: FlashDuelsViewFacetABI,
-        address: SERVER_CONFIG.DIAMOND as Hex,
+        address: DIAMOND_ADDRESS as Hex,
         functionName: 'getOptionIndexToOptionToken',
         args: [duelId, betOptionIndex],
       });
@@ -52,7 +52,7 @@ const useCancelOrder = (): UseOrderReturn => {
 
       const tx = await writeContractAsync({
         abi: FlashDuelsMarketplaceFacet,
-        address: SERVER_CONFIG.DIAMOND as Hex,
+        address: DIAMOND_ADDRESS as Hex,
         functionName: 'cancelSell',
         chainId: chainId,
         args: [optionTokenAddress, sellId],
