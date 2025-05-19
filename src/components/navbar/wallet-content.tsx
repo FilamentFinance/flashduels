@@ -12,6 +12,7 @@ import { useAppSelector } from '@/store/hooks';
 import { RootState } from '@/store';
 import { Dialog } from '@/components/ui/custom-modal';
 import { CreatorVerify } from '@/components/creator/verify';
+import { useNetworkConfig } from '@/hooks/useNetworkConfig';
 
 export const WalletContent: FC = () => {
   const { address } = useAccount();
@@ -20,6 +21,8 @@ export const WalletContent: FC = () => {
   const { isCreator } = useAppSelector((state: RootState) => state.auth);
   const [verifyOpen, setVerifyOpen] = useState(false);
   const [isRequestSubmitted, setIsRequestSubmitted] = useState(false);
+  const { chainId, isChainSupported, switchToSupportedNetwork, getCurrentNetworkName } =
+    useNetworkConfig();
 
   if (!address) return null;
 
@@ -30,6 +33,10 @@ export const WalletContent: FC = () => {
           maximumFractionDigits: 2,
         })
       : '0';
+
+  const handleNetworkSwitch = async () => {
+    await switchToSupportedNetwork();
+  };
 
   return (
     <div className="grid gap-6">
@@ -52,6 +59,24 @@ export const WalletContent: FC = () => {
               {formattedBalance} {symbol}
             </span>
           )}
+        </div>
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-gray-400">Network</span>
+          <div className="flex items-center gap-2">
+            <span className={isChainSupported(chainId) ? 'text-green-500' : 'text-red-500'}>
+              {getCurrentNetworkName()}
+            </span>
+            {!isChainSupported(chainId) && (
+              <Button
+                variant="pinkOutline"
+                size="sm"
+                onClick={handleNetworkSwitch}
+                className="text-xs bg-pink-500/10 text-pink-500/10 hover:bg-pink-500/10 hover:text-pink-500/10 hover:border-pink-500"
+              >
+                Switch Network
+              </Button>
+            )}
+          </div>
         </div>
       </div>
       {!isCreator && (

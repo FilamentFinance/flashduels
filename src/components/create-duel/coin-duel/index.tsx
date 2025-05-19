@@ -35,7 +35,7 @@ import { useAccount, useChainId, usePublicClient } from 'wagmi';
 import DuelInfo from '../duel-info';
 import { CREDITS } from '@/abi/CREDITS';
 import { formatUnits, Hex } from 'viem';
-import { sei } from 'viem/chains';
+// import { base, baseSepolia, sei, seiTestnet } from 'viem/chains';
 import { Loader2 } from 'lucide-react';
 
 interface CoinDuelFormProps {
@@ -77,7 +77,7 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
   const [creditsBalance, setCreditsBalance] = useState<string>('0');
   const publicClient = usePublicClient();
   const chainId = useChainId();
-  const symbol = chainId === sei.id ? 'USDC' : 'CRD';
+  const symbol = 'CRD';
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<{ token?: string; triggerPrice?: string }>({});
 
@@ -89,7 +89,7 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
       try {
         const balance = await publicClient.readContract({
           abi: CREDITS,
-          address: SERVER_CONFIG.CREDIT_CONTRACT as Hex,
+          address: SERVER_CONFIG.getContractAddresses(chainId).CREDIT_CONTRACT as Hex,
           functionName: 'balanceOf',
           args: [address.toLowerCase()],
         });

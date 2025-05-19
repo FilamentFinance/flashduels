@@ -18,16 +18,16 @@ import {
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactNode } from 'react';
 import { http } from 'viem';
-import { sei, seiTestnet } from 'viem/chains';
+import { base, sei, seiTestnet } from 'viem/chains';
 import { WagmiProvider } from 'wagmi';
 import '@sei-js/sei-global-wallet/eip6963';
 
 const queryClient = new QueryClient();
 
 const config = getDefaultConfig({
-  appName: 'Filament Web-App',
+  appName: 'Flash Duels',
   projectId: SERVER_CONFIG.WALLET_CONNECT_PROJECT_ID,
-  chains: [sei, seiTestnet],
+  chains: [sei, seiTestnet, base],
   wallets: [
     {
       groupName: 'Popular',
@@ -47,7 +47,9 @@ const config = getDefaultConfig({
   ],
   transports: {
     [sei.id]: http(),
-    [seiTestnet.id]: http(SERVER_CONFIG.RPC_URL),
+    [seiTestnet.id]: http(),
+    [base.id]: http(),
+    // [baseSepolia.id]: http(),
   },
   ssr: true,
 });

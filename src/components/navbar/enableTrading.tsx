@@ -20,6 +20,7 @@ import { RootState } from '@/store';
 import { shallowEqual } from 'react-redux';
 import { getAirdrop } from '@/utils/general/get-airdrop';
 import { Sparkle } from 'lucide-react';
+import { useNetworkConfig } from '@/hooks/useNetworkConfig';
 
 interface WalletError extends Error {
   code: number;
@@ -38,6 +39,7 @@ const EnableTrading: FC = () => {
     shallowEqual,
   );
   const { toast } = useToast();
+  const { chainId, isChainSupported, switchToSupportedNetwork } = useNetworkConfig();
 
   useEffect(() => {
     if (address) {
@@ -65,8 +67,29 @@ const EnableTrading: FC = () => {
     }
   }, [address, dispatch, disconnect]);
 
-  const handleAgree = async () => {
-    if (!agreed || !address) return;
+  const handleEnableTrading = async () => {
+    if (!address) {
+      toast({
+        title: 'No wallet connected',
+        description: 'Please connect a wallet to enable trading.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!isChainSupported(chainId)) {
+      await switchToSupportedNetwork();
+      return;
+    }
+
+    if (!agreed) {
+      toast({
+        title: 'Agreement Required',
+        description: 'Please agree to the terms and conditions to continue.',
+        variant: 'destructive',
+      });
+      return;
+    }
 
     setIsLoading(true);
     try {
@@ -186,9 +209,13 @@ const EnableTrading: FC = () => {
         </div>
       }
       trigger={
-        <Button className="font-semibold text-black bg-gradient-to-r from-pink-300 via-purple-300 to-pink-300 bg-[length:200%_100%] animate-gradient hover:animate-none shadow-[0_0_15px_rgba(241,158,210,0.5)] hover:shadow-[0_0_20px_rgba(241,158,210,0.7)] transition-all duration-300 relative group">
+        <Button
+          className="font-semibold text-black bg-gradient-to-r from-pink-300 via-purple-300 to-pink-300 bg-[length:200%_100%] animate-gradient hover:animate-none shadow-[0_0_15px_rgba(241,158,210,0.5)] hover:shadow-[0_0_20px_rgba(241,158,210,0.7)] transition-all duration-300 relative group"
+          onClick={handleEnableTrading}
+          disabled={isLoading}
+        >
           <Sparkle className="absolute -top-2 -right-2 w-4 h-4 text-pink-300 animate-pulse" />
-          {NAVBAR.ENABLE_TRADING.BUTTON_TEXT}
+          {isLoading ? 'Enabling...' : NAVBAR.ENABLE_TRADING.BUTTON_TEXT}
         </Button>
       }
       maxWidth="max-w-xl"
@@ -198,7 +225,7 @@ const EnableTrading: FC = () => {
           {/* <div className="space-y-4">
             <h3 className="font-medium">By accessing Filament, you agree to the following:</h3> */}
 
-            {/* <div className="space-y-4">
+          {/* <div className="space-y-4">
               <div>
                 <h4 className="font-medium">Eligibility:</h4>
                 <p className="text-sm text-gray-400">
@@ -252,14 +279,13 @@ const EnableTrading: FC = () => {
               htmlFor="terms"
               className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             >
-              {/* I agree to the terms and conditions */}
-              I agree to enable trading
+              {/* I agree to the terms and conditions */}I agree to enable trading
             </label>
           </div>
         </div>
 
         <Button
-          onClick={handleAgree}
+          onClick={handleEnableTrading}
           disabled={!agreed || isLoading}
           className={cn(
             'w-full text-black font-medium',

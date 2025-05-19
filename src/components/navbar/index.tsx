@@ -6,7 +6,7 @@ import { RootState } from '@/store';
 import { fetchAssetType, setCryptoAsset } from '@/store/slices/priceSlice';
 import { truncateAddress } from '@/utils/general/getEllipsisTxt';
 import axios from 'axios';
-import { FC, useEffect } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { shallowEqual, useDispatch } from 'react-redux';
 import { useAccount } from 'wagmi';
 // import ClaimFaucet from '../claim-faucet';
@@ -27,6 +27,10 @@ import { Loader2 } from 'lucide-react';
 import { SERVER_CONFIG } from '@/config/server-config';
 import { setCreatorStatus } from '@/store/slices/authSlice';
 import { baseApiClient } from '@/config/api-client';
+import { useNetworkConfig } from '@/hooks/useNetworkConfig';
+// import { getSupportedChainIds } from '@/config/contract-config';
+import { useToast } from '@/shadcn/components/ui/use-toast';
+import { base, sei, seiTestnet } from 'viem/chains';
 
 const Navbar: FC = () => {
   const { address, isConnected } = useAccount();
@@ -35,8 +39,27 @@ const Navbar: FC = () => {
     shallowEqual,
   );
   const { balance, symbol, decimals, isLoading } = useBalance(address);
+  const { chainId, isChainSupported, switchToSupportedNetwork } = useNetworkConfig();
+  const [isSwitchingNetwork, setIsSwitchingNetwork] = useState(false);
   // const { isTradingEnabled = false } = useAppSelector((state: RootState) => state.user || {}, shallowEqual);
+  const { toast } = useToast();
   const dispatch = useDispatch();
+
+  // const getChainName = (chainId: number): string => {
+  //   switch (chainId) {
+  //     case base.id:
+  //       return base.name;
+  //     // case baseSepolia.id:
+  //     //   return baseSepolia.name;
+  //     case sei.id:
+  //       return sei.name;
+  //     case seiTestnet.id:
+  //       return seiTestnet.name;
+  //     default:
+  //       return 'Unsupported Network';
+  //   }
+  // };
+
   const fetchCryptoAssets = async () => {
     try {
       const response = await axios.get(`${SERVER_CONFIG.API_URL}/assets/list`);
@@ -99,41 +122,77 @@ const Navbar: FC = () => {
         </div>
         {isConnected && address ? (
           <div className="flex gap-2">
-            <ClaimFunds />
-            {/* <Balance /> */}
-            <ClaimAirdropButton />
-            {/* <ClaimFaucet /> */}
-            <EnableTrading />
-            <GetGas />
-            {isAuthenticated && (
-              <div className="flex items-center gap-2">
-                <CreateDuel />
-              </div>
-            )}
-            <WalletModal>
-              <Button className="rounded-default bg-glass hover:bg-glass-hover border border-zinc-800 transition-colors duration-200 hover:shadow-lg flex items-center gap-2">
-                {isLoading ? (
-                  <Loader2 className="h-3 w-3 animate-spin mr-1" />
+            {chainId && !isChainSupported(chainId) ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={async () => {
+                  setIsSwitchingNetwork(true);
+                  try {
+                    // console.log('Network switch requested:', {
+                    //   currentChainId: chainId,
+                    //   isSupported: isChainSupported(chainId),
+                    //   chainName: getChainName(chainId),
+                    //   supportedChains: getSupportedChainIds(),
+                    // });
+                    await switchToSupportedNetwork();
+                    toast({
+                      title: 'Network Connected',
+                      description: `Successfully connected to (default) ${sei.name}`,
+                      variant: 'default',
+                    });
+                  } finally {
+                    setIsSwitchingNetwork(false);
+                  }
+                }}
+                disabled={isSwitchingNetwork}
+                className="text-sm border-pink-300 text-pink-300 hover:bg-pink-400/10 hover:text-pink-400 hover:border-pink-400"
+              >
+                {isSwitchingNetwork ? (
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                    <span>Connecting...</span>
+                  </div>
                 ) : (
-                  <span className="text-gray-300">
-                    {formattedBalance} {symbol}
-                  </span>
+                  'Switch Network'
                 )}
-                <span className="border-l border-zinc-700 pl-2 flex flex-col items-center">
-                  <span>{truncateAddress(address)}</span>
-                  {isCreator ? (
-                    <span className="text-xs text-center font-medium text-green-500 mt-1">
-                      ✓ Verified Creator
-                    </span>
-                  ) : (
-                    <span className="text-xs text-center font-medium text-yellow-500 mt-1">
-                      ⚠️ Not Verified Creator
-                    </span>
-                  )}
-                </span>
               </Button>
-            </WalletModal>
-            {/* <GenerateInvite /> */}
+            ) : (
+              <>
+                <ClaimFunds />
+                <ClaimAirdropButton />
+                <EnableTrading />
+                <GetGas />
+                {isAuthenticated && (
+                  <div className="flex items-center gap-2">
+                    <CreateDuel />
+                  </div>
+                )}
+                <WalletModal>
+                  <Button className="rounded-default bg-glass hover:bg-glass-hover border border-zinc-800 transition-colors duration-200 hover:shadow-lg flex items-center gap-2">
+                    {isLoading ? (
+                      <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                    ) : (
+                      <span className="text-gray-300">
+                        {formattedBalance} {symbol}
+                      </span>
+                    )}
+                    <span className="border-l border-zinc-700 pl-2 flex flex-col items-center">
+                      <span>{truncateAddress(address)}</span>
+                      {isCreator ? (
+                        <span className="text-xs text-center font-medium text-green-500 mt-1">
+                          ✓ Verified Creator
+                        </span>
+                      ) : (
+                        <span className="text-xs text-center font-medium text-yellow-500 mt-1">
+                          ⚠️ Not Verified Creator
+                        </span>
+                      )}
+                    </span>
+                  </Button>
+                </WalletModal>
+              </>
+            )}
           </div>
         ) : (
           <ConnectButton />

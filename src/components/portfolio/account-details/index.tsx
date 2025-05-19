@@ -29,7 +29,7 @@ import {
 import { AccountShimmer } from './account-shimmer';
 import { openExternalLinkInNewTab } from '@/utils/general/open-external-link';
 import { SERVER_CONFIG } from '@/config/server-config';
-import { sei } from 'viem/chains';
+import { base, sei, seiTestnet } from 'viem/chains';
 import { FlashDuelsViewFacetABI } from '@/abi/FlashDuelsViewFacet';
 import { FlashDuelCoreFacetAbi } from '@/abi/FlashDuelCoreFacet';
 import { Hex } from 'viem';
@@ -62,11 +62,11 @@ function useTradingPnl(address?: string) {
     }
     setLoading(true);
     setError(null);
-    console.log('Fetching trading PNL for address:', address);
+    // console.log('Fetching trading PNL for address:', address);
     axios
       .get(`${SERVER_CONFIG.API_URL}/leaderboard/traders/pnl?address=${address}`)
       .then((res) => {
-        console.log('Trading PNL response:', res.data);
+        // console.log('Trading PNL response:', res.data);
         setPnl(res.data.pnl);
       })
       .catch((err) => {
@@ -93,9 +93,24 @@ const AccountDetails: FC = () => {
   const { balance, decimals } = useBalance(address);
   const [isCreator, setIsCreator] = useState<boolean | null>(null);
   const chainId = useChainId();
-  const symbol = chainId === sei.id ? 'CRD' : 'CRD';
+  const symbol = 'CRD'; // Using CRD for all chains now
   const publicClient = usePublicClient();
   const { toast } = useToast();
+
+  const getExplorerUrl = (address: string) => {
+    switch (chainId) {
+      case sei.id:
+        return `https://seitrace.com/address/${address}?chain=pacific-1`;
+      case base.id:
+        return `https://basescan.org/address/${address}`;
+      // case baseSepolia.id:
+      //   return `https://sepolia.basescan.org/address/${address}`;
+      case seiTestnet.id:
+        return `https://seitrace.com/address/${address}?chain=atlantic-2`;
+      default:
+        return `https://seitrace.com/address/${address}?chain=atlantic-2`;
+    }
+  };
 
   // Contract-based Creator Earnings (for Creator box)
   const {
@@ -105,7 +120,7 @@ const AccountDetails: FC = () => {
   } = useReadContract({
     abi: FlashDuelsViewFacetABI,
     functionName: 'getCreatorFeesEarned',
-    address: SERVER_CONFIG.DIAMOND as Hex,
+    address: SERVER_CONFIG.getContractAddresses(chainId).DIAMOND as Hex,
     args: [address],
     chainId: chainId,
   });
@@ -137,7 +152,7 @@ const AccountDetails: FC = () => {
       setIsWithdrawing(true);
       const tx = await writeContractAsync({
         abi: FlashDuelCoreFacetAbi,
-        address: SERVER_CONFIG.DIAMOND as Hex,
+        address: SERVER_CONFIG.getContractAddresses(chainId).DIAMOND as Hex,
         functionName: 'withdrawCreatorFee',
         args: [],
         chainId: chainId,
@@ -286,11 +301,7 @@ const AccountDetails: FC = () => {
                   variant="ghost"
                   size="icon"
                   className="h-5 w-5 p-0.5 text-zinc-500 hover:text-white hover:bg-transparent"
-                  onClick={() =>
-                    openExternalLinkInNewTab(
-                      `https://seitrace.com/address/${address}?chain=atlantic-2`,
-                    )
-                  }
+                  onClick={() => openExternalLinkInNewTab(getExplorerUrl(address))}
                 >
                   <ExternalLink className="h-3 w-3" />
                 </Button>

@@ -23,7 +23,7 @@ import { mapCategoryToEnumIndex } from '@/utils/general/create-duels';
 
 import PositionSelector from './position-selector';
 import { calculateTimeLeft } from '@/utils/time';
-import { sei } from 'viem/chains';
+// import { base, baseSepolia, sei, seiTestnet } from 'viem/chains';
 import { FlashDuelsViewFacetABI } from '@/abi/FlashDuelsViewFacet';
 interface BuyOrderProps {
   duelId: string;
@@ -78,7 +78,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
   const { joinDuel } = useJoinDuel();
   const { toast } = useToast();
   const chainId = useChainId();
-  const symbol = chainId === sei.id ? 'USDC' : 'CRD';
+  const symbol = 'CRD'; // Using CRD for all chains now
   // const { prices } = useSelector((state: RootState) => state.price, shallowEqual);
   // const { totalBetYes, totalBetNo } = useTotalBets(duelId);
 
@@ -87,7 +87,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
     contracts: [
       {
         abi: FlashDuelsViewFacetABI,
-        address: SERVER_CONFIG.DIAMOND as `0x${string}`,
+        address: SERVER_CONFIG.getContractAddresses(chainId).DIAMOND as `0x${string}`,
         functionName: 'getTotalProtocolLiquidity',
       },
     ],

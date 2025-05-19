@@ -8,7 +8,7 @@ import { useToast } from '@/shadcn/components/ui/use-toast';
 import { TransactionStatusType } from '@/types/app';
 import { handleTransactionError } from '@/utils/token';
 import { formatUnits, Hex } from 'viem';
-import { sei } from 'viem/chains';
+// import { base, baseSepolia, sei, seiTestnet } from 'viem/chains';
 import { CREDITS } from '@/abi/CREDITS';
 import {
   Dialog,
@@ -40,7 +40,7 @@ const ClaimAirdropButton: FC = () => {
   const { writeContractAsync } = useWriteContract();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAddingToMetamask, setIsAddingToMetamask] = useState(false);
-  const symbol = chainId === sei.id ? 'CRD' : 'CRD';
+  const symbol = 'CRD'; // Using CRD for all chains now
 
   // Add authentication state
   const isAuthenticated = useAppSelector(
@@ -51,18 +51,19 @@ const ClaimAirdropButton: FC = () => {
   useEffect(() => {
     const checkClaimedAmount = async () => {
       if (!address) return;
+      const creditContractAddress = SERVER_CONFIG.getContractAddresses(chainId).CREDIT_CONTRACT;
       try {
         // Check credits balance
         const credits = await publicClient?.readContract({
           abi: CREDITS,
-          address: SERVER_CONFIG.CREDIT_CONTRACT as Hex,
+          address: creditContractAddress as Hex,
           functionName: 'credits',
           args: [address.toLowerCase()],
         });
         setAvailableToClaim(credits?.toString() || '0');
         const creditsBalance = await publicClient?.readContract({
           abi: CREDITS,
-          address: SERVER_CONFIG.CREDIT_CONTRACT as Hex,
+          address: creditContractAddress as Hex,
           functionName: 'balanceOf',
           args: [address.toLowerCase()],
         });
@@ -71,7 +72,7 @@ const ClaimAirdropButton: FC = () => {
         // Check total claimed amount
         const claimed = await publicClient?.readContract({
           abi: CREDITS,
-          address: SERVER_CONFIG.CREDIT_CONTRACT as Hex,
+          address: creditContractAddress as Hex,
           functionName: 'totalClaimed',
           args: [address.toLowerCase()],
         });
@@ -118,14 +119,14 @@ const ClaimAirdropButton: FC = () => {
       console.error('No address found');
       return;
     }
-
+    const creditContractAddress = SERVER_CONFIG.getContractAddresses(chainId).CREDIT_CONTRACT;
     try {
       setStatus(TRANSACTION_STATUS.PENDING);
       setClaimedAmount('');
 
       const tx = await writeContractAsync({
         abi: CREDITS,
-        address: SERVER_CONFIG.CREDIT_CONTRACT as Hex,
+        address: creditContractAddress as Hex,
         functionName: 'claim',
         args: [],
       });
@@ -148,19 +149,19 @@ const ClaimAirdropButton: FC = () => {
       const [newBalance, newClaimed, newAvailable] = await Promise.all([
         publicClient?.readContract({
           abi: CREDITS,
-          address: SERVER_CONFIG.CREDIT_CONTRACT as Hex,
+          address: creditContractAddress as Hex,
           functionName: 'balanceOf',
           args: [address.toLowerCase()],
         }),
         publicClient?.readContract({
           abi: CREDITS,
-          address: SERVER_CONFIG.CREDIT_CONTRACT as Hex,
+          address: creditContractAddress as Hex,
           functionName: 'totalClaimed',
           args: [address.toLowerCase()],
         }),
         publicClient?.readContract({
           abi: CREDITS,
-          address: SERVER_CONFIG.CREDIT_CONTRACT as Hex,
+          address: creditContractAddress as Hex,
           functionName: 'credits',
           args: [address.toLowerCase()],
         }),
@@ -189,7 +190,7 @@ const ClaimAirdropButton: FC = () => {
       });
       return;
     }
-
+    const creditContractAddress = SERVER_CONFIG.getContractAddresses(chainId).CREDIT_CONTRACT;
     try {
       setIsAddingToMetamask(true);
 
@@ -198,7 +199,7 @@ const ClaimAirdropButton: FC = () => {
         params: {
           type: 'ERC20',
           options: {
-            address: SERVER_CONFIG.CREDIT_CONTRACT,
+            address: creditContractAddress,
             symbol: symbol,
             decimals: 18,
           },

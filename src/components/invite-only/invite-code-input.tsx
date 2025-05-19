@@ -7,9 +7,10 @@ import React, { useState } from 'react';
 
 interface InviteCodeInputProps {
   onSubmit: (code: string) => void;
+  disabled: boolean;
 }
 
-const InviteCodeInput: React.FC<InviteCodeInputProps> = ({ onSubmit }) => {
+const InviteCodeInput: React.FC<InviteCodeInputProps> = ({ onSubmit, disabled }) => {
   const [inviteCode, setInviteCode] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 

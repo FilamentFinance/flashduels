@@ -36,7 +36,7 @@ import { usePublicClient } from 'wagmi';
 import { formatUnits } from 'ethers';
 import { Hex } from 'viem';
 import { CREDITS } from '@/abi/CREDITS';
-import { sei } from 'viem/chains';
+// import { base, baseSepolia, sei, seiTestnet } from 'viem/chains';
 
 type FlashDuelFormProps = {
   onBack: () => void;
@@ -66,7 +66,7 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
   const [creditsBalance, setCreditsBalance] = useState<string>('0');
   const { toast } = useToast();
   const publicClient = usePublicClient();
-  const symbol = chainId === sei.id ? 'USDC' : 'CRD';
+  const symbol = 'CRD'; // Using CRD for all chains now
   const [formError, setFormError] = useState<{ category?: string; duelText?: string }>({});
 
   useEffect(() => {
@@ -126,7 +126,7 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
       try {
         const balance = await publicClient.readContract({
           abi: CREDITS,
-          address: SERVER_CONFIG.CREDIT_CONTRACT as Hex,
+          address: SERVER_CONFIG.getContractAddresses(chainId).CREDIT_CONTRACT as Hex,
           functionName: 'balanceOf',
           args: [address.toLowerCase()],
         });

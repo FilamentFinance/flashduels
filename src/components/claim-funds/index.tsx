@@ -47,7 +47,7 @@ const ClaimFunds: FC = () => {
   const { data: earningsData } = useReadContract({
     abi: FlashDuelsViewFacetABI,
     functionName: 'getAllTimeEarnings',
-    address: SERVER_CONFIG.DIAMOND as Hex,
+    address: SERVER_CONFIG.getContractAddresses(chainId).DIAMOND as Hex,
     args: [address],
     chainId: chainId,
   });
@@ -145,18 +145,18 @@ const ClaimFunds: FC = () => {
         'parseTokenAmount(MAX_AUTO_WITHDRAW.toString(), chainId)',
         parseTokenAmount(MAX_AUTO_WITHDRAW.toString(), chainId, defaultSymbol),
       );
-      console.log('SERVER_CONFIG.DIAMOND', SERVER_CONFIG.DIAMOND);
-
+      // console.log('SERVER_CONFIG.DIAMOND', SERVER_CONFIG.getContractAddresses(chainId).DIAMOND);
+      const DIAMOND_ADDRESS = SERVER_CONFIG.getContractAddresses(chainId).DIAMOND;
       const maxAutoWithdraw = await publicClient?.readContract({
         abi: FlashDuelsViewFacetABI,
-        address: SERVER_CONFIG.DIAMOND as Hex,
+        address: DIAMOND_ADDRESS as Hex,
         functionName: 'getMaxAutoWithdraw',
       });
       console.log('getMaxAutoWithdraw', maxAutoWithdraw);
 
       const tx = await writeContractAsync({
         abi: FlashDuelCoreFacetAbi,
-        address: SERVER_CONFIG.DIAMOND as Hex,
+        address: DIAMOND_ADDRESS as Hex,
         functionName: 'withdrawEarnings',
         args: [parseTokenAmount(amount, chainId, defaultSymbol).toString()],
       });

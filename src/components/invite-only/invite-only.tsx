@@ -1,20 +1,22 @@
 // components/invite-only.tsx
 'use client';
 
-import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { Lock } from 'lucide-react';
-import React from 'react';
+import { FC } from 'react';
 import { useAccount } from 'wagmi';
-import InviteCodeInput from './invite-code-input';
+import { Lock } from 'lucide-react';
+import { ConnectButton } from '../navbar/connectButton';
 import WalletInfo from './wallet-info';
+import InviteCodeInput from './invite-code-input';
+import { useNetworkConfig } from '@/hooks/useNetworkConfig';
 
 interface InviteOnlyProps {
   onSubmit: (code: string) => void;
-  errorMessage: string | null;
+  errorMessage?: string | null;
 }
 
-const InviteOnly: React.FC<InviteOnlyProps> = ({ onSubmit, errorMessage }) => {
+const InviteOnly: FC<InviteOnlyProps> = ({ onSubmit, errorMessage }) => {
   const { isConnected } = useAccount();
+  const { chainId, isChainSupported, getCurrentNetworkName } = useNetworkConfig();
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-transparent overflow-hidden">
@@ -27,7 +29,11 @@ const InviteOnly: React.FC<InviteOnlyProps> = ({ onSubmit, errorMessage }) => {
               ? 'Enter your invite code to unlock the app.'
               : 'Connect your wallet to continue.'}
           </p>
-
+          {isConnected && !isChainSupported(chainId) && (
+            <p className="text-yellow-500 text-sm">
+              Please switch to a supported network
+            </p>
+          )}
           {errorMessage && <div className="text-red-400 text-sm mt-2">{errorMessage}</div>}
         </div>
         <div className="mt-6">
@@ -39,7 +45,7 @@ const InviteOnly: React.FC<InviteOnlyProps> = ({ onSubmit, errorMessage }) => {
             <>
               <WalletInfo />
               <div className="mt-4">
-                <InviteCodeInput onSubmit={onSubmit} />
+                <InviteCodeInput onSubmit={onSubmit} disabled={!isChainSupported(chainId)} />
               </div>
             </>
           )}

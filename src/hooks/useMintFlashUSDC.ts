@@ -8,7 +8,7 @@ import { handleTransactionError } from '@/utils/token';
 import { useState } from 'react';
 import { createWalletClient, Hex, http } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
-import { sei, seiTestnet } from 'viem/chains';
+import { base, sei, seiTestnet } from 'viem/chains';
 import { useAccount, useChainId, usePublicClient, useWaitForTransactionReceipt } from 'wagmi';
 
 interface UseMintFlashUSDCReturn {
@@ -26,9 +26,25 @@ const useMintFlashUSDC = (): UseMintFlashUSDCReturn => {
   const [txHash, setTxHash] = useState<Hex | undefined>(undefined);
   const account = privateKeyToAccount(SERVER_CONFIG.BOT_PRIVATE_KEY as Hex);
   const chainId = useChainId();
+
+  const getChain = (chainId: number) => {
+    switch (chainId) {
+      case sei.id:
+        return sei;
+      case base.id:
+        return base;
+      // case baseSepolia.id:
+      //   return baseSepolia;
+      case seiTestnet.id:
+        return seiTestnet;
+      default:
+        return seiTestnet;
+    }
+  };
+
   const walletClient = createWalletClient({
     account,
-    chain: chainId === sei.id ? sei : seiTestnet,
+    chain: getChain(chainId),
     transport: http(),
   });
 
@@ -77,7 +93,7 @@ const useMintFlashUSDC = (): UseMintFlashUSDCReturn => {
       // Execute mint transaction
       const tx = await walletClient.writeContract({
         abi: FLASHUSDC,
-        address: SERVER_CONFIG.FLASH_USDC as Hex,
+        address: SERVER_CONFIG.getContractAddresses(chainId).FLASH_USDC as Hex,
         functionName: 'faucetMint',
         args: [address],
       });

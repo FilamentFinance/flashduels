@@ -4,7 +4,7 @@ import { CREDITS } from '@/abi/CREDITS';
 import { SERVER_CONFIG } from '@/config/server-config';
 // import { SEI_TESTNET_CHAIN_ID } from '@/constants/app';
 import { Hex, parseUnits, formatUnits } from 'viem';
-import { sei, seiTestnet } from 'viem/chains';
+import { base, sei, seiTestnet } from 'viem/chains';
 import { useWriteContract, useChainId } from 'wagmi';
 
 // export const REQUIRED_ALLOWANCE = BigInt(5 * 10 ** 6);
@@ -45,11 +45,11 @@ export const useTokenApproval = () => {
     // for CRD use
     const tx = await writeContractAsync({
       abi: CREDITS,
-      address: SERVER_CONFIG.CREDIT_CONTRACT as Hex,
+      address: SERVER_CONFIG.getContractAddresses(chainId).CREDIT_CONTRACT as Hex,
       functionName: 'approve',
       chainId: chainId,
       // args: [SERVER_CONFIG.DIAMOND as Hex, amount || REQUIRED_ALLOWANCE],
-      args: [SERVER_CONFIG.DIAMOND as Hex, amount],
+      args: [SERVER_CONFIG.getContractAddresses(chainId).DIAMOND as Hex, amount],
     });
 
     if (!tx) throw new Error('Failed to send approval transaction');
@@ -105,6 +105,18 @@ export const TOKEN_DECIMALS: Record<number, Record<string, number>> = {
     USDC: 6,
     CRD: 18,
   },
+  [seiTestnet.id]: {
+    USDC: 6,
+    CRD: 18,
+  },
+  [base.id]: {
+    USDC: 6,
+    CRD: 18,
+  },
+  // [baseSepolia.id]: {
+  //   USDC: 6,
+  //   CRD: 18,
+  // },
   // Add other chains here
 };
 
@@ -136,7 +148,9 @@ export const getTokenDecimals = (chainId: number, symbol?: string): number => {
   }
 
   // If no symbol provided, use chain default or env default
-  const defaultSymbol = chainId === sei.id ? 'CRD' : DEFAULT_TOKEN_SYMBOL;
+  const defaultSymbol = chainId === sei.id || chainId === base.id
+    ? 'CRD'
+    : DEFAULT_TOKEN_SYMBOL;
   return getTokenDecimals(chainId, defaultSymbol);
 };
 
