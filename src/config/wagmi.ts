@@ -1,4 +1,4 @@
-import { base, baseSepolia, sei, seiTestnet } from 'viem/chains';
+import { base, sei, seiTestnet } from 'viem/chains';
 import { createConfig, http } from 'wagmi';
 import { injected } from 'wagmi/connectors';
 

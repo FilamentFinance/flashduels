@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { useChainId, useSwitchChain, useAccount } from 'wagmi';
+import { useChainId, useAccount } from 'wagmi';
 import { base, sei, seiTestnet } from 'viem/chains';
 import { getChainName, isChainSupported } from '@/config/contract-config';
 import { useToast } from '@/shadcn/components/ui/use-toast';
@@ -112,9 +112,9 @@ export const useNetworkConfig = () => {
                     method: 'wallet_switchEthereumChain',
                     params: [{ chainId: chainIdHex }],
                 });
-            } catch (switchError: any) {
+            } catch (switchError) {
                 // This error code indicates that the chain has not been added to MetaMask
-                if (switchError.code === 4902) {
+                if (switchError instanceof Error && 'code' in switchError && switchError.code === 4902) {
                     // Get the chain configuration
                     let chainConfig;
                     switch (chainToSwitch) {
@@ -200,6 +200,7 @@ export const useNetworkConfig = () => {
             // console.log('Getting network name:', name);
             return name;
         } catch (error) {
+            console.error('Error getting network name:', error);
             console.log('Error getting network name, using chain ID:', currentChainId);
             return `Chain ID: ${currentChainId}`;
         }
