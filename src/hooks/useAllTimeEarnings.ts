@@ -9,11 +9,11 @@ export function useAllTimeEarnings(address?: string) {
     const chainId = useChainId();
     const defaultSymbol = SERVER_CONFIG.DEFAULT_TOKEN_SYMBOL || 'USDC';
     const [earnings, setEarnings] = useState('0');
-
+    const DIAMOND_ADDRESS = SERVER_CONFIG.getContractAddresses(chainId).DIAMOND;
     const { data: earningsData, isLoading } = useReadContract({
         abi: FlashDuelsViewFacetABI,
         functionName: 'getAllTimeEarnings',
-        address: SERVER_CONFIG.DIAMOND as Hex,
+        address: DIAMOND_ADDRESS as Hex,
         args: [address],
         chainId: chainId,
     });

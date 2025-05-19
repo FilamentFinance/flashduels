@@ -16,7 +16,7 @@ import { Button } from '@/shadcn/components/ui/button';
 import { cn } from '@/shadcn/lib/utils';
 import { DuelType } from '@/types/duel';
 import { FC, useState, useEffect } from 'react';
-import { useAccount, useReadContracts } from 'wagmi';
+import { useAccount, useChainId, useReadContracts } from 'wagmi';
 import { baseApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
 import { toast } from '@/shadcn/components/ui/use-toast';
@@ -41,13 +41,14 @@ const CreateDuel: FC = () => {
   const [loading, setLoading] = useState(false);
   const [requestStatus, setRequestStatus] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const chainId = useChainId();
 
   // Add contract read for total protocol liquidity
   const { data: totalProtocolLiquidity } = useReadContracts({
     contracts: [
       {
         abi: FlashDuelsViewFacetABI,
-        address: SERVER_CONFIG.DIAMOND as `0x${string}`,
+        address: SERVER_CONFIG.getContractAddresses(chainId).DIAMOND as `0x${string}`,
         functionName: 'getTotalProtocolLiquidity',
       },
     ],
