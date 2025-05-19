@@ -82,14 +82,14 @@ const EnableTrading: FC = () => {
       return;
     }
 
-    if (!agreed) {
-      toast({
-        title: 'Agreement Required',
-        description: 'Please agree to the terms and conditions to continue.',
-        variant: 'destructive',
-      });
-      return;
-    }
+    // if (!agreed) {
+    //   toast({
+    //     title: 'Agreement Required',
+    //     description: 'Please agree to the terms and conditions to continue.',
+    //     variant: 'destructive',
+    //   });
+    //   return;
+    // }
 
     setIsLoading(true);
     try {
