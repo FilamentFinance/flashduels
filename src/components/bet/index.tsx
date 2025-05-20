@@ -31,7 +31,7 @@ const Bet: FC = () => {
   const currentPrice = useSelector((state: RootState) => state.price.price);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [duel, setDuel] = useState<any>(null);
+  const [duel, setDuel] = useState<NewDuelItem | null>(null);
   const [yesBets, setYesBets] = useState<OptionBetType[]>([]);
   const [noBets, setNoBets] = useState<OptionBetType[]>([]);
   const [timeLeft, setTimeLeft] = useState<string>('');
