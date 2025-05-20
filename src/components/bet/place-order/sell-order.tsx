@@ -53,6 +53,8 @@ const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice, duration }) 
   const { toast } = useToast();
   const [showDialog, setShowDialog] = useState(false);
   const [isSelling, setIsSelling] = useState(false);
+  const chainId = useChainId();
+  const apiClient = useApiClient(chainId);
 
   console.log('amount before useSellOrder', amount);
   console.log(
@@ -217,9 +219,7 @@ const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice, duration }) 
         betOptionId,
         sellId: result.sellId,
       });
-      // Update backend
-      const chainId = useChainId();
-      const apiClient = useApiClient(chainId);
+
       await apiClient.post(
         `${SERVER_CONFIG.getApiUrl(chainId)}/user/betOption/sell`,
         {
@@ -273,12 +273,12 @@ const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice, duration }) 
     address,
     sellOrder,
     toast,
+    chainId,
+    apiClient,
   ]);
 
   const getBets = useCallback(async () => {
     try {
-      const chainId = useChainId();
-      const apiClient = useApiClient(chainId);
       const response = await apiClient.post<BetResponse>(
         `${SERVER_CONFIG.getApiUrl(chainId)}/user/bets/getByUser`,
         {
@@ -302,7 +302,7 @@ const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice, duration }) 
     } catch (error) {
       console.error('Error fetching bet:', error);
     }
-  }, [duelId, address]);
+  }, [duelId, address, chainId, apiClient]);
 
   const handleBetSelect = useCallback((bet: OptionBetType) => {
     const position = bet.index === 0 ? OPTIONS_TYPE.LONG : OPTIONS_TYPE.SHORT;

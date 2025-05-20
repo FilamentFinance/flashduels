@@ -45,11 +45,10 @@ export const OrdersHistory = ({ duelId }: OrdersTableProps) => {
   const { toast } = useToast();
   const { cancelSell } = useCancelOrder();
   const [cancellingOrderId, setCancellingOrderId] = useState<string | null>(null);
-  // const [wsManager, setWsManager] = useState<WebSocketManager<OpenOrdersMessage> | null>(null);
+  const chainId = useChainId();
+  const apiClient = useApiClient(chainId);
 
   const handleCancel = async (order: OrderData) => {
-    const chainId = useChainId();
-    const apiClient = useApiClient(chainId);
     setCancellingOrderId(order.id);
     try {
       if (order.sellId === undefined) {
@@ -93,7 +92,6 @@ export const OrdersHistory = ({ duelId }: OrdersTableProps) => {
   };
 
   const setupWebSocket = useCallback(() => {
-    const chainId = useChainId();
     if (!address) {
       return null;
     }
@@ -120,7 +118,7 @@ export const OrdersHistory = ({ duelId }: OrdersTableProps) => {
 
     manager.connect();
     return manager;
-  }, [address]);
+  }, [address, chainId]);
 
   useEffect(() => {
     const manager = setupWebSocket();

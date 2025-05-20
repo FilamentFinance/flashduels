@@ -41,10 +41,10 @@ const EnableTrading: FC = () => {
   );
   const { toast } = useToast();
   const { chainId, isChainSupported, switchToSupportedNetwork } = useNetworkConfig();
-  const apiClient = chainId ? useApiClient(chainId) : null;
+  const apiClient = useApiClient(chainId ?? 0); // Default to 0 if chainId is undefined
 
   useEffect(() => {
-    if (address && chainId && apiClient) {
+    if (address && chainId && apiClient !== null && apiClient !== undefined) {
       const authenticated = isUserAuthenticated(address);
       if (authenticated) {
         // Get stored values
@@ -175,7 +175,7 @@ const EnableTrading: FC = () => {
         );
 
         // Call getAirdrop function
-        if (apiClient) {
+        if (chainId) {
           try {
             console.log('airdrop ');
             const airdropData = await getAirdrop(address, chainId, apiClient);

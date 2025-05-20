@@ -26,16 +26,18 @@ const Bet: FC = () => {
   const id = searchParams.get('duelId');
   const router = useRouter();
   const dispatch = useDispatch();
+  const { cryptoAsset } = useSelector((state: RootState) => state.price);
   const selectedPosition = useSelector((state: RootState) => state.bet.selectedPosition);
   const currentPrice = useSelector((state: RootState) => state.price.price);
-  const { cryptoAsset } = useSelector((state: RootState) => state.price);
-  const [duel, setDuel] = useState<NewDuelItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [duel, setDuel] = useState<any>(null);
   const [yesBets, setYesBets] = useState<OptionBetType[]>([]);
   const [noBets, setNoBets] = useState<OptionBetType[]>([]);
   const [timeLeft, setTimeLeft] = useState<string>('');
   const { address } = useAccount();
+  const chainId = useChainId();
+  const apiClient = useApiClient(chainId);
 
   const getIconPath = (symbol: string | undefined) => {
     if (!symbol) return '/empty-string.png';
@@ -46,8 +48,6 @@ const Bet: FC = () => {
   };
 
   const fetchDuel = async () => {
-    const chainId = useChainId();
-    const apiClient = useApiClient(chainId);
     try {
       setLoading(true);
       const response = await apiClient.get(
@@ -78,8 +78,8 @@ const Bet: FC = () => {
       setLoading(false);
     }
   };
+
   useEffect(() => {
-    const chainId = useChainId();
     const socket = new WebSocket(`${SERVER_CONFIG.getApiWsUrl(chainId)}/betWebSocket?duelId=${id}`);
 
     socket.onopen = function () {
@@ -110,7 +110,7 @@ const Bet: FC = () => {
     return () => {
       socket.close();
     };
-  }, [id]);
+  }, [id, chainId]);
 
   useEffect(() => {
     if (id) {
@@ -121,7 +121,7 @@ const Bet: FC = () => {
       setError('Duel ID is missing from the query parameters.');
       setLoading(false);
     }
-  }, [id, address]);
+  }, [id, address, chainId, apiClient]);
 
   useEffect(() => {
     if (duel) {

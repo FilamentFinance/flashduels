@@ -64,6 +64,8 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
   );
   const dispatch = useDispatch();
   const { address } = useAccount();
+  const chainId = useChainId();
+  const apiClient = useApiClient(chainId);
   const { createCoinDuel, status, error, isApprovalMining, isDuelMining } = useCreateCoinDuel();
   const { toast } = useToast();
   const isTransactionInProgress =
@@ -76,7 +78,6 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
   const [isButtonClicked, setIsButtonClicked] = useState(false);
   const [creditsBalance, setCreditsBalance] = useState<string>('0');
   const publicClient = usePublicClient();
-  const chainId = useChainId();
   const symbol = 'CRD';
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<{ token?: string; triggerPrice?: string }>({});
@@ -101,7 +102,7 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
     };
 
     checkCreditsBalance();
-  }, [address, publicClient]);
+  }, [address, publicClient, chainId]);
 
   const handleCreateDuel = async () => {
     // Validation for required fields
@@ -169,8 +170,6 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
           endsIn: DURATIONS[durationNumber],
         };
         try {
-          const chainId = useChainId();
-          const apiClient = useApiClient(chainId);
           await apiClient.post(`${SERVER_CONFIG.getApiUrl(chainId)}/user/duels/createCoinDuel`, {
             ...duelData,
             twitterUsername: '',
@@ -183,11 +182,6 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
           onComplete();
         } catch (apiError) {
           console.error('API Error:', apiError);
-          // toast({
-          //   title: 'API Error',
-          //   description: 'Failed to approve duel. Please try again.',
-          //   variant: 'destructive',
-          // });
           onComplete();
         }
       }

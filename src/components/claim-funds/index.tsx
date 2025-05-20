@@ -145,7 +145,7 @@ const ClaimFunds: FC = () => {
         'parseTokenAmount(MAX_AUTO_WITHDRAW.toString(), chainId)',
         parseTokenAmount(MAX_AUTO_WITHDRAW.toString(), chainId, defaultSymbol),
       );
-      // console.log('SERVER_CONFIG.DIAMOND', SERVER_CONFIG.getContractAddresses(chainId).DIAMOND);
+
       const DIAMOND_ADDRESS = SERVER_CONFIG.getContractAddresses(chainId).DIAMOND;
       const maxAutoWithdraw = await publicClient?.readContract({
         abi: FlashDuelsViewFacetABI,
@@ -191,7 +191,6 @@ const ClaimFunds: FC = () => {
               };
               const { requestId, user, amount, timestamp } = args;
               console.log({ requestId, user, amount, timestamp });
-              const chainId = useChainId();
               await fetch(`${SERVER_CONFIG.getApiUrl(chainId)}/user/withdrawal-requests`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

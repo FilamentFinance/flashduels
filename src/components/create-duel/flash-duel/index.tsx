@@ -60,13 +60,14 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const { address } = useAccount();
   const chainId = useChainId();
+  const apiClient = useApiClient(chainId);
   const { status, error, isApprovalMining, isDuelMining, createFlashDuel, isComplete } =
     useCreateFlashDuel();
   const [isButtonClicked, setIsButtonClicked] = useState(false);
   const [creditsBalance, setCreditsBalance] = useState<string>('0');
   const { toast } = useToast();
   const publicClient = usePublicClient();
-  const symbol = 'CRD'; // Using CRD for all chains now
+  const symbol = 'CRD';
   const [formError, setFormError] = useState<{ category?: string; duelText?: string }>({});
 
   useEffect(() => {
@@ -93,8 +94,6 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
 
         console.log('Preparing to send duel data to API:', duelData);
         try {
-          const chainId = useChainId();
-          const apiClient = useApiClient(chainId);
           await apiClient.post(`${SERVER_CONFIG.getApiUrl(chainId)}/user/duels/approve`, {
             ...duelData,
             twitterUsername: '',
@@ -102,7 +101,6 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
           });
           console.log('API call successful');
 
-          // Show toast notification about admin approval
           toast({
             title: 'Flash Duel Created Successfully',
             description:
@@ -119,7 +117,17 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
     };
 
     handleCompletion();
-  }, [isComplete, address]);
+  }, [
+    isComplete,
+    address,
+    chainId,
+    apiClient,
+    selectedDuration,
+    selectedCategory,
+    imageUrl,
+    onComplete,
+    toast,
+  ]);
 
   useEffect(() => {
     const checkCreditsBalance = async () => {
@@ -196,7 +204,6 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
         return;
       }
 
-      // Inform user about the approval process before proceeding
       toast({
         title: 'Creating Flash Duel',
         description:
@@ -210,7 +217,6 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
       const durationNumber = mapDurationToNumber(selectedDuration);
       if (selectedImage) {
         const fileName = `${Date.now()}-${selectedImage.name}`;
-        const apiClient = useApiClient(chainId);
         const presignedUrlResponse = await apiClient.post(
           `${SERVER_CONFIG.getApiUrl(chainId)}/user/aws/generate-presigned-url`,
           {
@@ -232,14 +238,6 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
         });
       }
 
-      // const duelData = {
-      //   type: DUEL_TYPE.FLASH_DUEL,
-      //   category: backendCategory,
-      //   betIcon: imageUrl,
-      //   betString: duelText,
-      //   minimumWager: '',
-      //   endsIn: DURATIONS[durationNumber],
-      // };
       const createDuelData = {
         topic: duelText,
         category: categoryEnumIndex,

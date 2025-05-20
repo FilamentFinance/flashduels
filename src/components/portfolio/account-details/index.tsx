@@ -54,6 +54,7 @@ function useTradingPnl(address?: string) {
   const [pnl, setPnl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const chainId = useChainId();
 
   useEffect(() => {
     if (!address) {
@@ -63,7 +64,6 @@ function useTradingPnl(address?: string) {
     setLoading(true);
     setError(null);
     // console.log('Fetching trading PNL for address:', address);
-    const chainId = useChainId();
     axios
       .get(`${SERVER_CONFIG.getApiUrl(chainId)}/leaderboard/traders/pnl?address=${address}`)
       .then((res) => {
@@ -80,7 +80,7 @@ function useTradingPnl(address?: string) {
         }
       })
       .finally(() => setLoading(false));
-  }, [address]);
+  }, [address, chainId]);
 
   return { pnl, loading, error };
 }

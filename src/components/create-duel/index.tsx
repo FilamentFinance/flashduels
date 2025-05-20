@@ -32,6 +32,8 @@ const MAX_PROTOCOL_LIQUIDITY = 200000;
 
 const CreateDuel: FC = () => {
   const { address } = useAccount();
+  const chainId = useChainId();
+  const apiClient = useApiClient(chainId);
   const [selectedDuel, setSelectedDuel] = useState<DuelType | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -41,7 +43,6 @@ const CreateDuel: FC = () => {
   const [loading, setLoading] = useState(false);
   const [requestStatus, setRequestStatus] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const chainId = useChainId();
 
   // Add contract read for total protocol liquidity
   const { data: totalProtocolLiquidity } = useReadContracts({
@@ -72,13 +73,14 @@ const CreateDuel: FC = () => {
     }
     try {
       setLoading(true);
-      const chainId = useChainId();
-      const apiClient = useApiClient(chainId);
-      const response = await apiClient.get(`${SERVER_CONFIG.getApiUrl(chainId)}/user/creator/status`, {
-        params: {
-          address: address.toLowerCase(),
+      const response = await apiClient.get(
+        `${SERVER_CONFIG.getApiUrl(chainId)}/user/creator/status`,
+        {
+          params: {
+            address: address.toLowerCase(),
+          },
         },
-      });
+      );
       setIsCreator(response.data.isCreator);
       setRequestStatus(response.data.request);
     } catch (error) {
@@ -93,7 +95,7 @@ const CreateDuel: FC = () => {
   // Call checkCreatorStatus when the component mounts or address changes
   useEffect(() => {
     checkCreatorStatus();
-  }, [address]);
+  }, [address, chainId, apiClient]);
 
   const handleDuelSelect = (type: DuelType) => {
     setSelectedDuel(type);

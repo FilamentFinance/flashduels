@@ -78,6 +78,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
   const { joinDuel } = useJoinDuel();
   const { toast } = useToast();
   const chainId = useChainId();
+  const apiClient = useApiClient(chainId);
   const symbol = 'CRD'; // Using CRD for all chains now
   // const { prices } = useSelector((state: RootState) => state.price, shallowEqual);
   // const { totalBetYes, totalBetNo } = useTotalBets(duelId);
@@ -232,19 +233,16 @@ const BuyOrder: FC<BuyOrderProps> = ({
 
     setIsJoiningDuel(true);
     try {
-      // Format the amount to avoid scientific notation and ensure it's a valid BigInt string
       const formattedAmount = numAmount.toLocaleString('fullwide', {
         useGrouping: false,
         maximumFractionDigits: 18,
       });
 
-      const parsedAmount = parseUnits(formattedAmount, 18); // crd, todo @need to convert back to 6 for usdc
+      const parsedAmount = parseUnits(formattedAmount, 18);
 
       const { success } = await joinDuel(parsedAmount);
 
       if (success) {
-        const chainId = useChainId();
-        const apiClient = useApiClient(chainId);
         await apiClient.post(`${SERVER_CONFIG.getApiUrl(chainId)}/user/bets/create`, {
           twitterUsername: '',
           bet: localPosition,
@@ -257,7 +255,6 @@ const BuyOrder: FC<BuyOrderProps> = ({
           winCondition,
         });
 
-        // Reset form after successful submission
         setAmount('');
         setLocalPosition(null);
         setError('');
@@ -267,10 +264,9 @@ const BuyOrder: FC<BuyOrderProps> = ({
           description: `Successfully placed ${localPosition} bet for ${amount} ${symbol}`,
         });
 
-        // Auto refresh page after successful transaction and API call
         setTimeout(() => {
           window.location.reload();
-        }, 150); // 0.15 milliseconds (150ms)
+        }, 150);
       }
     } catch (error) {
       console.error('Error placing buy order:', error);
@@ -294,6 +290,8 @@ const BuyOrder: FC<BuyOrderProps> = ({
     joinDuel,
     toast,
     symbol,
+    chainId,
+    apiClient,
   ]);
 
   const isFormValid = useMemo(() => {
@@ -317,22 +315,12 @@ const BuyOrder: FC<BuyOrderProps> = ({
     try {
       const optionIndex = localPosition === OPTIONS_TYPE.LONG ? 0 : 1;
 
-      // Check token allowance first
-      // const hasAllowance = await checkAllowance();
-      // console.log({ localPosition, optionIndex, amount, error, hasAllowance });
-      // const hasAllowance = false;
-
-      // if (!hasAllowance) {
-      // if (!hasAllowance) {
-      // Request token approval if needed
-      // await requestAllowance(parseUnits(amount, 6));
-      await requestAllowance(parseUnits(amount, 18)); // CRD is 18 decimals
+      await requestAllowance(parseUnits(amount, 18));
       toast({
         title: 'Approval Successful',
         description: 'Token approval completed. Placing your order.',
       });
-      // } else {
-      // Place the market buy order
+
       console.log('duelCategory: ', duel?.category);
       console.log('Market buy: ', {
         duelId,
@@ -341,33 +329,29 @@ const BuyOrder: FC<BuyOrderProps> = ({
         userAddress: address?.toLowerCase(),
         duelCategory: mapCategoryToEnumIndex(duel?.category || ''),
       });
-      const chainId = useChainId();
-      const apiClient = useApiClient(chainId);
-      const response = await apiClient.post(`${SERVER_CONFIG.getApiUrl(chainId)}/user/betOption/buy`, {
-        duelId,
-        betAmount: amount,
-        index: optionIndex,
-        userAddress: address?.toLowerCase(),
-        duelCategory: mapCategoryToEnumIndex(duel?.category || ''),
-      });
 
-      // Show success message
+      const response = await apiClient.post(
+        `${SERVER_CONFIG.getApiUrl(chainId)}/user/betOption/buy`,
+        {
+          duelId,
+          betAmount: amount,
+          index: optionIndex,
+          userAddress: address?.toLowerCase(),
+          duelCategory: mapCategoryToEnumIndex(duel?.category || ''),
+        },
+      );
+
       toast({
         title: 'Success',
         description: response.data.message || 'Market buy order placed successfully',
       });
 
-      // Reset form after successful submission
       setAmount('');
       setLocalPosition(null);
       setError('');
-      // }
     } catch (error) {
       console.error('Error in market buy:', error);
-
-      // Use the error handler to get appropriate error message
       const errorDetails = handleTransactionError(error);
-
       setError(`Failed to place market buy order: ${errorDetails.message}`);
       toast({
         title: 'Error',
@@ -377,14 +361,22 @@ const BuyOrder: FC<BuyOrderProps> = ({
     } finally {
       setIsMarketBuying(false);
     }
-    // }, [localPosition, amount, duelId, checkAllowance, requestAllowance, toast, setError]);
-  }, [localPosition, amount, duelId, requestAllowance, toast, setError]);
+  }, [
+    localPosition,
+    amount,
+    duelId,
+    requestAllowance,
+    toast,
+    setError,
+    address,
+    duel?.category,
+    chainId,
+    apiClient,
+  ]);
 
   useEffect(() => {
     const fetchDuel = async () => {
       try {
-        const chainId = useChainId();
-        const apiClient = useApiClient(chainId)
         const response = await apiClient.get(
           `${SERVER_CONFIG.getApiUrl(chainId)}/user/duels/get-duel-by-id/${duelId}`,
           {
@@ -400,7 +392,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
     };
 
     fetchDuel();
-  }, [address, duelId]);
+  }, [address, duelId, chainId, apiClient]);
 
   useEffect(() => {
     if (duel) {
