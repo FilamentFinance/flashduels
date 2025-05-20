@@ -3,7 +3,7 @@
 import HowItWorks from '@/components/how-it-works';
 import Markets from '@/components/markets';
 import { useEffect, useState } from 'react';
-import { useNetworkConfig } from '@/hooks/useNetworkConfig';
+// import { useNetworkConfig } from '@/hooks/useNetworkConfig';
 // import { Button } from '@/shadcn/components/ui/button';
 
 export default function Home() {

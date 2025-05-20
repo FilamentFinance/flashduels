@@ -6,9 +6,9 @@ import { RootState } from '@/store';
 import { fetchAssetType, setCryptoAsset } from '@/store/slices/priceSlice';
 import { truncateAddress } from '@/utils/general/getEllipsisTxt';
 import axios from 'axios';
-import { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useState, useRef } from 'react';
 import { shallowEqual, useDispatch } from 'react-redux';
-import { useAccount, useChainId } from 'wagmi';
+import { useAccount } from 'wagmi';
 // import ClaimFaucet from '../claim-faucet';
 import ClaimFunds from '../claim-funds';
 import CreateDuel from '../create-duel';
@@ -39,13 +39,39 @@ const Navbar: FC = () => {
     shallowEqual,
   );
   const { balance, symbol, decimals, isLoading } = useBalance(address ?? undefined);
-  const { chainId, isChainSupported, switchToSupportedNetwork, getCurrentNetworkName } =
-    useNetworkConfig();
+  const {
+    chainId,
+    isChainSupported,
+    switchToSupportedNetwork,
+    getCurrentNetworkName,
+    getSupportedNetworks,
+  } = useNetworkConfig();
   const [isSwitchingNetwork, setIsSwitchingNetwork] = useState(false);
+  const supportedNetworks = getSupportedNetworks();
+  const [selectedChainId, setSelectedChainId] = useState<number>(supportedNetworks[0]?.id ?? 0);
   // const { isTradingEnabled = false } = useAppSelector((state: RootState) => state.user || {}, shallowEqual);
   const { toast } = useToast();
   const dispatch = useDispatch();
   const apiClient = useApiClient(chainId ?? 0);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    }
+    if (dropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [dropdownOpen]);
 
   // const getChainName = (chainId: number): string => {
   //   switch (chainId) {
@@ -110,7 +136,15 @@ const Navbar: FC = () => {
         })
       : '0';
 
-  console.log('Navbar chainId:', chainId, 'isChainSupported:', isChainSupported(chainId));
+  // console.log('Navbar chainId:', chainId, 'isChainSupported:', isChainSupported(chainId));
+
+  // Add a mapping for network icons (use placeholder for now)
+  const networkIcons: Record<number, string> = {
+    8453: '/chain-icons/base.png', // Base Mainnet
+    1329: '/chain-icons/sei.png', // Sei Mainnet
+    1328: '/chain-icons/sei.png', // Sei Testnet
+  };
+  const defaultIcon = '/chain-icons/base.png';
 
   return (
     <nav className="w-full border-b border-gray-800 h-navbar-height px-navbar-padding flex items-center">
@@ -127,73 +161,157 @@ const Navbar: FC = () => {
           </div>
         </div>
         {isConnected && address ? (
-          <div className="flex gap-2">
-            {chainId !== undefined && isChainSupported(chainId) ? (
-              <>
-                <ClaimFunds />
-                <ClaimAirdropButton />
-                <EnableTrading />
-                <GetGas />
-                {isAuthenticated && (
-                  <div className="flex items-center gap-2">
-                    <CreateDuel />
+          <>
+            {/* Top-right network badge */}
+            {chainId !== undefined && isChainSupported(chainId) && (
+              <div className="fixed top-8.5 right-2 z-50">
+                <button
+                  onClick={() => setDropdownOpen((open) => !open)}
+                  className="flex items-center gap-2 bg-glass p-2 rounded-lg border border-zinc-800 shadow-lg focus:outline-none hover:border-pink-400 hover:bg-pink-400/10 transition-colors cursor-pointer"
+                  aria-label="Switch Network"
+                >
+                  <img
+                    src={networkIcons[chainId] || defaultIcon}
+                    alt="Network Icon"
+                    className="w-5 h-5 mr-1 inline rounded-full border border-zinc-700"
+                  />
+                  <svg className="w-3 h-3 text-pink-300" viewBox="0 0 20 20" fill="currentColor">
+                    <path
+                      fillRule="evenodd"
+                      d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+                {dropdownOpen && (
+                  <div
+                    className="absolute right-0 mt-2 w-32 bg-black border border-pink-300 rounded shadow-lg text-xs"
+                    onMouseLeave={() => setDropdownOpen(false)}
+                  >
+                    {supportedNetworks.map((net) => (
+                      <button
+                        key={net.id}
+                        className="flex items-center w-full px-2 py-1.5 hover:bg-pink-800/50 text-xs"
+                        onClick={async () => {
+                          setDropdownOpen(false);
+                          setIsSwitchingNetwork(true);
+                          try {
+                            await switchToSupportedNetwork(net.id);
+                            toast({
+                              title: 'Network Connected',
+                              description: `Successfully connected to ${net.name}`,
+                              variant: 'default',
+                              duration: 3000,
+                            });
+                          } finally {
+                            setIsSwitchingNetwork(false);
+                          }
+                        }}
+                        disabled={isSwitchingNetwork}
+                      >
+                        <img
+                          src={networkIcons[net.id] || defaultIcon}
+                          alt="Network Icon"
+                          className="w-4 h-4 mr-1 rounded-full"
+                        />
+                        <span>{net.name}</span>
+                      </button>
+                    ))}
                   </div>
                 )}
-                <WalletModal>
-                  <Button className="rounded-default bg-glass hover:bg-glass-hover border border-zinc-800 transition-colors duration-200 hover:shadow-lg flex items-center gap-2">
-                    {isLoading ? (
-                      <Loader2 className="h-3 w-3 animate-spin mr-1" />
-                    ) : (
-                      <span className="text-gray-300">
-                        {formattedBalance} {symbol}
-                      </span>
-                    )}
-                    <span className="border-l border-zinc-700 pl-2 flex flex-col items-center">
-                      <span>{truncateAddress(address)}</span>
-                      {isCreator ? (
-                        <span className="text-xs text-center font-medium text-green-500 mt-1">
-                          ✓ Verified Creator
-                        </span>
+              </div>
+            )}
+            <div className="flex gap-2">
+              {chainId !== undefined && isChainSupported(chainId) ? (
+                <>
+                  <ClaimFunds />
+                  <ClaimAirdropButton />
+                  <EnableTrading />
+                  <GetGas />
+                  {isAuthenticated && (
+                    <div className="flex items-center gap-2">
+                      <CreateDuel />
+                    </div>
+                  )}
+                  <WalletModal>
+                    <Button className="rounded-default bg-glass hover:bg-glass-hover border border-zinc-800 transition-colors duration-200 hover:shadow-lg flex items-center gap-2 mr-7">
+                      {isLoading ? (
+                        <Loader2 className="h-3 w-3 animate-spin mr-1" />
                       ) : (
-                        <span className="text-xs text-center font-medium text-yellow-500 mt-1">
-                          ⚠️ Not Verified Creator
+                        <span className="text-gray-300">
+                          {formattedBalance} {symbol}
                         </span>
                       )}
-                    </span>
-                  </Button>
-                </WalletModal>
-              </>
-            ) : (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={async () => {
-                  setIsSwitchingNetwork(true);
-                  try {
-                    await switchToSupportedNetwork();
-                    toast({
-                      title: 'Network Connected',
-                      description: `Successfully connected to a supported network`,
-                      variant: 'default',
-                    });
-                  } finally {
-                    setIsSwitchingNetwork(false);
-                  }
-                }}
-                disabled={isSwitchingNetwork}
-                className="text-sm border-pink-300 text-pink-300 hover:bg-pink-400/10 hover:text-pink-400 hover:border-pink-400"
-              >
-                {isSwitchingNetwork ? (
-                  <div className="flex items-center gap-2">
-                    <Loader2 className="h-3 w-3 animate-spin" />
-                    <span>Connecting...</span>
-                  </div>
-                ) : (
-                  <>Switch Network</>
-                )}
-              </Button>
-            )}
-          </div>
+                      <span className="border-l border-zinc-700 pl-2 flex flex-col items-center">
+                        <span>{truncateAddress(address)}</span>
+                        {isCreator ? (
+                          <span className="text-xs text-center font-medium text-green-500 mt-1">
+                            ✓ Verified Creator
+                          </span>
+                        ) : (
+                          <span className="text-xs text-center font-medium text-yellow-500 mt-1">
+                            ⚠️ Not Verified Creator
+                          </span>
+                        )}
+                      </span>
+                    </Button>
+                  </WalletModal>
+                </>
+              ) : (
+                <div className="relative" ref={dropdownRef}>
+                  <button
+                    onClick={() => setDropdownOpen((open) => !open)}
+                    className="rounded border px-1.5 py-0.5 bg-black text-xs text-white border-pink-300 flex items-center min-h-7"
+                    disabled={isSwitchingNetwork}
+                    aria-haspopup="listbox"
+                    aria-expanded={dropdownOpen}
+                  >
+                    <span className="mr-1">Switch Network</span>
+                    <svg className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor">
+                      <path
+                        fillRule="evenodd"
+                        d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </button>
+                  {dropdownOpen && (
+                    <div className="absolute z-50 mt-1 w-35 bg-black border border-pink-300 rounded shadow-lg text-xs">
+                      {supportedNetworks.map((net) => (
+                        <button
+                          key={net.id}
+                          className="flex items-center w-full px-2 py-1.5 hover:bg-pink-900/20 text-xs"
+                          onClick={async () => {
+                            setDropdownOpen(false);
+                            setIsSwitchingNetwork(true);
+                            try {
+                              await switchToSupportedNetwork(net.id);
+                              toast({
+                                title: 'Network Connected',
+                                description: `Successfully connected to ${net.name}`,
+                                variant: 'default',
+                                duration: 3000,
+                              });
+                            } finally {
+                              setIsSwitchingNetwork(false);
+                            }
+                          }}
+                          disabled={isSwitchingNetwork}
+                        >
+                          <img
+                            src={networkIcons[net.id] || defaultIcon}
+                            alt="Network Icon"
+                            className="w-4 h-4 mr-1 rounded-full"
+                          />
+                          <span>{net.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </>
         ) : (
           <ConnectButton />
         )}
