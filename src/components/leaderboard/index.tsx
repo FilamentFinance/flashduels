@@ -14,13 +14,13 @@ const Leaderboard: FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   // const [isError, setIsError] = useState(false);
   // const [showContent, setShowContent] = useState(false);
+  const chainId = useChainId();
+  const apiClient = useApiClient(chainId);
 
   const fetchData = async () => {
     try {
       setIsLoading(true);
       // setIsError(false);
-      const chainId = useChainId();
-      const apiClient = useApiClient(chainId);
       const response = await apiClient.get(
         `/leaderboard/${activeTab === LEADERBOARD_TABS.CREATORS ? 'creators' : 'traders'}`,
         {
@@ -52,7 +52,7 @@ const Leaderboard: FC = () => {
   useEffect(() => {
     // setShowContent(false);
     fetchData();
-  }, [activeTab]);
+  }, [activeTab, chainId]);
 
   return (
     <div className="flex flex-col items-center w-full pt-8">

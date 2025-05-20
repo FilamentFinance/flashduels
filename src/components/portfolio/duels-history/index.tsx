@@ -20,11 +20,10 @@ const DuelsHistory: FC = () => {
   const [error, setError] = React.useState<string | null>(null);
   const { address } = useAccount();
   const chainId = useChainId();
+  const apiClient = useApiClient(chainId);
 
   const getDuelsData = async () => {
     if (!address) return;
-    const chainId = useChainId();
-    const apiClient = useApiClient(chainId);
 
     try {
       setLoading(true);
@@ -59,7 +58,6 @@ const DuelsHistory: FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const apiClient = useApiClient(chainId);
       const response = await apiClient.post(
         `${SERVER_CONFIG.getApiUrl(chainId)}/user/portfolio/table/history`,
         { userAddress: address.toLowerCase() },
@@ -94,7 +92,7 @@ const DuelsHistory: FC = () => {
     } else if (activeTab === 'history') {
       getHistoryData();
     }
-  }, [activeTab, address]);
+  }, [activeTab, address, chainId, apiClient]);
 
   const activeData = activeTab === 'duels' ? duels : history;
 

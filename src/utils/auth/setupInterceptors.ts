@@ -38,8 +38,8 @@ export const setupInterceptors = async (
   address: string,
   disconnect: () => void,
   onUnauthorized: () => void,
+  chainId: number,
 ) => {
-  const chainId = useChainId();
   // Clear any existing interceptors
   if (requestInterceptor !== null) {
     apiClient(chainId).interceptors.request.eject(requestInterceptor);

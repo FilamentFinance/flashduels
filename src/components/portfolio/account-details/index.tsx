@@ -94,6 +94,7 @@ const AccountDetails: FC = () => {
   const { balance, decimals } = useBalance(address);
   const [isCreator, setIsCreator] = useState<boolean | null>(null);
   const chainId = useChainId();
+  const apiClient = useApiClient(chainId);
   const symbol = 'CRD'; // Using CRD for all chains now
   const publicClient = usePublicClient();
   const { toast } = useToast();
@@ -189,7 +190,6 @@ const AccountDetails: FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const apiClient = useApiClient(chainId);
       const response = await apiClient.post('user/portfolio/accountDetails', {
         userAddress: address.toLowerCase(),
       });
@@ -224,7 +224,7 @@ const AccountDetails: FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [address]);
+  }, [address, apiClient, chainId]);
 
   useEffect(() => {
     fetchPortfolio();

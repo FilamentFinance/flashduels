@@ -30,6 +30,7 @@ export const useWebSocketPrices = (asset: string | undefined): PriceData => {
   const [isConnecting, setIsConnecting] = useState(false);
   const [reconnectAttempts, setReconnectAttempts] = useState(0);
   const MAX_RECONNECT_ATTEMPTS = 3;
+  const chainId = useChainId();
 
   useEffect(() => {
     let websocket: WebSocket;
@@ -38,7 +39,6 @@ export const useWebSocketPrices = (asset: string | undefined): PriceData => {
     const connectWebSocket = () => {
       if (isConnecting) return;
       setIsConnecting(true);
-      const chainId = useChainId();
       const wsUrl = asset
         ? `${SERVER_CONFIG.getApiWsUrl(chainId)}/cryptoduelsOptionPricingWebSocket`
         : `${SERVER_CONFIG.getApiWsUrl(chainId)}/flashduelsOptionPricingWebSocket`;
@@ -106,7 +106,7 @@ export const useWebSocketPrices = (asset: string | undefined): PriceData => {
         clearTimeout(reconnectTimeout);
       }
     };
-  }, [asset]);
+  }, [asset, chainId]);
 
   return {
     yesPrice,

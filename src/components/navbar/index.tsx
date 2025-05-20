@@ -45,6 +45,7 @@ const Navbar: FC = () => {
   // const { isTradingEnabled = false } = useAppSelector((state: RootState) => state.user || {}, shallowEqual);
   const { toast } = useToast();
   const dispatch = useDispatch();
+  const apiClient = useApiClient(chainId);
 
   // const getChainName = (chainId: number): string => {
   //   switch (chainId) {
@@ -85,7 +86,6 @@ const Navbar: FC = () => {
   }, [chainId]);
 
   useEffect(() => {
-    const apiClient = useApiClient(chainId);
     if (isConnected && address) {
       apiClient
         .get(`${SERVER_CONFIG.getApiUrl(chainId)}/user/creator/status`, {
@@ -98,7 +98,7 @@ const Navbar: FC = () => {
           dispatch(setCreatorStatus(false));
         });
     }
-  }, [isConnected, address, dispatch]);
+  }, [isConnected, address, dispatch, apiClient, chainId]);
 
   const formattedBalance =
     balance && decimals

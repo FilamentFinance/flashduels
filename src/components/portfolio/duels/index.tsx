@@ -153,10 +153,10 @@ const Duels: FC = () => {
   const [error, setError] = useState<string | null>(null);
   const { address } = useAccount();
   const router = useRouter();
+  const chainId = useChainId();
+  const apiClient = useApiClient(chainId);
 
   const fetchDuels = async () => {
-    const chainId = useChainId();
-    const apiClient = useApiClient(chainId);
     if (!address) {
       setLoading(false);
       return;

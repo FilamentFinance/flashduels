@@ -40,6 +40,7 @@ const GenerateInvite: FC = () => {
   const [userName, setUserName] = useState('');
   const { toast } = useToast();
   const { address } = useAccount();
+  const chainId = useChainId();
 
   const handleCopy = async () => {
     if (!inviteCodeData?.code) return;
@@ -81,7 +82,6 @@ const GenerateInvite: FC = () => {
     setIsError(false);
     setApiError(null);
     try {
-      const chainId = useChainId();
       const response = await axios.post(
         `${SERVER_CONFIG.getInviteOnlyUrl(chainId)}/generate`,
         { address, appType: 'flash-duels', username: userName },

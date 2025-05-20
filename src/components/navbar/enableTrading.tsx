@@ -14,13 +14,14 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { FC, useEffect, useState } from 'react';
 import { privateKeyToAccount } from 'viem/accounts';
-import { useAccount, useDisconnect, useSignMessage, useChainId } from 'wagmi';
+import { useAccount, useDisconnect, useSignMessage } from 'wagmi';
 import { SERVER_CONFIG } from '@/config/server-config';
 import { RootState } from '@/store';
 import { shallowEqual } from 'react-redux';
 import { getAirdrop } from '@/utils/general/get-airdrop';
 import { Sparkle } from 'lucide-react';
 import { useNetworkConfig } from '@/hooks/useNetworkConfig';
+import { useApiClient } from '@/config/api-client';
 
 interface WalletError extends Error {
   code: number;
@@ -40,9 +41,10 @@ const EnableTrading: FC = () => {
   );
   const { toast } = useToast();
   const { chainId, isChainSupported, switchToSupportedNetwork } = useNetworkConfig();
+  const apiClient = chainId ? useApiClient(chainId) : null;
 
   useEffect(() => {
-    if (address) {
+    if (address && chainId && apiClient) {
       const authenticated = isUserAuthenticated(address);
       if (authenticated) {
         // Get stored values
@@ -61,17 +63,26 @@ const EnableTrading: FC = () => {
           );
 
           // Setup interceptors if user is already authenticated
-          setupInterceptors(address, disconnect, () => dispatch(clearAuth()));
+          setupInterceptors(address, disconnect, () => dispatch(clearAuth()), chainId);
         }
       }
     }
-  }, [address, dispatch, disconnect]);
+  }, [address, dispatch, disconnect, chainId, apiClient]);
 
   const handleEnableTrading = async () => {
     if (!address) {
       toast({
         title: 'No wallet connected',
         description: 'Please connect a wallet to enable trading.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!chainId) {
+      toast({
+        title: 'Network Error',
+        description: 'Please connect to a supported network.',
         variant: 'destructive',
       });
       return;
@@ -129,7 +140,6 @@ const EnableTrading: FC = () => {
         localStorage.setItem(`signingKeyExpiry_${address.toLowerCase()}`, expiry);
 
         // Make API call to backend
-        const chainId = useChainId();
         const response = await fetch(`${SERVER_CONFIG.getApiUrl(chainId)}/user/auth`, {
           method: 'POST',
           headers: {
@@ -157,15 +167,22 @@ const EnableTrading: FC = () => {
         );
 
         // Setup interceptors
-        await setupInterceptors(address.toLowerCase(), disconnect, () => dispatch(clearAuth()));
+        await setupInterceptors(
+          address.toLowerCase(),
+          disconnect,
+          () => dispatch(clearAuth()),
+          chainId,
+        );
 
         // Call getAirdrop function
-        try {
-          console.log('airdrop ');
-          const airdropData = await getAirdrop(address);
-          console.log('Airdrop data:', airdropData);
-        } catch (error) {
-          console.error('Error getting airdrop:', error);
+        if (apiClient) {
+          try {
+            console.log('airdrop ');
+            const airdropData = await getAirdrop(address, chainId, apiClient);
+            console.log('Airdrop data:', airdropData);
+          } catch (error) {
+            console.error('Error getting airdrop:', error);
+          }
         }
 
         toast({

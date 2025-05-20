@@ -1,10 +1,7 @@
-import { useApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
-import { useChainId } from 'wagmi';
+import { AxiosInstance } from 'axios';
 
-export const getAirdrop = async (address: string) => {
-  const chainId = useChainId();
-  const apiClient = useApiClient(chainId);
+export const getAirdrop = async (address: string, chainId: number, apiClient: AxiosInstance) => {
   try {
     const response = await apiClient.post(
       `${SERVER_CONFIG.getApiUrl(chainId)}/user/airdrop`,
