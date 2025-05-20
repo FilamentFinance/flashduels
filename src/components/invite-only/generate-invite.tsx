@@ -9,7 +9,7 @@ import { useToast } from '@/shadcn/components/ui/use-toast';
 import axios from 'axios';
 import { Check, Copy } from 'lucide-react';
 import { FC, useState } from 'react';
-import { useAccount } from 'wagmi';
+import { useAccount, useChainId } from 'wagmi';
 
 interface InviteCodeData {
   code: string;
@@ -81,8 +81,9 @@ const GenerateInvite: FC = () => {
     setIsError(false);
     setApiError(null);
     try {
+      const chainId = useChainId();
       const response = await axios.post(
-        `${SERVER_CONFIG.INVITE_ONLY_URL}/generate`,
+        `${SERVER_CONFIG.getInviteOnlyUrl(chainId)}/generate`,
         { address, appType: 'flash-duels', username: userName },
         { headers: { 'Content-Type': 'application/json' } },
       );

@@ -14,9 +14,10 @@ import Duels from './duals';
 import DuelStatus from './duel-status';
 import SearchDuels from './search-duel';
 import { CreatorVerify } from '../creator/verify';
-
+import { useChainId } from 'wagmi';
 const Markets: FC = () => {
   const router = useRouter();
+  const chainId = useChainId();
   const [duels, setDuels] = useState<Duel[]>([]);
   const [activeStatus, setActiveStatus] = useState<TDualStatus>(DUEL_STATUS.LIVE);
   const [searchQuery, setSearchQuery] = useState('');
@@ -36,7 +37,7 @@ const Markets: FC = () => {
     let isSubscribed = true;
 
     const connectWebSocket = () => {
-      wsRef.current = new WebSocket(`${SERVER_CONFIG.API_WS_URL}/ws`);
+      wsRef.current = new WebSocket(`${SERVER_CONFIG.getApiWsUrl(chainId)}/ws`);
 
       wsRef.current.onopen = function () {
         console.log('Connected to the WebSocket server');

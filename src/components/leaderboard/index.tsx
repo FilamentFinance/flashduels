@@ -1,11 +1,12 @@
 'use client';
 
-import { baseApiClient } from '@/config/api-client';
+import { useApiClient } from '@/config/api-client';
 import { LEADERBOARD_TABS } from '@/constants/leaderboard';
 import { LeaderboardItem, LeaderboardTab } from '@/types/leaderboard';
 import { FC, useEffect, useState } from 'react';
 import Header from './header';
 import Table from './table';
+import { useChainId } from 'wagmi';
 
 const Leaderboard: FC = () => {
   const [activeTab, setActiveTab] = useState<LeaderboardTab>(LEADERBOARD_TABS.CREATORS);
@@ -18,7 +19,9 @@ const Leaderboard: FC = () => {
     try {
       setIsLoading(true);
       // setIsError(false);
-      const response = await baseApiClient.get(
+      const chainId = useChainId();
+      const apiClient = useApiClient(chainId);
+      const response = await apiClient.get(
         `/leaderboard/${activeTab === LEADERBOARD_TABS.CREATORS ? 'creators' : 'traders'}`,
         {
           params: {

@@ -1,6 +1,6 @@
 'use client';
 
-import { baseApiClient } from '@/config/api-client';
+import { useApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
 import { TRANSACTION_STATUS } from '@/constants/app';
 import {
@@ -169,7 +169,9 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
           endsIn: DURATIONS[durationNumber],
         };
         try {
-          await baseApiClient.post(`${SERVER_CONFIG.API_URL}/user/duels/createCoinDuel`, {
+          const chainId = useChainId();
+          const apiClient = useApiClient(chainId);
+          await apiClient.post(`${SERVER_CONFIG.getApiUrl(chainId)}/user/duels/createCoinDuel`, {
             ...duelData,
             twitterUsername: '',
             address: address?.toLowerCase(),

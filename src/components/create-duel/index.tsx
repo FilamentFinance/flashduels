@@ -17,7 +17,7 @@ import { cn } from '@/shadcn/lib/utils';
 import { DuelType } from '@/types/duel';
 import { FC, useState, useEffect } from 'react';
 import { useAccount, useChainId, useReadContracts } from 'wagmi';
-import { baseApiClient } from '@/config/api-client';
+import { useApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
 import { toast } from '@/shadcn/components/ui/use-toast';
 import CreateCoinDuel from './coin-duel';
@@ -72,7 +72,9 @@ const CreateDuel: FC = () => {
     }
     try {
       setLoading(true);
-      const response = await baseApiClient.get(`${SERVER_CONFIG.API_URL}/user/creator/status`, {
+      const chainId = useChainId();
+      const apiClient = useApiClient(chainId);
+      const response = await apiClient.get(`${SERVER_CONFIG.getApiUrl(chainId)}/user/creator/status`, {
         params: {
           address: address.toLowerCase(),
         },

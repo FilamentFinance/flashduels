@@ -14,7 +14,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { FC, useEffect, useState } from 'react';
 import { privateKeyToAccount } from 'viem/accounts';
-import { useAccount, useDisconnect, useSignMessage } from 'wagmi';
+import { useAccount, useDisconnect, useSignMessage, useChainId } from 'wagmi';
 import { SERVER_CONFIG } from '@/config/server-config';
 import { RootState } from '@/store';
 import { shallowEqual } from 'react-redux';
@@ -129,7 +129,8 @@ const EnableTrading: FC = () => {
         localStorage.setItem(`signingKeyExpiry_${address.toLowerCase()}`, expiry);
 
         // Make API call to backend
-        const response = await fetch(`${SERVER_CONFIG.API_URL}/user/auth`, {
+        const chainId = useChainId();
+        const response = await fetch(`${SERVER_CONFIG.getApiUrl(chainId)}/user/auth`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

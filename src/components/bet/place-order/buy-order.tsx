@@ -1,4 +1,4 @@
-import { baseApiClient } from '@/config/api-client';
+import { useApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
 // import { LOGOS } from '@/constants/app/logos';
 import { OPTIONS_TYPE } from '@/constants/duel';
@@ -243,7 +243,9 @@ const BuyOrder: FC<BuyOrderProps> = ({
       const { success } = await joinDuel(parsedAmount);
 
       if (success) {
-        await baseApiClient.post(`${SERVER_CONFIG.API_URL}/user/bets/create`, {
+        const chainId = useChainId();
+        const apiClient = useApiClient(chainId);
+        await apiClient.post(`${SERVER_CONFIG.getApiUrl(chainId)}/user/bets/create`, {
           twitterUsername: '',
           bet: localPosition,
           address: address?.toLowerCase(),
@@ -339,7 +341,9 @@ const BuyOrder: FC<BuyOrderProps> = ({
         userAddress: address?.toLowerCase(),
         duelCategory: mapCategoryToEnumIndex(duel?.category || ''),
       });
-      const response = await baseApiClient.post(`${SERVER_CONFIG.API_URL}/user/betOption/buy`, {
+      const chainId = useChainId();
+      const apiClient = useApiClient(chainId);
+      const response = await apiClient.post(`${SERVER_CONFIG.getApiUrl(chainId)}/user/betOption/buy`, {
         duelId,
         betAmount: amount,
         index: optionIndex,
@@ -379,8 +383,10 @@ const BuyOrder: FC<BuyOrderProps> = ({
   useEffect(() => {
     const fetchDuel = async () => {
       try {
-        const response = await baseApiClient.get(
-          `${SERVER_CONFIG.API_URL}/user/duels/get-duel-by-id/${duelId}`,
+        const chainId = useChainId();
+        const apiClient = useApiClient(chainId)
+        const response = await apiClient.get(
+          `${SERVER_CONFIG.getApiUrl(chainId)}/user/duels/get-duel-by-id/${duelId}`,
           {
             params: {
               userAddress: address?.toLowerCase(),

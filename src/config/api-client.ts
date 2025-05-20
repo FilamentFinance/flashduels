@@ -2,6 +2,7 @@ import { MAX_RETRY_ATTEMPTS, RETRY_DELAY_MS } from '@/constants/app/api-client';
 import { ExtendedAxiosRequestConfig } from '@/types/general/api-client';
 import axios, { AxiosInstance } from 'axios';
 import { SERVER_CONFIG } from './server-config';
+import { base } from 'viem/chains';
 
 class AxiosClient {
   private static instance: AxiosClient | null = null;
@@ -80,4 +81,13 @@ class AxiosClient {
   }
 }
 
-export const baseApiClient = AxiosClient.getInstance(SERVER_CONFIG.API_URL);
+// Create a default API client with Sei chain
+const defaultApiClient = AxiosClient.getInstance(SERVER_CONFIG.getApiUrl(base.id));
+
+// Hook to get API client for current chain
+export const useApiClient = (chainId: number) => {
+  return AxiosClient.getInstance(SERVER_CONFIG.getApiUrl(chainId));
+};
+
+// Export default client for non-React contexts
+export const baseApiClient = defaultApiClient;

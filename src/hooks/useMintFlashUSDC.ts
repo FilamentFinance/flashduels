@@ -21,11 +21,12 @@ interface UseMintFlashUSDCReturn {
 }
 
 const useMintFlashUSDC = (): UseMintFlashUSDCReturn => {
+  const chainId = useChainId();
   const [status, setStatus] = useState<TransactionStatusType>(TRANSACTION_STATUS.IDLE);
   const [error, setError] = useState<string | null>(null);
   const [txHash, setTxHash] = useState<Hex | undefined>(undefined);
-  const account = privateKeyToAccount(SERVER_CONFIG.BOT_PRIVATE_KEY as Hex);
-  const chainId = useChainId();
+  const account = privateKeyToAccount(SERVER_CONFIG.getBotPrivateKey(chainId) as Hex);
+
 
   const getChain = (chainId: number) => {
     switch (chainId) {

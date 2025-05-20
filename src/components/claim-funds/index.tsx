@@ -191,7 +191,8 @@ const ClaimFunds: FC = () => {
               };
               const { requestId, user, amount, timestamp } = args;
               console.log({ requestId, user, amount, timestamp });
-              await fetch(`${SERVER_CONFIG.API_URL}/user/withdrawal-requests`, {
+              const chainId = useChainId();
+              await fetch(`${SERVER_CONFIG.getApiUrl(chainId)}/user/withdrawal-requests`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

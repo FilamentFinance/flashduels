@@ -8,7 +8,7 @@ import { truncateAddress } from '@/utils/general/getEllipsisTxt';
 import axios from 'axios';
 import { FC, useEffect, useState } from 'react';
 import { shallowEqual, useDispatch } from 'react-redux';
-import { useAccount } from 'wagmi';
+import { useAccount, useChainId } from 'wagmi';
 // import ClaimFaucet from '../claim-faucet';
 import ClaimFunds from '../claim-funds';
 import CreateDuel from '../create-duel';
@@ -26,7 +26,7 @@ import { formatUnits } from 'viem';
 import { Loader2 } from 'lucide-react';
 import { SERVER_CONFIG } from '@/config/server-config';
 import { setCreatorStatus } from '@/store/slices/authSlice';
-import { baseApiClient } from '@/config/api-client';
+import { useApiClient } from '@/config/api-client';
 import { useNetworkConfig } from '@/hooks/useNetworkConfig';
 // import { getSupportedChainIds } from '@/config/contract-config';
 import { useToast } from '@/shadcn/components/ui/use-toast';
@@ -34,12 +34,13 @@ import { sei } from 'viem/chains';
 
 const Navbar: FC = () => {
   const { address, isConnected } = useAccount();
+  const chainId = useChainId();
   const { isAuthenticated, isCreator } = useAppSelector(
     (state: RootState) => state.auth,
     shallowEqual,
   );
   const { balance, symbol, decimals, isLoading } = useBalance(address);
-  const { chainId, isChainSupported, switchToSupportedNetwork } = useNetworkConfig();
+  const { isChainSupported, switchToSupportedNetwork } = useNetworkConfig();
   const [isSwitchingNetwork, setIsSwitchingNetwork] = useState(false);
   // const { isTradingEnabled = false } = useAppSelector((state: RootState) => state.user || {}, shallowEqual);
   const { toast } = useToast();
@@ -60,9 +61,9 @@ const Navbar: FC = () => {
   //   }
   // };
 
-  const fetchCryptoAssets = async () => {
+  const fetchCryptoAssets = async (currentChainId: number) => {
     try {
-      const response = await axios.get(`${SERVER_CONFIG.API_URL}/assets/list`);
+      const response = await axios.get(`${SERVER_CONFIG.getApiUrl(currentChainId)}/assets/list`);
 
       const assetsWithImages = response.data
         .filter((asset: fetchAssetType) => asset.symbol.startsWith('Crypto.')) // Filter for crypto assets
@@ -80,13 +81,14 @@ const Navbar: FC = () => {
   };
 
   useEffect(() => {
-    fetchCryptoAssets();
-  }, []);
+    fetchCryptoAssets(chainId);
+  }, [chainId]);
 
   useEffect(() => {
+    const apiClient = useApiClient(chainId);
     if (isConnected && address) {
-      baseApiClient
-        .get(`${SERVER_CONFIG.API_URL}/user/creator/status`, {
+      apiClient
+        .get(`${SERVER_CONFIG.getApiUrl(chainId)}/user/creator/status`, {
           params: { address: address.toLowerCase() },
         })
         .then((res) => {

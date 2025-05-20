@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from 'react';
-import { useAccount } from 'wagmi';
-import { baseApiClient } from '@/config/api-client';
+import { useAccount, useChainId } from 'wagmi';
+import { useApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
 import { Button } from '@/shadcn/components/ui/button';
 import { Input } from '@/shadcn/components/ui/input';
@@ -38,7 +38,9 @@ export const CreatorVerify = ({ onClose }: { onClose: () => void }) => {
     const fetchUserData = async () => {
       try {
         if (!address) return;
-        const response = await baseApiClient.get(`${SERVER_CONFIG.API_URL}/user/auth`, {
+        const chainId = useChainId();
+        const apiClient = useApiClient(chainId);
+        const response = await apiClient.get(`${SERVER_CONFIG.getApiUrl(chainId)}/user/auth`, {
           params: {
             address: address
           }
@@ -67,7 +69,9 @@ export const CreatorVerify = ({ onClose }: { onClose: () => void }) => {
       }
       try {
         setIsDataLoading(true);
-        const response = await baseApiClient.get(`${SERVER_CONFIG.API_URL}/user/creator/status`, {
+        const chainId = useChainId();
+        const apiClient = useApiClient(chainId);
+        const response = await apiClient.get(`${SERVER_CONFIG.getApiUrl(chainId)}/user/creator/status`, {
           params: {
             address: address.toLowerCase()
           }
@@ -158,7 +162,9 @@ export const CreatorVerify = ({ onClose }: { onClose: () => void }) => {
 
     setLoading(true);
     try {
-      const response = await baseApiClient.post(`${SERVER_CONFIG.API_URL}/user/creator/request`, {
+      const chainId = useChainId();
+      const apiClient = useApiClient(chainId);
+      const response = await apiClient.post(`${SERVER_CONFIG.getApiUrl(chainId)}/user/creator/request`, {
         ...formData,
         address: address.toLowerCase(),
       });
@@ -206,7 +212,8 @@ export const CreatorVerify = ({ onClose }: { onClose: () => void }) => {
     
     // Encode the token properly for URL
     const tokenParam = token ? `?token=${encodeURIComponent(token.replace('Bearer ', ''))}` : '';
-    const connectUrl = `${SERVER_CONFIG.API_URL}/user/auth/connect-twitter${tokenParam}`;
+    const chainId = useChainId();
+    const connectUrl = `${SERVER_CONFIG.getApiUrl(chainId)}/user/auth/connect-twitter${tokenParam}`;
     
     console.log("Redirecting to:", connectUrl);
     window.location.href = connectUrl;

@@ -1,6 +1,6 @@
 'use client';
 
-import { baseApiClient } from '@/config/api-client';
+import { useApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
 import { TRANSACTION_STATUS } from '@/constants/app';
 import {
@@ -93,7 +93,9 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
 
         console.log('Preparing to send duel data to API:', duelData);
         try {
-          await baseApiClient.post(`${SERVER_CONFIG.API_URL}/user/duels/approve`, {
+          const chainId = useChainId();
+          const apiClient = useApiClient(chainId);
+          await apiClient.post(`${SERVER_CONFIG.getApiUrl(chainId)}/user/duels/approve`, {
             ...duelData,
             twitterUsername: '',
             address: address?.toLowerCase(),
@@ -208,8 +210,9 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
       const durationNumber = mapDurationToNumber(selectedDuration);
       if (selectedImage) {
         const fileName = `${Date.now()}-${selectedImage.name}`;
-        const presignedUrlResponse = await baseApiClient.post(
-          `${SERVER_CONFIG.API_URL}/user/aws/generate-presigned-url`,
+        const apiClient = useApiClient(chainId);
+        const presignedUrlResponse = await apiClient.post(
+          `${SERVER_CONFIG.getApiUrl(chainId)}/user/aws/generate-presigned-url`,
           {
             fileName,
             fileType: selectedImage.type,

@@ -1,4 +1,4 @@
-import { baseApiClient } from '@/config/api-client';
+import { useApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
 import { TRANSACTION_STATUS } from '@/constants/app';
 import { OPTIONS_TYPE } from '@/constants/duel';
@@ -11,7 +11,7 @@ import { useToast } from '@/shadcn/components/ui/use-toast';
 import { cn } from '@/shadcn/lib/utils';
 import { OptionsType } from '@/types/duel';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
-import { useAccount } from 'wagmi';
+import { useAccount, useChainId } from 'wagmi';
 import PositionSelector from './position-selector';
 
 interface SellOrderProps {
@@ -218,8 +218,10 @@ const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice, duration }) 
         sellId: result.sellId,
       });
       // Update backend
-      await baseApiClient.post(
-        `${SERVER_CONFIG.API_URL}/user/betOption/sell`,
+      const chainId = useChainId();
+      const apiClient = useApiClient(chainId);
+      await apiClient.post(
+        `${SERVER_CONFIG.getApiUrl(chainId)}/user/betOption/sell`,
         {
           betOptionId,
           quantity: amount,
@@ -275,8 +277,10 @@ const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice, duration }) 
 
   const getBets = useCallback(async () => {
     try {
-      const response = await baseApiClient.post<BetResponse>(
-        `${SERVER_CONFIG.API_URL}/user/bets/getByUser`,
+      const chainId = useChainId();
+      const apiClient = useApiClient(chainId);
+      const response = await apiClient.post<BetResponse>(
+        `${SERVER_CONFIG.getApiUrl(chainId)}/user/bets/getByUser`,
         {
           duelId,
           address,

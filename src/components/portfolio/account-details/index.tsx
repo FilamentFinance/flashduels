@@ -1,6 +1,6 @@
 'use client';
 
-import { baseApiClient } from '@/config/api-client';
+import { useApiClient } from '@/config/api-client';
 import { useBalance } from '@/hooks/useBalance';
 import { Button } from '@/shadcn/components/ui/button';
 import { Card, CardContent } from '@/shadcn/components/ui/card';
@@ -63,8 +63,9 @@ function useTradingPnl(address?: string) {
     setLoading(true);
     setError(null);
     // console.log('Fetching trading PNL for address:', address);
+    const chainId = useChainId();
     axios
-      .get(`${SERVER_CONFIG.API_URL}/leaderboard/traders/pnl?address=${address}`)
+      .get(`${SERVER_CONFIG.getApiUrl(chainId)}/leaderboard/traders/pnl?address=${address}`)
       .then((res) => {
         // console.log('Trading PNL response:', res.data);
         setPnl(res.data.pnl);
@@ -188,15 +189,16 @@ const AccountDetails: FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await baseApiClient.post('user/portfolio/accountDetails', {
+      const apiClient = useApiClient(chainId);
+      const response = await apiClient.post('user/portfolio/accountDetails', {
         userAddress: address.toLowerCase(),
       });
 
       // Check if user is a creator
       let isUserCreator = false;
       try {
-        const creatorResponse = await baseApiClient.get(
-          `${SERVER_CONFIG.API_URL}/user/creator/status`,
+        const creatorResponse = await apiClient.get(
+          `${SERVER_CONFIG.getApiUrl(chainId)}/user/creator/status`,
           {
             params: {
               address: address.toLowerCase(),

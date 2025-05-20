@@ -1,6 +1,6 @@
 'use client';
 
-import { baseApiClient } from '@/config/api-client';
+import { useApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
 // import { useTotalBets } from '@/hooks/useTotalBets';
 import { useTotalBetAmounts } from '@/hooks/useTotalBetAmounts';
@@ -11,7 +11,7 @@ import { ArrowLeft } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { FC, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useAccount } from 'wagmi';
+import { useAccount, useChainId } from 'wagmi';
 import ErrorState from './error-state';
 import Header from './header';
 import LoadingSkeleton from './loading-skeleton';
@@ -46,10 +46,12 @@ const Bet: FC = () => {
   };
 
   const fetchDuel = async () => {
+    const chainId = useChainId();
+    const apiClient = useApiClient(chainId);
     try {
       setLoading(true);
-      const response = await baseApiClient.get(
-        `${SERVER_CONFIG.API_URL}/user/duels/get-duel-by-id/${id}`,
+      const response = await apiClient.get(
+        `${SERVER_CONFIG.getApiUrl(chainId)}/user/duels/get-duel-by-id/${id}`,
         {
           params: {
             userAddress: address?.toLowerCase(),
@@ -77,7 +79,8 @@ const Bet: FC = () => {
     }
   };
   useEffect(() => {
-    const socket = new WebSocket(`${SERVER_CONFIG.API_WS_URL}/betWebSocket?duelId=${id}`);
+    const chainId = useChainId();
+    const socket = new WebSocket(`${SERVER_CONFIG.getApiWsUrl(chainId)}/betWebSocket?duelId=${id}`);
 
     socket.onopen = function () {
       console.log('Connected to the WebSocket server');

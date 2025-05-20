@@ -19,41 +19,41 @@ const chainConfigs: Record<number, ChainConfig> = {
         chainId: sei.id,
         name: 'Sei Mainnet',
         contracts: {
-            DIAMOND: process.env.NEXT_PUBLIC_SEI_DIAMOND as string,
-            FLASH_USDC: process.env.NEXT_PUBLIC_SEI_FLASH_USDC as string,
-            CREDIT_CONTRACT: process.env.NEXT_PUBLIC_SEI_FLASH_CREDITS as string,
+            DIAMOND: process.env.NEXT_PUBLIC_DIAMOND_SEI as string,
+            FLASH_USDC: process.env.NEXT_PUBLIC_FLASH_USDC_SEI as string,
+            CREDIT_CONTRACT: process.env.NEXT_PUBLIC_FLASH_CREDITS_SEI as string,
         },
-        rpcUrl: process.env.NEXT_PUBLIC_SEI_RPC_URL as string,
+        rpcUrl: process.env.NEXT_PUBLIC_RPC_URL_SEI as string,
     },
     [seiTestnet.id]: {
         chainId: seiTestnet.id,
         name: 'Sei Testnet',
         contracts: {
-            DIAMOND: process.env.NEXT_PUBLIC_SEI_TESTNET_DIAMOND as string,
-            FLASH_USDC: process.env.NEXT_PUBLIC_SEI_TESTNET_FLASH_USDC as string,
-            CREDIT_CONTRACT: process.env.NEXT_PUBLIC_SEI_TESTNET_FLASH_CREDITS as string,
+            DIAMOND: process.env.NEXT_PUBLIC_DIAMOND_SEI_TESTNET as string,
+            FLASH_USDC: process.env.NEXT_PUBLIC_FLASH_USDC_SEI_TESTNET as string,
+            CREDIT_CONTRACT: process.env.NEXT_PUBLIC_FLASH_CREDITS_SEI_TESTNET as string,
         },
-        rpcUrl: process.env.NEXT_PUBLIC_SEI_TESTNET_RPC_URL as string,
+        rpcUrl: process.env.NEXT_PUBLIC_RPC_URL_SEI_TESTNET as string,
     },
     [base.id]: {
         chainId: base.id,
         name: 'Base Mainnet',
         contracts: {
-            DIAMOND: process.env.NEXT_PUBLIC_BASE_DIAMOND as string,
-            FLASH_USDC: process.env.NEXT_PUBLIC_BASE_FLASH_USDC as string,
-            CREDIT_CONTRACT: process.env.NEXT_PUBLIC_BASE_FLASH_CREDITS as string,
+            DIAMOND: process.env.NEXT_PUBLIC_DIAMOND_BASE as string,
+            FLASH_USDC: process.env.NEXT_PUBLIC_FLASH_USDC_BASE as string,
+            CREDIT_CONTRACT: process.env.NEXT_PUBLIC_FLASH_CREDITS_BASE as string,
         },
-        rpcUrl: process.env.NEXT_PUBLIC_BASE_RPC_URL as string,
+        rpcUrl: process.env.NEXT_PUBLIC_RPC_URL_BASE as string,
     },
     // [baseSepolia.id]: {
     //     chainId: baseSepolia.id,
     //     name: 'Base Sepolia',
     //     contracts: {
-    //         DIAMOND: process.env.NEXT_PUBLIC_BASE_SEPOLIA_DIAMOND as string,
-    //         FLASH_USDC: process.env.NEXT_PUBLIC_BASE_SEPOLIA_FLASH_USDC as string,
-    //         CREDIT_CONTRACT: process.env.NEXT_PUBLIC_BASE_SEPOLIA_FLASH_CREDITS as string,
+    //         DIAMOND: process.env.NEXT_PUBLIC_DIAMOND_BASE_SEPOLIA as string,
+    //         FLASH_USDC: process.env.NEXT_PUBLIC_FLASH_USDC_BASE_SEPOLIA as string,
+    //         CREDIT_CONTRACT: process.env.NEXT_PUBLIC_FLASH_CREDITS_BASE_SEPOLIA as string,
     //     },
-    //     rpcUrl: process.env.NEXT_PUBLIC_BASE_SEPOLIA_RPC_URL as string,
+    //     rpcUrl: process.env.NEXT_PUBLIC_RPC_URL_BASE_SEPOLIA as string,
     // },
 };
 
@@ -67,7 +67,17 @@ export const getContractAddresses = (chainId: number): ContractAddresses => {
     if (!config) {
         throw new Error(`No contract configuration found for chain ID: ${chainId}`);
     }
-    return config.contracts;
+    const contracts = config.contracts;
+    // Validate fallback contracts
+    const missingContracts = [];
+    if (!contracts.DIAMOND) missingContracts.push('NEXT_PUBLIC_DIAMOND');
+    if (!contracts.FLASH_USDC) missingContracts.push('NEXT_PUBLIC_FLASH_USDC');
+    if (!contracts.CREDIT_CONTRACT) missingContracts.push('NEXT_PUBLIC_FLASH_CREDITS');
+
+    if (missingContracts.length > 0) {
+      throw new Error(`Missing required contract addresses: ${missingContracts.join(', ')}`);
+    }
+    return contracts;
 };
 
 /**
