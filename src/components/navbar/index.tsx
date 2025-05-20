@@ -30,22 +30,22 @@ import { useApiClient } from '@/config/api-client';
 import { useNetworkConfig } from '@/hooks/useNetworkConfig';
 // import { getSupportedChainIds } from '@/config/contract-config';
 import { useToast } from '@/shadcn/components/ui/use-toast';
-import { sei } from 'viem/chains';
+// import { sei } from 'viem/chains';
 
 const Navbar: FC = () => {
   const { address, isConnected } = useAccount();
-  const chainId = useChainId();
   const { isAuthenticated, isCreator } = useAppSelector(
     (state: RootState) => state.auth,
     shallowEqual,
   );
-  const { balance, symbol, decimals, isLoading } = useBalance(address);
-  const { isChainSupported, switchToSupportedNetwork } = useNetworkConfig();
+  const { balance, symbol, decimals, isLoading } = useBalance(address ?? undefined);
+  const { chainId, isChainSupported, switchToSupportedNetwork, getCurrentNetworkName } =
+    useNetworkConfig();
   const [isSwitchingNetwork, setIsSwitchingNetwork] = useState(false);
   // const { isTradingEnabled = false } = useAppSelector((state: RootState) => state.user || {}, shallowEqual);
   const { toast } = useToast();
   const dispatch = useDispatch();
-  const apiClient = useApiClient(chainId);
+  const apiClient = useApiClient(chainId ?? 0);
 
   // const getChainName = (chainId: number): string => {
   //   switch (chainId) {
@@ -82,11 +82,13 @@ const Navbar: FC = () => {
   };
 
   useEffect(() => {
-    fetchCryptoAssets(chainId);
+    if (chainId !== undefined) {
+      fetchCryptoAssets(chainId);
+    }
   }, [chainId]);
 
   useEffect(() => {
-    if (isConnected && address) {
+    if (isConnected && address && chainId !== undefined) {
       apiClient
         .get(`${SERVER_CONFIG.getApiUrl(chainId)}/user/creator/status`, {
           params: { address: address.toLowerCase() },
@@ -108,6 +110,8 @@ const Navbar: FC = () => {
         })
       : '0';
 
+  console.log('Navbar chainId:', chainId, 'isChainSupported:', isChainSupported(chainId));
+
   return (
     <nav className="w-full border-b border-gray-800 h-navbar-height px-navbar-padding flex items-center">
       <div className="mx-auto w-full flex items-center justify-between">
@@ -124,42 +128,7 @@ const Navbar: FC = () => {
         </div>
         {isConnected && address ? (
           <div className="flex gap-2">
-            {chainId && !isChainSupported(chainId) ? (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={async () => {
-                  setIsSwitchingNetwork(true);
-                  try {
-                    // console.log('Network switch requested:', {
-                    //   currentChainId: chainId,
-                    //   isSupported: isChainSupported(chainId),
-                    //   chainName: getChainName(chainId),
-                    //   supportedChains: getSupportedChainIds(),
-                    // });
-                    await switchToSupportedNetwork();
-                    toast({
-                      title: 'Network Connected',
-                      description: `Successfully connected to (default) ${sei.name}`,
-                      variant: 'default',
-                    });
-                  } finally {
-                    setIsSwitchingNetwork(false);
-                  }
-                }}
-                disabled={isSwitchingNetwork}
-                className="text-sm border-pink-300 text-pink-300 hover:bg-pink-400/10 hover:text-pink-400 hover:border-pink-400"
-              >
-                {isSwitchingNetwork ? (
-                  <div className="flex items-center gap-2">
-                    <Loader2 className="h-3 w-3 animate-spin" />
-                    <span>Connecting...</span>
-                  </div>
-                ) : (
-                  'Switch Network'
-                )}
-              </Button>
-            ) : (
+            {chainId !== undefined && isChainSupported(chainId) ? (
               <>
                 <ClaimFunds />
                 <ClaimAirdropButton />
@@ -194,6 +163,35 @@ const Navbar: FC = () => {
                   </Button>
                 </WalletModal>
               </>
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={async () => {
+                  setIsSwitchingNetwork(true);
+                  try {
+                    await switchToSupportedNetwork();
+                    toast({
+                      title: 'Network Connected',
+                      description: `Successfully connected to a supported network`,
+                      variant: 'default',
+                    });
+                  } finally {
+                    setIsSwitchingNetwork(false);
+                  }
+                }}
+                disabled={isSwitchingNetwork}
+                className="text-sm border-pink-300 text-pink-300 hover:bg-pink-400/10 hover:text-pink-400 hover:border-pink-400"
+              >
+                {isSwitchingNetwork ? (
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                    <span>Connecting...</span>
+                  </div>
+                ) : (
+                  <>Switch Network</>
+                )}
+              </Button>
             )}
           </div>
         ) : (
