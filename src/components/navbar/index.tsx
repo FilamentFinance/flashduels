@@ -43,12 +43,10 @@ const Navbar: FC = () => {
     chainId,
     isChainSupported,
     switchToSupportedNetwork,
-    getCurrentNetworkName,
     getSupportedNetworks,
   } = useNetworkConfig();
   const [isSwitchingNetwork, setIsSwitchingNetwork] = useState(false);
   const supportedNetworks = getSupportedNetworks();
-  const [selectedChainId, setSelectedChainId] = useState<number>(supportedNetworks[0]?.id ?? 0);
   // const { isTradingEnabled = false } = useAppSelector((state: RootState) => state.user || {}, shallowEqual);
   const { toast } = useToast();
   const dispatch = useDispatch();
@@ -167,7 +165,7 @@ const Navbar: FC = () => {
               <div className="fixed top-8.5 right-2 z-50">
                 <button
                   onClick={() => setDropdownOpen((open) => !open)}
-                  className="flex items-center gap-2 bg-glass p-2 rounded-lg border border-zinc-800 shadow-lg focus:outline-none hover:border-pink-400 hover:bg-pink-400/10 transition-colors cursor-pointer"
+                  className="flex items-center gap-2 bg-glass p-2 rounded-lg border border-zinc-800 shadow-lg focus:outline-none hover:border-pink-600 hover:bg-pink-500/20 transition-colors cursor-pointer"
                   aria-label="Switch Network"
                 >
                   <img
@@ -280,7 +278,7 @@ const Navbar: FC = () => {
                       {supportedNetworks.map((net) => (
                         <button
                           key={net.id}
-                          className="flex items-center w-full px-2 py-1.5 hover:bg-pink-900/20 text-xs"
+                          className="flex items-center w-full px-2 py-1.5 hover:bg-pink-500/30 text-xs"
                           onClick={async () => {
                             setDropdownOpen(false);
                             setIsSwitchingNetwork(true);

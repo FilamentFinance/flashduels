@@ -229,7 +229,6 @@ const EnableTrading: FC = () => {
       trigger={
         <Button
           className="font-semibold text-black bg-gradient-to-r from-pink-300 via-purple-300 to-pink-300 bg-[length:200%_100%] animate-gradient hover:animate-none shadow-[0_0_15px_rgba(241,158,210,0.5)] hover:shadow-[0_0_20px_rgba(241,158,210,0.7)] transition-all duration-300 relative group"
-          onClick={handleEnableTrading}
           disabled={isLoading}
         >
           <Sparkle className="absolute -top-2 -right-2 w-4 h-4 text-pink-300 animate-pulse" />
