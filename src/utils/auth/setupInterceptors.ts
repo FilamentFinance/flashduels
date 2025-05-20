@@ -2,7 +2,7 @@
 
 import { SERVER_CONFIG } from '@/config/server-config';
 import axios from 'axios';
-import { useChainId } from 'wagmi';
+// import { useChainId } from 'wagmi';
 let requestInterceptor: number | null = null;
 let responseInterceptor: number | null = null;
 
