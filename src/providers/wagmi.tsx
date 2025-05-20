@@ -46,7 +46,7 @@ const config = getDefaultConfig({
     },
   ],
   transports: {
-    [sei.id]: http(),
+    [sei.id]: http(SERVER_CONFIG.RPC_URL),
     [seiTestnet.id]: http(SERVER_CONFIG.RPC_URL),
   },
   ssr: true,
