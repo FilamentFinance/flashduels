@@ -49,17 +49,14 @@ export const CreatorVerify = ({ onClose }: { onClose: () => void }) => {
         });
         const userData = response.data;
 
-        setFormData((prev: any) => ({
-          ...prev,
-          twitterHandle: userData.twitterUsername || '',
-        }));
-        localStorage.setItem(
-          'creatorFormData',
-          JSON.stringify({
-            ...formData,
+        setFormData((prev: any) => {
+          const updatedData = {
+            ...prev,
             twitterHandle: userData.twitterUsername || '',
-          }),
-        );
+          };
+          localStorage.setItem('creatorFormData', JSON.stringify(updatedData));
+          return updatedData;
+        });
       } catch (error) {
         console.error('Failed to fetch user data:', error);
       }
@@ -101,7 +98,7 @@ export const CreatorVerify = ({ onClose }: { onClose: () => void }) => {
     if (urlParams.get('twitterConnected') === 'true') {
       setIsCreator(true);
     }
-  }, [address, chainId, apiClient, formData]);
+  }, [address, chainId, apiClient]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

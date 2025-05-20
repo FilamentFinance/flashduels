@@ -39,12 +39,8 @@ const Navbar: FC = () => {
     shallowEqual,
   );
   const { balance, symbol, decimals, isLoading } = useBalance(address ?? undefined);
-  const {
-    chainId,
-    isChainSupported,
-    switchToSupportedNetwork,
-    getSupportedNetworks,
-  } = useNetworkConfig();
+  const { chainId, isChainSupported, switchToSupportedNetwork, getSupportedNetworks } =
+    useNetworkConfig();
   const [isSwitchingNetwork, setIsSwitchingNetwork] = useState(false);
   const supportedNetworks = getSupportedNetworks();
   // const { isTradingEnabled = false } = useAppSelector((state: RootState) => state.user || {}, shallowEqual);
@@ -189,7 +185,11 @@ const Navbar: FC = () => {
                     {supportedNetworks.map((net) => (
                       <button
                         key={net.id}
-                        className="flex items-center w-full px-2 py-1.5 hover:bg-pink-800/50 text-xs"
+                        className={`flex items-center justify-between w-full px-2 py-1.5 text-xs ${
+                          net.id === chainId
+                            ? 'bg-pink-500/30 text-pink-300'
+                            : 'hover:bg-pink-800/50'
+                        }`}
                         onClick={async () => {
                           setDropdownOpen(false);
                           setIsSwitchingNetwork(true);
@@ -207,12 +207,29 @@ const Navbar: FC = () => {
                         }}
                         disabled={isSwitchingNetwork}
                       >
-                        <img
-                          src={networkIcons[net.id] || defaultIcon}
-                          alt="Network Icon"
-                          className="w-4 h-4 mr-1 rounded-full"
-                        />
-                        <span>{net.name}</span>
+                        <div className="flex items-center">
+                          <img
+                            src={networkIcons[net.id] || defaultIcon}
+                            alt="Network Icon"
+                            className="w-4 h-4 mr-1 rounded-full"
+                          />
+                          <span>{net.name}</span>
+                        </div>
+                        {net.id === chainId && (
+                          <svg
+                            className="w-4 h-4 text-pink-300"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M5 13l4 4L19 7"
+                            />
+                          </svg>
+                        )}
                       </button>
                     ))}
                   </div>
@@ -278,7 +295,11 @@ const Navbar: FC = () => {
                       {supportedNetworks.map((net) => (
                         <button
                           key={net.id}
-                          className="flex items-center w-full px-2 py-1.5 hover:bg-pink-500/30 text-xs"
+                          className={`flex items-center justify-between w-full px-2 py-1.5 text-xs ${
+                            net.id === chainId
+                              ? 'bg-pink-500/30 text-pink-300'
+                              : 'hover:bg-pink-800/50'
+                          }`}
                           onClick={async () => {
                             setDropdownOpen(false);
                             setIsSwitchingNetwork(true);
@@ -296,12 +317,29 @@ const Navbar: FC = () => {
                           }}
                           disabled={isSwitchingNetwork}
                         >
-                          <img
-                            src={networkIcons[net.id] || defaultIcon}
-                            alt="Network Icon"
-                            className="w-4 h-4 mr-1 rounded-full"
-                          />
-                          <span>{net.name}</span>
+                          <div className="flex items-center">
+                            <img
+                              src={networkIcons[net.id] || defaultIcon}
+                              alt="Network Icon"
+                              className="w-4 h-4 mr-1 rounded-full"
+                            />
+                            <span>{net.name}</span>
+                          </div>
+                          {net.id === chainId && (
+                            <svg
+                              className="w-4 h-4 text-pink-300"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M5 13l4 4L19 7"
+                              />
+                            </svg>
+                          )}
                         </button>
                       ))}
                     </div>
