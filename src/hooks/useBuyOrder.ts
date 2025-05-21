@@ -44,12 +44,12 @@ const useBuyOrder = (duelId: string, category: string): UseBuyOrderReturn => {
 
       setStatus(TRANSACTION_STATUS.PENDING);
       setError(null);
-
+      const DIAMOND_ADDRESS = SERVER_CONFIG.getContractAddresses(chainId).DIAMOND;
       // Get option token address using publicClient instead of hook
       const optionTokenAddress = await publicClient?.readContract({
         abi: FlashDuelsViewFacetABI,
         functionName: 'getOptionIndexToOptionToken',
-        address: SERVER_CONFIG.DIAMOND as Hex,
+        address: DIAMOND_ADDRESS as Hex,
         args: [duelId, index],
       });
 
@@ -59,7 +59,7 @@ const useBuyOrder = (duelId: string, category: string): UseBuyOrderReturn => {
 
       const tx = await writeContractAsync({
         abi: FlashDuelsMarketplaceFacet,
-        address: SERVER_CONFIG.DIAMOND as Hex,
+        address: DIAMOND_ADDRESS as Hex,
         functionName: 'buy',
         chainId: chainId,
         args: [

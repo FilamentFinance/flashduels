@@ -1,10 +1,10 @@
-import { baseApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
+import { AxiosInstance } from 'axios';
 
-export const getAirdrop = async (address: string) => {
+export const getAirdrop = async (address: string, chainId: number, apiClient: AxiosInstance) => {
   try {
-    const response = await baseApiClient.post(
-      `${SERVER_CONFIG.API_URL}/user/airdrop`,
+    const response = await apiClient.post(
+      `${SERVER_CONFIG.getApiUrl(chainId)}/user/airdrop`,
       {
         account: address.toLowerCase(),
         address: address.toLowerCase(),

@@ -1,6 +1,6 @@
 'use client';
 
-import { baseApiClient } from '@/config/api-client';
+import { useApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
 import { TRANSACTION_STATUS } from '@/constants/app';
 import {
@@ -36,7 +36,6 @@ import { usePublicClient } from 'wagmi';
 import { formatUnits } from 'ethers';
 import { Hex } from 'viem';
 import { CREDITS } from '@/abi/CREDITS';
-import { sei } from 'viem/chains';
 
 type FlashDuelFormProps = {
   onBack: () => void;
@@ -60,13 +59,14 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const { address } = useAccount();
   const chainId = useChainId();
+  const apiClient = useApiClient(chainId);
   const { status, error, isApprovalMining, isDuelMining, createFlashDuel, isComplete } =
     useCreateFlashDuel();
   const [isButtonClicked, setIsButtonClicked] = useState(false);
   const [creditsBalance, setCreditsBalance] = useState<string>('0');
   const { toast } = useToast();
   const publicClient = usePublicClient();
-  const symbol = chainId === sei.id ? 'USDC' : 'CRD';
+  const symbol = 'CRD';
   const [formError, setFormError] = useState<{ category?: string; duelText?: string }>({});
 
   useEffect(() => {
@@ -93,14 +93,13 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
 
         console.log('Preparing to send duel data to API:', duelData);
         try {
-          await baseApiClient.post(`${SERVER_CONFIG.API_URL}/user/duels/approve`, {
+          await apiClient.post(`${SERVER_CONFIG.getApiUrl(chainId)}/user/duels/approve`, {
             ...duelData,
             twitterUsername: '',
             address: address?.toLowerCase(),
           });
           console.log('API call successful');
 
-          // Show toast notification about admin approval
           toast({
             title: 'Flash Duel Created Successfully',
             description:
@@ -117,7 +116,17 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
     };
 
     handleCompletion();
-  }, [isComplete, address]);
+  }, [
+    isComplete,
+    address,
+    chainId,
+    apiClient,
+    selectedDuration,
+    selectedCategory,
+    imageUrl,
+    onComplete,
+    toast,
+  ]);
 
   useEffect(() => {
     const checkCreditsBalance = async () => {
@@ -126,7 +135,7 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
       try {
         const balance = await publicClient.readContract({
           abi: CREDITS,
-          address: SERVER_CONFIG.CREDIT_CONTRACT as Hex,
+          address: SERVER_CONFIG.getContractAddresses(chainId).CREDIT_CONTRACT as Hex,
           functionName: 'balanceOf',
           args: [address.toLowerCase()],
         });
@@ -194,7 +203,6 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
         return;
       }
 
-      // Inform user about the approval process before proceeding
       toast({
         title: 'Creating Flash Duel',
         description:
@@ -208,8 +216,8 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
       const durationNumber = mapDurationToNumber(selectedDuration);
       if (selectedImage) {
         const fileName = `${Date.now()}-${selectedImage.name}`;
-        const presignedUrlResponse = await baseApiClient.post(
-          `${SERVER_CONFIG.API_URL}/user/aws/generate-presigned-url`,
+        const presignedUrlResponse = await apiClient.post(
+          `${SERVER_CONFIG.getApiUrl(chainId)}/user/aws/generate-presigned-url`,
           {
             fileName,
             fileType: selectedImage.type,
@@ -229,14 +237,6 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
         });
       }
 
-      // const duelData = {
-      //   type: DUEL_TYPE.FLASH_DUEL,
-      //   category: backendCategory,
-      //   betIcon: imageUrl,
-      //   betString: duelText,
-      //   minimumWager: '',
-      //   endsIn: DURATIONS[durationNumber],
-      // };
       const createDuelData = {
         topic: duelText,
         category: categoryEnumIndex,

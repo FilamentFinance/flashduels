@@ -36,31 +36,31 @@ export const useBalance = (address: Hex | undefined) => {
   //     },
   //   ],
   // });
-
+  const CREDIT_CONTRACT_ADDRESS = SERVER_CONFIG.getContractAddresses(chainId).CREDIT_CONTRACT;
   const { data, isLoading, isError, refetch } = useReadContracts({
     contracts: [
       {
         abi: CREDITS,
-        address: SERVER_CONFIG.CREDIT_CONTRACT as Hex,
+        address: CREDIT_CONTRACT_ADDRESS as Hex,
         chainId: chainId,
         functionName: 'balanceOf',
         args: address ? [address] : undefined,
       },
       {
         abi: CREDITS,
-        address: SERVER_CONFIG.CREDIT_CONTRACT as Hex,
+        address: CREDIT_CONTRACT_ADDRESS as Hex,
         chainId: chainId,
         functionName: 'symbol',
       },
       {
         abi: CREDITS,
-        address: SERVER_CONFIG.CREDIT_CONTRACT as Hex,
+        address: CREDIT_CONTRACT_ADDRESS as Hex,
         chainId: chainId,
         functionName: 'decimals',
       },
       {
         abi: CREDITS,
-        address: SERVER_CONFIG.CREDIT_CONTRACT as Hex,
+        address: CREDIT_CONTRACT_ADDRESS as Hex,
         chainId: chainId,
         functionName: 'name',
       },

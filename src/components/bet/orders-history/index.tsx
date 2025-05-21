@@ -1,4 +1,4 @@
-import { baseApiClient } from '@/config/api-client';
+import { useApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
 import useCancelOrder from '@/hooks/useCancelOrders';
 import WebSocketManager from '@/hooks/useWebSocket';
@@ -15,7 +15,7 @@ import {
 import { useToast } from '@/shadcn/components/ui/use-toast';
 // import { cn } from '@/shadcn/lib/utils';
 import { useCallback, useEffect, useState } from 'react';
-import { useAccount } from 'wagmi';
+import { useAccount, useChainId } from 'wagmi';
 
 interface OrdersTableProps {
   duelId: string;
@@ -45,7 +45,8 @@ export const OrdersHistory = ({ duelId }: OrdersTableProps) => {
   const { toast } = useToast();
   const { cancelSell } = useCancelOrder();
   const [cancellingOrderId, setCancellingOrderId] = useState<string | null>(null);
-  // const [wsManager, setWsManager] = useState<WebSocketManager<OpenOrdersMessage> | null>(null);
+  const chainId = useChainId();
+  const apiClient = useApiClient(chainId);
 
   const handleCancel = async (order: OrderData) => {
     setCancellingOrderId(order.id);
@@ -63,7 +64,7 @@ export const OrdersHistory = ({ duelId }: OrdersTableProps) => {
 
       if (result.success) {
         // Update backend
-        await baseApiClient.delete(`${SERVER_CONFIG.API_URL}/user/betOption/cancel`, {
+        await apiClient.delete(`${SERVER_CONFIG.getApiUrl(chainId)}/user/betOption/cancel`, {
           data: {
             duelId,
             betOptionMarketId: order.id,
@@ -96,7 +97,7 @@ export const OrdersHistory = ({ duelId }: OrdersTableProps) => {
     }
     const manager = new WebSocketManager<OpenOrdersMessage>({
       address,
-      url: `${SERVER_CONFIG.API_WS_URL}/openOrdersWebSocket`,
+      url: `${SERVER_CONFIG.getApiWsUrl(chainId)}/openOrdersWebSocket`,
       onMessage: (message: OpenOrdersMessage) => {
         if (message.openOrders) {
           // Show only orders from Bootstrapping (-1) and Active (0) duels
@@ -117,7 +118,7 @@ export const OrdersHistory = ({ duelId }: OrdersTableProps) => {
 
     manager.connect();
     return manager;
-  }, [address]);
+  }, [address, chainId]);
 
   useEffect(() => {
     const manager = setupWebSocket();
