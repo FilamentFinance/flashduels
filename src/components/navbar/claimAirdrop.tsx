@@ -287,29 +287,33 @@ const ClaimAirdropButton: FC = () => {
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-500">Available to Claim:</span>
                     <span className="font-medium">
-                      {parseFloat(formatUnits(BigInt(availableToClaim), 18)).toFixed(4)} {symbol}
+                      {parseFloat(formatUnits(BigInt(availableToClaim), 18)).toFixed(0)} {symbol}
                     </span>
                   </div>
                 </div>
 
                 <div className="flex flex-col gap-3">
-                  {status !== TRANSACTION_STATUS.SUCCESS && (
+                  {status !== TRANSACTION_STATUS.SUCCESS && availableToClaim !== '0' && (
                     <Button
                       onClick={handleClaimAirdrop}
                       className="text-pink-300 border border-pink-300 bg-transparent hover:shadow-lg hover:scale-[1.02] hover:bg-pink-300/10 w-full"
-                      disabled={status === TRANSACTION_STATUS.PENDING || availableToClaim === '0'}
+                      disabled={status === TRANSACTION_STATUS.PENDING}
                     >
                       {status === TRANSACTION_STATUS.PENDING ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                           Claiming...
                         </>
-                      ) : availableToClaim === '0' ? (
-                        `No ${symbol} Available to Claim`
                       ) : (
-                        `Claim ${parseFloat(formatUnits(BigInt(availableToClaim), 18)).toFixed(4)} ${symbol}`
+                        `Claim ${parseFloat(formatUnits(BigInt(availableToClaim), 18)).toFixed(0)} ${symbol}`
                       )}
                     </Button>
+                  )}
+
+                  {availableToClaim === '0' && (
+                    <div className="text-center text-sm text-gray-500">
+                      No {symbol} Available to Claim
+                    </div>
                   )}
 
                   <div className="mt-2">
