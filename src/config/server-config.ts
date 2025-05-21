@@ -36,19 +36,22 @@ const createConfig = (): ServerConfig => {
 
   // Function to get chain-specific API URL
   const getApiUrl = (chainId: number): string => {
-    // const url = getEnvUrl(chainId, 'NEXT_PUBLIC_API_PRODUCTION', 'NEXT_PUBLIC_API');
     let url = '';
     if (production) {
       // Production environment
       switch (chainId) {
         case sei.id:
           url = process.env["NEXT_PUBLIC_API_SEI"] || '';
+          break;
         case seiTestnet.id:
           url = process.env["NEXT_PUBLIC_API_SEI_TESTNET"] || '';
+          break;
         case base.id:
           url = process.env["NEXT_PUBLIC_API_BASE"] || '';
+          break;
         case baseSepolia.id:
           url = process.env["NEXT_PUBLIC_API_BASE_SEPOLIA"] || '';
+          break;
         default:
           url = process.env["NEXT_PUBLIC_API_BASE"] || '';
       }
@@ -70,12 +73,16 @@ const createConfig = (): ServerConfig => {
       switch (chainId) {
         case sei.id:
           url = process.env["NEXT_PUBLIC_API_WS_SEI"] || '';
+          break;
         case seiTestnet.id:
           url = process.env["NEXT_PUBLIC_API_WS_SEI_TESTNET"] || '';
+          break;
         case base.id:
           url = process.env["NEXT_PUBLIC_API_WS_BASE"] || '';
+          break;
         case baseSepolia.id:
           url = process.env["NEXT_PUBLIC_API_WS_BASE_SEPOLIA"] || '';
+          break;
         default:
           url = process.env["NEXT_PUBLIC_API_WS_BASE"] || '';
       }
@@ -97,12 +104,16 @@ const createConfig = (): ServerConfig => {
       switch (chainId) {
         case sei.id:
           url = process.env["NEXT_PUBLIC_TIMER_BOT_URL_SEI"] || '';
+          break;
         case seiTestnet.id:
           url = process.env["NEXT_PUBLIC_TIMER_BOT_URL_SEI_TESTNET"] || '';
+          break;
         case base.id:
           url = process.env["NEXT_PUBLIC_TIMER_BOT_URL_BASE"] || '';
+          break;
         case baseSepolia.id:
           url = process.env["NEXT_PUBLIC_TIMER_BOT_URL_BASE_SEPOLIA"] || '';
+          break;
         default:
           url = process.env["NEXT_PUBLIC_TIMER_BOT_URL_BASE"] || '';
       }
@@ -124,12 +135,16 @@ const createConfig = (): ServerConfig => {
       switch (chainId) {
         case sei.id:
           url = process.env["NEXT_PUBLIC_INVITE_ONLY_URL_SEI"] || '';
+          break;
         case seiTestnet.id:
           url = process.env["NEXT_PUBLIC_INVITE_ONLY_URL_SEI_TESTNET"] || '';
+          break;
         case base.id:
           url = process.env["NEXT_PUBLIC_INVITE_ONLY_URL_BASE"] || '';
+          break;
         case baseSepolia.id:
           url = process.env["NEXT_PUBLIC_INVITE_ONLY_URL_BASE_SEPOLIA"] || '';
+          break;
         default:
           url = process.env["NEXT_PUBLIC_INVITE_ONLY_URL_BASE"] || '';
       }
@@ -151,12 +166,16 @@ const createConfig = (): ServerConfig => {
       switch (chainId) {
         case sei.id:
           key = process.env["NEXT_PUBLIC_BOT_PRIVATE_KEY_SEI"] || '';
+          break;
         case seiTestnet.id:
           key = process.env["NEXT_PUBLIC_BOT_PRIVATE_KEY_SEI_TESTNET"] || '';
+          break;
         case base.id:
           key = process.env["NEXT_PUBLIC_BOT_PRIVATE_KEY_BASE"] || '';
+          break;
         case baseSepolia.id:
           key = process.env["NEXT_PUBLIC_BOT_PRIVATE_KEY_BASE_SEPOLIA"] || '';
+          break;
         default:
           key = process.env["NEXT_PUBLIC_BOT_PRIVATE_KEY_BASE"] || '';
       }
@@ -165,8 +184,10 @@ const createConfig = (): ServerConfig => {
       switch (chainId) {
         case seiTestnet.id:
           key = process.env["NEXT_PUBLIC_BOT_PRIVATE_KEY_LOCAL_SEI_TESTNET"] || '';
+          break;
         case baseSepolia.id:
           key = process.env["NEXT_PUBLIC_BOT_PRIVATE_KEY_LOCAL_BASE_SEPOLIA"] || '';
+          break;
         default:
           key = process.env["NEXT_PUBLIC_BOT_PRIVATE_KEY_LOCAL_BASE_SEPOLIA"] || '';
       }
