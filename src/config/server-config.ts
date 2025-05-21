@@ -50,7 +50,7 @@ const createConfig = (): ServerConfig => {
         case baseSepolia.id:
           url = process.env["NEXT_PUBLIC_API_BASE_SEPOLIA"] || '';
         default:
-          url = process.env["NEXT_PUBLIC_API_BASE_SEPOLIA"] || '';
+          url = process.env["NEXT_PUBLIC_API_BASE"] || '';
       }
     } else {
       // Development environment
@@ -77,7 +77,7 @@ const createConfig = (): ServerConfig => {
         case baseSepolia.id:
           url = process.env["NEXT_PUBLIC_API_WS_BASE_SEPOLIA"] || '';
         default:
-          url = process.env["NEXT_PUBLIC_API_WS_BASE_SEPOLIA"] || '';
+          url = process.env["NEXT_PUBLIC_API_WS_BASE"] || '';
       }
     } else {
       // Development environment
@@ -104,7 +104,7 @@ const createConfig = (): ServerConfig => {
         case baseSepolia.id:
           url = process.env["NEXT_PUBLIC_TIMER_BOT_URL_BASE_SEPOLIA"] || '';
         default:
-          url = process.env["NEXT_PUBLIC_TIMER_BOT_URL_BASE_SEPOLIA"] || '';
+          url = process.env["NEXT_PUBLIC_TIMER_BOT_URL_BASE"] || '';
       }
     } else {
       // Development environment
@@ -131,7 +131,7 @@ const createConfig = (): ServerConfig => {
         case baseSepolia.id:
           url = process.env["NEXT_PUBLIC_INVITE_ONLY_URL_BASE_SEPOLIA"] || '';
         default:
-          url = process.env["NEXT_PUBLIC_INVITE_ONLY_URL_BASE_SEPOLIA"] || '';
+          url = process.env["NEXT_PUBLIC_INVITE_ONLY_URL_BASE"] || '';
       }
     } else {
       // Development environment
@@ -158,7 +158,7 @@ const createConfig = (): ServerConfig => {
         case baseSepolia.id:
           key = process.env["NEXT_PUBLIC_BOT_PRIVATE_KEY_BASE_SEPOLIA"] || '';
         default:
-          key = process.env["NEXT_PUBLIC_BOT_PRIVATE_KEY_BASE_SEPOLIA"] || '';
+          key = process.env["NEXT_PUBLIC_BOT_PRIVATE_KEY_BASE"] || '';
       }
     } else {
       // Development environment
