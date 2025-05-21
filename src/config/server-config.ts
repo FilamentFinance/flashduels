@@ -1,5 +1,5 @@
 import { getContractAddresses, getRpcUrl, getChainName } from './contract-config';
-import { base, sei, seiTestnet } from 'viem/chains';
+import { base, baseSepolia, sei, seiTestnet } from 'viem/chains';
 
 interface ServerConfig {
   PRODUCTION: boolean;
@@ -47,8 +47,10 @@ const createConfig = (): ServerConfig => {
           url = process.env["NEXT_PUBLIC_API_SEI_TESTNET"] || '';
         case base.id:
           url = process.env["NEXT_PUBLIC_API_BASE"] || '';
+        case baseSepolia.id:
+          url = process.env["NEXT_PUBLIC_API_BASE_SEPOLIA"] || '';
         default:
-          url = process.env["NEXT_PUBLIC_API"] || '';
+          url = process.env["NEXT_PUBLIC_API_BASE_SEPOLIA"] || '';
       }
     } else {
       // Development environment
@@ -72,8 +74,10 @@ const createConfig = (): ServerConfig => {
           url = process.env["NEXT_PUBLIC_API_WS_SEI_TESTNET"] || '';
         case base.id:
           url = process.env["NEXT_PUBLIC_API_WS_BASE"] || '';
+        case baseSepolia.id:
+          url = process.env["NEXT_PUBLIC_API_WS_BASE_SEPOLIA"] || '';
         default:
-          url = process.env["NEXT_PUBLIC_API_WS"] || '';
+          url = process.env["NEXT_PUBLIC_API_WS_BASE_SEPOLIA"] || '';
       }
     } else {
       // Development environment
@@ -97,8 +101,10 @@ const createConfig = (): ServerConfig => {
           url = process.env["NEXT_PUBLIC_TIMER_BOT_URL_SEI_TESTNET"] || '';
         case base.id:
           url = process.env["NEXT_PUBLIC_TIMER_BOT_URL_BASE"] || '';
+        case baseSepolia.id:
+          url = process.env["NEXT_PUBLIC_TIMER_BOT_URL_BASE_SEPOLIA"] || '';
         default:
-          url = process.env["NEXT_PUBLIC_TIMER_BOT_URL"] || '';
+          url = process.env["NEXT_PUBLIC_TIMER_BOT_URL_BASE_SEPOLIA"] || '';
       }
     } else {
       // Development environment
@@ -122,8 +128,10 @@ const createConfig = (): ServerConfig => {
           url = process.env["NEXT_PUBLIC_INVITE_ONLY_URL_SEI_TESTNET"] || '';
         case base.id:
           url = process.env["NEXT_PUBLIC_INVITE_ONLY_URL_BASE"] || '';
+        case baseSepolia.id:
+          url = process.env["NEXT_PUBLIC_INVITE_ONLY_URL_BASE_SEPOLIA"] || '';
         default:
-          url = process.env["NEXT_PUBLIC_INVITE_ONLY_URL"] || '';
+          url = process.env["NEXT_PUBLIC_INVITE_ONLY_URL_BASE_SEPOLIA"] || '';
       }
     } else {
       // Development environment
@@ -147,20 +155,20 @@ const createConfig = (): ServerConfig => {
           key = process.env["NEXT_PUBLIC_BOT_PRIVATE_KEY_SEI_TESTNET"] || '';
         case base.id:
           key = process.env["NEXT_PUBLIC_BOT_PRIVATE_KEY_BASE"] || '';
+        case baseSepolia.id:
+          key = process.env["NEXT_PUBLIC_BOT_PRIVATE_KEY_BASE_SEPOLIA"] || '';
         default:
-          key = process.env["NEXT_PUBLIC_BOT_PRIVATE_KEY"] || '';
+          key = process.env["NEXT_PUBLIC_BOT_PRIVATE_KEY_BASE_SEPOLIA"] || '';
       }
     } else {
       // Development environment
       switch (chainId) {
-        case sei.id:
-          key = process.env["NEXT_PUBLIC_BOT_PRIVATE_KEY_SEI"] || '';
         case seiTestnet.id:
-          key = process.env["NEXT_PUBLIC_BOT_PRIVATE_KEY_SEI_TESTNET"] || '';
-        case base.id:
-          key = process.env["NEXT_PUBLIC_BOT_PRIVATE_KEY_BASE"] || '';
+          key = process.env["NEXT_PUBLIC_BOT_PRIVATE_KEY_LOCAL_SEI_TESTNET"] || '';
+        case baseSepolia.id:
+          key = process.env["NEXT_PUBLIC_BOT_PRIVATE_KEY_LOCAL_BASE_SEPOLIA"] || '';
         default:
-          key = process.env["NEXT_PUBLIC_BOT_PRIVATE_KEY"] || '';
+          key = process.env["NEXT_PUBLIC_BOT_PRIVATE_KEY_LOCAL_BASE_SEPOLIA"] || '';
       }
     }
     if (!key) {
