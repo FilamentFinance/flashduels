@@ -2,14 +2,15 @@
 
 import { SERVER_CONFIG } from '@/config/server-config';
 import axios from 'axios';
-
+// import { useChainId } from 'wagmi';
 let requestInterceptor: number | null = null;
 let responseInterceptor: number | null = null;
 
 // Create a single axios instance
-const apiClient = axios.create({
-  baseURL: SERVER_CONFIG.API_URL,
-});
+const apiClient = (chainId: number) =>
+  axios.create({
+    baseURL: SERVER_CONFIG.getApiUrl(chainId),
+  });
 
 export const isUserAuthenticated = (address: string): boolean => {
   const token = localStorage.getItem(`Bearer_${address.toLowerCase()}`);
@@ -37,17 +38,18 @@ export const setupInterceptors = async (
   address: string,
   disconnect: () => void,
   onUnauthorized: () => void,
+  chainId: number,
 ) => {
   // Clear any existing interceptors
   if (requestInterceptor !== null) {
-    apiClient.interceptors.request.eject(requestInterceptor);
+    apiClient(chainId).interceptors.request.eject(requestInterceptor);
   }
   if (responseInterceptor !== null) {
-    apiClient.interceptors.response.eject(responseInterceptor);
+    apiClient(chainId).interceptors.response.eject(responseInterceptor);
   }
 
   // Set up request interceptor
-  requestInterceptor = apiClient.interceptors.request.use(
+  requestInterceptor = apiClient(chainId).interceptors.request.use(
     (config) => {
       const token = localStorage.getItem(`Bearer_${address.toLowerCase()}`);
       if (token) {
@@ -61,7 +63,7 @@ export const setupInterceptors = async (
   );
 
   // Set up response interceptor
-  responseInterceptor = apiClient.interceptors.response.use(
+  responseInterceptor = apiClient(chainId).interceptors.response.use(
     (response) => response,
     async (error) => {
       if (error.response?.status === 401) {

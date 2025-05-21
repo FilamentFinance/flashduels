@@ -1,6 +1,6 @@
 import { SERVER_CONFIG } from '@/config/server-config';
 import { useEffect, useState } from 'react';
-
+import { useChainId } from 'wagmi';
 interface PriceData {
   yesPrice: number | undefined;
   noPrice: number | undefined;
@@ -30,6 +30,7 @@ export const useWebSocketPrices = (asset: string | undefined): PriceData => {
   const [isConnecting, setIsConnecting] = useState(false);
   const [reconnectAttempts, setReconnectAttempts] = useState(0);
   const MAX_RECONNECT_ATTEMPTS = 3;
+  const chainId = useChainId();
 
   useEffect(() => {
     let websocket: WebSocket;
@@ -38,10 +39,9 @@ export const useWebSocketPrices = (asset: string | undefined): PriceData => {
     const connectWebSocket = () => {
       if (isConnecting) return;
       setIsConnecting(true);
-
       const wsUrl = asset
-        ? `${SERVER_CONFIG.API_WS_URL}/cryptoduelsOptionPricingWebSocket`
-        : `${SERVER_CONFIG.API_WS_URL}/flashduelsOptionPricingWebSocket`;
+        ? `${SERVER_CONFIG.getApiWsUrl(chainId)}/cryptoduelsOptionPricingWebSocket`
+        : `${SERVER_CONFIG.getApiWsUrl(chainId)}/flashduelsOptionPricingWebSocket`;
 
       websocket = new WebSocket(wsUrl);
 
@@ -106,7 +106,7 @@ export const useWebSocketPrices = (asset: string | undefined): PriceData => {
         clearTimeout(reconnectTimeout);
       }
     };
-  }, [asset]);
+  }, [asset, chainId]);
 
   return {
     yesPrice,

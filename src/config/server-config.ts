@@ -1,119 +1,224 @@
-import { getContractAddresses, getRpcUrl } from './contract-config';
+import { getContractAddresses, getRpcUrl, getChainName } from './contract-config';
+import { base, baseSepolia, sei, seiTestnet } from 'viem/chains';
 
 interface ServerConfig {
   PRODUCTION: boolean;
-  getRpcUrl: (chainId: number) => string;
-  API_URL: string;
-  API_WS_URL: string;
-  TIMER_BOT_URL: string;
-  INVITE_ONLY_URL: string;
   WALLET_CONNECT_PROJECT_ID: string;
-  BOT_PRIVATE_KEY: string;
   DEFAULT_TOKEN_SYMBOL?: string;
+  getRpcUrl: (chainId: number) => string;
+  getApiUrl: (chainId: number) => string;
+  getApiWsUrl: (chainId: number) => string;
+  getTimerBotUrl: (chainId: number) => string;
+  getInviteOnlyUrl: (chainId: number) => string;
+  getBotPrivateKey: (chainId: number) => string;
   getContractAddresses: (chainId: number) => {
     DIAMOND: string;
     FLASH_USDC: string;
     CREDIT_CONTRACT: string;
   };
+  getChainName: (chainId: number) => string;
 }
 
 const createConfig = (): ServerConfig => {
   const production = process.env.NEXT_PUBLIC_PRODUCTION === 'true';
-
-  // API URLs - use local URLs in development
-  const apiUrl = production
-    ? process.env.NEXT_PUBLIC_API_PRODUCTION as string
-    : process.env.NEXT_PUBLIC_API as string;
-  const apiWsUrl = production
-    ? process.env.NEXT_PUBLIC_API_WS_PRODUCTION as string
-    : process.env.NEXT_PUBLIC_API_WS as string;
-  const timerBotUrl = production
-    ? process.env.NEXT_PUBLIC_TIMER_BOT_URL_PRODUCTION as string
-    : process.env.NEXT_PUBLIC_TIMER_BOT_URL as string;
-  const inviteOnlyUrl = production
-    ? process.env.NEXT_PUBLIC_INVITE_ONLY_PRODUCTION_URL as string
-    : process.env.NEXT_PUBLIC_INVITE_ONLY_LOCAL_URL as string;
-
   // Required in both environments
   const walletConnectProjectId = process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID as string;
-  const botPrivateKey = process.env.NEXT_PUBLIC_PRIVATE_KEY as string;
   const defaultTokenSymbol = process.env.NEXT_PUBLIC_DEFAULT_TOKEN_SYMBOL;
 
   // Validate required environment variables
   const missingVars = [];
-  if (production) {
-    if (!process.env.NEXT_PUBLIC_API_PRODUCTION) missingVars.push('NEXT_PUBLIC_API_PRODUCTION');
-    if (!process.env.NEXT_PUBLIC_API_WS_PRODUCTION) missingVars.push('NEXT_PUBLIC_API_WS_PRODUCTION');
-    if (!process.env.NEXT_PUBLIC_TIMER_BOT_URL_PRODUCTION) missingVars.push('NEXT_PUBLIC_TIMER_BOT_URL_PRODUCTION');
-    if (!process.env.NEXT_PUBLIC_INVITE_ONLY_PRODUCTION_URL) missingVars.push('NEXT_PUBLIC_INVITE_ONLY_PRODUCTION_URL');
-  } else {
-    if (!process.env.NEXT_PUBLIC_API) missingVars.push('NEXT_PUBLIC_API');
-    if (!process.env.NEXT_PUBLIC_API_WS) missingVars.push('NEXT_PUBLIC_API_WS');
-    if (!process.env.NEXT_PUBLIC_TIMER_BOT_URL) missingVars.push('NEXT_PUBLIC_TIMER_BOT_URL');
-    if (!process.env.NEXT_PUBLIC_INVITE_ONLY_LOCAL_URL) missingVars.push('NEXT_PUBLIC_INVITE_ONLY_LOCAL_URL');
-  }
-
-  // Validate fallback RPC URL
-  if (!process.env.NEXT_PUBLIC_RPC_URL) missingVars.push('NEXT_PUBLIC_RPC_URL');
   if (!walletConnectProjectId) missingVars.push('NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID');
-  if (!botPrivateKey) missingVars.push('NEXT_PUBLIC_PRIVATE_KEY');
   if (!defaultTokenSymbol) missingVars.push('NEXT_PUBLIC_DEFAULT_TOKEN_SYMBOL');
-
-  // Validate fallback contract addresses
-  const fallbackContracts = {
-    DIAMOND: process.env.NEXT_PUBLIC_DIAMOND,
-    FLASH_USDC: process.env.NEXT_PUBLIC_FLASH_USDC,
-    CREDIT_CONTRACT: process.env.NEXT_PUBLIC_FLASH_CREDITS,
-  };
-
-  if (!fallbackContracts.DIAMOND) missingVars.push('NEXT_PUBLIC_DIAMOND');
-  if (!fallbackContracts.FLASH_USDC) missingVars.push('NEXT_PUBLIC_FLASH_USDC');
-  if (!fallbackContracts.CREDIT_CONTRACT) missingVars.push('NEXT_PUBLIC_FLASH_CREDITS');
 
   if (missingVars.length > 0) {
     throw new Error(`Missing required environment variables: ${missingVars.join(', ')}`);
   }
 
-
-  // Function to get RPC URL based on chain ID
-  const getRpcUrlForChain = (chainId: number) => {
-    // First try to get from contract-config
-    try {
-      return getRpcUrl(chainId);
-    } catch (error) {
-      console.error('Error getting RPC URL for chain:', error);
-      // Fallback to environment variable if chain not found in contract-config
-      return process.env.NEXT_PUBLIC_RPC_URL as string;
+  // Function to get chain-specific API URL
+  const getApiUrl = (chainId: number): string => {
+    // const url = getEnvUrl(chainId, 'NEXT_PUBLIC_API_PRODUCTION', 'NEXT_PUBLIC_API');
+    let url = '';
+    if (production) {
+      // Production environment
+      switch (chainId) {
+        case sei.id:
+          url = process.env["NEXT_PUBLIC_API_SEI"] || '';
+        case seiTestnet.id:
+          url = process.env["NEXT_PUBLIC_API_SEI_TESTNET"] || '';
+        case base.id:
+          url = process.env["NEXT_PUBLIC_API_BASE"] || '';
+        case baseSepolia.id:
+          url = process.env["NEXT_PUBLIC_API_BASE_SEPOLIA"] || '';
+        default:
+          url = process.env["NEXT_PUBLIC_API_BASE_SEPOLIA"] || '';
+      }
+    } else {
+      // Development environment
+      url = process.env["NEXT_PUBLIC_API"] || '';
     }
+    if (!url) {
+      throw new Error(`Missing API URL for chain ${chainId}`);
+    }
+    return url;
   };
 
-  // Function to get contract addresses based on chain ID
-  const getContractAddressesForChain = (chainId: number) => {
-    // First try to get from contract-config
-    try {
-      return getContractAddresses(chainId);
-    } catch (error) {
-      // Fallback to environment variables if chain not found in contract-config
-      console.error('Error getting contract addresses for chain:', error);
-      return {
-        DIAMOND: process.env.NEXT_PUBLIC_DIAMOND as string,
-        FLASH_USDC: process.env.NEXT_PUBLIC_FLASH_USDC as string,
-        CREDIT_CONTRACT: process.env.NEXT_PUBLIC_FLASH_CREDITS as string,
-      };
+  // Function to get chain-specific WebSocket URL
+  const getApiWsUrl = (chainId: number): string => {
+    let url = '';
+    if (production) {
+      // Production environment
+      switch (chainId) {
+        case sei.id:
+          url = process.env["NEXT_PUBLIC_API_WS_SEI"] || '';
+        case seiTestnet.id:
+          url = process.env["NEXT_PUBLIC_API_WS_SEI_TESTNET"] || '';
+        case base.id:
+          url = process.env["NEXT_PUBLIC_API_WS_BASE"] || '';
+        case baseSepolia.id:
+          url = process.env["NEXT_PUBLIC_API_WS_BASE_SEPOLIA"] || '';
+        default:
+          url = process.env["NEXT_PUBLIC_API_WS_BASE_SEPOLIA"] || '';
+      }
+    } else {
+      // Development environment
+      url = process.env["NEXT_PUBLIC_API_WS"] || '';
     }
+    if (!url) {
+      throw new Error(`Missing WebSocket URL for chain ${chainId}`);
+    }
+    return url;
   };
+
+  // Function to get chain-specific Timer Bot URL
+  const getTimerBotUrl = (chainId: number): string => {
+    let url = '';
+    if (production) {
+      // Production environment
+      switch (chainId) {
+        case sei.id:
+          url = process.env["NEXT_PUBLIC_TIMER_BOT_URL_SEI"] || '';
+        case seiTestnet.id:
+          url = process.env["NEXT_PUBLIC_TIMER_BOT_URL_SEI_TESTNET"] || '';
+        case base.id:
+          url = process.env["NEXT_PUBLIC_TIMER_BOT_URL_BASE"] || '';
+        case baseSepolia.id:
+          url = process.env["NEXT_PUBLIC_TIMER_BOT_URL_BASE_SEPOLIA"] || '';
+        default:
+          url = process.env["NEXT_PUBLIC_TIMER_BOT_URL_BASE_SEPOLIA"] || '';
+      }
+    } else {
+      // Development environment
+      url = process.env["NEXT_PUBLIC_TIMER_BOT_URL"] || '';
+    }
+    if (!url) {
+      throw new Error(`Missing Timer Bot URL for chain ${chainId}`);
+    }
+    return url;
+  };
+
+  // Function to get chain-specific Invite Only URL
+  const getInviteOnlyUrl = (chainId: number): string => {
+    let url = '';
+    if (production) {
+      // Production environment
+      switch (chainId) {
+        case sei.id:
+          url = process.env["NEXT_PUBLIC_INVITE_ONLY_URL_SEI"] || '';
+        case seiTestnet.id:
+          url = process.env["NEXT_PUBLIC_INVITE_ONLY_URL_SEI_TESTNET"] || '';
+        case base.id:
+          url = process.env["NEXT_PUBLIC_INVITE_ONLY_URL_BASE"] || '';
+        case baseSepolia.id:
+          url = process.env["NEXT_PUBLIC_INVITE_ONLY_URL_BASE_SEPOLIA"] || '';
+        default:
+          url = process.env["NEXT_PUBLIC_INVITE_ONLY_URL_BASE_SEPOLIA"] || '';
+      }
+    } else {
+      // Development environment
+      url = process.env["NEXT_PUBLIC_INVITE_ONLY_URL"] || '';
+    }
+    if (!url) {
+      throw new Error(`Missing Invite Only URL for chain ${chainId}`);
+    }
+    return url;
+  };
+
+  // Function to get chain-specific Bot Private Key
+  const getBotPrivateKey = (chainId: number): string => {
+    let key = '';
+    if (production) {
+      // Production environment
+      switch (chainId) {
+        case sei.id:
+          key = process.env["NEXT_PUBLIC_BOT_PRIVATE_KEY_SEI"] || '';
+        case seiTestnet.id:
+          key = process.env["NEXT_PUBLIC_BOT_PRIVATE_KEY_SEI_TESTNET"] || '';
+        case base.id:
+          key = process.env["NEXT_PUBLIC_BOT_PRIVATE_KEY_BASE"] || '';
+        case baseSepolia.id:
+          key = process.env["NEXT_PUBLIC_BOT_PRIVATE_KEY_BASE_SEPOLIA"] || '';
+        default:
+          key = process.env["NEXT_PUBLIC_BOT_PRIVATE_KEY_BASE_SEPOLIA"] || '';
+      }
+    } else {
+      // Development environment
+      switch (chainId) {
+        case seiTestnet.id:
+          key = process.env["NEXT_PUBLIC_BOT_PRIVATE_KEY_LOCAL_SEI_TESTNET"] || '';
+        case baseSepolia.id:
+          key = process.env["NEXT_PUBLIC_BOT_PRIVATE_KEY_LOCAL_BASE_SEPOLIA"] || '';
+        default:
+          key = process.env["NEXT_PUBLIC_BOT_PRIVATE_KEY_LOCAL_BASE_SEPOLIA"] || '';
+      }
+    }
+    if (!key) {
+      throw new Error(`Missing Bot Private Key for chain ${chainId}`);
+    }
+    return key;
+  };
+
+  // // Function to get environment-specific URL based on chain ID
+  // const getEnvUrl = (chainId: number, prodKey: string, devKey: string): string => {
+  //   if (production) {
+  //     // Production environment
+  //     switch (chainId) {
+  //       case sei.id:
+  //         return process.env[`${prodKey}_SEI`] || process.env[prodKey] || '';
+  //       case seiTestnet.id:
+  //         return process.env[`${prodKey}_SEI_TESTNET`] || process.env[prodKey] || '';
+  //       case base.id:
+  //         return process.env[`${prodKey}_BASE`] || process.env[prodKey] || '';
+  //       default:
+  //         return process.env[prodKey] || '';
+  //     }
+  //   } else {
+  //     // Development environment
+  //     switch (chainId) {
+  //       case sei.id:
+  //         return process.env[`${devKey}_SEI`] || process.env[devKey] || '';
+  //       case seiTestnet.id:
+  //         return process.env[`${devKey}_SEI_TESTNET`] || process.env[devKey] || '';
+  //       case base.id:
+  //         return process.env[`${devKey}_BASE`] || process.env[devKey] || '';
+  //       default:
+  //         return process.env[devKey] || '';
+  //     }
+  //   }
+  // };
+
 
   return {
     PRODUCTION: production,
-    getRpcUrl: getRpcUrlForChain,
-    API_URL: apiUrl,
-    API_WS_URL: apiWsUrl,
-    TIMER_BOT_URL: timerBotUrl,
-    INVITE_ONLY_URL: inviteOnlyUrl,
     WALLET_CONNECT_PROJECT_ID: walletConnectProjectId,
-    BOT_PRIVATE_KEY: botPrivateKey,
     DEFAULT_TOKEN_SYMBOL: defaultTokenSymbol,
-    getContractAddresses: getContractAddressesForChain,
+    getRpcUrl,
+    getApiUrl,
+    getApiWsUrl,
+    getTimerBotUrl,
+    getInviteOnlyUrl,
+    getBotPrivateKey,
+    getContractAddresses,
+    getChainName,
   };
 };
 

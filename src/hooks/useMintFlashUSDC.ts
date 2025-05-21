@@ -1,6 +1,5 @@
 import { FLASHUSDC } from '@/abi/FLASHUSDC';
 import { SERVER_CONFIG } from '@/config/server-config';
-// import { SEI_TESTNET_CHAIN_ID, TRANSACTION_STATUS } from '@/constants/app';
 import { TRANSACTION_STATUS } from '@/constants/app';
 import { useToast } from '@/shadcn/components/ui/use-toast';
 import { TransactionStatusType } from '@/types/app';
@@ -8,7 +7,7 @@ import { handleTransactionError } from '@/utils/token';
 import { useState } from 'react';
 import { createWalletClient, Hex, http } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
-import { base, sei, seiTestnet } from 'viem/chains';
+import { base, baseSepolia, sei, seiTestnet } from 'viem/chains';
 import { useAccount, useChainId, usePublicClient, useWaitForTransactionReceipt } from 'wagmi';
 
 interface UseMintFlashUSDCReturn {
@@ -21,11 +20,12 @@ interface UseMintFlashUSDCReturn {
 }
 
 const useMintFlashUSDC = (): UseMintFlashUSDCReturn => {
+  const chainId = useChainId();
   const [status, setStatus] = useState<TransactionStatusType>(TRANSACTION_STATUS.IDLE);
   const [error, setError] = useState<string | null>(null);
   const [txHash, setTxHash] = useState<Hex | undefined>(undefined);
-  const account = privateKeyToAccount(SERVER_CONFIG.BOT_PRIVATE_KEY as Hex);
-  const chainId = useChainId();
+  const account = privateKeyToAccount(SERVER_CONFIG.getBotPrivateKey(chainId) as Hex);
+
 
   const getChain = (chainId: number) => {
     switch (chainId) {
@@ -33,12 +33,12 @@ const useMintFlashUSDC = (): UseMintFlashUSDCReturn => {
         return sei;
       case base.id:
         return base;
-      // case baseSepolia.id:
-      //   return baseSepolia;
+      case baseSepolia.id:
+        return baseSepolia;
       case seiTestnet.id:
         return seiTestnet;
       default:
-        return seiTestnet;
+        return baseSepolia;
     }
   };
 

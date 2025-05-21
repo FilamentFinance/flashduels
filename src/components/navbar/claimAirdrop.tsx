@@ -8,7 +8,6 @@ import { useToast } from '@/shadcn/components/ui/use-toast';
 import { TransactionStatusType } from '@/types/app';
 import { handleTransactionError } from '@/utils/token';
 import { formatUnits, Hex } from 'viem';
-// import { base, baseSepolia, sei, seiTestnet } from 'viem/chains';
 import { CREDITS } from '@/abi/CREDITS';
 import {
   Dialog,

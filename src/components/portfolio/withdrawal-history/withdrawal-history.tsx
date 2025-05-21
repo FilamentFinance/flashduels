@@ -27,7 +27,7 @@ const WithdrawalHistory: React.FC<{ address: string }> = ({ address }) => {
       setError(null);
       try {
         const res = await fetch(
-          `${SERVER_CONFIG.API_URL}/user/withdrawal-requests?minAmount=${MIN_AMOUNT}&user=${address}`,
+          `${SERVER_CONFIG.getApiUrl(chainId)}/user/withdrawal-requests?minAmount=${MIN_AMOUNT}&user=${address}`,
         );
         if (!res.ok) throw new Error('Failed to fetch withdrawal requests');
         const data = await res.json();

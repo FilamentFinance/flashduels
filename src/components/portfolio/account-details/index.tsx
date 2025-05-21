@@ -1,6 +1,6 @@
 'use client';
 
-import { baseApiClient } from '@/config/api-client';
+import { useApiClient } from '@/config/api-client';
 import { useBalance } from '@/hooks/useBalance';
 import { Button } from '@/shadcn/components/ui/button';
 import { Card, CardContent } from '@/shadcn/components/ui/card';
@@ -29,7 +29,7 @@ import {
 import { AccountShimmer } from './account-shimmer';
 import { openExternalLinkInNewTab } from '@/utils/general/open-external-link';
 import { SERVER_CONFIG } from '@/config/server-config';
-import { base, sei, seiTestnet } from 'viem/chains';
+import { base, baseSepolia, sei, seiTestnet } from 'viem/chains';
 import { FlashDuelsViewFacetABI } from '@/abi/FlashDuelsViewFacet';
 import { FlashDuelCoreFacetAbi } from '@/abi/FlashDuelCoreFacet';
 import { Hex } from 'viem';
@@ -54,6 +54,7 @@ function useTradingPnl(address?: string) {
   const [pnl, setPnl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const chainId = useChainId();
 
   useEffect(() => {
     if (!address) {
@@ -64,7 +65,7 @@ function useTradingPnl(address?: string) {
     setError(null);
     // console.log('Fetching trading PNL for address:', address);
     axios
-      .get(`${SERVER_CONFIG.API_URL}/leaderboard/traders/pnl?address=${address}`)
+      .get(`${SERVER_CONFIG.getApiUrl(chainId)}/leaderboard/traders/pnl?address=${address}`)
       .then((res) => {
         // console.log('Trading PNL response:', res.data);
         setPnl(res.data.pnl);
@@ -79,7 +80,7 @@ function useTradingPnl(address?: string) {
         }
       })
       .finally(() => setLoading(false));
-  }, [address]);
+  }, [address, chainId]);
 
   return { pnl, loading, error };
 }
@@ -93,6 +94,7 @@ const AccountDetails: FC = () => {
   const { balance, decimals } = useBalance(address);
   const [isCreator, setIsCreator] = useState<boolean | null>(null);
   const chainId = useChainId();
+  const apiClient = useApiClient(chainId);
   const symbol = 'CRD'; // Using CRD for all chains now
   const publicClient = usePublicClient();
   const { toast } = useToast();
@@ -103,12 +105,12 @@ const AccountDetails: FC = () => {
         return `https://seitrace.com/address/${address}?chain=pacific-1`;
       case base.id:
         return `https://basescan.org/address/${address}`;
-      // case baseSepolia.id:
-      //   return `https://sepolia.basescan.org/address/${address}`;
+      case baseSepolia.id:
+        return `https://sepolia.basescan.org/address/${address}`;
       case seiTestnet.id:
         return `https://seitrace.com/address/${address}?chain=atlantic-2`;
       default:
-        return `https://seitrace.com/address/${address}?chain=atlantic-2`;
+        return `https://basescan.org/address/${address}`;
     }
   };
 
@@ -188,15 +190,15 @@ const AccountDetails: FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await baseApiClient.post('user/portfolio/accountDetails', {
+      const response = await apiClient.post('user/portfolio/accountDetails', {
         userAddress: address.toLowerCase(),
       });
 
       // Check if user is a creator
       let isUserCreator = false;
       try {
-        const creatorResponse = await baseApiClient.get(
-          `${SERVER_CONFIG.API_URL}/user/creator/status`,
+        const creatorResponse = await apiClient.get(
+          `${SERVER_CONFIG.getApiUrl(chainId)}/user/creator/status`,
           {
             params: {
               address: address.toLowerCase(),
@@ -222,7 +224,7 @@ const AccountDetails: FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [address]);
+  }, [address, apiClient, chainId]);
 
   useEffect(() => {
     fetchPortfolio();
