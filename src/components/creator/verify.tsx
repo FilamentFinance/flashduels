@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from 'react';
-import { useAccount } from 'wagmi';
-import { baseApiClient } from '@/config/api-client';
+import { useAccount, useChainId } from 'wagmi';
+import { useApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
 import { Button } from '@/shadcn/components/ui/button';
 import { Input } from '@/shadcn/components/ui/input';
@@ -12,6 +12,8 @@ const REJECTION_LIMIT = 3;
 
 export const CreatorVerify = ({ onClose }: { onClose: () => void }) => {
   const { address } = useAccount();
+  const chainId = useChainId();
+  const apiClient = useApiClient(chainId);
   const [loading, setLoading] = useState(false);
   const [isDataLoading, setIsDataLoading] = useState(true);
   const [requestStatus, setRequestStatus] = useState<{
@@ -23,36 +25,38 @@ export const CreatorVerify = ({ onClose }: { onClose: () => void }) => {
   const [formData, setFormData] = useState(() => {
     // Retrieve saved form data from localStorage
     const savedData = localStorage.getItem('creatorFormData');
-    return savedData ? JSON.parse(savedData) : {
-      name: '',
-      twitterHandle: '',
-      telegramHandle: '',
-      email: '',
-      discordHandle: '',
-      linkedinProfile: '',
-      mobileNumber: '',
-    };
+    return savedData
+      ? JSON.parse(savedData)
+      : {
+          name: '',
+          twitterHandle: '',
+          telegramHandle: '',
+          email: '',
+          discordHandle: '',
+          linkedinProfile: '',
+          mobileNumber: '',
+        };
   });
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         if (!address) return;
-        const response = await baseApiClient.get(`${SERVER_CONFIG.API_URL}/user/auth`, {
+        const response = await apiClient.get(`${SERVER_CONFIG.getApiUrl(chainId)}/user/auth`, {
           params: {
-            address: address
-          }
+            address: address,
+          },
         });
         const userData = response.data;
 
-        setFormData((prev: any) => ({
-          ...prev,
-          twitterHandle: userData.twitterUsername || '',
-        }));
-        localStorage.setItem('creatorFormData', JSON.stringify({
-          ...formData,
-          twitterHandle: userData.twitterUsername || '',
-        }));
+        setFormData((prev: any) => {
+          const updatedData = {
+            ...prev,
+            twitterHandle: userData.twitterUsername || '',
+          };
+          localStorage.setItem('creatorFormData', JSON.stringify(updatedData));
+          return updatedData;
+        });
       } catch (error) {
         console.error('Failed to fetch user data:', error);
       }
@@ -67,16 +71,19 @@ export const CreatorVerify = ({ onClose }: { onClose: () => void }) => {
       }
       try {
         setIsDataLoading(true);
-        const response = await baseApiClient.get(`${SERVER_CONFIG.API_URL}/user/creator/status`, {
-          params: {
-            address: address.toLowerCase()
-          }
-        });
-        console.log("response", response);
+        const response = await apiClient.get(
+          `${SERVER_CONFIG.getApiUrl(chainId)}/user/creator/status`,
+          {
+            params: {
+              address: address.toLowerCase(),
+            },
+          },
+        );
+        console.log('response', response);
         setIsCreator(response.data.isCreator);
         setRequestStatus(response.data.request);
       } catch (error) {
-        console.error("Error checking creator status:", error);
+        console.error('Error checking creator status:', error);
         setIsCreator(false);
         setRequestStatus(null);
       } finally {
@@ -91,7 +98,7 @@ export const CreatorVerify = ({ onClose }: { onClose: () => void }) => {
     if (urlParams.get('twitterConnected') === 'true') {
       setIsCreator(true);
     }
-  }, [address]);
+  }, [address, chainId, apiClient]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -103,31 +110,32 @@ export const CreatorVerify = ({ onClose }: { onClose: () => void }) => {
     });
   };
 
-//   const validateLinkedInProfile = (url: string) => {
-//     const linkedInRegex = /^https:\/\/(www\.)?linkedin\.com\/in\/[A-z0-9_-]+\/?$/;
-//     return linkedInRegex.test(url);
-//   };
+  //   const validateLinkedInProfile = (url: string) => {
+  //     const linkedInRegex = /^https:\/\/(www\.)?linkedin\.com\/in\/[A-z0-9_-]+\/?$/;
+  //     return linkedInRegex.test(url);
+  //   };
 
   // const validateTwitterHandle = (handle: string) => {
   //   const twitterRegex = /^@?(\w){1,15}$/;
   //   return twitterRegex.test(handle);
   // };
 
-//   const validatePhoneNumber = (number: string) => {
-//     const phoneRegex = /^\+?[1-9]\d{1,14}$/;
-//     return phoneRegex.test(number);
-//   };
+  //   const validatePhoneNumber = (number: string) => {
+  //     const phoneRegex = /^\+?[1-9]\d{1,14}$/;
+  //     return phoneRegex.test(number);
+  //   };
 
   // Add this validation function for email
   const validateEmail = (email: string) => {
     // RFC 5322 compliant email regex
-    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+    const emailRegex =
+      /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
     return emailRegex.test(email) && email.includes('.'); // Ensure there's at least one dot for domain
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!address) {
       toast({
         title: 'Error',
@@ -158,16 +166,20 @@ export const CreatorVerify = ({ onClose }: { onClose: () => void }) => {
 
     setLoading(true);
     try {
-      const response = await baseApiClient.post(`${SERVER_CONFIG.API_URL}/user/creator/request`, {
-        ...formData,
-        address: address.toLowerCase(),
-      });
-      
+      const response = await apiClient.post(
+        `${SERVER_CONFIG.getApiUrl(chainId)}/user/creator/request`,
+        {
+          ...formData,
+          address: address.toLowerCase(),
+        },
+      );
+
       toast({
         title: 'Success',
-        description: response.data.message || 'Creator verification request submitted successfully.',
+        description:
+          response.data.message || 'Creator verification request submitted successfully.',
       });
-      
+
       setIsCreator(true);
       setFormData({
         name: '',
@@ -178,7 +190,7 @@ export const CreatorVerify = ({ onClose }: { onClose: () => void }) => {
         linkedinProfile: '',
         mobileNumber: '',
       });
-      
+
       // Auto close the modal on successful submission
       onClose();
     } catch (error: any) {
@@ -194,7 +206,7 @@ export const CreatorVerify = ({ onClose }: { onClose: () => void }) => {
 
   const handleConnectTwitter = () => {
     const token = address ? localStorage.getItem(`Bearer_${address.toLowerCase()}`) : null;
-    
+
     if (!token) {
       toast({
         title: 'Error',
@@ -203,12 +215,12 @@ export const CreatorVerify = ({ onClose }: { onClose: () => void }) => {
       });
       return;
     }
-    
+
     // Encode the token properly for URL
     const tokenParam = token ? `?token=${encodeURIComponent(token.replace('Bearer ', ''))}` : '';
-    const connectUrl = `${SERVER_CONFIG.API_URL}/user/auth/connect-twitter${tokenParam}`;
-    
-    console.log("Redirecting to:", connectUrl);
+    const connectUrl = `${SERVER_CONFIG.getApiUrl(chainId)}/user/auth/connect-twitter${tokenParam}`;
+
+    console.log('Redirecting to:', connectUrl);
     window.location.href = connectUrl;
   };
 
@@ -218,13 +230,13 @@ export const CreatorVerify = ({ onClose }: { onClose: () => void }) => {
       // Remove query parameters by navigating to base path
       window.history.pushState({}, '', window.location.pathname);
     }
-    
+
     // Call the original onClose function
     onClose();
   };
 
   return (
-    <Dialog 
+    <Dialog
       open={true}
       onOpenChange={(isOpen) => {
         if (!isOpen) {
@@ -246,13 +258,15 @@ export const CreatorVerify = ({ onClose }: { onClose: () => void }) => {
                 You are already a verified creator. You can start creating duels on the platform.
               </p>
             ) : requestStatus ? (
-              requestStatus.status === "pending" ? (
+              requestStatus.status === 'pending' ? (
                 <p className="text-sm text-muted-foreground">
-                  Creating a duel requires creator verification. Your request is being reviewed and you will be able to start creating duels once it&apos;s accepted.
+                  Creating a duel requires creator verification. Your request is being reviewed and
+                  you will be able to start creating duels once it&apos;s accepted.
                 </p>
-              ) : requestStatus.status === "rejected" ? (
+              ) : requestStatus.status === 'rejected' ? (
                 <p className="text-sm text-muted-foreground">
-                  Your creator verification request was rejected. Please try again. You have {REJECTION_LIMIT - requestStatus.rejectionCount} attempts left.
+                  Your creator verification request was rejected. Please try again. You have{' '}
+                  {REJECTION_LIMIT - requestStatus.rejectionCount} attempts left.
                 </p>
               ) : (
                 <p className="text-sm text-muted-foreground">
@@ -265,7 +279,9 @@ export const CreatorVerify = ({ onClose }: { onClose: () => void }) => {
               </p>
             )}
           </div>
-          {(!requestStatus || requestStatus.status !== "pending" && requestStatus.rejectionCount < REJECTION_LIMIT) && (
+          {(!requestStatus ||
+            (requestStatus.status !== 'pending' &&
+              requestStatus.rejectionCount < REJECTION_LIMIT)) && (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid w-full items-center gap-2">
                 <Label htmlFor="name">Name</Label>
@@ -291,16 +307,16 @@ export const CreatorVerify = ({ onClose }: { onClose: () => void }) => {
                   required
                 />
                 {!formData.twitterHandle && (
-                  <Button 
+                  <Button
                     type="button"
-                    className="mt-2 bg-secondary text-black hover:bg-secondary/90" 
+                    className="mt-2 bg-secondary text-black hover:bg-secondary/90"
                     onClick={handleConnectTwitter}
                   >
                     Connect Twitter
                   </Button>
                 )}
               </div>
-              
+
               <div className="grid w-full items-center gap-2">
                 <Label htmlFor="telegramHandle">Telegram Handle</Label>
                 <Input
@@ -324,10 +340,10 @@ export const CreatorVerify = ({ onClose }: { onClose: () => void }) => {
                   required
                 />
               </div>
-              
-              <Button 
-                type="submit" 
-                className="w-full mt-2 bg-secondary text-black hover:bg-secondary/90" 
+
+              <Button
+                type="submit"
+                className="w-full mt-2 bg-secondary text-black hover:bg-secondary/90"
                 disabled={loading || !formData.twitterHandle}
               >
                 {loading ? 'Submitting...' : 'Submit Request'}

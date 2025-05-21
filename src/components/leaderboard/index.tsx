@@ -1,11 +1,12 @@
 'use client';
 
-import { baseApiClient } from '@/config/api-client';
+import { useApiClient } from '@/config/api-client';
 import { LEADERBOARD_TABS } from '@/constants/leaderboard';
 import { LeaderboardItem, LeaderboardTab } from '@/types/leaderboard';
 import { FC, useEffect, useState } from 'react';
 import Header from './header';
 import Table from './table';
+import { useChainId } from 'wagmi';
 
 const Leaderboard: FC = () => {
   const [activeTab, setActiveTab] = useState<LeaderboardTab>(LEADERBOARD_TABS.CREATORS);
@@ -13,12 +14,14 @@ const Leaderboard: FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   // const [isError, setIsError] = useState(false);
   // const [showContent, setShowContent] = useState(false);
+  const chainId = useChainId();
+  const apiClient = useApiClient(chainId);
 
   const fetchData = async () => {
     try {
       setIsLoading(true);
       // setIsError(false);
-      const response = await baseApiClient.get(
+      const response = await apiClient.get(
         `/leaderboard/${activeTab === LEADERBOARD_TABS.CREATORS ? 'creators' : 'traders'}`,
         {
           params: {
@@ -49,7 +52,7 @@ const Leaderboard: FC = () => {
   useEffect(() => {
     // setShowContent(false);
     fetchData();
-  }, [activeTab]);
+  }, [activeTab, chainId]);
 
   return (
     <div className="flex flex-col items-center w-full pt-8">

@@ -8,7 +8,6 @@ import { useToast } from '@/shadcn/components/ui/use-toast';
 import { TransactionStatusType } from '@/types/app';
 import { handleTransactionError } from '@/utils/token';
 import { formatUnits, Hex } from 'viem';
-import { sei } from 'viem/chains';
 import { CREDITS } from '@/abi/CREDITS';
 import {
   Dialog,
@@ -40,7 +39,7 @@ const ClaimAirdropButton: FC = () => {
   const { writeContractAsync } = useWriteContract();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAddingToMetamask, setIsAddingToMetamask] = useState(false);
-  const symbol = chainId === sei.id ? 'CRD' : 'CRD';
+  const symbol = 'CRD'; // Using CRD for all chains now
 
   // Add authentication state
   const isAuthenticated = useAppSelector(
@@ -51,18 +50,19 @@ const ClaimAirdropButton: FC = () => {
   useEffect(() => {
     const checkClaimedAmount = async () => {
       if (!address) return;
+      const creditContractAddress = SERVER_CONFIG.getContractAddresses(chainId).CREDIT_CONTRACT;
       try {
         // Check credits balance
         const credits = await publicClient?.readContract({
           abi: CREDITS,
-          address: SERVER_CONFIG.CREDIT_CONTRACT as Hex,
+          address: creditContractAddress as Hex,
           functionName: 'credits',
           args: [address.toLowerCase()],
         });
         setAvailableToClaim(credits?.toString() || '0');
         const creditsBalance = await publicClient?.readContract({
           abi: CREDITS,
-          address: SERVER_CONFIG.CREDIT_CONTRACT as Hex,
+          address: creditContractAddress as Hex,
           functionName: 'balanceOf',
           args: [address.toLowerCase()],
         });
@@ -71,7 +71,7 @@ const ClaimAirdropButton: FC = () => {
         // Check total claimed amount
         const claimed = await publicClient?.readContract({
           abi: CREDITS,
-          address: SERVER_CONFIG.CREDIT_CONTRACT as Hex,
+          address: creditContractAddress as Hex,
           functionName: 'totalClaimed',
           args: [address.toLowerCase()],
         });
@@ -118,14 +118,14 @@ const ClaimAirdropButton: FC = () => {
       console.error('No address found');
       return;
     }
-
+    const creditContractAddress = SERVER_CONFIG.getContractAddresses(chainId).CREDIT_CONTRACT;
     try {
       setStatus(TRANSACTION_STATUS.PENDING);
       setClaimedAmount('');
 
       const tx = await writeContractAsync({
         abi: CREDITS,
-        address: SERVER_CONFIG.CREDIT_CONTRACT as Hex,
+        address: creditContractAddress as Hex,
         functionName: 'claim',
         args: [],
       });
@@ -148,19 +148,19 @@ const ClaimAirdropButton: FC = () => {
       const [newBalance, newClaimed, newAvailable] = await Promise.all([
         publicClient?.readContract({
           abi: CREDITS,
-          address: SERVER_CONFIG.CREDIT_CONTRACT as Hex,
+          address: creditContractAddress as Hex,
           functionName: 'balanceOf',
           args: [address.toLowerCase()],
         }),
         publicClient?.readContract({
           abi: CREDITS,
-          address: SERVER_CONFIG.CREDIT_CONTRACT as Hex,
+          address: creditContractAddress as Hex,
           functionName: 'totalClaimed',
           args: [address.toLowerCase()],
         }),
         publicClient?.readContract({
           abi: CREDITS,
-          address: SERVER_CONFIG.CREDIT_CONTRACT as Hex,
+          address: creditContractAddress as Hex,
           functionName: 'credits',
           args: [address.toLowerCase()],
         }),
@@ -189,7 +189,7 @@ const ClaimAirdropButton: FC = () => {
       });
       return;
     }
-
+    const creditContractAddress = SERVER_CONFIG.getContractAddresses(chainId).CREDIT_CONTRACT;
     try {
       setIsAddingToMetamask(true);
 
@@ -198,7 +198,7 @@ const ClaimAirdropButton: FC = () => {
         params: {
           type: 'ERC20',
           options: {
-            address: SERVER_CONFIG.CREDIT_CONTRACT,
+            address: creditContractAddress,
             symbol: symbol,
             decimals: 18,
           },
@@ -287,29 +287,33 @@ const ClaimAirdropButton: FC = () => {
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-500">Available to Claim:</span>
                     <span className="font-medium">
-                      {parseFloat(formatUnits(BigInt(availableToClaim), 18)).toFixed(4)} {symbol}
+                      {parseFloat(formatUnits(BigInt(availableToClaim), 18)).toFixed(0)} {symbol}
                     </span>
                   </div>
                 </div>
 
                 <div className="flex flex-col gap-3">
-                  {status !== TRANSACTION_STATUS.SUCCESS && (
+                  {status !== TRANSACTION_STATUS.SUCCESS && availableToClaim !== '0' && (
                     <Button
                       onClick={handleClaimAirdrop}
                       className="text-pink-300 border border-pink-300 bg-transparent hover:shadow-lg hover:scale-[1.02] hover:bg-pink-300/10 w-full"
-                      disabled={status === TRANSACTION_STATUS.PENDING || availableToClaim === '0'}
+                      disabled={status === TRANSACTION_STATUS.PENDING}
                     >
                       {status === TRANSACTION_STATUS.PENDING ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                           Claiming...
                         </>
-                      ) : availableToClaim === '0' ? (
-                        `No ${symbol} Available to Claim`
                       ) : (
-                        `Claim ${parseFloat(formatUnits(BigInt(availableToClaim), 18)).toFixed(4)} ${symbol}`
+                        `Claim ${parseFloat(formatUnits(BigInt(availableToClaim), 18)).toFixed(0)} ${symbol}`
                       )}
                     </Button>
+                  )}
+
+                  {availableToClaim === '0' && (
+                    <div className="text-center text-sm text-gray-500">
+                      No {symbol} Available to Claim
+                    </div>
                   )}
 
                   <div className="mt-2">

@@ -14,7 +14,7 @@ import { openExternalLinkInNewTab } from '@/utils/general/open-external-link';
 import { ArrowUpRight, Check, Copy, Info } from 'lucide-react';
 import Image from 'next/image';
 import { FC, useState } from 'react';
-import { useAccount } from 'wagmi';
+import { useAccount, useChainId } from 'wagmi';
 
 const ClaimFaucet: FC = () => {
   const [isCopied, setIsCopied] = useState(false);
@@ -22,9 +22,10 @@ const ClaimFaucet: FC = () => {
   const { address } = useAccount();
   const { toast } = useToast();
   const { mintFlashUSDC, error, txHash, status, isMintSuccess } = useMintFlashUSDC();
+  const chainId = useChainId();
 
   const handleCopy = async () => {
-    await CopyToClipboard(SERVER_CONFIG.FLASH_USDC);
+    await CopyToClipboard(SERVER_CONFIG.getContractAddresses(chainId).FLASH_USDC);
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 2000); // Reset after 2 seconds
   };
@@ -108,7 +109,7 @@ const ClaimFaucet: FC = () => {
           <div className="flex items-center gap-2">
             <Info className="w-4 h-4 text-zinc-400" />
             <span className="text-zinc-400">{CLAIM_FAUCET.TOKEN_ADDRESS.LABEL}</span>
-            <span className="text-sm">{truncateAddress(SERVER_CONFIG.FLASH_USDC)}</span>
+            <span className="text-sm">{truncateAddress(SERVER_CONFIG.getContractAddresses(chainId).FLASH_USDC)}</span>
           </div>
           <button
             className="flex items-center justify-center hover:bg-zinc-800/50 rounded transition-colors"

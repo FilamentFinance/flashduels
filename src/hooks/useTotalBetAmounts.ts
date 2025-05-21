@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { SERVER_CONFIG } from '@/config/server-config';
+import { useChainId } from 'wagmi';
 // import { formatUnits } from 'viem';
 
 interface TotalBetAmounts {
@@ -21,11 +22,12 @@ export const useTotalBetAmounts = (duelId: string) => {
     const [noPercentage, setNoPercentage] = useState<number>(50);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const chainId = useChainId();
 
     useEffect(() => {
         if (!duelId) return;
 
-        const socket = new WebSocket(`${SERVER_CONFIG.API_WS_URL}/betWebSocket?duelId=${duelId}`);
+        const socket = new WebSocket(`${SERVER_CONFIG.getApiWsUrl(chainId)}/betWebSocket?duelId=${duelId}`);
 
         socket.onopen = () => {
             console.log('Connected to WebSocket server');

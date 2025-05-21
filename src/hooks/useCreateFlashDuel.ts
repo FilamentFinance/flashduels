@@ -94,11 +94,12 @@ const useCreateFlashDuel = () => {
   };
 
   const createFlashDuelTransaction = async (params: CreateFlashDuelParams) => {
+    const DIAMOND_ADDRESS = SERVER_CONFIG.getContractAddresses(chainId).DIAMOND;
     try {
       setStatus(TRANSACTION_STATUS.CREATING_DUEL);
       const tx = await writeContractAsync({
         abi: FlashDuelCoreFacetAbi,
-        address: SERVER_CONFIG.DIAMOND as Hex,
+        address: DIAMOND_ADDRESS as Hex,
         functionName: 'requestCreateDuel',
         chainId: chainId,
         args: [params.category, params.topic, params.options, params.duration],

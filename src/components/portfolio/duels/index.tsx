@@ -1,6 +1,6 @@
 'use client';
 
-import { baseApiClient } from '@/config/api-client';
+import { useApiClient } from '@/config/api-client';
 // import { getIconPath } from '@/components/bet';
 import {
   Table,
@@ -13,7 +13,7 @@ import {
 import { cn } from '@/shadcn/lib/utils';
 import Image from 'next/image';
 import { FC, useEffect, useState } from 'react';
-import { useAccount } from 'wagmi';
+import { useAccount, useChainId } from 'wagmi';
 import { DuelShimmer } from './duel-shimmer';
 import { DuelState } from './duel-state';
 import { useRouter } from 'next/navigation';
@@ -153,6 +153,8 @@ const Duels: FC = () => {
   const [error, setError] = useState<string | null>(null);
   const { address } = useAccount();
   const router = useRouter();
+  const chainId = useChainId();
+  const apiClient = useApiClient(chainId);
 
   const fetchDuels = async () => {
     if (!address) {
@@ -164,7 +166,7 @@ const Duels: FC = () => {
     setError(null);
 
     try {
-      const response = await baseApiClient.post(`user/portfolio/duels`, {
+      const response = await apiClient.post(`user/portfolio/duels`, {
         userAddress: address.toLowerCase(),
       });
 

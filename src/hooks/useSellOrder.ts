@@ -54,11 +54,11 @@ const useSellOrder = (
   const { address } = useAccount();
   const publicClient = usePublicClient();
   const chainId = useChainId();
-
+  const DIAMOND_ADDRESS = SERVER_CONFIG.getContractAddresses(chainId).DIAMOND;
   const { data: optionTokenAddress, isLoading: isReading } = useReadContract({
     abi: FlashDuelsViewFacetABI,
     functionName: 'getOptionIndexToOptionToken',
-    address: SERVER_CONFIG.DIAMOND as Hex,
+    address: DIAMOND_ADDRESS as Hex,
     chainId: chainId,
     args: [duelId, optionIndex],
   });
@@ -160,7 +160,7 @@ const useSellOrder = (
         address: optionTokenAddress as Hex,
         functionName: 'approve',
         chainId: chainId,
-        args: [SERVER_CONFIG.DIAMOND, quantityInWei],
+        args: [SERVER_CONFIG.getContractAddresses(chainId).DIAMOND, quantityInWei],
       });
       console.log('approveTx', approveTx);
       if (!approveTx) {
@@ -188,7 +188,7 @@ const useSellOrder = (
       console.log('chainId', chainId);
       const sellTx = await sellAsync({
         abi: FlashDuelsMarketplaceFacet,
-        address: SERVER_CONFIG.DIAMOND as Hex,
+        address: DIAMOND_ADDRESS as Hex,
         functionName: 'sell',
         chainId: chainId,
         args: [duelId, optionTokenAddress, mapCategoryToEnumIndex(category), optionIndex, quantityInWei, totalValue],
@@ -214,7 +214,7 @@ const useSellOrder = (
       for (const log of receipt.logs) {
         try {
           // Check if this log is from our contract
-          if (log.address.toLowerCase() === SERVER_CONFIG.DIAMOND.toLowerCase()) {
+          if (log.address.toLowerCase() === DIAMOND_ADDRESS.toLowerCase()) {
             const decodedEvent = decodeEventLog({
               abi: FlashDuelsMarketplaceFacet,
               data: log.data,

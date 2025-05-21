@@ -4,7 +4,7 @@
 import { SERVER_CONFIG } from '@/config/server-config';
 import axios, { AxiosError } from 'axios';
 import React, { useEffect, useState } from 'react';
-import { useAccount } from 'wagmi';
+import { useAccount, useChainId } from 'wagmi';
 import InviteOnly from './invite-only';
 
 interface SignInResponse {
@@ -53,6 +53,7 @@ interface InviteGateProps {
 
 const InviteGate: React.FC<InviteGateProps> = ({ children }) => {
   const { address } = useAccount();
+  const chainId = useChainId();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -104,7 +105,7 @@ const InviteGate: React.FC<InviteGateProps> = ({ children }) => {
 
     try {
       const response = await axios.post<SignInResponse>(
-        `${SERVER_CONFIG.INVITE_ONLY_URL}/signin`,
+        `${SERVER_CONFIG.getInviteOnlyUrl(chainId)}/signin`,
         {
           address,
           appType: 'FLASH_DUELS',
@@ -153,7 +154,7 @@ const InviteGate: React.FC<InviteGateProps> = ({ children }) => {
 
     try {
       const response = await axios.post<SignUpResponse>(
-        `${SERVER_CONFIG.INVITE_ONLY_URL}/signup`,
+        `${SERVER_CONFIG.getInviteOnlyUrl(chainId)}/signup`,
         {
           address,
           code,
