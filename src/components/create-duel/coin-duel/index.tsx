@@ -35,7 +35,6 @@ import { useAccount, useChainId, usePublicClient } from 'wagmi';
 import DuelInfo from '../duel-info';
 import { CREDITS } from '@/abi/CREDITS';
 import { formatUnits, Hex } from 'viem';
-// import { base, baseSepolia, sei, seiTestnet } from 'viem/chains';
 import { Loader2 } from 'lucide-react';
 
 interface CoinDuelFormProps {

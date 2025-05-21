@@ -30,6 +30,8 @@ import { useApiClient } from '@/config/api-client';
 import { useNetworkConfig } from '@/hooks/useNetworkConfig';
 // import { getSupportedChainIds } from '@/config/contract-config';
 import { useToast } from '@/shadcn/components/ui/use-toast';
+import { NetworkToast } from '@/components/ui/network-toast';
+import { NETWORK_ICONS, DEFAULT_NETWORK_ICON } from '@/constants/app/networks';
 // import { sei } from 'viem/chains';
 
 const Navbar: FC = () => {
@@ -66,21 +68,6 @@ const Navbar: FC = () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [dropdownOpen]);
-
-  // const getChainName = (chainId: number): string => {
-  //   switch (chainId) {
-  //     case base.id:
-  //       return base.name;
-  //     // case baseSepolia.id:
-  //     //   return baseSepolia.name;
-  //     case sei.id:
-  //       return sei.name;
-  //     case seiTestnet.id:
-  //       return seiTestnet.name;
-  //     default:
-  //       return 'Unsupported Network';
-  //   }
-  // };
 
   const fetchCryptoAssets = async (currentChainId: number) => {
     try {
@@ -132,14 +119,6 @@ const Navbar: FC = () => {
 
   // console.log('Navbar chainId:', chainId, 'isChainSupported:', isChainSupported(chainId));
 
-  // Add a mapping for network icons (use placeholder for now)
-  const networkIcons: Record<number, string> = {
-    8453: '/chain-icons/base.png', // Base Mainnet
-    1329: '/chain-icons/sei.png', // Sei Mainnet
-    1328: '/chain-icons/sei.png', // Sei Testnet
-  };
-  const defaultIcon = '/chain-icons/base.png';
-
   return (
     <nav className="w-full border-b border-gray-800 h-navbar-height px-navbar-padding flex items-center">
       <div className="mx-auto w-full flex items-center justify-between">
@@ -165,7 +144,7 @@ const Navbar: FC = () => {
                   aria-label="Switch Network"
                 >
                   <img
-                    src={networkIcons[chainId] || defaultIcon}
+                    src={NETWORK_ICONS[chainId] || DEFAULT_NETWORK_ICON}
                     alt="Network Icon"
                     className="w-5 h-5 mr-1 inline rounded-full border border-zinc-700"
                   />
@@ -197,7 +176,12 @@ const Navbar: FC = () => {
                             await switchToSupportedNetwork(net.id);
                             toast({
                               title: 'Network Connected',
-                              description: `Successfully connected to ${net.name}`,
+                              description: (
+                                <NetworkToast
+                                  networkName={net.name}
+                                  networkIcon={NETWORK_ICONS[net.id]}
+                                />
+                              ),
                               variant: 'default',
                               duration: 3000,
                             });
@@ -209,7 +193,7 @@ const Navbar: FC = () => {
                       >
                         <div className="flex items-center">
                           <img
-                            src={networkIcons[net.id] || defaultIcon}
+                            src={NETWORK_ICONS[net.id] || DEFAULT_NETWORK_ICON}
                             alt="Network Icon"
                             className="w-4 h-4 mr-1 rounded-full"
                           />
@@ -307,7 +291,12 @@ const Navbar: FC = () => {
                               await switchToSupportedNetwork(net.id);
                               toast({
                                 title: 'Network Connected',
-                                description: `Successfully connected to ${net.name}`,
+                                description: (
+                                  <NetworkToast
+                                    networkName={net.name}
+                                    networkIcon={NETWORK_ICONS[net.id]}
+                                  />
+                                ),
                                 variant: 'default',
                                 duration: 3000,
                               });
@@ -319,7 +308,7 @@ const Navbar: FC = () => {
                         >
                           <div className="flex items-center">
                             <img
-                              src={networkIcons[net.id] || defaultIcon}
+                              src={NETWORK_ICONS[net.id] || DEFAULT_NETWORK_ICON}
                               alt="Network Icon"
                               className="w-4 h-4 mr-1 rounded-full"
                             />

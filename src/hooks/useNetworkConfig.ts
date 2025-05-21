@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useChainId, useAccount } from 'wagmi';
-import { base, sei, seiTestnet } from 'viem/chains';
+// import { base, sei } from 'viem/chains';
+import { base, baseSepolia, sei, seiTestnet } from 'viem/chains';
 import { getChainName, isChainSupported } from '@/config/contract-config';
 import { useToast } from '@/shadcn/components/ui/use-toast';
 
@@ -103,7 +104,12 @@ export const useNetworkConfig = () => {
                 throw new Error('MetaMask not found');
             }
 
-            const chainToSwitch = targetChainId || sei.id;
+            const chainToSwitch = targetChainId;
+            // console.log('chainToSwitch', chainToSwitch);
+            if (!chainToSwitch) {
+                throw new Error('No chain ID provided');
+            }
+
             const chainIdHex = `0x${chainToSwitch.toString(16)}`;
 
             try {
@@ -121,8 +127,8 @@ export const useNetworkConfig = () => {
                         case base.id:
                             chainConfig = base;
                             break;
-                        // case baseSepolia.id:
-                        //     chainConfig = baseSepolia;
+                        case baseSepolia.id:
+                            chainConfig = baseSepolia;
                             break;
                         case sei.id:
                             chainConfig = sei;
@@ -184,7 +190,7 @@ export const useNetworkConfig = () => {
     const getSupportedNetworks = useCallback(() => {
         return [
             { id: sei.id, name: 'Sei Mainnet' },
-            { id: seiTestnet.id, name: 'Sei Testnet' },
+            // { id: seiTestnet.id, name: 'Sei Testnet' },
             { id: base.id, name: 'Base Mainnet' },
             // { id: baseSepolia.id, name: 'Base Sepolia' },
         ];

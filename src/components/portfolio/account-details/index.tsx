@@ -29,7 +29,7 @@ import {
 import { AccountShimmer } from './account-shimmer';
 import { openExternalLinkInNewTab } from '@/utils/general/open-external-link';
 import { SERVER_CONFIG } from '@/config/server-config';
-import { base, sei, seiTestnet } from 'viem/chains';
+import { base, baseSepolia, sei, seiTestnet } from 'viem/chains';
 import { FlashDuelsViewFacetABI } from '@/abi/FlashDuelsViewFacet';
 import { FlashDuelCoreFacetAbi } from '@/abi/FlashDuelCoreFacet';
 import { Hex } from 'viem';
@@ -105,12 +105,12 @@ const AccountDetails: FC = () => {
         return `https://seitrace.com/address/${address}?chain=pacific-1`;
       case base.id:
         return `https://basescan.org/address/${address}`;
-      // case baseSepolia.id:
-      //   return `https://sepolia.basescan.org/address/${address}`;
+      case baseSepolia.id:
+        return `https://sepolia.basescan.org/address/${address}`;
       case seiTestnet.id:
         return `https://seitrace.com/address/${address}?chain=atlantic-2`;
       default:
-        return `https://seitrace.com/address/${address}?chain=atlantic-2`;
+        return `https://basescan.org/address/${address}`;
     }
   };
 

@@ -23,7 +23,6 @@ import { mapCategoryToEnumIndex } from '@/utils/general/create-duels';
 
 import PositionSelector from './position-selector';
 import { calculateTimeLeft } from '@/utils/time';
-// import { base, baseSepolia, sei, seiTestnet } from 'viem/chains';
 import { FlashDuelsViewFacetABI } from '@/abi/FlashDuelsViewFacet';
 interface BuyOrderProps {
   duelId: string;

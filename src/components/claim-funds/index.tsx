@@ -47,10 +47,40 @@ const ClaimFunds: FC = () => {
   const { data: earningsData } = useReadContract({
     abi: FlashDuelsViewFacetABI,
     functionName: 'getAllTimeEarnings',
-    address: SERVER_CONFIG.getContractAddresses(chainId).DIAMOND as Hex,
+    address:
+      address && chainId ? (SERVER_CONFIG.getContractAddresses(chainId).DIAMOND as Hex) : undefined,
     args: [address],
     chainId: chainId,
   });
+
+  // Add logging for chain and contract changes
+  useEffect(() => {
+    if (!address || !chainId) return;
+
+    const contractAddress = SERVER_CONFIG.getContractAddresses(chainId).DIAMOND;
+    console.log('Chain/Contract Debug:', {
+      chainId,
+      chainName: SERVER_CONFIG.getChainName(chainId),
+      contractAddress,
+      userAddress: address,
+      earningsData: earningsData?.toString(),
+      isContractAddressValid: !!contractAddress && contractAddress !== 'undefined',
+    });
+  }, [chainId, address, earningsData]);
+
+  // Add validation for contract address
+  useEffect(() => {
+    if (!chainId) return;
+
+    try {
+      const contractAddress = SERVER_CONFIG.getContractAddresses(chainId).DIAMOND;
+      if (!contractAddress || contractAddress === 'undefined') {
+        console.error(`Invalid contract address for chain ${chainId}:`, contractAddress);
+      }
+    } catch (error) {
+      console.error(`Error getting contract address for chain ${chainId}:`, error);
+    }
+  }, [chainId]);
 
   const { isLoading: isWithdrawing } = useWaitForTransactionReceipt({
     hash: txHash,
@@ -59,10 +89,25 @@ const ClaimFunds: FC = () => {
 
   // Update earnings when data changes
   useEffect(() => {
+    // Reset earnings when chain changes
+    setEarnings('0');
+
     if (earningsData) {
-      setEarnings(formatTokenAmount(earningsData as bigint, chainId, defaultSymbol));
+      const formattedEarnings = formatTokenAmount(earningsData as bigint, chainId, defaultSymbol);
+      console.log('Updating earnings:', {
+        chainId,
+        rawEarnings: earningsData.toString(),
+        formattedEarnings,
+        defaultSymbol,
+      });
+      setEarnings(formattedEarnings);
     }
   }, [earningsData, chainId, defaultSymbol]);
+
+  // Reset amount when chain changes
+  useEffect(() => {
+    setAmount('');
+  }, [chainId]);
 
   // Function to trim to 4 decimal places without rounding
   const trimToFourDecimals = (value: string): string => {
@@ -132,6 +177,8 @@ const ClaimFunds: FC = () => {
     try {
       setIsLoading(true);
       setTxHash(undefined);
+
+      console.log('chainId', chainId);
 
       console.log(
         'parseTokenAmount(amount, chainId)',

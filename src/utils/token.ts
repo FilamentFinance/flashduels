@@ -4,7 +4,7 @@ import { CREDITS } from '@/abi/CREDITS';
 import { SERVER_CONFIG } from '@/config/server-config';
 // import { SEI_TESTNET_CHAIN_ID } from '@/constants/app';
 import { Hex, parseUnits, formatUnits } from 'viem';
-import { base, sei, seiTestnet } from 'viem/chains';
+import { base, baseSepolia, sei, seiTestnet } from 'viem/chains';
 import { useWriteContract, useChainId } from 'wagmi';
 
 // export const REQUIRED_ALLOWANCE = BigInt(5 * 10 ** 6);
@@ -113,10 +113,10 @@ export const TOKEN_DECIMALS: Record<number, Record<string, number>> = {
     USDC: 6,
     CRD: 18,
   },
-  // [baseSepolia.id]: {
-  //   USDC: 6,
-  //   CRD: 18,
-  // },
+  [baseSepolia.id]: {
+    USDC: 6,
+    CRD: 18,
+  },
   // Add other chains here
 };
 
@@ -124,7 +124,6 @@ export const TOKEN_DECIMALS: Record<number, Record<string, number>> = {
 export const DEFAULT_TOKEN_DECIMALS: Record<string, number> = {
   USDC: 6,
   CRD: 18,
-  FDCRD: 18,
 };
 
 // Default token symbol from env or fallback to USDC

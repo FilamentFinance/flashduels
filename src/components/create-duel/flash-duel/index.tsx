@@ -36,7 +36,6 @@ import { usePublicClient } from 'wagmi';
 import { formatUnits } from 'ethers';
 import { Hex } from 'viem';
 import { CREDITS } from '@/abi/CREDITS';
-// import { base, baseSepolia, sei, seiTestnet } from 'viem/chains';
 
 type FlashDuelFormProps = {
   onBack: () => void;
