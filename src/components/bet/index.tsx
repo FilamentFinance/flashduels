@@ -1,6 +1,6 @@
 'use client';
 
-import { baseApiClient } from '@/config/api-client';
+import { useApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
 // import { useTotalBets } from '@/hooks/useTotalBets';
 import { useTotalBetAmounts } from '@/hooks/useTotalBetAmounts';
@@ -11,7 +11,7 @@ import { ArrowLeft } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { FC, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useAccount } from 'wagmi';
+import { useAccount, useChainId } from 'wagmi';
 import ErrorState from './error-state';
 import Header from './header';
 import LoadingSkeleton from './loading-skeleton';
@@ -26,16 +26,18 @@ const Bet: FC = () => {
   const id = searchParams.get('duelId');
   const router = useRouter();
   const dispatch = useDispatch();
+  const { cryptoAsset } = useSelector((state: RootState) => state.price);
   const selectedPosition = useSelector((state: RootState) => state.bet.selectedPosition);
   const currentPrice = useSelector((state: RootState) => state.price.price);
-  const { cryptoAsset } = useSelector((state: RootState) => state.price);
-  const [duel, setDuel] = useState<NewDuelItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [duel, setDuel] = useState<NewDuelItem | null>(null);
   const [yesBets, setYesBets] = useState<OptionBetType[]>([]);
   const [noBets, setNoBets] = useState<OptionBetType[]>([]);
   const [timeLeft, setTimeLeft] = useState<string>('');
   const { address } = useAccount();
+  const chainId = useChainId();
+  const apiClient = useApiClient(chainId);
 
   const getIconPath = (symbol: string | undefined) => {
     if (!symbol) return '/empty-string.png';
@@ -48,8 +50,8 @@ const Bet: FC = () => {
   const fetchDuel = async () => {
     try {
       setLoading(true);
-      const response = await baseApiClient.get(
-        `${SERVER_CONFIG.API_URL}/user/duels/get-duel-by-id/${id}`,
+      const response = await apiClient.get(
+        `${SERVER_CONFIG.getApiUrl(chainId)}/user/duels/get-duel-by-id/${id}`,
         {
           params: {
             userAddress: address?.toLowerCase(),
@@ -76,8 +78,9 @@ const Bet: FC = () => {
       setLoading(false);
     }
   };
+
   useEffect(() => {
-    const socket = new WebSocket(`${SERVER_CONFIG.API_WS_URL}/betWebSocket?duelId=${id}`);
+    const socket = new WebSocket(`${SERVER_CONFIG.getApiWsUrl(chainId)}/betWebSocket?duelId=${id}`);
 
     socket.onopen = function () {
       console.log('Connected to the WebSocket server');
@@ -107,7 +110,7 @@ const Bet: FC = () => {
     return () => {
       socket.close();
     };
-  }, [id]);
+  }, [id, chainId]);
 
   useEffect(() => {
     if (id) {
@@ -118,7 +121,7 @@ const Bet: FC = () => {
       setError('Duel ID is missing from the query parameters.');
       setLoading(false);
     }
-  }, [id, address]);
+  }, [id, address, chainId, apiClient]);
 
   useEffect(() => {
     if (duel) {

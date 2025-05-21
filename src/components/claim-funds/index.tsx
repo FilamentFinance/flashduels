@@ -47,10 +47,40 @@ const ClaimFunds: FC = () => {
   const { data: earningsData } = useReadContract({
     abi: FlashDuelsViewFacetABI,
     functionName: 'getAllTimeEarnings',
-    address: SERVER_CONFIG.DIAMOND as Hex,
+    address:
+      address && chainId ? (SERVER_CONFIG.getContractAddresses(chainId).DIAMOND as Hex) : undefined,
     args: [address],
     chainId: chainId,
   });
+
+  // Add logging for chain and contract changes
+  useEffect(() => {
+    if (!address || !chainId) return;
+
+    const contractAddress = SERVER_CONFIG.getContractAddresses(chainId).DIAMOND;
+    console.log('Chain/Contract Debug:', {
+      chainId,
+      chainName: SERVER_CONFIG.getChainName(chainId),
+      contractAddress,
+      userAddress: address,
+      earningsData: earningsData?.toString(),
+      isContractAddressValid: !!contractAddress && contractAddress !== 'undefined',
+    });
+  }, [chainId, address, earningsData]);
+
+  // Add validation for contract address
+  useEffect(() => {
+    if (!chainId) return;
+
+    try {
+      const contractAddress = SERVER_CONFIG.getContractAddresses(chainId).DIAMOND;
+      if (!contractAddress || contractAddress === 'undefined') {
+        console.error(`Invalid contract address for chain ${chainId}:`, contractAddress);
+      }
+    } catch (error) {
+      console.error(`Error getting contract address for chain ${chainId}:`, error);
+    }
+  }, [chainId]);
 
   const { isLoading: isWithdrawing } = useWaitForTransactionReceipt({
     hash: txHash,
@@ -59,10 +89,25 @@ const ClaimFunds: FC = () => {
 
   // Update earnings when data changes
   useEffect(() => {
+    // Reset earnings when chain changes
+    setEarnings('0');
+
     if (earningsData) {
-      setEarnings(formatTokenAmount(earningsData as bigint, chainId, defaultSymbol));
+      const formattedEarnings = formatTokenAmount(earningsData as bigint, chainId, defaultSymbol);
+      console.log('Updating earnings:', {
+        chainId,
+        rawEarnings: earningsData.toString(),
+        formattedEarnings,
+        defaultSymbol,
+      });
+      setEarnings(formattedEarnings);
     }
   }, [earningsData, chainId, defaultSymbol]);
+
+  // Reset amount when chain changes
+  useEffect(() => {
+    setAmount('');
+  }, [chainId]);
 
   // Function to trim to 4 decimal places without rounding
   const trimToFourDecimals = (value: string): string => {
@@ -133,6 +178,8 @@ const ClaimFunds: FC = () => {
       setIsLoading(true);
       setTxHash(undefined);
 
+      console.log('chainId', chainId);
+
       console.log(
         'parseTokenAmount(amount, chainId)',
         parseTokenAmount(amount, chainId, defaultSymbol),
@@ -145,18 +192,18 @@ const ClaimFunds: FC = () => {
         'parseTokenAmount(MAX_AUTO_WITHDRAW.toString(), chainId)',
         parseTokenAmount(MAX_AUTO_WITHDRAW.toString(), chainId, defaultSymbol),
       );
-      console.log('SERVER_CONFIG.DIAMOND', SERVER_CONFIG.DIAMOND);
 
+      const DIAMOND_ADDRESS = SERVER_CONFIG.getContractAddresses(chainId).DIAMOND;
       const maxAutoWithdraw = await publicClient?.readContract({
         abi: FlashDuelsViewFacetABI,
-        address: SERVER_CONFIG.DIAMOND as Hex,
+        address: DIAMOND_ADDRESS as Hex,
         functionName: 'getMaxAutoWithdraw',
       });
       console.log('getMaxAutoWithdraw', maxAutoWithdraw);
 
       const tx = await writeContractAsync({
         abi: FlashDuelCoreFacetAbi,
-        address: SERVER_CONFIG.DIAMOND as Hex,
+        address: DIAMOND_ADDRESS as Hex,
         functionName: 'withdrawEarnings',
         args: [parseTokenAmount(amount, chainId, defaultSymbol).toString()],
       });
@@ -191,7 +238,7 @@ const ClaimFunds: FC = () => {
               };
               const { requestId, user, amount, timestamp } = args;
               console.log({ requestId, user, amount, timestamp });
-              await fetch(`${SERVER_CONFIG.API_URL}/user/withdrawal-requests`, {
+              await fetch(`${SERVER_CONFIG.getApiUrl(chainId)}/user/withdrawal-requests`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

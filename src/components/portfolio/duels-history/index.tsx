@@ -1,10 +1,10 @@
 'use client';
 
-import { baseApiClient } from '@/config/api-client';
+import { useApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
 import { ActiveDuels, TableDuel } from '@/types/duel';
 import React, { FC } from 'react';
-import { useAccount } from 'wagmi';
+import { useAccount, useChainId } from 'wagmi';
 import { DuelShimmer } from '../duels/duel-shimmer';
 import { DuelState } from '../duels/duel-state';
 import { DuelRow } from './duel-row';
@@ -19,6 +19,8 @@ const DuelsHistory: FC = () => {
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const { address } = useAccount();
+  const chainId = useChainId();
+  const apiClient = useApiClient(chainId);
 
   const getDuelsData = async () => {
     if (!address) return;
@@ -26,8 +28,8 @@ const DuelsHistory: FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await baseApiClient.post(
-        `${SERVER_CONFIG.API_URL}/user/portfolio/table/duels`,
+      const response = await apiClient.post(
+        `${SERVER_CONFIG.getApiUrl(chainId)}/user/portfolio/table/duels`,
         { userAddress: address.toLowerCase() },
         {
           headers: {
@@ -56,8 +58,8 @@ const DuelsHistory: FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await baseApiClient.post(
-        `${SERVER_CONFIG.API_URL}/user/portfolio/table/history`,
+      const response = await apiClient.post(
+        `${SERVER_CONFIG.getApiUrl(chainId)}/user/portfolio/table/history`,
         { userAddress: address.toLowerCase() },
         {
           headers: {
@@ -90,7 +92,7 @@ const DuelsHistory: FC = () => {
     } else if (activeTab === 'history') {
       getHistoryData();
     }
-  }, [activeTab, address]);
+  }, [activeTab, address, chainId, apiClient]);
 
   const activeData = activeTab === 'duels' ? duels : history;
 

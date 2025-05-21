@@ -19,7 +19,7 @@ const useTotalBets = (duelId: string) => {
   } = useReadContract({
     abi: FlashDuelsViewFacetABI,
     functionName: 'getTotalBetsOnOption',
-    address: SERVER_CONFIG.DIAMOND as Hex,
+    address: SERVER_CONFIG.getContractAddresses(chainId).DIAMOND as Hex,
     chainId: chainId,
     args: [duelId, 0, 'LONG'],
   });
@@ -33,7 +33,7 @@ const useTotalBets = (duelId: string) => {
   } = useReadContract({
     abi: FlashDuelsViewFacetABI,
     functionName: 'getTotalBetsOnOption',
-    address: SERVER_CONFIG.DIAMOND as Hex,
+    address: SERVER_CONFIG.getContractAddresses(chainId).DIAMOND as Hex,
     chainId: chainId,
     args: [duelId, 1, 'SHORT'],
   });

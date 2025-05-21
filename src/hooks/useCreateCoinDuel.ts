@@ -82,10 +82,11 @@ const useCreateCoinDuel = () => {
   };
 
   const createCryptoDuel = async (params: CreateCoinDuelParams): Promise<CreateCoinDuelResult> => {
+    const DIAMOND_ADDRESS = SERVER_CONFIG.getContractAddresses(chainId).DIAMOND;
     try {
       setStatus(TRANSACTION_STATUS.CREATING_DUEL);
       const tx = await writeContractAsync({
-        address: SERVER_CONFIG.DIAMOND as Hex,
+        address: DIAMOND_ADDRESS as Hex,
         abi: FlashDuelCoreFacetAbi,
         functionName: 'requestCreateCryptoDuel',
         chainId: chainId,
@@ -112,7 +113,7 @@ const useCreateCoinDuel = () => {
       const logs = await publicClient?.getLogs({
         fromBlock: receipt?.blockNumber,
         toBlock: receipt?.blockNumber,
-        address: SERVER_CONFIG.DIAMOND as Hex,
+        address: DIAMOND_ADDRESS as Hex,
       });
       let duelId: string | undefined;
       let createdAt: number | undefined;

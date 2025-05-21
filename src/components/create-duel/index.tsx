@@ -16,8 +16,8 @@ import { Button } from '@/shadcn/components/ui/button';
 import { cn } from '@/shadcn/lib/utils';
 import { DuelType } from '@/types/duel';
 import { FC, useState, useEffect } from 'react';
-import { useAccount, useReadContracts } from 'wagmi';
-import { baseApiClient } from '@/config/api-client';
+import { useAccount, useChainId, useReadContracts } from 'wagmi';
+import { useApiClient } from '@/config/api-client';
 import { SERVER_CONFIG } from '@/config/server-config';
 import { toast } from '@/shadcn/components/ui/use-toast';
 import CreateCoinDuel from './coin-duel';
@@ -32,6 +32,8 @@ const MAX_PROTOCOL_LIQUIDITY = 200000;
 
 const CreateDuel: FC = () => {
   const { address } = useAccount();
+  const chainId = useChainId();
+  const apiClient = useApiClient(chainId);
   const [selectedDuel, setSelectedDuel] = useState<DuelType | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -47,7 +49,7 @@ const CreateDuel: FC = () => {
     contracts: [
       {
         abi: FlashDuelsViewFacetABI,
-        address: SERVER_CONFIG.DIAMOND as `0x${string}`,
+        address: SERVER_CONFIG.getContractAddresses(chainId).DIAMOND as `0x${string}`,
         functionName: 'getTotalProtocolLiquidity',
       },
     ],
@@ -71,11 +73,14 @@ const CreateDuel: FC = () => {
     }
     try {
       setLoading(true);
-      const response = await baseApiClient.get(`${SERVER_CONFIG.API_URL}/user/creator/status`, {
-        params: {
-          address: address.toLowerCase(),
+      const response = await apiClient.get(
+        `${SERVER_CONFIG.getApiUrl(chainId)}/user/creator/status`,
+        {
+          params: {
+            address: address.toLowerCase(),
+          },
         },
-      });
+      );
       setIsCreator(response.data.isCreator);
       setRequestStatus(response.data.request);
     } catch (error) {
@@ -90,7 +95,7 @@ const CreateDuel: FC = () => {
   // Call checkCreatorStatus when the component mounts or address changes
   useEffect(() => {
     checkCreatorStatus();
-  }, [address]);
+  }, [address, chainId, apiClient]);
 
   const handleDuelSelect = (type: DuelType) => {
     setSelectedDuel(type);

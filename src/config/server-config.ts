@@ -1,69 +1,224 @@
+import { getContractAddresses, getRpcUrl, getChainName } from './contract-config';
+import { base, baseSepolia, sei, seiTestnet } from 'viem/chains';
+
 interface ServerConfig {
   PRODUCTION: boolean;
-  RPC_URL: string;
-  API_URL: string;
-  API_WS_URL: string;
-  TIMER_BOT_URL: string;
-  DIAMOND: string;
-  FLASH_USDC: string;
-  CREDIT_CONTRACT: string;
   WALLET_CONNECT_PROJECT_ID: string;
-  INVITE_ONLY_URL: string;
-  BOT_PRIVATE_KEY: string;
   DEFAULT_TOKEN_SYMBOL?: string;
+  getRpcUrl: (chainId: number) => string;
+  getApiUrl: (chainId: number) => string;
+  getApiWsUrl: (chainId: number) => string;
+  getTimerBotUrl: (chainId: number) => string;
+  getInviteOnlyUrl: (chainId: number) => string;
+  getBotPrivateKey: (chainId: number) => string;
+  getContractAddresses: (chainId: number) => {
+    DIAMOND: string;
+    FLASH_USDC: string;
+    CREDIT_CONTRACT: string;
+  };
+  getChainName: (chainId: number) => string;
 }
 
 const createConfig = (): ServerConfig => {
   const production = process.env.NEXT_PUBLIC_PRODUCTION === 'true';
-  const rpcUrl = process.env.NEXT_PUBLIC_RPC_URL as string;
-  const apiProduction = process.env.NEXT_PUBLIC_API_PRODUCTION as string;
-  const apiWsProduction = process.env.NEXT_PUBLIC_API_WS_PRODUCTION as string;
-  const api = process.env.NEXT_PUBLIC_API as string;
-  const apiWs = process.env.NEXT_PUBLIC_API_WS as string;
-  const timerBotUrl = process.env.NEXT_PUBLIC_TIMER_BOT_URL as string;
-  const timerBotUrlProduction = process.env.NEXT_PUBLIC_TIMER_BOT_URL_PRODUCTION as string;
-  const diamond = process.env.NEXT_PUBLIC_DIAMOND as string;
-  const flashUsdc = process.env.NEXT_PUBLIC_FLASH_USDC as string;
-  const creditContract = process.env.NEXT_PUBLIC_FLASH_CREDITS as string;
+  // Required in both environments
   const walletConnectProjectId = process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID as string;
-  const inviteOnlyLocalUrl = process.env.NEXT_PUBLIC_INVITE_ONLY_LOCAL_URL as string;
-  const inviteOnlyProductionUrl = process.env.NEXT_PUBLIC_INVITE_ONLY_PRODUCTION_URL as string;
-  const botPrivateKey = process.env.NEXT_PUBLIC_PRIVATE_KEY as string;
   const defaultTokenSymbol = process.env.NEXT_PUBLIC_DEFAULT_TOKEN_SYMBOL;
+
   // Validate required environment variables
   const missingVars = [];
-  if (!rpcUrl) missingVars.push('NEXT_PUBLIC_RPC_URL');
-  if (!apiProduction) missingVars.push('NEXT_PUBLIC_API_PRODUCTION');
-  if (!apiWsProduction) missingVars.push('NEXT_PUBLIC_API_WS_PRODUCTION');
-  if (!api) missingVars.push('NEXT_PUBLIC_API');
-  if (!apiWs) missingVars.push('NEXT_PUBLIC_API_WS');
-  if (!timerBotUrl) missingVars.push('NEXT_PUBLIC_TIMER_BOT_URL');
-  if (!timerBotUrlProduction) missingVars.push('NEXT_PUBLIC_TIMER_BOT_URL_PRODUCTION');
-  if (!diamond) missingVars.push('NEXT_PUBLIC_DIAMOND');
-  if (!flashUsdc) missingVars.push('NEXT_PUBLIC_FLASH_USDC');
-  if (!creditContract) missingVars.push('NEXT_PUBLIC_FLASH_CREDITS');
   if (!walletConnectProjectId) missingVars.push('NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID');
-  if (!inviteOnlyProductionUrl) missingVars.push('NEXT_PUBLIC_INVITE_ONLY_PRODUCTION_URL');
-  if (!inviteOnlyLocalUrl) missingVars.push('NEXT_PUBLIC_INVITE_ONLY_LOCAL_URL');
-  if (!botPrivateKey) missingVars.push('NEXT_PUBLIC_PRIVATE_KEY');
+  if (!defaultTokenSymbol) missingVars.push('NEXT_PUBLIC_DEFAULT_TOKEN_SYMBOL');
+
   if (missingVars.length > 0) {
     throw new Error(`Missing required environment variables: ${missingVars.join(', ')}`);
   }
 
+  // Function to get chain-specific API URL
+  const getApiUrl = (chainId: number): string => {
+    // const url = getEnvUrl(chainId, 'NEXT_PUBLIC_API_PRODUCTION', 'NEXT_PUBLIC_API');
+    let url = '';
+    if (production) {
+      // Production environment
+      switch (chainId) {
+        case sei.id:
+          url = process.env["NEXT_PUBLIC_API_SEI"] || '';
+        case seiTestnet.id:
+          url = process.env["NEXT_PUBLIC_API_SEI_TESTNET"] || '';
+        case base.id:
+          url = process.env["NEXT_PUBLIC_API_BASE"] || '';
+        case baseSepolia.id:
+          url = process.env["NEXT_PUBLIC_API_BASE_SEPOLIA"] || '';
+        default:
+          url = process.env["NEXT_PUBLIC_API_BASE"] || '';
+      }
+    } else {
+      // Development environment
+      url = process.env["NEXT_PUBLIC_API"] || '';
+    }
+    if (!url) {
+      throw new Error(`Missing API URL for chain ${chainId}`);
+    }
+    return url;
+  };
+
+  // Function to get chain-specific WebSocket URL
+  const getApiWsUrl = (chainId: number): string => {
+    let url = '';
+    if (production) {
+      // Production environment
+      switch (chainId) {
+        case sei.id:
+          url = process.env["NEXT_PUBLIC_API_WS_SEI"] || '';
+        case seiTestnet.id:
+          url = process.env["NEXT_PUBLIC_API_WS_SEI_TESTNET"] || '';
+        case base.id:
+          url = process.env["NEXT_PUBLIC_API_WS_BASE"] || '';
+        case baseSepolia.id:
+          url = process.env["NEXT_PUBLIC_API_WS_BASE_SEPOLIA"] || '';
+        default:
+          url = process.env["NEXT_PUBLIC_API_WS_BASE"] || '';
+      }
+    } else {
+      // Development environment
+      url = process.env["NEXT_PUBLIC_API_WS"] || '';
+    }
+    if (!url) {
+      throw new Error(`Missing WebSocket URL for chain ${chainId}`);
+    }
+    return url;
+  };
+
+  // Function to get chain-specific Timer Bot URL
+  const getTimerBotUrl = (chainId: number): string => {
+    let url = '';
+    if (production) {
+      // Production environment
+      switch (chainId) {
+        case sei.id:
+          url = process.env["NEXT_PUBLIC_TIMER_BOT_URL_SEI"] || '';
+        case seiTestnet.id:
+          url = process.env["NEXT_PUBLIC_TIMER_BOT_URL_SEI_TESTNET"] || '';
+        case base.id:
+          url = process.env["NEXT_PUBLIC_TIMER_BOT_URL_BASE"] || '';
+        case baseSepolia.id:
+          url = process.env["NEXT_PUBLIC_TIMER_BOT_URL_BASE_SEPOLIA"] || '';
+        default:
+          url = process.env["NEXT_PUBLIC_TIMER_BOT_URL_BASE"] || '';
+      }
+    } else {
+      // Development environment
+      url = process.env["NEXT_PUBLIC_TIMER_BOT_URL"] || '';
+    }
+    if (!url) {
+      throw new Error(`Missing Timer Bot URL for chain ${chainId}`);
+    }
+    return url;
+  };
+
+  // Function to get chain-specific Invite Only URL
+  const getInviteOnlyUrl = (chainId: number): string => {
+    let url = '';
+    if (production) {
+      // Production environment
+      switch (chainId) {
+        case sei.id:
+          url = process.env["NEXT_PUBLIC_INVITE_ONLY_URL_SEI"] || '';
+        case seiTestnet.id:
+          url = process.env["NEXT_PUBLIC_INVITE_ONLY_URL_SEI_TESTNET"] || '';
+        case base.id:
+          url = process.env["NEXT_PUBLIC_INVITE_ONLY_URL_BASE"] || '';
+        case baseSepolia.id:
+          url = process.env["NEXT_PUBLIC_INVITE_ONLY_URL_BASE_SEPOLIA"] || '';
+        default:
+          url = process.env["NEXT_PUBLIC_INVITE_ONLY_URL_BASE"] || '';
+      }
+    } else {
+      // Development environment
+      url = process.env["NEXT_PUBLIC_INVITE_ONLY_URL"] || '';
+    }
+    if (!url) {
+      throw new Error(`Missing Invite Only URL for chain ${chainId}`);
+    }
+    return url;
+  };
+
+  // Function to get chain-specific Bot Private Key
+  const getBotPrivateKey = (chainId: number): string => {
+    let key = '';
+    if (production) {
+      // Production environment
+      switch (chainId) {
+        case sei.id:
+          key = process.env["NEXT_PUBLIC_BOT_PRIVATE_KEY_SEI"] || '';
+        case seiTestnet.id:
+          key = process.env["NEXT_PUBLIC_BOT_PRIVATE_KEY_SEI_TESTNET"] || '';
+        case base.id:
+          key = process.env["NEXT_PUBLIC_BOT_PRIVATE_KEY_BASE"] || '';
+        case baseSepolia.id:
+          key = process.env["NEXT_PUBLIC_BOT_PRIVATE_KEY_BASE_SEPOLIA"] || '';
+        default:
+          key = process.env["NEXT_PUBLIC_BOT_PRIVATE_KEY_BASE"] || '';
+      }
+    } else {
+      // Development environment
+      switch (chainId) {
+        case seiTestnet.id:
+          key = process.env["NEXT_PUBLIC_BOT_PRIVATE_KEY_LOCAL_SEI_TESTNET"] || '';
+        case baseSepolia.id:
+          key = process.env["NEXT_PUBLIC_BOT_PRIVATE_KEY_LOCAL_BASE_SEPOLIA"] || '';
+        default:
+          key = process.env["NEXT_PUBLIC_BOT_PRIVATE_KEY_LOCAL_BASE_SEPOLIA"] || '';
+      }
+    }
+    if (!key) {
+      throw new Error(`Missing Bot Private Key for chain ${chainId}`);
+    }
+    return key;
+  };
+
+  // // Function to get environment-specific URL based on chain ID
+  // const getEnvUrl = (chainId: number, prodKey: string, devKey: string): string => {
+  //   if (production) {
+  //     // Production environment
+  //     switch (chainId) {
+  //       case sei.id:
+  //         return process.env[`${prodKey}_SEI`] || process.env[prodKey] || '';
+  //       case seiTestnet.id:
+  //         return process.env[`${prodKey}_SEI_TESTNET`] || process.env[prodKey] || '';
+  //       case base.id:
+  //         return process.env[`${prodKey}_BASE`] || process.env[prodKey] || '';
+  //       default:
+  //         return process.env[prodKey] || '';
+  //     }
+  //   } else {
+  //     // Development environment
+  //     switch (chainId) {
+  //       case sei.id:
+  //         return process.env[`${devKey}_SEI`] || process.env[devKey] || '';
+  //       case seiTestnet.id:
+  //         return process.env[`${devKey}_SEI_TESTNET`] || process.env[devKey] || '';
+  //       case base.id:
+  //         return process.env[`${devKey}_BASE`] || process.env[devKey] || '';
+  //       default:
+  //         return process.env[devKey] || '';
+  //     }
+  //   }
+  // };
+
 
   return {
     PRODUCTION: production,
-    RPC_URL: rpcUrl,
-    API_URL: production ? apiProduction : api,
-    API_WS_URL: production ? apiWsProduction : apiWs,
-    TIMER_BOT_URL: production ? timerBotUrlProduction : timerBotUrl,
-    DIAMOND: diamond,
-    FLASH_USDC: flashUsdc,
-    CREDIT_CONTRACT: creditContract,
     WALLET_CONNECT_PROJECT_ID: walletConnectProjectId,
-    INVITE_ONLY_URL: production ? inviteOnlyProductionUrl : inviteOnlyLocalUrl,
-    BOT_PRIVATE_KEY: botPrivateKey,
     DEFAULT_TOKEN_SYMBOL: defaultTokenSymbol,
+    getRpcUrl,
+    getApiUrl,
+    getApiWsUrl,
+    getTimerBotUrl,
+    getInviteOnlyUrl,
+    getBotPrivateKey,
+    getContractAddresses,
+    getChainName,
   };
 };
 
