@@ -15,6 +15,10 @@ import DuelStatus from './duel-status';
 import SearchDuels from './search-duel';
 import { CreatorVerify } from '../creator/verify';
 import { useChainId } from 'wagmi';
+import { Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+
+const ITEMS_PER_PAGE = 6;
+
 const Markets: FC = () => {
   const router = useRouter();
   const chainId = useChainId();
@@ -22,9 +26,11 @@ const Markets: FC = () => {
   const [activeStatus, setActiveStatus] = useState<TDualStatus>(DUEL_STATUS.LIVE);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState(CATEGORIES['ALL_DUELS'].title); // Category state
+  const [isLoading, setIsLoading] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
   const dispatch = useDispatch();
   const [isVerifyModalOpen, setVerifyModalOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -35,6 +41,7 @@ const Markets: FC = () => {
 
   useEffect(() => {
     let isSubscribed = true;
+    setIsLoading(true);
 
     const connectWebSocket = () => {
       wsRef.current = new WebSocket(`${SERVER_CONFIG.getApiWsUrl(chainId)}/ws`);
@@ -122,15 +129,18 @@ const Markets: FC = () => {
           }
 
           setDuels(filteredDuels);
+          setIsLoading(false);
         }
       };
 
       wsRef.current.onerror = function (error) {
         console.log('WebSocket Error:', error);
+        setIsLoading(false);
       };
 
       wsRef.current.onclose = function () {
         console.log('Disconnected from the WebSocket server');
+        setIsLoading(false);
       };
     };
 
@@ -145,6 +155,7 @@ const Markets: FC = () => {
       wsRef.current = null;
     };
   }, [activeStatus]);
+
   const filteredDuels = duels.filter((duel) => {
     const matchesSearch = duel.title.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory =
@@ -154,6 +165,25 @@ const Markets: FC = () => {
           (activeCategory === 'Formula One (F1)' && duel.category.toLowerCase() === 'formula_one');
     return matchesSearch && matchesCategory;
   });
+
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredDuels.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedDuels = filteredDuels.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeStatus, activeCategory, searchQuery]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // Scroll to top of the duels list
+    const duelsContainer = document.querySelector('.duels-container');
+    if (duelsContainer) {
+      duelsContainer.scrollTop = 0;
+    }
+  };
 
   const handleDuelRowClick = (duelId: string, status: number) => {
     // Do nothing if the duel is completed (status === 1)
@@ -190,15 +220,20 @@ const Markets: FC = () => {
     dispatch(setSelectedPosition(position));
     router.push(`/bet?duelId=${duelId}`);
   };
+
   return (
-    <div className="px-4">
+    <div className="px-4 min-h-screen flex flex-col">
       <Categories activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
       <div className="flex justify-between items-center">
         <DuelStatus activeStatus={activeStatus} setActiveStatus={setActiveStatus} />
         <SearchDuels placeholder="Search Duels" onSearch={setSearchQuery} />
       </div>
-      {filteredDuels.length === 0 ? (
-        <div className="h-[60vh] flex justify-center items-center">
+      {isLoading ? (
+        <div className="flex-1 flex justify-center items-center">
+          <Loader2 className="h-8 w-8 animate-spin text-flashDualPink" />
+        </div>
+      ) : filteredDuels.length === 0 ? (
+        <div className="flex-1 flex justify-center items-center">
           <Duels
             data={filteredDuels}
             handleDuelRowClick={handleDuelRowClick}
@@ -206,15 +241,42 @@ const Markets: FC = () => {
           />
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-h-[calc(100vh-200px)] overflow-y-auto mt-2">
-          <Duels
-            data={filteredDuels}
-            handleDuelRowClick={handleDuelRowClick}
-            onPositionSelect={handlePositionSelect}
-          />
+        <div className="relative flex-1">
+          {filteredDuels.length > 0 && (
+            <>
+              {currentPage > 1 && (
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  className="absolute left-0 top-[30%] -translate-y-1/2 -translate-x-12 bg-zinc-800/80 hover:bg-zinc-700/80 p-2 rounded-full shadow-lg transition-all duration-200"
+                >
+                  <ChevronLeft className="h-6 w-6 text-white" />
+                </button>
+              )}
+              {currentPage < totalPages && (
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  className="absolute right-0 top-[30%] -translate-y-1/2 translate-x-12 bg-zinc-800/80 hover:bg-zinc-700/80 p-2 rounded-full shadow-lg transition-all duration-200"
+                >
+                  <ChevronRight className="h-6 w-6 text-white" />
+                </button>
+              )}
+            </>
+          )}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-h-[calc(100vh-80px)] overflow-y-auto mt-2 pb-16 duels-container">
+            <Duels
+              data={paginatedDuels}
+              handleDuelRowClick={handleDuelRowClick}
+              onPositionSelect={handlePositionSelect}
+            />
+          </div>
         </div>
       )}
       {isVerifyModalOpen && <CreatorVerify onClose={() => setVerifyModalOpen(false)} />}
+      { (
+        <div className="fixed bottom-4 right-4 md:right-12 bg-zinc-800/80 px-3 py-1 rounded-full text-sm shadow-lg z-50 text-zinc-300">
+          Page {currentPage} of {totalPages}
+        </div>
+      )}
     </div>
   );
 };
