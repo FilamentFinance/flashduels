@@ -33,6 +33,7 @@ import { useToast } from '@/shadcn/components/ui/use-toast';
 import { NetworkToast } from '@/components/ui/network-toast';
 import { NETWORK_ICONS, DEFAULT_NETWORK_ICON } from '@/constants/app/networks';
 // import { sei } from 'viem/chains';
+import { cn } from '@/shadcn/lib/utils';
 
 const Navbar: FC = () => {
   const { address, isConnected } = useAccount();
@@ -233,7 +234,15 @@ const Navbar: FC = () => {
                     </div>
                   )}
                   <WalletModal>
-                    <Button className="rounded-default bg-glass hover:bg-glass-hover border border-zinc-800 transition-colors duration-200 hover:shadow-lg flex items-center gap-2 mr-7">
+                    <Button
+                      className={cn(
+                        'rounded-default bg-glass border border-zinc-800 transition-colors duration-200 flex items-center gap-2 mr-7',
+                        isAuthenticated
+                          ? 'hover:bg-glass-hover hover:shadow-lg cursor-pointer'
+                          : 'opacity-50 cursor-not-allowed',
+                      )}
+                      disabled={!isAuthenticated}
+                    >
                       {isLoading ? (
                         <Loader2 className="h-3 w-3 animate-spin mr-1" />
                       ) : (
@@ -243,15 +252,16 @@ const Navbar: FC = () => {
                       )}
                       <span className="border-l border-zinc-700 pl-2 flex flex-col items-center">
                         <span>{truncateAddress(address)}</span>
-                        {isCreator ? (
-                          <span className="text-xs text-center font-medium text-green-500 mt-1">
-                            ✓ Verified Creator
-                          </span>
-                        ) : (
-                          <span className="text-xs text-center font-medium text-yellow-500 mt-1">
-                            ⚠️ Not Verified Creator
-                          </span>
-                        )}
+                        {isAuthenticated &&
+                          (isCreator ? (
+                            <span className="text-xs text-center font-medium text-green-500 mt-1">
+                              ✓ Verified Creator
+                            </span>
+                          ) : (
+                            <span className="text-xs text-center font-medium text-yellow-500 mt-1">
+                              ⚠️ Not Verified Creator
+                            </span>
+                          ))}
                       </span>
                     </Button>
                   </WalletModal>

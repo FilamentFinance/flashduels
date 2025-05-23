@@ -28,7 +28,7 @@ const queryClient = new QueryClient();
 const config = getDefaultConfig({
   appName: 'Flash Duels',
   projectId: SERVER_CONFIG.WALLET_CONNECT_PROJECT_ID,
-  chains: [sei, seiTestnet, base, baseSepolia],
+  chains: [base, sei, baseSepolia, seiTestnet],
   // chains: [sei, base],
   // chains: [seiTestnet, baseSepolia],
   wallets: [

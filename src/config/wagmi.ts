@@ -10,15 +10,15 @@ import { SERVER_CONFIG } from './server-config';
 
 export const config = createConfig({
   // chains: [selectedChain],
-  chains: [sei, seiTestnet, base, baseSepolia],
+  chains: [base, sei, baseSepolia, seiTestnet],
   // chains: [seiTestnet, baseSepolia],
   // chains: [sei, base],
   transports: {
-    [sei.id]: http(SERVER_CONFIG.getRpcUrl(sei.id)),
-    [seiTestnet.id]: http(SERVER_CONFIG.getRpcUrl(seiTestnet.id)),
     [base.id]: http(SERVER_CONFIG.getRpcUrl(base.id)),
+    [sei.id]: http(SERVER_CONFIG.getRpcUrl(sei.id)),
     // [base.id]: http(base.rpcUrls.default.http[0]),
     [baseSepolia.id]: http(SERVER_CONFIG.getRpcUrl(baseSepolia.id)),
+    [seiTestnet.id]: http(SERVER_CONFIG.getRpcUrl(seiTestnet.id)),
     // [baseSepolia.id]: http(baseSepolia.rpcUrls.default.http[0]),
   },
   connectors: [injected()],

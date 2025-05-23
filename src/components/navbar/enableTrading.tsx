@@ -64,7 +64,15 @@ const EnableTrading: FC = () => {
 
           // Setup interceptors if user is already authenticated
           setupInterceptors(address, disconnect, () => dispatch(clearAuth()), chainId);
+        } else {
+          // If any of the required values are missing, clear auth state
+          dispatch(clearAuth());
+          // Force reload to ensure clean state
+          window.location.reload();
         }
+      } else {
+        // If not authenticated, clear any existing auth state
+        dispatch(clearAuth());
       }
     }
   }, [address, dispatch, disconnect, chainId, apiClient]);
