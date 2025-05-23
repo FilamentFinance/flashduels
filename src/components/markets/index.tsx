@@ -16,6 +16,7 @@ import SearchDuels from './search-duel';
 import { CreatorVerify } from '../creator/verify';
 import { useChainId } from 'wagmi';
 import { Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+import NoDuels from './duals/no-duels';
 
 const ITEMS_PER_PAGE = 6;
 
@@ -42,6 +43,7 @@ const Markets: FC = () => {
   useEffect(() => {
     let isSubscribed = true;
     setIsLoading(true);
+    setDuels([]); // Clear existing duels when switching tabs
 
     const connectWebSocket = () => {
       wsRef.current = new WebSocket(`${SERVER_CONFIG.getApiWsUrl(chainId)}/ws`);
@@ -228,17 +230,14 @@ const Markets: FC = () => {
         <DuelStatus activeStatus={activeStatus} setActiveStatus={setActiveStatus} />
         <SearchDuels placeholder="Search Duels" onSearch={setSearchQuery} />
       </div>
-      {isLoading ? (
-        <div className="flex-1 flex justify-center items-center">
-          <Loader2 className="h-8 w-8 animate-spin text-flashDualPink" />
+      {isLoading || !wsRef.current ? (
+        <div className="flex-1 flex flex-col justify-center items-center gap-4">
+          <Loader2 className="h-12 w-12 animate-spin text-flashDualPink" />
+          <p className="text-zinc-400">Loading duels...</p>
         </div>
       ) : filteredDuels.length === 0 ? (
         <div className="flex-1 flex justify-center items-center">
-          <Duels
-            data={filteredDuels}
-            handleDuelRowClick={handleDuelRowClick}
-            onPositionSelect={handlePositionSelect}
-          />
+          <NoDuels />
         </div>
       ) : (
         <div className="relative flex-1">
@@ -272,7 +271,7 @@ const Markets: FC = () => {
         </div>
       )}
       {isVerifyModalOpen && <CreatorVerify onClose={() => setVerifyModalOpen(false)} />}
-      { (
+      {filteredDuels.length > 0 && (
         <div className="fixed bottom-4 right-4 md:right-12 bg-zinc-800/80 px-3 py-1 rounded-full text-sm shadow-lg z-50 text-zinc-300">
           Page {currentPage} of {totalPages}
         </div>
