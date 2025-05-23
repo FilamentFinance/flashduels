@@ -13,28 +13,25 @@ const Banner: FC = () => {
           'linear-gradient(to bottom, transparent, black 12px, black calc(100% - 12px), transparent)',
       }}
     >
-      <div className="flex justify-between h-[120px]">
-        <div className="flex-1 px-6 flex flex-col justify-center h-full">
-          <p className="text-gray-100 font-extrabold text-xl leading-tight">
-            Formula1 Markets for Monaco GP 2025 are live on{' '}
-            <span className="text-blue-400 inline-flex items-center">
-              Base{' '}
-              <Image
-                src="/chain-icons/base.png"
-                alt="Base Chain Icon"
-                width={18}
-                height={18}
-                className="ml-1"
-              />
-            </span>
-          </p>
-          <p className="text-[#F19ED2] font-extrabold text-xl leading-tight mt-1">
-            <span className="text-green-400">Long</span>/<span className="text-red-400">Short</span>{' '}
-            your favourite markets
-          </p>
-          <p className="text-gray-300 text-sm font-semibold flex items-center mt-2">
-            To create markets, please apply for the Creator
-            role {/* <ArrowRight className="ml-1 w-4 h-4" /> */}
+      <div className="flex justify-between h-[140px]">
+        <div className="flex-1 px-8 flex flex-col justify-center h-full space-y-2">
+          <div className="flex items-center">
+            <p className="text-gray-100 font-bold text-base">
+              Formula1 Markets for Monaco GP 2025 are live on{' '}
+              <span className="inline-flex items-center align-middle">
+                <Image
+                  src="/chain-icons/base.png"
+                  alt="Base Chain Icon"
+                  width={15}
+                  height={15}
+                  className="mx-1"
+                />
+                <span className="text-blue-400">Base</span>.
+              </span>
+            </p>
+          </div>
+          <p className="text-gray-100 font-medium text-sm leading-relaxed">
+            Long/Short your favourite markets. To create markets, please apply for the Creator role.
           </p>
         </div>
         <div className="w-1/2 h-full relative flex gap-px rounded-r-lg overflow-hidden">
