@@ -17,6 +17,7 @@ import { CreatorVerify } from '../creator/verify';
 import { useChainId } from 'wagmi';
 import { Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import NoDuels from './duals/no-duels';
+import Banner from './banner';
 
 const ITEMS_PER_PAGE = 6;
 
@@ -235,6 +236,7 @@ const Markets: FC = () => {
 
   return (
     <div className="px-4 min-h-screen flex flex-col">
+      <Banner />
       <Categories activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
       <div className="flex justify-between items-center">
         <DuelStatus activeStatus={activeStatus} setActiveStatus={setActiveStatus} />
