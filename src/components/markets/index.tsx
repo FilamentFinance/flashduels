@@ -146,17 +146,27 @@ const Markets: FC = () => {
       };
     };
 
-    connectWebSocket();
+    // Close existing WebSocket connection if it exists
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify({ type: 'UNSUBSCRIBE', channel: 'duels' }));
+      wsRef.current.close();
+    }
+
+    // Add a small delay before connecting to show the loading state
+    const timeoutId = setTimeout(() => {
+      connectWebSocket();
+    }, 300);
 
     return () => {
       isSubscribed = false;
+      clearTimeout(timeoutId);
       if (wsRef.current?.readyState === WebSocket.OPEN) {
         wsRef.current.send(JSON.stringify({ type: 'UNSUBSCRIBE', channel: 'duels' }));
         wsRef.current.close();
       }
       wsRef.current = null;
     };
-  }, [activeStatus]);
+  }, [activeStatus, chainId]);
 
   const filteredDuels = duels.filter((duel) => {
     const matchesSearch = duel.title.toLowerCase().includes(searchQuery.toLowerCase());
