@@ -243,14 +243,14 @@ const EnableTrading: FC = () => {
             <h3 className="font-semibold text-white">Before you start, please know:</h3>
             <ul className="list-decimal list-inside space-y-2">
               <li>
-                You maintain full control of your wallet—just be sure to back up your keys. We
+                You maintain full control of your wallet&mdash;just be sure to back up your keys. We
                 recommend starting with a test wallet to get comfortable.
               </li>
               <li>
-                While FlashDuels has been audited, it's still in beta. Begin with a modest amount of
-                ETH to cover network gas fees, and explore cautiously, knowing you can always step
-                back. Currently, the application uses a mock "CRD" token—no real assets are
-                involved.
+                While FlashDuels has been audited, it&apos;s still in beta. Begin with a modest
+                amount of ETH to cover network gas fees, and explore cautiously, knowing you can
+                always step back. Currently, the application uses a mock &quot;CRD&quot;
+                token&mdash;no real assets are involved.
               </li>
               <li>
                 The interface may still have some quirks as we continue refining it. Please
