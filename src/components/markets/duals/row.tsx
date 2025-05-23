@@ -6,6 +6,8 @@ import Image from 'next/image';
 import { FC, useEffect, useState } from 'react';
 import ChanceProgress from './chance-progress';
 import YesNoButton from './yes-no-button';
+import ShareButton from './share-button';
+import CopyLinkButton from './copy-link-button';
 
 interface Props {
   data: Duel;
@@ -196,6 +198,10 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
                 </div>
               </div>
             )}
+            <div className="flex items-center gap-1">
+              <CopyLinkButton duelId={duelId} />
+              <ShareButton duelId={duelId} title={title} />
+            </div>
           </div>
         </div>
       </div>

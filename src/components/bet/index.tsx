@@ -217,7 +217,7 @@ const Bet: FC = () => {
 
       {/* Header */}
       <div className="flex justify-between items-stretch gap-4">
-        <div className="flex w-full flex-col">
+        <div className="flex w-full lg:w-2/3 flex-col">
           <Header
             title={
               duel.betString ??
@@ -243,16 +243,21 @@ const Bet: FC = () => {
           <OrderBook yesBets={yesBets} noBets={noBets} handleBuyOrders={handleBuyOrders} />
           <OrdersHistory duelId={duel.duelId} />
         </div>
-        <PlaceOrder
-          asset={duel.token}
-          duelId={duel.duelId}
-          endsIn={duel.endsIn}
-          token={duel.token}
-          triggerPrice={duel.triggerPrice}
-          winCondition={duel.winCondition}
-          duelType={duel.duelType}
-          duration={duel.endsIn}
-        />
+
+        {/* Right Column - Place Order Card */}
+        <div className="w-full lg:w-1/3 lg:sticky lg:top-6">
+          <PlaceOrder
+            asset={duel.token}
+            duelId={duel.duelId}
+            endsIn={duel.endsIn}
+            token={duel.token}
+            triggerPrice={duel.triggerPrice}
+            winCondition={duel.winCondition}
+            duelType={duel.duelType}
+            duration={duel.endsIn}
+            duelStatus={duel.status}
+          />
+        </div>
       </div>
     </div>
   );
