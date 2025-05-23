@@ -27,8 +27,9 @@ const ErrorState = ({ error }: ErrorStateProps) => (
             <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center">
               <div className="w-6 h-6 rounded-full bg-red-500/20" />
             </div>
-            <h2 className="text-xl font-semibold text-red-400">Error Loading Duel</h2>
-            <p className="text-zinc-400 max-w-md">{error}</p>
+            {/* <h2 className="text-xl font-semibold text-red-400">Error Loading Duel</h2> */}
+            {/* <p className="text-zinc-400 max-w-md">{error}</p> */}
+            <p className="text-zinc-400 font-semibold max-w-md">{error}</p>
           </div>
         </div>
       </div>
