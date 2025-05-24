@@ -190,8 +190,8 @@ export const useNetworkConfig = () => {
     const getSupportedNetworks = useCallback(() => {
         return [
             { id: sei.id, name: 'Sei Mainnet' },
-            // { id: seiTestnet.id, name: 'Sei Testnet' },
             { id: base.id, name: 'Base Mainnet' },
+            { id: seiTestnet.id, name: 'Sei Testnet' },
             // { id: baseSepolia.id, name: 'Base Sepolia' },
         ];
     }, []);
