@@ -4,11 +4,14 @@ import { useCallback, useEffect, useState } from 'react';
 import { useReadContract, useChainId } from 'wagmi';
 import { formatUnits, Hex } from 'viem';
 import { SERVER_CONFIG } from '@/config/server-config';
+import { useAccount } from 'wagmi';
 
 const useTotalBets = (duelId: string) => {
   const [totalBetYes, setTotalBetYes] = useState<number | null>(null);
   const [totalBetNo, setTotalBetNo] = useState<number | null>(null);
+  const [uniqueParticipants, setUniqueParticipants] = useState<number>(0);
   const chainId = useChainId();
+  const { address } = useAccount();
 
   // Fetch total bets for "LONG" option
   const {
@@ -46,6 +49,42 @@ const useTotalBets = (duelId: string) => {
     if (noData !== undefined) setTotalBetNo(noOption);
   }, [yesData, noData, yesOption, noOption]);
 
+  // Fetch unique participants from backend
+  useEffect(() => {
+    const fetchUniqueParticipants = async () => {
+      try {
+        const token = address ? localStorage.getItem(`Bearer_${address.toLowerCase()}`) : null;
+        if (!token) {
+          console.log("No token found, skipping fetch");
+          return;
+        }
+        const response = await axios.get(`${SERVER_CONFIG.getApiUrl(chainId)}/user/bets/unique-participants/${duelId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'x-address': address
+          }
+        });
+        setUniqueParticipants(response.data.uniqueParticipants);
+      } catch (error) {
+        console.error('Error fetching unique participants:', error);
+        if (axios.isAxiosError(error)) {
+          console.error('Axios error details:', {
+            status: error.response?.status,
+            data: error.response?.data,
+            url: error.config?.url
+          });
+        }
+      }
+    };
+
+    if (duelId && address) {
+      console.log("duelId and address exist, calling fetchUniqueParticipants");
+      fetchUniqueParticipants();
+    } else {
+      console.log("Missing duelId or address, skipping fetch");
+    }
+  }, [duelId, chainId, address]);
+
   const refetchTotalBets = useCallback(() => {
     refetchYes();
     refetchNo();
@@ -59,6 +98,7 @@ const useTotalBets = (duelId: string) => {
     isYesLoading,
     isNoLoading,
     refetchTotalBets,
+    uniqueParticipants
   };
 };
 
