@@ -1,5 +1,6 @@
 import InviteGate from '@/components/invite-only/invite-gate';
 import Navbar from '@/components/navbar';
+import { MobileWarning } from '@/components/MobileWarning';
 import PriceWrapper from '@/providers/price-wrapper';
 import { ReduxProvider } from '@/providers/redux';
 import { Providers } from '@/providers/wagmi';
@@ -37,6 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   <Navbar />
                   <main className="flex-1 mx-auto w-full px-4 sm:px-6 lg:px-8">{children}</main>
                   <Toaster />
+                  <MobileWarning />
                 </div>
               </PriceWrapper>
             </InviteGate>
