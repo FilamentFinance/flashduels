@@ -318,6 +318,7 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
             id="triggerPrice"
             name="triggerPrice"
             type="number"
+            min="0"
             placeholder="Enter Trigger Price"
             className="bg-[#1C1C1C] text-sm border-none h-8 w-64 rounded-lg placeholder:text-zinc-500"
             required
