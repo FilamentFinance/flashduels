@@ -83,10 +83,11 @@ const Table: FC<Props> = ({ data, isLoading, isError, activeTab }) => {
           <div className="text-center">P&L (CRD)</div>
         </div>
       ) : (
-        <div className="grid grid-cols-[80px_220px_130px_130px_135px] p-2 bg-zinc-900/50 text-zinc-400 text-sm items-center">
+        // <div className="grid grid-cols-[80px_220px_130px_130px_135px] p-2 bg-zinc-900/50 text-zinc-400 text-sm items-center">
+        <div className="grid grid-cols-[80px_230px_210px_230px] p-2 bg-zinc-900/50 text-zinc-400 text-sm items-center">
           <div className="text-center">{LEADERBOARD.TABLE.HEADERS.RANK}</div>
           <div className="text-center">{LEADERBOARD.TABLE.HEADERS.ACCOUNT}</div>
-          <div className="text-center">Fees Paid</div>
+          {/* <div className="text-center">Fees Paid</div> */}
           <div className="text-center">Earnings</div>
           <div className="text-center">{LEADERBOARD.TABLE.HEADERS.PROFIT}</div>
         </div>
@@ -170,7 +171,8 @@ const Table: FC<Props> = ({ data, isLoading, isError, activeTab }) => {
             ) : (
               <div
                 key={item.address}
-                className="grid grid-cols-[80px_220px_130px_130px_140px] p-2 text-sm hover:bg-zinc-900/40 transition-colors duration-200 items-center"
+                // className="grid grid-cols-[80px_220px_130px_130px_140px] p-2 text-sm hover:bg-zinc-900/40 transition-colors duration-200 items-center"
+                className="grid grid-cols-[80px_220px_220px_220px] p-2 text-sm hover:bg-zinc-900/40 transition-colors duration-200 items-center"
               >
                 <div className="text-center text-zinc-400 flex items-center justify-center">
                   <span className={item.rank <= 3 ? 'text-xl' : ''}>
@@ -204,13 +206,13 @@ const Table: FC<Props> = ({ data, isLoading, isError, activeTab }) => {
                     {isCopied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
                   </Button>
                 </div>
-                <div className="text-right tabular-nums flex items-center justify-center">
+                {/* <div className="text-right tabular-nums flex items-center justify-center">
                   {'feesPaid' in item &&
                   item.feesPaid !== undefined &&
                   !isNaN(Number(item.feesPaid))
                     ? formatNumber(item.feesPaid)
                     : '0.00'}
-                </div>
+                </div> */}
                 <div className="text-right tabular-nums flex items-center justify-center">
                   {'earnings' in item &&
                   item.earnings !== undefined &&
