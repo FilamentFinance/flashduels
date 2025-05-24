@@ -283,8 +283,8 @@ const Markets: FC = () => {
         </div>
       )}
       {isVerifyModalOpen && <CreatorVerify onClose={() => setVerifyModalOpen(false)} />}
-      {filteredDuels.length > 0 && (
-        <div className="fixed bottom-4 right-4 md:right-12 bg-zinc-800/80 px-3 py-1 rounded-full text-sm shadow-lg z-50 text-zinc-300">
+      {filteredDuels.length > 0 && totalPages > 1 && (
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-zinc-800/80 px-3 py-1 rounded-full text-sm shadow-lg z-50 text-zinc-300">
           Page {currentPage} of {totalPages}
         </div>
       )}
