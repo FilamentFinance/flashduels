@@ -128,7 +128,7 @@ export const DuelRow: React.FC<DuelRowProps> = ({
       <div className="w-[15%] text-center">{Number(quantity).toFixed(2)}</div>
       <div className="w-[15%] text-center">${Number(avgPrice).toFixed(2)}</div>
       <div className="w-[15%] text-center">${Number(amount).toFixed(2)}</div>
-      <div className="w-[20%] text-center">{activeTab === 'history' ? `${pnl}` : time}</div>
+      <div className="w-[20%] text-center">{activeTab === 'history' ? `${pnl ?? 0}` : time}</div>
       <div className={cn(winner !== undefined ? 'w-[20%] text-center ' : 'hidden')}>
         {winner === 0 || winner === 1 ? (
           winner === 0 ? (
