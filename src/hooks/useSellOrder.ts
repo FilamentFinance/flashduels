@@ -133,10 +133,10 @@ const useSellOrder = (
       if (!optionTokenAddress || !address) {
         throw new Error('Option token address or user address not available');
       }
-      console.log('quantityin sellOrder', quantity);
+      // console.log('quantityin sellOrder', quantity);
       // Convert quantity to wei (18 decimals)
       const quantityInWei = parseUnits(quantity, 18);
-      console.log('quantityInWei', quantityInWei);
+      // console.log('quantityInWei', quantityInWei);
 
       // Calculate total value in USDC (6 decimals) @CRD is 18 dec
       // const totalValue = parseUnits((Number(price) * Number(quantity)).toString(), 6);
@@ -174,18 +174,18 @@ const useSellOrder = (
       if (!isApprovalSuccess) {
         throw new Error('Token approval failed');
       }
-      console.log('isApprovalSuccess', isApprovalSuccess);
+      // console.log('isApprovalSuccess', isApprovalSuccess);
       setStatus(TRANSACTION_STATUS.APPROVAL_COMPLETE);
       toast({
         title: 'Approval Successful',
         description: 'Creating sell order...',
       });
       // }
-      console.log('before sellAsync');
+      // console.log('before sellAsync');
       // Execute the sell
       setStatus(TRANSACTION_STATUS.CREATING_DUEL);
       console.log('before sellTx', optionTokenAddress, duelId, optionIndex, quantityInWei, totalValue);
-      console.log('chainId', chainId);
+      // console.log('chainId', chainId);
       const sellTx = await sellAsync({
         abi: FlashDuelsMarketplaceFacet,
         address: DIAMOND_ADDRESS as Hex,
@@ -209,7 +209,7 @@ const useSellOrder = (
       if (receipt?.status !== 'success') {
         throw new Error('Transaction did not succeed');
       }
-      console.log('before for loop');
+      // console.log('before for loop');
       // Find and decode the SaleCreated event
       for (const log of receipt.logs) {
         try {
@@ -220,7 +220,7 @@ const useSellOrder = (
               data: log.data,
               topics: log.topics,
             });
-            console.log('decodedEvent', decodedEvent);
+            // console.log('decodedEvent', decodedEvent);
             if (decodedEvent.eventName === 'SaleCreated') {
               console.log('Found SaleCreated event:', decodedEvent);
 
@@ -254,13 +254,13 @@ const useSellOrder = (
           continue;
         }
       }
-      console.log('before throw');
+      // console.log('before throw');
       throw new Error('SaleCreated event not found in transaction logs');
     } catch (err: unknown) {
       return handleError(err);
     }
   };
-  console.log('before return.....');
+  // console.log('before return.....');
   return {
     sellOrder,
     txHash,

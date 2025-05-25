@@ -43,7 +43,7 @@ const ClaimFaucet: FC = () => {
       setMintLoading(true);
 
       const { success, error: mintError } = await mintFlashUSDC();
-      console.log({ error, txHash, status, isMintSuccess });
+      // console.log({ error, txHash, status, isMintSuccess });
 
       // Handle transaction status
       if (success && isMintSuccess) {

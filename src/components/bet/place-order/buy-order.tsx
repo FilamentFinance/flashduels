@@ -320,7 +320,7 @@ const BuyOrder: FC<BuyOrderProps> = ({
         description: 'Token approval completed. Placing your order.',
       });
 
-      console.log('duelCategory: ', duel?.category);
+      // console.log('duelCategory: ', duel?.category);
       console.log('Market buy: ', {
         duelId,
         betAmount: amount,

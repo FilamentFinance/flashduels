@@ -167,16 +167,16 @@ const DuelsHistory: FC = () => {
             <div className="flex flex-col w-full">
               {activeData.length > 0 ? (
                 activeData.map((item, index) => {
-                  console.log('Rendering duel item:', {
-                    index,
-                    duelDetails: item.duelDetails,
-                    yesBet: item.yesBet,
-                    noBet: item.noBet,
-                    pnl: item.pnl,
-                    duelType: item.duelType,
-                    status: item.duelDetails.status,
-                    winner: item.duelDetails.winner,
-                  });
+                  // console.log('Rendering duel item:', {
+                  //   index,
+                  //   duelDetails: item.duelDetails,
+                  //   yesBet: item.yesBet,
+                  //   noBet: item.noBet,
+                  //   pnl: item.pnl,
+                  //   duelType: item.duelType,
+                  //   status: item.duelDetails.status,
+                  //   winner: item.duelDetails.winner,
+                  // });
 
                   return (
                     <React.Fragment key={index}>

@@ -56,13 +56,13 @@ const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice, duration }) 
   const chainId = useChainId();
   const apiClient = useApiClient(chainId);
 
-  console.log('amount before useSellOrder', amount);
-  console.log(
-    'selectedBet?.category ?? ',
-    selectedBet?.category,
-    'selectedBet?.index ?? ',
-    selectedBet?.index,
-  );
+  // console.log('amount before useSellOrder', amount);
+  // console.log(
+  //   'selectedBet?.category ?? ',
+  //   selectedBet?.category,
+  //   'selectedBet?.index ?? ',
+  //   selectedBet?.index,
+  // );
 
   const isShortDurationDuel = useMemo(() => {
     return duration !== undefined && duration < 0.5;
@@ -206,19 +206,19 @@ const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice, duration }) 
     try {
       setIsSelling(true);
       const result = await sellOrder();
-      console.log('Sell order result:', result);
+      // console.log('Sell order result:', result);
       if (!result.success) {
         throw new Error(result.error || 'Failed to place sell order');
       }
-      console.log('Sell order:', {
-        duelId,
-        address,
-        position: selectedPosition,
-        amount,
-        price,
-        betOptionId,
-        sellId: result.sellId,
-      });
+      // console.log('Sell order:', {
+      //   duelId,
+      //   address,
+      //   position: selectedPosition,
+      //   amount,
+      //   price,
+      //   betOptionId,
+      //   sellId: result.sellId,
+      // });
 
       await apiClient.post(
         `${SERVER_CONFIG.getApiUrl(chainId)}/user/betOption/sell`,
@@ -298,7 +298,7 @@ const SellOrder: FC<SellOrderProps> = ({ duelId, yesPrice, noPrice, duration }) 
       }));
       setBetsData(betsWithCategory);
 
-      console.log('Bets with category:', betsWithCategory);
+      // console.log('Bets with category:', betsWithCategory);
     } catch (error) {
       console.error('Error fetching bet:', error);
     }
