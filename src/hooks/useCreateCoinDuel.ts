@@ -15,8 +15,8 @@ export const REQUIRED_CREATE_DUEL_USDC = BigInt(5 * 10 ** 18); // crd 18
 interface CreateCoinDuelParams {
   symbol: string;
   options: string[];
-  minWager: number;
-  triggerPrice: number;
+  minWager: bigint;
+  triggerPrice: bigint;
   triggerType: number;
   winCondition: number;
   durationNumber: number;

@@ -137,7 +137,7 @@ export const DuelRow: React.FC<DuelRowProps> = ({
             <span className="text-red-500">SHORT</span>
           )
         ) : status === 5 ? (
-          <span className="text-neutral-400">CANCELLED</span>
+          <span className="text-orange-500">CANCELLED</span>
         ) : null}
       </div>
     </div>

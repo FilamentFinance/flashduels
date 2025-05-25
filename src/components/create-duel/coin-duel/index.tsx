@@ -34,7 +34,7 @@ import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { useAccount, useChainId, usePublicClient } from 'wagmi';
 import DuelInfo from '../duel-info';
 import { CREDITS } from '@/abi/CREDITS';
-import { formatUnits, Hex } from 'viem';
+import { formatUnits, Hex, parseUnits } from 'viem';
 import { Loader2 } from 'lucide-react';
 
 interface CoinDuelFormProps {
@@ -138,8 +138,11 @@ const CreateCoinDuel: FC<CoinDuelFormProps> = ({ onBack, onComplete }) => {
 
       // Continue with existing code
       const durationNumber = mapDurationToNumber(selectedDuration, 'coin');
-      const triggerPrice = Number(formData.triggerPrice) * 10 ** 8;
-      const minWager = Number(formData.triggerPrice) * 10 ** 6;
+      // const triggerPrice = Number(formData.triggerPrice) * 10 ** 8;
+      // const minWager = Number(formData.triggerPrice) * 10 ** 6;
+      // Convert trigger price to proper decimal format
+      const triggerPrice = parseUnits(formData.triggerPrice, 8) as bigint;
+      const minWager = parseUnits(formData.triggerPrice, 6) as bigint;
 
       const triggerType = 0;
       const winCondition = formData.winCondition === WIN_CONDITIONS.ABOVE ? 0 : 1;
