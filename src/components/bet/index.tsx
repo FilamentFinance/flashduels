@@ -117,7 +117,7 @@ const Bet: FC = () => {
     if (id) {
       fetchDuel();
       // Log the received position from Redux
-      // console.log('Received position from Redux:', selectedPosition);
+      console.log('Received position from Redux:', selectedPosition);
     } else {
       setError('Duel ID is missing from the query parameters.');
       setLoading(false);

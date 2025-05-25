@@ -194,11 +194,11 @@ const ClaimFunds: FC = () => {
       // );
 
       const DIAMOND_ADDRESS = SERVER_CONFIG.getContractAddresses(chainId).DIAMOND;
-      const maxAutoWithdraw = await publicClient?.readContract({
-        abi: FlashDuelsViewFacetABI,
-        address: DIAMOND_ADDRESS as Hex,
-        functionName: 'getMaxAutoWithdraw',
-      });
+      // const maxAutoWithdraw = await publicClient?.readContract({
+      //   abi: FlashDuelsViewFacetABI,
+      //   address: DIAMOND_ADDRESS as Hex,
+      //   functionName: 'getMaxAutoWithdraw',
+      // });
       // console.log('getMaxAutoWithdraw', maxAutoWithdraw);
 
       const tx = await writeContractAsync({
