@@ -21,7 +21,8 @@ const DuelsHistory: FC = () => {
   const { address } = useAccount();
   const chainId = useChainId();
   const apiClient = useApiClient(chainId);
-
+  const symbol = 'CRD';
+  const minWithdrawal = 5000;
   const getDuelsData = async () => {
     if (!address) return;
 
@@ -133,7 +134,16 @@ const DuelsHistory: FC = () => {
       {/* Table Section */}
       <div className="flex flex-col h-[calc(100%-3rem)] overflow-auto w-full">
         {activeTab === 'withdrawal' ? (
-          <WithdrawalHistory address={address} />
+          <>
+            <div className="px-4 py-2 text-sm italic text-center text-neutral-400 border-b border-neutral-800">
+              (Note: Withdrawal history is only available for transactions &gt;
+              <span className="font-bold">
+                {minWithdrawal} {symbol}
+              </span>
+              )
+            </div>
+            <WithdrawalHistory address={address} />
+          </>
         ) : (
           <>
             {/* Table Header */}
