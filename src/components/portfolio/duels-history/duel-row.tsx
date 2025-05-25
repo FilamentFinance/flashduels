@@ -130,12 +130,15 @@ export const DuelRow: React.FC<DuelRowProps> = ({
       <div className="w-[15%] text-center">${Number(amount).toFixed(2)}</div>
       <div className="w-[20%] text-center">{activeTab === 'history' ? `${pnl}` : time}</div>
       <div className={cn(winner !== undefined ? 'w-[20%] text-center ' : 'hidden')}>
-        {(winner === 0 || winner === 1) &&
-          (winner === 0 ? (
+        {winner === 0 || winner === 1 ? (
+          winner === 0 ? (
             <span className="text-green-500">LONG</span>
           ) : (
             <span className="text-red-500">SHORT</span>
-          ))}
+          )
+        ) : status === 5 ? (
+          <span className="text-neutral-400">CANCELLED</span>
+        ) : null}
       </div>
     </div>
   );

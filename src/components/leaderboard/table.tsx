@@ -78,9 +78,19 @@ const Table: FC<Props> = ({ data, isLoading, isError, activeTab }) => {
         <div className="grid grid-cols-[80px_220px_130px_130px_135px] p-2 bg-zinc-900/50 text-zinc-400 text-sm items-center">
           <div className="text-center">Rank</div>
           <div className="text-center">Account</div>
-          <div className="text-center">Total Traded Value</div>
-          <div className="text-center">Earnings</div>
-          <div className="text-center">P&L (CRD)</div>
+          <div className="text-center">
+            Total Traded Value
+            <div className="text-[11px] italic text-neutral-400">(Settled Duels)</div>
+          </div>
+          <div className="text-center">
+            Earnings
+            <div className="text-[11px] italic text-neutral-400">(Settled Duels)</div>
+          </div>
+
+          <div className="text-center">
+            P&L (CRD)
+            <div className="text-[11px] italic text-neutral-400">(Settled Duels)</div>
+          </div>
         </div>
       ) : (
         // <div className="grid grid-cols-[80px_220px_130px_130px_135px] p-2 bg-zinc-900/50 text-zinc-400 text-sm items-center">

@@ -445,7 +445,10 @@ const AccountDetails: FC = () => {
                 <div className="text-sm font-medium text-zinc-400">{accountData.totalBets}</div>
               </div>
               <div className="flex justify-between items-center">
-                <div className="text-sm text-zinc-500">Total Traded Value</div>
+                <div className="text-sm text-zinc-500">
+                  Total Traded Value
+                  <div className="text-[10px] italic text-neutral-400">(Settled &amp; Cancelled) Duels</div>
+                </div>
                 <div className="text-sm font-medium text-zinc-400">
                   {Number(accountData.positionValue ?? 0).toFixed(2)} {symbol}
                 </div>

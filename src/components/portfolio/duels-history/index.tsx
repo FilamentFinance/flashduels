@@ -172,6 +172,10 @@ const DuelsHistory: FC = () => {
                     duelDetails: item.duelDetails,
                     yesBet: item.yesBet,
                     noBet: item.noBet,
+                    pnl: item.pnl,
+                    duelType: item.duelType,
+                    status: item.duelDetails.status,
+                    winner: item.duelDetails.winner,
                   });
 
                   return (
