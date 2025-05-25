@@ -98,7 +98,10 @@ const Table: FC<Props> = ({ data, isLoading, isError, activeTab }) => {
           <div className="text-center">{LEADERBOARD.TABLE.HEADERS.RANK}</div>
           <div className="text-center">{LEADERBOARD.TABLE.HEADERS.ACCOUNT}</div>
           {/* <div className="text-center">Fees Paid</div> */}
-          <div className="text-center">Earnings</div>
+          <div className="text-center">
+            Earnings
+            <div className="text-[11px] italic text-neutral-400">(Settled Duels)</div>
+          </div>
           <div className="text-center">{LEADERBOARD.TABLE.HEADERS.PROFIT}</div>
         </div>
       )}
