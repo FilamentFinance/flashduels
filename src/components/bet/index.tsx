@@ -21,6 +21,8 @@ import PlaceOrder from './place-order';
 import { selectedCryptoAsset as setSelectedCryptoAsset } from '@/store/slices/priceSlice';
 import { truncateAddress } from '@/utils/general/getEllipsisTxt';
 
+const MAX_WS_RECONNECT_ATTEMPTS = 3;
+
 const Bet: FC = () => {
   const searchParams = useSearchParams();
   const id = searchParams.get('duelId');
@@ -38,6 +40,8 @@ const Bet: FC = () => {
   const { address } = useAccount();
   const chainId = useChainId();
   const apiClient = useApiClient(chainId);
+  const [wsReconnectAttempts, setWsReconnectAttempts] = useState(0);
+  const [wsError, setWsError] = useState<string | null>(null);
 
   const getIconPath = (symbol: string | undefined) => {
     if (!symbol) return '/empty-string.png';
@@ -81,37 +85,60 @@ const Bet: FC = () => {
   };
 
   useEffect(() => {
-    const socket = new WebSocket(`${SERVER_CONFIG.getApiWsUrl(chainId)}/betWebSocket?duelId=${id}`);
+    if (wsReconnectAttempts >= MAX_WS_RECONNECT_ATTEMPTS) {
+      setWsError(
+        'Failed to connect to live bet data. Please try refreshing the page or check your connection.',
+      );
+      return;
+    }
+    let socket: WebSocket | null = null;
+    let reconnectTimeout: NodeJS.Timeout | null = null;
+    let didUnmount = false;
 
-    socket.onopen = function () {
-      console.log('Connected to the WebSocket server');
-    };
+    function connect() {
+      socket = new WebSocket(`${SERVER_CONFIG.getApiWsUrl(chainId)}/betWebSocket?duelId=${id}`);
 
-    socket.onmessage = function (event) {
-      const message = JSON.parse(event.data);
-      const data = message.availableOptions;
+      socket.onopen = function () {
+        console.log('Connected to the WebSocket server');
+        setWsError(null);
+        setWsReconnectAttempts(0);
+      };
 
-      if (data) {
-        const yesBets = data.filter((bet: OptionBetType) => bet.betOption?.index === 0);
-        const noBets = data.filter((bet: OptionBetType) => bet.betOption?.index === 1);
-        setYesBets(yesBets);
-        setNoBets(noBets);
-      }
-    };
+      socket.onmessage = function (event) {
+        const message = JSON.parse(event.data);
+        const data = message.availableOptions;
+        if (data) {
+          const yesBets = data.filter((bet: OptionBetType) => bet.betOption?.index === 0);
+          const noBets = data.filter((bet: OptionBetType) => bet.betOption?.index === 1);
+          setYesBets(yesBets);
+          setNoBets(noBets);
+        }
+      };
 
-    socket.onerror = function (error) {
-      console.error('WebSocket Error:', error);
-    };
+      socket.onerror = function (error) {
+        console.error('WebSocket Error:', error);
+        if (!didUnmount) {
+          setWsReconnectAttempts((prev) => prev + 1);
+        }
+      };
 
-    socket.onclose = function () {
-      console.log('Disconnected from the WebSocket server');
-    };
+      socket.onclose = function () {
+        console.log('Disconnected from the WebSocket server');
+        if (!didUnmount && wsReconnectAttempts + 1 < MAX_WS_RECONNECT_ATTEMPTS) {
+          reconnectTimeout = setTimeout(connect, 1000 * Math.pow(2, wsReconnectAttempts));
+        }
+      };
+    }
+
+    connect();
 
     // Cleanup WebSocket on unmount
     return () => {
-      socket.close();
+      didUnmount = true;
+      if (reconnectTimeout) clearTimeout(reconnectTimeout);
+      if (socket) socket.close();
     };
-  }, [id, chainId]);
+  }, [id, chainId, wsReconnectAttempts]);
 
   useEffect(() => {
     if (id) {
@@ -161,6 +188,10 @@ const Bet: FC = () => {
 
   if (error || totalBetAmountsError || !duel) {
     return <ErrorState error={error || totalBetAmountsError || 'Duel not found'} />;
+  }
+
+  if (wsError) {
+    return <ErrorState error={wsError} />;
   }
 
   // Use the percentages directly from the hook

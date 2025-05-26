@@ -69,7 +69,7 @@ const Markets: FC = () => {
       if (message.allDuels) {
         const currentTime = Math.floor(Date.now() / 1000);
         const filteredDuels = message.allDuels
-          .filter((item: any) => {
+          .filter((item: NewDuelItem) => {
             const endTime = item.startAt! + item.endsIn;
 
             if (activeStatus === DUEL_STATUS.LIVE) {
@@ -87,7 +87,7 @@ const Markets: FC = () => {
             }
             return true;
           })
-          .map((item: any) => ({
+          .map((item: NewDuelItem) => ({
             title:
               item.betString ||
               `Will ${item.token} be ${item.winCondition === 0 ? 'ABOVE' : 'BELOW'} $${item.triggerPrice} ?`,
