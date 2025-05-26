@@ -43,17 +43,19 @@ export const useTotalBetAmounts = (duelId: string) => {
                 sharedSocket.close();
             }
 
-            const wsUrl = `${SERVER_CONFIG.getApiWsUrl(chainId)}/betWebSocket`;
+            const wsUrl = `${SERVER_CONFIG.getApiWsUrl(chainId)}/betWebSocket?duelId=${duelId}`;
             sharedSocket = new WebSocket(wsUrl);
 
             sharedSocket.onopen = () => {
                 console.log('WebSocket connected successfully');
                 reconnectAttempts = 0;
-                // Subscribe to all active duel IDs
-                const duelIds = Array.from(subscribers.keys());
-                if (duelIds.length > 0) {
-                    sharedSocket?.send(JSON.stringify({ type: 'subscribeToDuels', duelIds }));
-                }
+                // // Subscribe to all active duel IDs
+                // const duelIds = Array.from(subscribers.keys());
+                // if (duelIds.length > 0) {
+                //     sharedSocket?.send(JSON.stringify({ type: 'subscribeToDuels', duelIds }));
+                // }
+                setError(null);
+                setLoading(false);
             };
 
             sharedSocket.onmessage = (event) => {
@@ -70,20 +72,23 @@ export const useTotalBetAmounts = (duelId: string) => {
                 }
             };
 
-            sharedSocket.onerror = () => {
-                console.log('WebSocket error occurred');
+            sharedSocket.onerror = (error) => {
+                console.error('WebSocket error occurred:', error);
+                setError('WebSocket connection error');
             };
 
-            sharedSocket.onclose = () => {
-                console.log('WebSocket disconnected');
+            sharedSocket.onclose = (event) => {
+                console.log('WebSocket disconnected:', event.code, event.reason);
 
                 // Only attempt to reconnect if there are active subscribers
                 if (subscribers.size > 0 && reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
                     reconnectAttempts++;
                     const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), 10000);
+                    console.log(`Attempting to reconnect in ${delay}ms (attempt ${reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS})`);
                     reconnectTimeout = setTimeout(connectWebSocket, delay);
                 } else if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
                     console.log('Max reconnection attempts reached');
+                    setError('Failed to establish WebSocket connection after multiple attempts');
                     // Reset reconnection attempts after a longer delay
                     setTimeout(() => {
                         reconnectAttempts = 0;
@@ -95,7 +100,7 @@ export const useTotalBetAmounts = (duelId: string) => {
             setError('Failed to establish WebSocket connection');
             setLoading(false);
         }
-    }, [chainId]);
+    }, [chainId, duelId]);
 
     useEffect(() => {
         if (!duelId) return;
