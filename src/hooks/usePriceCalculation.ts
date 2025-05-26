@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 
 export type PriceRequestData = {
   markPrice?: number;
@@ -37,37 +37,30 @@ export const usePriceCalculation = ({
   totalBetYes,
   totalBetNo,
   duelId,
-  interval = 1000, // ms, for real-time updates
+  interval = 500, // Reduced to 500ms for more frequent updates
 }: PriceCalculationProps) => {
-  useEffect(() => {
+  const sendPriceRequest = useCallback(() => {
     if (!ws || ws.readyState !== WebSocket.OPEN) return;
 
-    const sendPriceRequest = () => {
-      if (asset) {
-        send({
-          markPrice: priceFormatted,
-          triggerPrice: Number(triggerPrice),
-          asset,
-          timePeriod: endsIn * 60,
-          winCondition,
-          totalYes: totalBetYes || 0,
-          totalNo: totalBetNo || 0,
-          duelId,
-        });
-      } else {
-        send({
-          T: Math.max(endsIn * 60, 1),
-          totalYes: totalBetYes || 0,
-          totalNo: totalBetNo || 0,
-          duelId,
-        });
-      }
-    };
-
-    sendPriceRequest();
-    const timer = setInterval(sendPriceRequest, interval);
-
-    return () => clearInterval(timer);
+    if (asset) {
+      send({
+        markPrice: priceFormatted,
+        triggerPrice: Number(triggerPrice),
+        asset,
+        timePeriod: endsIn * 60,
+        winCondition,
+        totalYes: totalBetYes || 0,
+        totalNo: totalBetNo || 0,
+        duelId,
+      });
+    } else {
+      send({
+        T: Math.max(endsIn * 60, 1),
+        totalYes: totalBetYes || 0,
+        totalNo: totalBetNo || 0,
+        duelId,
+      });
+    }
   }, [
     ws,
     ws?.readyState,
@@ -80,6 +73,27 @@ export const usePriceCalculation = ({
     totalBetNo,
     duelId,
     send,
-    interval,
   ]);
+
+  useEffect(() => {
+    if (!ws || ws.readyState !== WebSocket.OPEN) return;
+
+    // Send initial request
+    sendPriceRequest();
+
+    // Set up interval for updates
+    const timer = setInterval(sendPriceRequest, interval);
+
+    // Cleanup
+    return () => {
+      clearInterval(timer);
+    };
+  }, [ws, ws?.readyState, sendPriceRequest, interval]);
+
+  // Additional effect to handle WebSocket state changes
+  useEffect(() => {
+    if (ws?.readyState === WebSocket.OPEN) {
+      sendPriceRequest();
+    }
+  }, [ws?.readyState, sendPriceRequest]);
 };

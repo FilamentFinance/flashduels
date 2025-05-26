@@ -7,7 +7,7 @@ import { setSelectedPosition } from '@/store/slices/betSlice';
 import { Duel, NewDuelItem, Position, DuelStatus as TDualStatus } from '@/types/duel';
 import { truncateAddress } from '@/utils/general/getEllipsisTxt';
 import { useRouter } from 'next/navigation';
-import { FC, useEffect, useRef, useState } from 'react';
+import { FC, useEffect, useRef, useState, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import Categories from './categories';
 import Duels from './duals';
@@ -27,12 +27,15 @@ const Markets: FC = () => {
   const [duels, setDuels] = useState<Duel[]>([]);
   const [activeStatus, setActiveStatus] = useState<TDualStatus>(DUEL_STATUS.LIVE);
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeCategory, setActiveCategory] = useState(CATEGORIES['ALL_DUELS'].title); // Category state
+  const [activeCategory, setActiveCategory] = useState(CATEGORIES['ALL_DUELS'].title);
   const [isLoading, setIsLoading] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
   const dispatch = useDispatch();
   const [isVerifyModalOpen, setVerifyModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const reconnectAttemptsRef = useRef(0);
+  const MAX_RECONNECT_ATTEMPTS = 3;
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -41,133 +44,139 @@ const Markets: FC = () => {
     }
   }, []);
 
-  useEffect(() => {
-    let isSubscribed = true;
-    setIsLoading(true);
-    setDuels([]); // Clear existing duels when switching tabs
-
-    const connectWebSocket = () => {
-      wsRef.current = new WebSocket(`${SERVER_CONFIG.getApiWsUrl(chainId)}/ws`);
-
-      wsRef.current.onopen = function () {
-        console.log('Connected to the WebSocket server');
-        if (wsRef.current?.readyState === WebSocket.OPEN) {
-          wsRef.current.send(JSON.stringify({ type: 'SUBSCRIBE', channel: 'duels' }));
-        }
-      };
-
-      wsRef.current.onmessage = function (event) {
-        if (!isSubscribed) return;
-
-        const message = JSON.parse(event.data);
-        if (message.allDuels) {
-          const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
-          const filteredDuels = message.allDuels
-            .filter((item: NewDuelItem) => {
-              const endTime = item.startAt! + item.endsIn;
-
-              if (activeStatus === DUEL_STATUS.LIVE) {
-                // For FLASH_DUELS in LIVE section:
-                // Show if status is 0 (live) and end time hasn't been reached
-                if (item.duelType === 'FLASH_DUEL') {
-                  const endTime = (item.startAt || 0) + item.endsIn * 60 * 60;
-                  return item.status === 0 && endTime > currentTime;
-                }
-                // For other duels in LIVE section:
-                return item.status === 0;
-              } else if (activeStatus === DUEL_STATUS.BOOTSTRAPPING) {
-                return item.status === -1; // Only bootstrapping duels
-              } else if (activeStatus === DUEL_STATUS.COMPLETED) {
-                // console.log('Completed duels', item.status, item.createdAt);
-                return item.status === 1; // Only completed duels
-              } else if (activeStatus === DUEL_STATUS.YET_TO_BE_RESOLVED) {
-                // Only show FLASH_DUELS that have passed their end time but haven't been resolved
-                return item.duelType === 'FLASH_DUEL' && item.status === 0 && endTime < currentTime;
-              }
-              return true;
-            })
-            .map((item: NewDuelItem) => ({
-              title:
-                item.betString ||
-                `Will ${item.token} be ${item.winCondition === 0 ? 'ABOVE' : 'BELOW'} $${item.triggerPrice} ?`,
-              imageSrc: item.betIcon || 'empty-string',
-              volume: `$${item.totalBetAmount}`,
-              category: item.category,
-              status: item.status,
-              duelId: item.duelId,
-              duelType: item.duelType,
-              timeLeft: item.endsIn,
-              startAt: item.startAt || 0,
-              createdAt: item.createdAt,
-              percentage: 50,
-              createdBy: item.user.twitterUsername || truncateAddress(item.user.address),
-              creatorTwitterImage: item.user.twitterImageUrl,
-              token: item.token,
-              triggerPrice: item.triggerPrice,
-              totalBetAmount: item.totalBetAmount,
-              winCondition: item.winCondition,
-              winner: item.winner,
-            }));
-
-          // Sort completed duels from latest to oldest based on completion time
-          if (activeStatus === DUEL_STATUS.COMPLETED) {
-            filteredDuels.sort(
-              (a: { createdAt: number }, b: { createdAt: number }) => b.createdAt - a.createdAt,
-            );
-          }
-          // Sort bootstrapping and live duels from latest to oldest based on creation time
-          else if (
-            activeStatus === DUEL_STATUS.BOOTSTRAPPING ||
-            activeStatus === DUEL_STATUS.LIVE
-          ) {
-            filteredDuels.sort(
-              (a: { createdAt: number }, b: { createdAt: number }) => b.createdAt - a.createdAt,
-            );
-          }
-          // Sort yet to be resolved duels from latest to oldest based on creation time
-          else if (activeStatus === DUEL_STATUS.YET_TO_BE_RESOLVED) {
-            filteredDuels.sort(
-              (a: { createdAt: number }, b: { createdAt: number }) => b.createdAt - a.createdAt,
-            );
-          }
-
-          setDuels(filteredDuels);
-          setIsLoading(false);
-        }
-      };
-
-      wsRef.current.onerror = function (error) {
-        console.log('WebSocket Error:', error);
-        setIsLoading(false);
-      };
-
-      wsRef.current.onclose = function () {
-        console.log('Disconnected from the WebSocket server');
-        setIsLoading(false);
-      };
-    };
-
-    // Close existing WebSocket connection if it exists
+  const connectWebSocket = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify({ type: 'UNSUBSCRIBE', channel: 'duels' }));
+      return;
+    }
+
+    // Close existing connection if any
+    if (wsRef.current) {
       wsRef.current.close();
     }
 
-    // Add a small delay before connecting to show the loading state
-    const timeoutId = setTimeout(() => {
-      connectWebSocket();
-    }, 300);
+    wsRef.current = new WebSocket(`${SERVER_CONFIG.getApiWsUrl(chainId)}/ws`);
+
+    wsRef.current.onopen = function () {
+      console.log('Connected to the WebSocket server');
+      reconnectAttemptsRef.current = 0;
+      if (wsRef.current?.readyState === WebSocket.OPEN) {
+        wsRef.current.send(JSON.stringify({ type: 'SUBSCRIBE', channel: 'duels' }));
+      }
+    };
+
+    wsRef.current.onmessage = function (event) {
+      const message = JSON.parse(event.data);
+      if (message.allDuels) {
+        const currentTime = Math.floor(Date.now() / 1000);
+        const filteredDuels = message.allDuels
+          .filter((item: any) => {
+            const endTime = item.startAt! + item.endsIn;
+
+            if (activeStatus === DUEL_STATUS.LIVE) {
+              if (item.duelType === 'FLASH_DUEL') {
+                const endTime = (item.startAt || 0) + item.endsIn * 60 * 60;
+                return item.status === 0 && endTime > currentTime;
+              }
+              return item.status === 0;
+            } else if (activeStatus === DUEL_STATUS.BOOTSTRAPPING) {
+              return item.status === -1;
+            } else if (activeStatus === DUEL_STATUS.COMPLETED) {
+              return item.status === 1;
+            } else if (activeStatus === DUEL_STATUS.YET_TO_BE_RESOLVED) {
+              return item.duelType === 'FLASH_DUEL' && item.status === 0 && endTime < currentTime;
+            }
+            return true;
+          })
+          .map((item: any) => ({
+            title:
+              item.betString ||
+              `Will ${item.token} be ${item.winCondition === 0 ? 'ABOVE' : 'BELOW'} $${item.triggerPrice} ?`,
+            imageSrc: item.betIcon || 'empty-string',
+            volume: `$${item.totalBetAmount}`,
+            category: item.category,
+            status: item.status,
+            duelId: item.duelId,
+            duelType: item.duelType,
+            timeLeft: item.endsIn,
+            startAt: item.startAt || 0,
+            createdAt: item.createdAt,
+            percentage: 50,
+            createdBy: item.user.twitterUsername || truncateAddress(item.user.address),
+            creatorTwitterImage: item.user.twitterImageUrl,
+            token: item.token,
+            triggerPrice: item.triggerPrice,
+            totalBetAmount: item.totalBetAmount,
+            winCondition: item.winCondition,
+            winner: item.winner,
+          }));
+
+        // Sort completed duels from latest to oldest based on completion time
+        if (activeStatus === DUEL_STATUS.COMPLETED) {
+          filteredDuels.sort(
+            (a: { createdAt: number }, b: { createdAt: number }) => b.createdAt - a.createdAt,
+          );
+        }
+        // Sort bootstrapping and live duels from latest to oldest based on creation time
+        else if (activeStatus === DUEL_STATUS.BOOTSTRAPPING || activeStatus === DUEL_STATUS.LIVE) {
+          filteredDuels.sort(
+            (a: { createdAt: number }, b: { createdAt: number }) => b.createdAt - a.createdAt,
+          );
+        }
+        // Sort yet to be resolved duels from latest to oldest based on creation time
+        else if (activeStatus === DUEL_STATUS.YET_TO_BE_RESOLVED) {
+          filteredDuels.sort(
+            (a: { createdAt: number }, b: { createdAt: number }) => b.createdAt - a.createdAt,
+          );
+        }
+
+        setDuels(filteredDuels);
+        setIsLoading(false);
+      }
+    };
+
+    wsRef.current.onerror = function (error) {
+      console.log('WebSocket Error:', error);
+      setIsLoading(false);
+    };
+
+    wsRef.current.onclose = function () {
+      console.log('Disconnected from the WebSocket server');
+      setIsLoading(false);
+
+      // Only attempt to reconnect if we haven't reached max attempts
+      if (reconnectAttemptsRef.current < MAX_RECONNECT_ATTEMPTS) {
+        reconnectAttemptsRef.current++;
+        const delay = Math.min(1000 * Math.pow(2, reconnectAttemptsRef.current), 10000);
+        reconnectTimeoutRef.current = setTimeout(connectWebSocket, delay);
+      } else {
+        console.log('Max reconnection attempts reached');
+        // Reset reconnection attempts after a longer delay
+        setTimeout(() => {
+          reconnectAttemptsRef.current = 0;
+        }, 30000);
+      }
+    };
+  }, [chainId, activeStatus]);
+
+  useEffect(() => {
+    setIsLoading(true);
+    setDuels([]); // Clear existing duels when switching tabs
+
+    // Connect WebSocket
+    connectWebSocket();
 
     return () => {
-      isSubscribed = false;
-      clearTimeout(timeoutId);
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+        reconnectTimeoutRef.current = null;
+      }
       if (wsRef.current?.readyState === WebSocket.OPEN) {
         wsRef.current.send(JSON.stringify({ type: 'UNSUBSCRIBE', channel: 'duels' }));
         wsRef.current.close();
       }
       wsRef.current = null;
     };
-  }, [activeStatus, chainId]);
+  }, [activeStatus, connectWebSocket]);
 
   const filteredDuels = duels.filter((duel) => {
     const matchesSearch = duel.title.toLowerCase().includes(searchQuery.toLowerCase());

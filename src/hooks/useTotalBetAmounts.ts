@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { SERVER_CONFIG } from '@/config/server-config';
 import { useChainId } from 'wagmi';
 // import { formatUnits } from 'viem';
@@ -19,6 +19,9 @@ interface WebSocketMessage {
 // Shared WebSocket instance
 let sharedSocket: WebSocket | null = null;
 const subscribers = new Map<string, Set<(data: TotalBetAmounts) => void>>();
+let reconnectTimeout: NodeJS.Timeout | null = null;
+const MAX_RECONNECT_ATTEMPTS = 3;
+let reconnectAttempts = 0;
 
 export const useTotalBetAmounts = (duelId: string) => {
     const [totalYesAmount, setTotalYesAmount] = useState<number>(0);
@@ -29,7 +32,7 @@ export const useTotalBetAmounts = (duelId: string) => {
     const [error, setError] = useState<string | null>(null);
     const chainId = useChainId();
 
-    const connectWebSocket = () => {
+    const connectWebSocket = useCallback(() => {
         if (sharedSocket?.readyState === WebSocket.OPEN) {
             return;
         }
@@ -45,6 +48,7 @@ export const useTotalBetAmounts = (duelId: string) => {
 
             sharedSocket.onopen = () => {
                 console.log('WebSocket connected successfully');
+                reconnectAttempts = 0;
                 // Subscribe to all active duel IDs
                 const duelIds = Array.from(subscribers.keys());
                 if (duelIds.length > 0) {
@@ -67,20 +71,31 @@ export const useTotalBetAmounts = (duelId: string) => {
             };
 
             sharedSocket.onerror = () => {
-                console.log('WebSocket disconnected');
+                console.log('WebSocket error occurred');
             };
 
             sharedSocket.onclose = () => {
                 console.log('WebSocket disconnected');
-                // Attempt to reconnect after a delay
-                setTimeout(connectWebSocket, 1000);
+
+                // Only attempt to reconnect if there are active subscribers
+                if (subscribers.size > 0 && reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+                    reconnectAttempts++;
+                    const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), 10000);
+                    reconnectTimeout = setTimeout(connectWebSocket, delay);
+                } else if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
+                    console.log('Max reconnection attempts reached');
+                    // Reset reconnection attempts after a longer delay
+                    setTimeout(() => {
+                        reconnectAttempts = 0;
+                    }, 30000);
+                }
             };
         } catch (err) {
             console.error('Error creating WebSocket:', err);
             setError('Failed to establish WebSocket connection');
             setLoading(false);
         }
-    };
+    }, [chainId]);
 
     useEffect(() => {
         if (!duelId) return;
@@ -121,8 +136,18 @@ export const useTotalBetAmounts = (duelId: string) => {
                     }
                 }
             }
+
+            // If no more subscribers, close the WebSocket
+            if (subscribers.size === 0 && sharedSocket) {
+                if (reconnectTimeout) {
+                    clearTimeout(reconnectTimeout);
+                    reconnectTimeout = null;
+                }
+                sharedSocket.close();
+                sharedSocket = null;
+            }
         };
-    }, [duelId, chainId]);
+    }, [duelId, chainId, connectWebSocket]);
 
     return {
         totalYesAmount,
