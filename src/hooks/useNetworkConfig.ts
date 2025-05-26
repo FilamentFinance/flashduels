@@ -191,7 +191,7 @@ export const useNetworkConfig = () => {
         return [
             { id: sei.id, name: 'Sei Mainnet' },
             { id: base.id, name: 'Base Mainnet' },
-            { id: seiTestnet.id, name: 'Sei Testnet' },
+            // { id: seiTestnet.id, name: 'Sei Testnet' },
             // { id: baseSepolia.id, name: 'Base Sepolia' },
         ];
     }, []);
