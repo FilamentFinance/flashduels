@@ -4,7 +4,7 @@ import { useTotalBets } from '@/hooks/useTotalBets';
 import { Card } from '@/shadcn/components/ui/card';
 import { Duel, Position } from '@/types/duel';
 import Image from 'next/image';
-import { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useState, useRef } from 'react';
 import ChanceProgress from './chance-progress';
 import YesNoButton from './yes-no-button';
 import ShareButton from './share-button';
@@ -23,6 +23,8 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
   const [timeLeft, setTimeLeft] = useState<string>('');
   const { yesPercentage, noPercentage } = useTotalBetAmounts(duelId);
   const { uniqueParticipants } = useTotalBets(duelId);
+  const [mounted, setMounted] = useState(false);
+  const rowRef = useRef<HTMLDivElement>(null);
 
   const getCategoryColor = (category: string) => {
     switch (category.toLowerCase()) {
@@ -118,8 +120,13 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
     return () => clearInterval(timer);
   }, [data.createdAt, data.timeLeft, status]);
 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   return (
     <Card
+      ref={rowRef}
       className="flex items-center p-2 bg-zinc-900 border-zinc-800 hover:bg-zinc-900/90 transition-colors cursor-pointer"
       onClick={onClick}
     >
@@ -191,7 +198,6 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
             <div className="flex items-center gap-1.5 text-zinc-400 text-sm">
               <Image src="/logo/markets/dollar.svg" alt="Volume" width={16} height={16} />
               <span>{volume}</span>
-              {/* <span className="mx-1">•</span> */}
               <div className="flex items-center gap-1 ml-2 mr-2">
                 <Image
                   src="/logo/markets/users.png"
@@ -200,7 +206,6 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
                   height={10}
                   className="invert brightness-0 opacity-60"
                 />
-                {/* <span>{uniqueParticipants}</span> */}
                 <span>
                   {Number(uniqueParticipants).toLocaleString('en-US', {
                     notation: 'compact',
@@ -208,7 +213,8 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
                 </span>
               </div>
             </div>
-            {timeLeft !== '00:00:00' && timeLeft !== '00:00' && (
+            {/* {timeLeft !== '00:00:00' && timeLeft !== '00:00' && ( */}
+            {mounted && timeLeft !== '00:00:00' && timeLeft !== '00:00' && (
               <div className="flex items-center gap-1.5 text-zinc-400 text-sm">
                 <Image src="/logo/markets/timer.svg" alt="Time" width={14} height={14} />
                 <div className="flex items-center gap-1">
@@ -218,7 +224,15 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
             )}
             <div className="flex items-center gap-1">
               <CopyLinkButton duelId={duelId} />
-              <ShareButton duelId={duelId} title={title} />
+              {/* <ShareButton duelId={duelId} title={title} /> */}
+              <ShareButton
+                duel={data}
+                yesPercentage={yesPercentage}
+                noPercentage={noPercentage}
+                uniqueParticipants={uniqueParticipants}
+                timeLeft={timeLeft}
+                rowRef={rowRef as React.RefObject<HTMLDivElement>}
+              />
             </div>
           </div>
         </div>
@@ -229,12 +243,12 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
         {/* Sentiment Arc Centered */}
         <div className="flex flex-col items-center">
           <ChanceProgress totalYesAmount={yesPercentage} totalNoAmount={noPercentage} />
-          {/* <span className="text-xs text-zinc-400 mt-1">Sentiment</span> */}
         </div>
         {/* Buttons or Status Centered Below Arc */}
         {(status == -1 || status == 0) && (
           <div className="flex gap-2 mt-2 justify-center">
-            {timeLeft === '00:00:00' || timeLeft === '00:00' ? (
+            {/* {timeLeft === '00:00:00' || timeLeft === '00:00' ? ( */}
+            {mounted && (timeLeft === '00:00:00' || timeLeft === '00:00') ? (
               <div className="px-4 py-2 text-xs text-zinc-400 bg-zinc-800/50 rounded-xl">
                 Pending Resolution
               </div>

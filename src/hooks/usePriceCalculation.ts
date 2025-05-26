@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 
 interface PriceCalculationProps {
+  send: (data: any) => void;
   ws: WebSocket | null;
   asset?: string;
   endsIn: number;
@@ -10,9 +11,11 @@ interface PriceCalculationProps {
   totalBetYes: number;
   totalBetNo: number;
   duelId?: string;
+  interval?: number; // ms, for real-time updates
 }
 
 export const usePriceCalculation = ({
+  send,
   ws,
   asset,
   endsIn,
@@ -22,41 +25,37 @@ export const usePriceCalculation = ({
   totalBetYes,
   totalBetNo,
   duelId,
+  interval = 1000, // ms, for real-time updates
 }: PriceCalculationProps) => {
   useEffect(() => {
-    if (ws && ws.readyState === WebSocket.OPEN) {
+    if (!ws || ws.readyState !== WebSocket.OPEN) return;
+
+    const sendPriceRequest = () => {
       if (asset) {
-        // Crypto Duel calculation
-        // const timePeriod = endsIn / (365 * 24); // Convert endsIn to time period in years
-        const timePeriod = endsIn * 60;
-        ws.send(
-          JSON.stringify({
-            markPrice: priceFormatted as number,
-            triggerPrice: Number(triggerPrice),
-            asset,
-            timePeriod,
-            winCondition,
-            totalYes: totalBetYes || 0,
-            totalNo: totalBetNo || 0,
-            duelId,
-          }),
-        );
+        send({
+          markPrice: priceFormatted,
+          triggerPrice: Number(triggerPrice),
+          asset,
+          timePeriod: endsIn * 60,
+          winCondition,
+          totalYes: totalBetYes || 0,
+          totalNo: totalBetNo || 0,
+          duelId,
+        });
       } else {
-        // Flash Duel calculation
-        // const timePeriod = endsIn / 24; // Convert endsIn to time period in days
-        const timePeriod = endsIn * 60;
-        ws.send(
-          JSON.stringify({
-            T: timePeriod < 1 ? 1 : timePeriod, // Ensure a minimum value of 1 for T
-            totalYes: totalBetYes || 0,
-            totalNo: totalBetNo || 0,
-            duelId,
-          }),
-        );
+        send({
+          T: Math.max(endsIn * 60, 1),
+          totalYes: totalBetYes || 0,
+          totalNo: totalBetNo || 0,
+          duelId,
+        });
       }
-    } else {
-      console.log('WebSocket connection is not open');
-    }
+    };
+
+    sendPriceRequest();
+    const timer = setInterval(sendPriceRequest, interval);
+
+    return () => clearInterval(timer);
   }, [
     ws,
     ws?.readyState,
@@ -67,6 +66,8 @@ export const usePriceCalculation = ({
     winCondition,
     totalBetYes,
     totalBetNo,
-    duelId, 
+    duelId,
+    send,
+    interval,
   ]);
 };

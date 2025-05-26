@@ -38,11 +38,12 @@ const PlaceOrder: FC<PlaceOrderProps> = ({
   duelStatus = 0,
 }) => {
   const [orderType, setOrderType] = useState<OrderType>(ORDER_TYPE.BUY);
-  const { yesPrice, noPrice, ws, isConnected } = useWebSocketPrices(asset);
+  const { yesPrice, noPrice, ws, isConnected, send } = useWebSocketPrices(asset);
   const { price } = useSelector((state: RootState) => state.price);
   const { totalBetYes, totalBetNo } = useTotalBets(duelId);
 
   usePriceCalculation({
+    send,
     ws,
     asset,
     endsIn,

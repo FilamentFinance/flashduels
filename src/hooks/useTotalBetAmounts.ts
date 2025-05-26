@@ -23,51 +23,78 @@ export const useTotalBetAmounts = (duelId: string) => {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const chainId = useChainId();
+    const [reconnectAttempts, setReconnectAttempts] = useState(0);
+    const MAX_RECONNECT_ATTEMPTS = 3;
 
     useEffect(() => {
         if (!duelId) return;
 
-        const socket = new WebSocket(`${SERVER_CONFIG.getApiWsUrl(chainId)}/betWebSocket?duelId=${duelId}`);
+        let socket: WebSocket | null = null;
+        let reconnectTimeout: NodeJS.Timeout;
 
-        socket.onopen = () => {
-            console.log('Connected to WebSocket server');
-            socket.send(JSON.stringify({ type: 'subscribeToDuel', duelId }));
-        };
+        const connectWebSocket = () => {
+            if (socket?.readyState === WebSocket.OPEN) return;
 
-        socket.onmessage = (event) => {
             try {
-                const message = JSON.parse(event.data) as WebSocketMessage;
+                socket = new WebSocket(`${SERVER_CONFIG.getApiWsUrl(chainId)}/betWebSocket?duelId=${duelId}`);
 
-                // Update bet amounts and percentages
-                if (message.totalBetAmounts) {
-                    setTotalYesAmount(message.totalBetAmounts.totalYesAmount);
-                    setTotalNoAmount(message.totalBetAmounts.totalNoAmount);
-                    setYesPercentage(message.totalBetAmounts.yesPercentage);
-                    setNoPercentage(message.totalBetAmounts.noPercentage);
-                }
+                socket.onopen = () => {
+                    console.log('Connected to WebSocket server');
+                    setReconnectAttempts(0);
+                    socket?.send(JSON.stringify({ type: 'subscribeToDuel', duelId }));
+                };
 
-                setError(null);
-                setLoading(false);
+                socket.onmessage = (event) => {
+                    try {
+                        const message = JSON.parse(event.data) as WebSocketMessage;
+                        if (message.totalBetAmounts) {
+                            setTotalYesAmount(message.totalBetAmounts.totalYesAmount);
+                            setTotalNoAmount(message.totalBetAmounts.totalNoAmount);
+                            setYesPercentage(message.totalBetAmounts.yesPercentage);
+                            setNoPercentage(message.totalBetAmounts.noPercentage);
+                        }
+                        setError(null);
+                        setLoading(false);
+                    } catch (err) {
+                        console.error('Error parsing WebSocket message:', err);
+                        setError('Failed to parse WebSocket message');
+                    }
+                };
+
+                socket.onerror = (error) => {
+                    console.error('WebSocket error:', error);
+                    setError('WebSocket connection error');
+                    setLoading(false);
+                };
+
+                socket.onclose = (event) => {
+                    console.log('WebSocket closed:', event.code, event.reason);
+                    setLoading(false);
+
+                    // Attempt to reconnect if not closed normally
+                    if (event.code !== 1000 && reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+                        setReconnectAttempts(prev => prev + 1);
+                        reconnectTimeout = setTimeout(connectWebSocket, 3000); // Retry after 3 seconds
+                    }
+                };
             } catch (err) {
-                console.error('Error parsing WebSocket message:', err);
-                setError('Failed to parse WebSocket message');
+                console.error('Error creating WebSocket:', err);
+                setError('Failed to create WebSocket connection');
+                setLoading(false);
             }
         };
 
-        socket.onerror = (error) => {
-            console.error('WebSocket error:', error);
-            setLoading(false);
-        };
-
-        socket.onclose = () => {
-            console.log('Disconnected from WebSocket server');
-            setLoading(false);
-        };
+        connectWebSocket();
 
         return () => {
-            socket.close();
+            if (reconnectTimeout) {
+                clearTimeout(reconnectTimeout);
+            }
+            if (socket) {
+                socket.close(1000, 'Component unmounting');
+            }
         };
-    }, [duelId]);
+    }, [duelId, chainId, reconnectAttempts]);
 
     return {
         totalYesAmount,

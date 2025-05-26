@@ -15,6 +15,10 @@ class WebSocketManager<T = unknown> {
   private onError?: (error: Event | Error) => void;
   private onClose?: (event: CloseEvent) => void;
   private socket: WebSocket | null = null;
+  private isConnecting: boolean = false;
+  private reconnectAttempts: number = 0;
+  private readonly MAX_RECONNECT_ATTEMPTS = 3;
+  private reconnectTimeout: NodeJS.Timeout | null = null;
 
   constructor(options: WebSocketManagerOptions<T>) {
     // Retrieve the token automatically from localStorage using the provided address.
@@ -33,10 +37,17 @@ class WebSocketManager<T = unknown> {
   }
 
   public connect(): WebSocket {
+    if (this.isConnecting || (this.socket && this.socket.readyState === WebSocket.OPEN)) {
+      return this.socket!;
+    }
+
+    this.isConnecting = true;
     this.socket = new WebSocket(this.url);
 
     this.socket.onopen = (event: Event) => {
       console.info('Connected to the WebSocket server');
+      this.isConnecting = false;
+      this.reconnectAttempts = 0;
       if (this.onOpen) {
         this.onOpen(event);
       }
@@ -56,6 +67,7 @@ class WebSocketManager<T = unknown> {
 
     this.socket.onerror = (error: Event) => {
       console.error('WebSocket Error:', error);
+      this.isConnecting = false;
       if (this.onError) {
         this.onError(error);
       }
@@ -63,6 +75,17 @@ class WebSocketManager<T = unknown> {
 
     this.socket.onclose = (event: CloseEvent) => {
       console.log('Disconnected from the WebSocket server');
+      this.isConnecting = false;
+
+      // Only attempt to reconnect if the connection was not closed intentionally
+      if (event.code !== 1000 && this.reconnectAttempts < this.MAX_RECONNECT_ATTEMPTS) {
+        this.reconnectAttempts++;
+        const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 10000);
+        this.reconnectTimeout = setTimeout(() => {
+          this.connect();
+        }, delay);
+      }
+
       if (this.onClose) {
         this.onClose(event);
       }
@@ -72,7 +95,7 @@ class WebSocketManager<T = unknown> {
   }
 
   public send(data: unknown): void {
-    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+    if (this.socket?.readyState === WebSocket.OPEN) {
       // Here you can send any data, and the token is already embedded in the URL.
       this.socket.send(JSON.stringify(data));
     } else {
@@ -81,9 +104,20 @@ class WebSocketManager<T = unknown> {
   }
 
   public close(): void {
-    if (this.socket) {
-      this.socket.close();
+    if (this.reconnectTimeout) {
+      clearTimeout(this.reconnectTimeout);
+      this.reconnectTimeout = null;
     }
+
+    if (this.socket) {
+      // Only close if the socket is in a state that can be closed
+      if (this.socket.readyState === WebSocket.OPEN || this.socket.readyState === WebSocket.CONNECTING) {
+        this.socket.close(1000, 'Client closing connection');
+      }
+      this.socket = null;
+    }
+    this.isConnecting = false;
+    this.reconnectAttempts = 0;
   }
 }
 

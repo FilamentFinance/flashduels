@@ -1,71 +1,42 @@
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { SERVER_CONFIG } from '@/config/server-config';
-import { useEffect, useState } from 'react';
 import { useChainId } from 'wagmi';
-interface PriceData {
-  yesPrice: number | undefined;
-  noPrice: number | undefined;
-  ws: WebSocket | null;
-  isConnected: boolean;
-  isConnecting: boolean;
-}
 
-interface WebSocketMessage {
-  type?: string;
-  error?: string;
-  result?: {
-    prices?: {
-      'yes': number;
-      'no': number;
-    };
-  };
-  priceYes?: number;
-  priceNo?: number;
-}
-
-export const useWebSocketPrices = (asset: string | undefined): PriceData => {
-  const [ws, setWs] = useState<WebSocket | null>(null);
+export const useWebSocketPrices = (asset: string | undefined) => {
   const [yesPrice, setYesPrice] = useState<number>();
   const [noPrice, setNoPrice] = useState<number>();
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [reconnectAttempts, setReconnectAttempts] = useState(0);
-  const MAX_RECONNECT_ATTEMPTS = 3;
+  const wsRef = useRef<WebSocket | null>(null);
+  const reconnectTimeout = useRef<NodeJS.Timeout | null>(null);
   const chainId = useChainId();
+  const MAX_RECONNECT_ATTEMPTS = 3;
 
-  useEffect(() => {
-    let websocket: WebSocket;
-    let reconnectTimeout: NodeJS.Timeout;
+  const connectWebSocket = useCallback(() => {
+    if (isConnecting || wsRef.current?.readyState === WebSocket.OPEN) return;
+    setIsConnecting(true);
 
-    const connectWebSocket = () => {
-      if (isConnecting) return;
-      setIsConnecting(true);
-      const wsUrl = asset
-        ? `${SERVER_CONFIG.getApiWsUrl(chainId)}/cryptoduelsOptionPricingWebSocket`
-        : `${SERVER_CONFIG.getApiWsUrl(chainId)}/flashduelsOptionPricingWebSocket`;
+    const wsUrl = asset
+      ? `${SERVER_CONFIG.getApiWsUrl(chainId)}/cryptoduelsOptionPricingWebSocket`
+      : `${SERVER_CONFIG.getApiWsUrl(chainId)}/flashduelsOptionPricingWebSocket`;
 
-      websocket = new WebSocket(wsUrl);
+    const ws = new WebSocket(wsUrl);
+    wsRef.current = ws;
 
-      websocket.onopen = () => {
-        console.log('WebSocket connection established');
-        setIsConnected(true);
-        setIsConnecting(false);
-        setReconnectAttempts(0);
-      };
+    ws.onopen = () => {
+      setIsConnected(true);
+      setIsConnecting(false);
+      setReconnectAttempts(0);
+    };
 
-      websocket.onmessage = (event) => {
-        const data: WebSocketMessage = JSON.parse(event.data);
-
-        // Handle initial connection message
-        if (data.type === 'connected') {
-          console.log('Received connection confirmation');
-          return;
-        }
-
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
         if (data.error) {
           console.error('WebSocket error:', data.error);
           return;
         }
-
         if (asset) {
           setNoPrice(data.result?.prices?.no);
           setYesPrice(data.result?.prices?.yes);
@@ -73,46 +44,44 @@ export const useWebSocketPrices = (asset: string | undefined): PriceData => {
           setNoPrice(data.priceNo);
           setYesPrice(data.priceYes);
         }
-      };
-
-      websocket.onerror = (error) => {
-        console.error('WebSocket error:', error);
-        setIsConnecting(false);
-        if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
-          setReconnectAttempts(prev => prev + 1);
-          reconnectTimeout = setTimeout(connectWebSocket, 1000 * Math.pow(2, reconnectAttempts));
-        }
-      };
-
-      websocket.onclose = () => {
-        setIsConnected(false);
-        setIsConnecting(false);
-        if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
-          setReconnectAttempts(prev => prev + 1);
-          reconnectTimeout = setTimeout(connectWebSocket, 1000 * Math.pow(2, reconnectAttempts));
-        }
-      };
-
-      setWs(websocket);
+      } catch (err) {
+        console.error('Error parsing WebSocket message:', err);
+      }
     };
 
+    ws.onerror = (error) => {
+      setIsConnecting(false);
+      setIsConnected(false);
+      if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+        setReconnectAttempts((prev) => prev + 1);
+        reconnectTimeout.current = setTimeout(connectWebSocket, 1000 * Math.pow(2, reconnectAttempts));
+      }
+    };
+
+    ws.onclose = () => {
+      setIsConnected(false);
+      setIsConnecting(false);
+      if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+        setReconnectAttempts((prev) => prev + 1);
+        reconnectTimeout.current = setTimeout(connectWebSocket, 1000 * Math.pow(2, reconnectAttempts));
+      }
+    };
+  }, [asset, chainId, isConnecting, reconnectAttempts]);
+
+  useEffect(() => {
     connectWebSocket();
-
     return () => {
-      if (websocket) {
-        websocket.close();
-      }
-      if (reconnectTimeout) {
-        clearTimeout(reconnectTimeout);
-      }
+      if (wsRef.current) wsRef.current.close();
+      if (reconnectTimeout.current) clearTimeout(reconnectTimeout.current);
     };
-  }, [asset, chainId]);
+  }, [connectWebSocket]);
 
-  return {
-    yesPrice,
-    noPrice,
-    ws,
-    isConnected,
-    isConnecting
-  };
+  // Expose a send method for usePriceCalculation
+  const send = useCallback((data: any) => {
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify(data));
+    }
+  }, []);
+
+  return { yesPrice, noPrice, ws: wsRef.current, isConnected, isConnecting, send };
 };
