@@ -54,19 +54,19 @@ const ClaimFunds: FC = () => {
   });
 
   // Add logging for chain and contract changes
-  useEffect(() => {
-    if (!address || !chainId) return;
+  // useEffect(() => {
+  //   if (!address || !chainId) return;
 
-    const contractAddress = SERVER_CONFIG.getContractAddresses(chainId).DIAMOND;
-    console.log('Chain/Contract Debug:', {
-      chainId,
-      chainName: SERVER_CONFIG.getChainName(chainId),
-      contractAddress,
-      userAddress: address,
-      earningsData: earningsData?.toString(),
-      isContractAddressValid: !!contractAddress && contractAddress !== 'undefined',
-    });
-  }, [chainId, address, earningsData]);
+  //   const contractAddress = SERVER_CONFIG.getContractAddresses(chainId).DIAMOND;
+  //   console.log('Chain/Contract Debug:', {
+  //     chainId,
+  //     chainName: SERVER_CONFIG.getChainName(chainId),
+  //     contractAddress,
+  //     userAddress: address,
+  //     earningsData: earningsData?.toString(),
+  //     isContractAddressValid: !!contractAddress && contractAddress !== 'undefined',
+  //   });
+  // }, [chainId, address, earningsData]);
 
   // Add validation for contract address
   useEffect(() => {

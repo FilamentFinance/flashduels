@@ -112,7 +112,7 @@ export const OrdersHistory = ({ duelId }: OrdersTableProps) => {
         }
       },
       onOpen: () => console.info('Connected to the WebSocket server'),
-      onError: (error) => console.error('WebSocket Error:', error),
+      // onError: (error) => console.error('WebSocket Error:', error),
       onClose: () => console.info('Disconnected from the WebSocket server'),
     });
 

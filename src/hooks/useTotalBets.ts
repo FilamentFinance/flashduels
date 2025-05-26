@@ -78,7 +78,7 @@ const useTotalBets = (duelId: string) => {
     };
 
     if (duelId && address) {
-      console.log("duelId and address exist, calling fetchUniqueParticipants");
+      // console.log("duelId and address exist, calling fetchUniqueParticipants");
       fetchUniqueParticipants();
     } else {
       console.log("Missing duelId or address, skipping fetch");

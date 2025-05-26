@@ -28,7 +28,7 @@ const getIconPath = (duelType?: string, title?: string): string => {
     if (tokenMatch && tokenMatch[1]) {
       const symbol = tokenMatch[1];
       const path = `/crypto-icons/light/crypto-${symbol.toLowerCase()}-usd.inline.svg`;
-      console.log('Generated icon path:', path);
+      // console.log('Generated icon path:', path);
       return path;
     }
   }
@@ -52,12 +52,12 @@ export const DuelRow: React.FC<DuelRowProps> = ({
   winner,
   duelType,
 }) => {
-  console.log('DuelRow props:', {
-    duelName,
-    direction,
-    duelType,
-    icon,
-  });
+  // console.log('DuelRow props:', {
+  //   duelName,
+  //   direction,
+  //   duelType,
+  //   icon,
+  // });
 
   const thirtyMinutesMs = 30 * 60 * 1000;
   const durationMs = resolvesIn * 60 * 60 * 1000;
@@ -99,7 +99,7 @@ export const DuelRow: React.FC<DuelRowProps> = ({
 
   // Always try to get icon path regardless of direction
   const iconPath = getIconPath(duelType, duelName) || icon;
-  console.log('Final iconPath used:', iconPath);
+  // console.log('Final iconPath used:', iconPath);
 
   return (
     <div className="flex items-center px-4 py-2 text-sm text-stone-300 border-b border-neutral-800">

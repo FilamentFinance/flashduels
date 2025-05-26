@@ -66,7 +66,8 @@ class WebSocketManager<T = unknown> {
     };
 
     this.socket.onerror = (error: Event) => {
-      console.error('WebSocket Error:', error);
+      // console.error('WebSocket Error:', error);
+      console.log('Disconnected from the WebSocket server');
       this.isConnecting = false;
       if (this.onError) {
         this.onError(error);

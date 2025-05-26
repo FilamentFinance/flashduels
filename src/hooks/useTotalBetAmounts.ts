@@ -13,7 +13,12 @@ interface TotalBetAmounts {
 interface WebSocketMessage {
     availableOptions: [];
     totalBetAmounts: TotalBetAmounts;
+    duelId: string;
 }
+
+// Shared WebSocket instance
+let sharedSocket: WebSocket | null = null;
+let subscribers = new Map<string, Set<(data: TotalBetAmounts) => void>>();
 
 export const useTotalBetAmounts = (duelId: string) => {
     const [totalYesAmount, setTotalYesAmount] = useState<number>(0);
@@ -24,73 +29,51 @@ export const useTotalBetAmounts = (duelId: string) => {
     const [error, setError] = useState<string | null>(null);
     const chainId = useChainId();
 
-    const socketRef = useRef<WebSocket | null>(null);
-    const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-    const reconnectAttemptsRef = useRef(0);
-    const MAX_RECONNECT_ATTEMPTS = 5;
-    const INITIAL_RECONNECT_DELAY = 1000; // 1 second
-
     const connectWebSocket = () => {
-        if (socketRef.current?.readyState === WebSocket.OPEN) {
+        if (sharedSocket?.readyState === WebSocket.OPEN) {
             return;
         }
 
         try {
             // Close existing connection if any
-            if (socketRef.current) {
-                socketRef.current.close();
+            if (sharedSocket) {
+                sharedSocket.close();
             }
 
-            const wsUrl = `${SERVER_CONFIG.getApiWsUrl(chainId)}/betWebSocket?duelId=${duelId}`;
-            socketRef.current = new WebSocket(wsUrl);
+            const wsUrl = `${SERVER_CONFIG.getApiWsUrl(chainId)}/betWebSocket`;
+            sharedSocket = new WebSocket(wsUrl);
 
-            socketRef.current.onopen = () => {
+            sharedSocket.onopen = () => {
                 console.log('WebSocket connected successfully');
-                reconnectAttemptsRef.current = 0;
-                setError(null);
-                socketRef.current?.send(JSON.stringify({ type: 'subscribeToDuel', duelId }));
+                // Subscribe to all active duel IDs
+                const duelIds = Array.from(subscribers.keys());
+                if (duelIds.length > 0) {
+                    sharedSocket?.send(JSON.stringify({ type: 'subscribeToDuels', duelIds }));
+                }
             };
 
-            socketRef.current.onmessage = (event) => {
+            sharedSocket.onmessage = (event) => {
                 try {
                     const message = JSON.parse(event.data) as WebSocketMessage;
-                    if (message.totalBetAmounts) {
-                        setTotalYesAmount(message.totalBetAmounts.totalYesAmount);
-                        setTotalNoAmount(message.totalBetAmounts.totalNoAmount);
-                        setYesPercentage(message.totalBetAmounts.yesPercentage);
-                        setNoPercentage(message.totalBetAmounts.noPercentage);
+                    if (message.totalBetAmounts && message.duelId) {
+                        const duelSubscribers = subscribers.get(message.duelId);
+                        if (duelSubscribers) {
+                            duelSubscribers.forEach(callback => callback(message.totalBetAmounts));
+                        }
                     }
-                    setError(null);
-                    setLoading(false);
                 } catch (err) {
                     console.error('Error parsing WebSocket message:', err);
-                    setError('Failed to parse WebSocket message');
                 }
             };
 
-            socketRef.current.onerror = (error) => {
-                console.error('WebSocket error:', error);
-                setError('Connection error occurred');
-                setLoading(false);
+            sharedSocket.onerror = () => {
+                console.log('WebSocket disconnected');
             };
 
-            socketRef.current.onclose = (event) => {
-                console.log('WebSocket closed:', event.code, event.reason);
-                setLoading(false);
-
-                // Only attempt to reconnect if the connection was not closed normally
-                if (event.code !== 1000 && reconnectAttemptsRef.current < MAX_RECONNECT_ATTEMPTS) {
-                    const delay = Math.min(INITIAL_RECONNECT_DELAY * Math.pow(2, reconnectAttemptsRef.current), 30000);
-                    reconnectAttemptsRef.current += 1;
-
-                    console.log(`Attempting to reconnect in ${delay}ms (attempt ${reconnectAttemptsRef.current}/${MAX_RECONNECT_ATTEMPTS})`);
-
-                    reconnectTimeoutRef.current = setTimeout(() => {
-                        connectWebSocket();
-                    }, delay);
-                } else if (reconnectAttemptsRef.current >= MAX_RECONNECT_ATTEMPTS) {
-                    setError('Maximum reconnection attempts reached. Please refresh the page.');
-                }
+            sharedSocket.onclose = () => {
+                console.log('WebSocket disconnected');
+                // Attempt to reconnect after a delay
+                setTimeout(connectWebSocket, 1000);
             };
         } catch (err) {
             console.error('Error creating WebSocket:', err);
@@ -102,15 +85,41 @@ export const useTotalBetAmounts = (duelId: string) => {
     useEffect(() => {
         if (!duelId) return;
 
-        connectWebSocket();
+        // Add this component as a subscriber
+        const updateState = (data: TotalBetAmounts) => {
+            setTotalYesAmount(data.totalYesAmount);
+            setTotalNoAmount(data.totalNoAmount);
+            setYesPercentage(data.yesPercentage);
+            setNoPercentage(data.noPercentage);
+            setError(null);
+            setLoading(false);
+        };
+
+        if (!subscribers.has(duelId)) {
+            subscribers.set(duelId, new Set());
+        }
+        subscribers.get(duelId)?.add(updateState);
+
+        // Connect WebSocket if not already connected
+        if (!sharedSocket || sharedSocket.readyState !== WebSocket.OPEN) {
+            connectWebSocket();
+        } else {
+            // Subscribe to this specific duel
+            sharedSocket.send(JSON.stringify({ type: 'subscribeToDuel', duelId }));
+        }
 
         return () => {
-            if (reconnectTimeoutRef.current) {
-                clearTimeout(reconnectTimeoutRef.current);
-            }
-            if (socketRef.current) {
-                socketRef.current.close(1000, 'Component unmounting');
-                socketRef.current = null;
+            // Remove this component as a subscriber
+            const duelSubscribers = subscribers.get(duelId);
+            if (duelSubscribers) {
+                duelSubscribers.delete(updateState);
+                if (duelSubscribers.size === 0) {
+                    subscribers.delete(duelId);
+                    // Unsubscribe from this duel
+                    if (sharedSocket?.readyState === WebSocket.OPEN) {
+                        sharedSocket.send(JSON.stringify({ type: 'unsubscribeFromDuel', duelId }));
+                    }
+                }
             }
         };
     }, [duelId, chainId]);

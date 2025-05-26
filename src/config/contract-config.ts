@@ -99,7 +99,7 @@ export const getRpcUrl = (chainId: number): string => {
  * @returns Chain name for the specified chain ID
  */
 export const getChainName = (chainId: number): string => {
-    console.log('Getting name for chain ID:', chainId);
+    // console.log('Getting name for chain ID:', chainId);
     const config = chainConfigs[chainId];
     if (!config) {
         return 'Unsupported Network';
