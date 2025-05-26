@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { SERVER_CONFIG } from '@/config/server-config';
 import { useChainId } from 'wagmi';
+import { PriceRequestData } from './usePriceCalculation';
 
 export const useWebSocketPrices = (asset: string | undefined) => {
   const [yesPrice, setYesPrice] = useState<number>();
@@ -50,6 +51,7 @@ export const useWebSocketPrices = (asset: string | undefined) => {
     };
 
     ws.onerror = (error) => {
+      console.error('WebSocket error:', error);
       setIsConnecting(false);
       setIsConnected(false);
       if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
@@ -77,7 +79,7 @@ export const useWebSocketPrices = (asset: string | undefined) => {
   }, [connectWebSocket]);
 
   // Expose a send method for usePriceCalculation
-  const send = useCallback((data: any) => {
+  const send = useCallback((data: PriceRequestData) => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
       wsRef.current.send(JSON.stringify(data));
     }

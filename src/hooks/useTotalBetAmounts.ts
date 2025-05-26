@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { SERVER_CONFIG } from '@/config/server-config';
 import { useChainId } from 'wagmi';
 // import { formatUnits } from 'viem';
@@ -18,7 +18,7 @@ interface WebSocketMessage {
 
 // Shared WebSocket instance
 let sharedSocket: WebSocket | null = null;
-let subscribers = new Map<string, Set<(data: TotalBetAmounts) => void>>();
+const subscribers = new Map<string, Set<(data: TotalBetAmounts) => void>>();
 
 export const useTotalBetAmounts = (duelId: string) => {
     const [totalYesAmount, setTotalYesAmount] = useState<number>(0);

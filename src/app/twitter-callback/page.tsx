@@ -49,7 +49,7 @@ export default function TwitterCallbackPage() {
 
           {/* Help Text */}
           <p className="text-xs text-zinc-500 text-center">
-            This may take a few moments. You'll be redirected automatically when ready.
+            This may take a few moments. You&apos;ll be redirected automatically when ready.
           </p>
         </div>
       </div>

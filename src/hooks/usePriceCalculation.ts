@@ -1,7 +1,19 @@
 import { useEffect } from 'react';
 
+export type PriceRequestData = {
+  markPrice?: number;
+  triggerPrice?: number;
+  asset?: string;
+  timePeriod?: number;
+  winCondition?: number;
+  totalYes: number;
+  totalNo: number;
+  duelId?: string;
+  T?: number;
+};
+
 interface PriceCalculationProps {
-  send: (data: any) => void;
+  send: (data: PriceRequestData) => void;
   ws: WebSocket | null;
   asset?: string;
   endsIn: number;

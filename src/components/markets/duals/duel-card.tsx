@@ -1,7 +1,8 @@
 // import { Card } from '@/shadcn/components/ui/card';
 import Image from 'next/image';
 import { FC } from 'react';
-import { Duel, Position } from '@/types/duel';
+// import { Duel, Position } from '@/types/duel';
+import { Duel } from '@/types/duel';
 import ChanceProgress from './chance-progress';
 
 interface DuelCardProps {
