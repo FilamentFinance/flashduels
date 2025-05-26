@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { SERVER_CONFIG } from '@/config/server-config';
 import { useChainId } from 'wagmi';
 // import { formatUnits } from 'viem';
@@ -23,78 +23,97 @@ export const useTotalBetAmounts = (duelId: string) => {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const chainId = useChainId();
-    const [reconnectAttempts, setReconnectAttempts] = useState(0);
-    const MAX_RECONNECT_ATTEMPTS = 3;
+
+    const socketRef = useRef<WebSocket | null>(null);
+    const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const reconnectAttemptsRef = useRef(0);
+    const MAX_RECONNECT_ATTEMPTS = 5;
+    const INITIAL_RECONNECT_DELAY = 1000; // 1 second
+
+    const connectWebSocket = () => {
+        if (socketRef.current?.readyState === WebSocket.OPEN) {
+            return;
+        }
+
+        try {
+            // Close existing connection if any
+            if (socketRef.current) {
+                socketRef.current.close();
+            }
+
+            const wsUrl = `${SERVER_CONFIG.getApiWsUrl(chainId)}/betWebSocket?duelId=${duelId}`;
+            socketRef.current = new WebSocket(wsUrl);
+
+            socketRef.current.onopen = () => {
+                console.log('WebSocket connected successfully');
+                reconnectAttemptsRef.current = 0;
+                setError(null);
+                socketRef.current?.send(JSON.stringify({ type: 'subscribeToDuel', duelId }));
+            };
+
+            socketRef.current.onmessage = (event) => {
+                try {
+                    const message = JSON.parse(event.data) as WebSocketMessage;
+                    if (message.totalBetAmounts) {
+                        setTotalYesAmount(message.totalBetAmounts.totalYesAmount);
+                        setTotalNoAmount(message.totalBetAmounts.totalNoAmount);
+                        setYesPercentage(message.totalBetAmounts.yesPercentage);
+                        setNoPercentage(message.totalBetAmounts.noPercentage);
+                    }
+                    setError(null);
+                    setLoading(false);
+                } catch (err) {
+                    console.error('Error parsing WebSocket message:', err);
+                    setError('Failed to parse WebSocket message');
+                }
+            };
+
+            socketRef.current.onerror = (error) => {
+                console.error('WebSocket error:', error);
+                setError('Connection error occurred');
+                setLoading(false);
+            };
+
+            socketRef.current.onclose = (event) => {
+                console.log('WebSocket closed:', event.code, event.reason);
+                setLoading(false);
+
+                // Only attempt to reconnect if the connection was not closed normally
+                if (event.code !== 1000 && reconnectAttemptsRef.current < MAX_RECONNECT_ATTEMPTS) {
+                    const delay = Math.min(INITIAL_RECONNECT_DELAY * Math.pow(2, reconnectAttemptsRef.current), 30000);
+                    reconnectAttemptsRef.current += 1;
+
+                    console.log(`Attempting to reconnect in ${delay}ms (attempt ${reconnectAttemptsRef.current}/${MAX_RECONNECT_ATTEMPTS})`);
+
+                    reconnectTimeoutRef.current = setTimeout(() => {
+                        connectWebSocket();
+                    }, delay);
+                } else if (reconnectAttemptsRef.current >= MAX_RECONNECT_ATTEMPTS) {
+                    setError('Maximum reconnection attempts reached. Please refresh the page.');
+                }
+            };
+        } catch (err) {
+            console.error('Error creating WebSocket:', err);
+            setError('Failed to establish WebSocket connection');
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
         if (!duelId) return;
 
-        let socket: WebSocket | null = null;
-        let reconnectTimeout: NodeJS.Timeout;
-
-        const connectWebSocket = () => {
-            if (socket?.readyState === WebSocket.OPEN) return;
-
-            try {
-                socket = new WebSocket(`${SERVER_CONFIG.getApiWsUrl(chainId)}/betWebSocket?duelId=${duelId}`);
-
-                socket.onopen = () => {
-                    console.log('Connected to WebSocket server');
-                    setReconnectAttempts(0);
-                    socket?.send(JSON.stringify({ type: 'subscribeToDuel', duelId }));
-                };
-
-                socket.onmessage = (event) => {
-                    try {
-                        const message = JSON.parse(event.data) as WebSocketMessage;
-                        if (message.totalBetAmounts) {
-                            setTotalYesAmount(message.totalBetAmounts.totalYesAmount);
-                            setTotalNoAmount(message.totalBetAmounts.totalNoAmount);
-                            setYesPercentage(message.totalBetAmounts.yesPercentage);
-                            setNoPercentage(message.totalBetAmounts.noPercentage);
-                        }
-                        setError(null);
-                        setLoading(false);
-                    } catch (err) {
-                        console.error('Error parsing WebSocket message:', err);
-                        setError('Failed to parse WebSocket message');
-                    }
-                };
-
-                socket.onerror = (error) => {
-                    console.error('WebSocket error:', error);
-                    setError('WebSocket connection error');
-                    setLoading(false);
-                };
-
-                socket.onclose = (event) => {
-                    console.log('WebSocket closed:', event.code, event.reason);
-                    setLoading(false);
-
-                    // Attempt to reconnect if not closed normally
-                    if (event.code !== 1000 && reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
-                        setReconnectAttempts(prev => prev + 1);
-                        reconnectTimeout = setTimeout(connectWebSocket, 3000); // Retry after 3 seconds
-                    }
-                };
-            } catch (err) {
-                console.error('Error creating WebSocket:', err);
-                setError('Failed to create WebSocket connection');
-                setLoading(false);
-            }
-        };
-
         connectWebSocket();
 
         return () => {
-            if (reconnectTimeout) {
-                clearTimeout(reconnectTimeout);
+            if (reconnectTimeoutRef.current) {
+                clearTimeout(reconnectTimeoutRef.current);
             }
-            if (socket) {
-                socket.close(1000, 'Component unmounting');
+            if (socketRef.current) {
+                socketRef.current.close(1000, 'Component unmounting');
+                socketRef.current = null;
             }
         };
-    }, [duelId, chainId, reconnectAttempts]);
+    }, [duelId, chainId]);
 
     return {
         totalYesAmount,
