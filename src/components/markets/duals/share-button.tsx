@@ -78,6 +78,7 @@ export const ShareButton: FC<ShareButtonProps> = ({
       link.href = dataUrl;
       link.click();
     } catch (err) {
+      console.error("Error downloading image", err);
       toast({
         title: 'Error',
         description: 'Failed to download image',
