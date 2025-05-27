@@ -188,12 +188,17 @@ export const useNetworkConfig = () => {
     }, []);
 
     const getSupportedNetworks = useCallback(() => {
-        return [
-            { id: sei.id, name: 'Sei Mainnet' },
-            { id: base.id, name: 'Base Mainnet' },
-            // { id: seiTestnet.id, name: 'Sei Testnet' },
-            // { id: baseSepolia.id, name: 'Base Sepolia' },
-        ];
+        if (process.env.NEXT_PUBLIC_TESTNET === 'true') {
+            return [
+                { id: seiTestnet.id, name: 'Sei Testnet' },
+                { id: baseSepolia.id, name: 'Base Sepolia' },
+            ];
+        } else {
+            return [
+                { id: sei.id, name: 'Sei Mainnet' },
+                { id: base.id, name: 'Base Mainnet' },
+            ];
+        }
     }, []);
 
     const getCurrentNetworkName = useCallback(() => {

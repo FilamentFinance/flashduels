@@ -23,6 +23,13 @@ import { truncateAddress } from '@/utils/general/getEllipsisTxt';
 
 const MAX_WS_RECONNECT_ATTEMPTS = 3;
 
+// Helper to convert http(s) to ws(s)
+function httpToWs(url: string): string {
+  if (url.startsWith('https://')) return url.replace('https://', 'wss://');
+  if (url.startsWith('http://')) return url.replace('http://', 'ws://');
+  return url;
+}
+
 const Bet: FC = () => {
   const searchParams = useSearchParams();
   const id = searchParams.get('duelId');
@@ -96,7 +103,10 @@ const Bet: FC = () => {
     let didUnmount = false;
 
     function connect() {
-      socket = new WebSocket(`${SERVER_CONFIG.getApiWsUrl(chainId)}/betWebSocket?duelId=${id}`);
+      const wsUrl = `${SERVER_CONFIG.getApiWsUrl(chainId)}/betWebSocket?duelId=${id}`;
+      const wsFinalUrl = httpToWs(wsUrl);
+      console.log('[WebSocket] Connecting to:', wsFinalUrl);
+      socket = new WebSocket(wsFinalUrl);
 
       socket.onopen = function () {
         console.log('Connected to the WebSocket server');

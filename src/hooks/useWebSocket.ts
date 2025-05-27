@@ -36,13 +36,22 @@ class WebSocketManager<T = unknown> {
     this.onClose = options.onClose;
   }
 
+  // Helper to convert http(s) to ws(s)
+  private httpToWs(url: string): string {
+    if (url.startsWith('https://')) return url.replace('https://', 'wss://');
+    if (url.startsWith('http://')) return url.replace('http://', 'ws://');
+    return url;
+  }
+
   public connect(): WebSocket {
     if (this.isConnecting || (this.socket && this.socket.readyState === WebSocket.OPEN)) {
       return this.socket!;
     }
 
     this.isConnecting = true;
-    this.socket = new WebSocket(this.url);
+    const wsFinalUrl = this.httpToWs(this.url);
+    console.log('[WebSocket] Connecting to:', wsFinalUrl);
+    this.socket = new WebSocket(wsFinalUrl);
 
     this.socket.onopen = (event: Event) => {
       console.info('Connected to the WebSocket server');

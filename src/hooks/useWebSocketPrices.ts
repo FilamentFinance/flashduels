@@ -3,6 +3,13 @@ import { SERVER_CONFIG } from '@/config/server-config';
 import { useChainId } from 'wagmi';
 import { PriceRequestData } from './usePriceCalculation';
 
+// Helper to convert http(s) to ws(s)
+function httpToWs(url: string): string {
+  if (url.startsWith('https://')) return url.replace('https://', 'wss://');
+  if (url.startsWith('http://')) return url.replace('http://', 'ws://');
+  return url;
+}
+
 export const useWebSocketPrices = (asset: string | undefined) => {
   const [yesPrice, setYesPrice] = useState<number>();
   const [noPrice, setNoPrice] = useState<number>();
@@ -26,8 +33,9 @@ export const useWebSocketPrices = (asset: string | undefined) => {
     const wsUrl = asset
       ? `${SERVER_CONFIG.getApiWsUrl(chainId)}/cryptoduelsOptionPricingWebSocket`
       : `${SERVER_CONFIG.getApiWsUrl(chainId)}/flashduelsOptionPricingWebSocket`;
-
-    const ws = new WebSocket(wsUrl);
+    const wsFinalUrl = httpToWs(wsUrl);
+    console.log('[WebSocket] Connecting to:', wsFinalUrl);
+    const ws = new WebSocket(wsFinalUrl);
     wsRef.current = ws;
 
     ws.onopen = () => {

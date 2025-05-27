@@ -23,6 +23,13 @@ let reconnectTimeout: NodeJS.Timeout | null = null;
 const MAX_RECONNECT_ATTEMPTS = 3;
 let reconnectAttempts = 0;
 
+// Helper to convert http(s) to ws(s)
+function httpToWs(url: string): string {
+    if (url.startsWith('https://')) return url.replace('https://', 'wss://');
+    if (url.startsWith('http://')) return url.replace('http://', 'ws://');
+    return url;
+}
+
 export const useTotalBetAmounts = (duelId: string) => {
     const [totalYesAmount, setTotalYesAmount] = useState<number>(0);
     const [totalNoAmount, setTotalNoAmount] = useState<number>(0);
@@ -44,7 +51,9 @@ export const useTotalBetAmounts = (duelId: string) => {
             }
 
             const wsUrl = `${SERVER_CONFIG.getApiWsUrl(chainId)}/betWebSocket?duelId=${duelId}`;
-            sharedSocket = new WebSocket(wsUrl);
+            const wsFinalUrl = httpToWs(wsUrl);
+            console.log('[WebSocket] Connecting to:', wsFinalUrl);
+            sharedSocket = new WebSocket(wsFinalUrl);
 
             sharedSocket.onopen = () => {
                 console.log('WebSocket connected successfully');
