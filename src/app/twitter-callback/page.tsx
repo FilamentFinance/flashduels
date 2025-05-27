@@ -1,12 +1,31 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { SERVER_CONFIG } from '@/config/server-config';
 import { useChainId } from 'wagmi';
 
 export default function TwitterCallbackPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-screen bg-zinc-950">
+          <div className="bg-zinc-900/50 backdrop-blur-sm rounded-2xl p-8 shadow-2xl border border-zinc-800 max-w-md w-full mx-4">
+            <div className="flex flex-col items-center space-y-6">
+              <Loader2 className="w-12 h-12 text-blue-400 animate-spin" />
+              <p className="text-zinc-400">Loading...</p>
+            </div>
+          </div>
+        </div>
+      }
+    >
+      <TwitterCallbackContent />
+    </Suspense>
+  );
+}
+
+function TwitterCallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const chainId = useChainId();
