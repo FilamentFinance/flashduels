@@ -17,8 +17,9 @@ import { CreatorVerify } from '../creator/verify';
 import { useChainId } from 'wagmi';
 import { Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import NoDuels from './duals/no-duels';
+import Banner from './banner';
 
-const ITEMS_PER_PAGE = 6;
+const ITEMS_PER_PAGE = 10;
 
 const Markets: FC = () => {
   const router = useRouter();
@@ -146,17 +147,27 @@ const Markets: FC = () => {
       };
     };
 
-    connectWebSocket();
+    // Close existing WebSocket connection if it exists
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify({ type: 'UNSUBSCRIBE', channel: 'duels' }));
+      wsRef.current.close();
+    }
+
+    // Add a small delay before connecting to show the loading state
+    const timeoutId = setTimeout(() => {
+      connectWebSocket();
+    }, 300);
 
     return () => {
       isSubscribed = false;
+      clearTimeout(timeoutId);
       if (wsRef.current?.readyState === WebSocket.OPEN) {
         wsRef.current.send(JSON.stringify({ type: 'UNSUBSCRIBE', channel: 'duels' }));
         wsRef.current.close();
       }
       wsRef.current = null;
     };
-  }, [activeStatus]);
+  }, [activeStatus, chainId]);
 
   const filteredDuels = duels.filter((duel) => {
     const matchesSearch = duel.title.toLowerCase().includes(searchQuery.toLowerCase());
@@ -225,6 +236,7 @@ const Markets: FC = () => {
 
   return (
     <div className="px-4 min-h-screen flex flex-col">
+      <Banner />
       <Categories activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
       <div className="flex justify-between items-center">
         <DuelStatus activeStatus={activeStatus} setActiveStatus={setActiveStatus} />
@@ -241,26 +253,6 @@ const Markets: FC = () => {
         </div>
       ) : (
         <div className="relative flex-1">
-          {filteredDuels.length > 0 && (
-            <>
-              {currentPage > 1 && (
-                <button
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  className="absolute left-0 top-[30%] -translate-y-1/2 -translate-x-12 bg-zinc-800/80 hover:bg-zinc-700/80 p-2 rounded-full shadow-lg transition-all duration-200"
-                >
-                  <ChevronLeft className="h-6 w-6 text-white" />
-                </button>
-              )}
-              {currentPage < totalPages && (
-                <button
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  className="absolute right-0 top-[30%] -translate-y-1/2 translate-x-12 bg-zinc-800/80 hover:bg-zinc-700/80 p-2 rounded-full shadow-lg transition-all duration-200"
-                >
-                  <ChevronRight className="h-6 w-6 text-white" />
-                </button>
-              )}
-            </>
-          )}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-h-[calc(100vh-80px)] overflow-y-auto mt-2 pb-16 duels-container">
             <Duels
               data={paginatedDuels}
@@ -271,9 +263,27 @@ const Markets: FC = () => {
         </div>
       )}
       {isVerifyModalOpen && <CreatorVerify onClose={() => setVerifyModalOpen(false)} />}
-      {filteredDuels.length > 0 && (
-        <div className="fixed bottom-4 right-4 md:right-12 bg-zinc-800/80 px-3 py-1 rounded-full text-sm shadow-lg z-50 text-zinc-300">
-          Page {currentPage} of {totalPages}
+      {filteredDuels.length > 0 && totalPages > 1 && (
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-zinc-800/80 px-3 py-1 rounded-full text-sm shadow-lg z-50 text-zinc-300">
+          {currentPage > 1 && (
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              className="hover:text-white transition-colors"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+          )}
+          <span>
+            Page {currentPage} of {totalPages}
+          </span>
+          {currentPage < totalPages && (
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              className="hover:text-white transition-colors"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          )}
         </div>
       )}
     </div>

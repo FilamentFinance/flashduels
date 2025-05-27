@@ -17,7 +17,7 @@ interface CategoriesProps {
 
 const Categories: FC<CategoriesProps> = ({ activeCategory, setActiveCategory }) => {
   return (
-    <div className="flex items-center gap-4 py-4">
+    <div className="flex items-center gap-4 -mt-1">
       {Object.entries(CATEGORIES)
         .filter(([, cat]) => !cat.hidden)
         .map(([key, { title, icon, comingSoon }]) => {

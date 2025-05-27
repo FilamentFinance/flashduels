@@ -64,7 +64,15 @@ const EnableTrading: FC = () => {
 
           // Setup interceptors if user is already authenticated
           setupInterceptors(address, disconnect, () => dispatch(clearAuth()), chainId);
+        } else {
+          // If any of the required values are missing, clear auth state
+          dispatch(clearAuth());
+          // Force reload to ensure clean state
+          window.location.reload();
         }
+      } else {
+        // If not authenticated, clear any existing auth state
+        dispatch(clearAuth());
       }
     }
   }, [address, dispatch, disconnect, chainId, apiClient]);
@@ -237,8 +245,28 @@ const EnableTrading: FC = () => {
       }
       maxWidth="max-w-xl"
     >
-      <div className="grid gap-6 py-4">
-        <div className="space-y-6">
+      <div className="grid gap-6">
+        <div className="space-y-4">
+          <div className="space-y-4 text-gray-300 text-sm">
+            <h3 className="font-semibold text-white">Before you start, please know:</h3>
+            <ul className="list-decimal list-inside space-y-2">
+              <li>
+                You maintain full control of your wallet&mdash;just be sure to back up your keys. We
+                recommend starting with a test wallet to get comfortable.
+              </li>
+              <li>
+                While FlashDuels has been audited, it&apos;s still in beta. Begin with a modest
+                amount of ETH to cover network gas fees, and explore cautiously, knowing you can
+                always step back. Currently, the application uses a mock &quot;CRD&quot;
+                token&mdash;no real assets are involved.
+              </li>
+              <li>
+                The interface may still have some quirks as we continue refining it. Please
+                double-check your transactions and report any unusual behavior so we can improve the
+                experience.
+              </li>
+            </ul>
+          </div>
           {/* <div className="space-y-4">
             <h3 className="font-medium">By accessing Filament, you agree to the following:</h3> */}
 

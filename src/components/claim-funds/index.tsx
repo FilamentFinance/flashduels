@@ -94,12 +94,12 @@ const ClaimFunds: FC = () => {
 
     if (earningsData) {
       const formattedEarnings = formatTokenAmount(earningsData as bigint, chainId, defaultSymbol);
-      console.log('Updating earnings:', {
-        chainId,
-        rawEarnings: earningsData.toString(),
-        formattedEarnings,
-        defaultSymbol,
-      });
+      // console.log('Updating earnings:', {
+      //   chainId,
+      //   rawEarnings: earningsData.toString(),
+      //   formattedEarnings,
+      //   defaultSymbol,
+      // });
       setEarnings(formattedEarnings);
     }
   }, [earningsData, chainId, defaultSymbol]);
@@ -178,28 +178,28 @@ const ClaimFunds: FC = () => {
       setIsLoading(true);
       setTxHash(undefined);
 
-      console.log('chainId', chainId);
+      // console.log('chainId', chainId);
 
-      console.log(
-        'parseTokenAmount(amount, chainId)',
-        parseTokenAmount(amount, chainId, defaultSymbol),
-      );
-      console.log(
-        'parseTokenAmount(earnings, chainId)',
-        parseTokenAmount(earnings, chainId, defaultSymbol),
-      );
-      console.log(
-        'parseTokenAmount(MAX_AUTO_WITHDRAW.toString(), chainId)',
-        parseTokenAmount(MAX_AUTO_WITHDRAW.toString(), chainId, defaultSymbol),
-      );
+      // console.log(
+      //   'parseTokenAmount(amount, chainId)',
+      //   parseTokenAmount(amount, chainId, defaultSymbol),
+      // );
+      // console.log(
+      //   'parseTokenAmount(earnings, chainId)',
+      //   parseTokenAmount(earnings, chainId, defaultSymbol),
+      // );
+      // console.log(
+      //   'parseTokenAmount(MAX_AUTO_WITHDRAW.toString(), chainId)',
+      //   parseTokenAmount(MAX_AUTO_WITHDRAW.toString(), chainId, defaultSymbol),
+      // );
 
       const DIAMOND_ADDRESS = SERVER_CONFIG.getContractAddresses(chainId).DIAMOND;
-      const maxAutoWithdraw = await publicClient?.readContract({
-        abi: FlashDuelsViewFacetABI,
-        address: DIAMOND_ADDRESS as Hex,
-        functionName: 'getMaxAutoWithdraw',
-      });
-      console.log('getMaxAutoWithdraw', maxAutoWithdraw);
+      // const maxAutoWithdraw = await publicClient?.readContract({
+      //   abi: FlashDuelsViewFacetABI,
+      //   address: DIAMOND_ADDRESS as Hex,
+      //   functionName: 'getMaxAutoWithdraw',
+      // });
+      // console.log('getMaxAutoWithdraw', maxAutoWithdraw);
 
       const tx = await writeContractAsync({
         abi: FlashDuelCoreFacetAbi,
@@ -228,7 +228,7 @@ const ClaimFunds: FC = () => {
               data: log.data,
               topics: log.topics,
             });
-            console.log({ event });
+            // console.log({ event });
             if (event.eventName === 'WithdrawalRequested') {
               const args = event.args as unknown as {
                 requestId: bigint;

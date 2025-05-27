@@ -321,7 +321,7 @@ const AccountDetails: FC = () => {
           </div>
 
           {/* Account Value */}
-          <div className="rounded-lg border border-zinc-800 p-4 mb-2">
+          <div className="rounded-lg border border-zinc-800 p-4 mb-1">
             {/* <h2 className="text-sm font-medium text-zinc-500 mb-2">Account Stats</h2> */}
             <div className="flex flex-col gap-1 text-sm">
               {/* Balance */}
@@ -379,9 +379,9 @@ const AccountDetails: FC = () => {
           </div>
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-1 gap-2">
+          <div className="grid grid-cols-1 gap-1">
             {isCreator && (
-              <div className="mt-2">
+              <div className="mt-1">
                 <div className="rounded-xl border border-zinc-700 p-4 flex flex-col gap-1 shadow-md">
                   <div className="text-base text-center font-bold text-white mb-2">Creator</div>
                   <div className="flex justify-between items-center">
@@ -438,21 +438,24 @@ const AccountDetails: FC = () => {
               </div>
             )}
 
-            <div className="rounded-xl border border-zinc-700 p-4 flex flex-col gap-2 shadow-md">
+            <div className="rounded-xl border border-zinc-700 p-4 flex flex-col mt-1 gap-2 shadow-md">
               <div className="text-base text-center font-bold text-white mb-2">Trader</div>
               <div className="flex justify-between items-center">
                 <div className="text-sm text-zinc-500">Duels Joined</div>
                 <div className="text-sm font-medium text-zinc-400">{accountData.totalBets}</div>
               </div>
               <div className="flex justify-between items-center">
-                <div className="text-sm text-zinc-500">Total Traded Value</div>
+                <div className="text-sm text-zinc-500">
+                  Total Traded Value
+                  <div className="text-[10px] italic text-neutral-400">(Settled &amp; Cancelled) Duels</div>
+                </div>
                 <div className="text-sm font-medium text-zinc-400">
                   {Number(accountData.positionValue ?? 0).toFixed(2)} {symbol}
                 </div>
               </div>
               <div className="flex justify-between items-center">
                 <div className="text-sm text-zinc-500 flex items-center gap-1 group relative">
-                  <span>Earnings</span>
+                  <span>Earnings <span className="text-[10px] italic text-zinc-400">(Settled Duels)</span></span>
                   <span className="text-xs text-zinc-400">*</span>
                   <div className="absolute left-0 top-8 w-48 p-2 bg-zinc-800 text-xs text-pink-300 rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 transform translate-y-2 group-hover:translate-y-0">
                     Profits from settled duels you&apos;ve joined. Click &apos;Withdraw&apos; at the
