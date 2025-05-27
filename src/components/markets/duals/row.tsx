@@ -4,10 +4,10 @@ import { useTotalBets } from '@/hooks/useTotalBets';
 import { Card } from '@/shadcn/components/ui/card';
 import { Duel, Position } from '@/types/duel';
 import Image from 'next/image';
-import { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useState, useRef } from 'react';
 import ChanceProgress from './chance-progress';
 import YesNoButton from './yes-no-button';
-import ShareButton from './share-button';
+import { ShareButton } from './share-button';
 import CopyLinkButton from './copy-link-button';
 
 interface Props {
@@ -23,6 +23,7 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
   const [timeLeft, setTimeLeft] = useState<string>('');
   const { yesPercentage, noPercentage } = useTotalBetAmounts(duelId);
   const { uniqueParticipants } = useTotalBets(duelId);
+  const rowRef = useRef<HTMLDivElement>(null);
 
   const getCategoryColor = (category: string) => {
     switch (category.toLowerCase()) {
@@ -120,6 +121,7 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
 
   return (
     <Card
+      ref={rowRef}
       className="flex items-center p-2 bg-zinc-900 border-zinc-800 hover:bg-zinc-900/90 transition-colors cursor-pointer"
       onClick={onClick}
     >
@@ -218,7 +220,15 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
             )}
             <div className="flex items-center gap-1">
               <CopyLinkButton duelId={duelId} />
-              <ShareButton duelId={duelId} title={title} />
+              {/* <ShareButton duelId={duelId} title={title} /> */}
+              <ShareButton
+                duel={data}
+                yesPercentage={yesPercentage}
+                noPercentage={noPercentage}
+                uniqueParticipants={uniqueParticipants}
+                timeLeft={timeLeft}
+                rowRef={rowRef as React.RefObject<HTMLDivElement>}
+              />
             </div>
           </div>
         </div>
