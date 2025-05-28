@@ -24,6 +24,7 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
   const { yesPercentage, noPercentage } = useTotalBetAmounts(duelId);
   const { uniqueParticipants } = useTotalBets(duelId);
   const rowRef = useRef<HTMLDivElement>(null);
+  const [isHovered, setIsHovered] = useState(false);
 
   const getCategoryColor = (category: string) => {
     switch (category.toLowerCase()) {
@@ -150,8 +151,13 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
   return (
     <Card
       ref={rowRef}
-      className="flex items-center p-2 bg-zinc-900 border-zinc-800 hover:bg-zinc-900/90 transition-colors cursor-pointer"
+      className={`flex items-center p-2 bg-zinc-900 border-zinc-800 hover:bg-zinc-900/90 transition-colors cursor-pointer ${
+        // className={`flex items-center p-2 border-zinc-800 cursor-pointer transition-all duration-300 ${
+        isHovered ? 'border-pink-300/50' : 'bg-zinc-900 hover:bg-zinc-900/90'
+      }`}
       onClick={onClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       {/* Left: Icon, Title, Volume, Time */}
       <div className="flex items-center gap-2 flex-1 min-w-0">
