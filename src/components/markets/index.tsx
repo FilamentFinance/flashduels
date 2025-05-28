@@ -18,6 +18,7 @@ import { useChainId } from 'wagmi';
 import { Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import NoDuels from './duals/no-duels';
 import Banner from './banner';
+import TrendingBanner from './trending-banner';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -25,6 +26,7 @@ const Markets: FC = () => {
   const router = useRouter();
   const chainId = useChainId();
   const [duels, setDuels] = useState<Duel[]>([]);
+  const [allDuels, setAllDuels] = useState<Duel[]>([]); // New state for all duels
   const [activeStatus, setActiveStatus] = useState<TDualStatus>(DUEL_STATUS.LIVE);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState(CATEGORIES['ALL_DUELS'].title); // Category state
@@ -61,53 +63,47 @@ const Markets: FC = () => {
 
         const message = JSON.parse(event.data);
         if (message.allDuels) {
-          const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
-          const filteredDuels = message.allDuels
-            .filter((item: NewDuelItem) => {
-              const endTime = item.startAt! + item.endsIn;
+          const currentTime = Math.floor(Date.now() / 1000);
+          const allDuelsData = message.allDuels.map((item: NewDuelItem) => ({
+            title:
+              item.betString ||
+              `Will ${item.token} be ${item.winCondition === 0 ? 'ABOVE' : 'BELOW'} $${item.triggerPrice} ?`,
+            imageSrc: item.betIcon || 'empty-string',
+            volume: `$${item.totalBetAmount}`,
+            category: item.category,
+            status: item.status,
+            duelId: item.duelId,
+            duelType: item.duelType,
+            timeLeft: item.endsIn,
+            startAt: item.startAt || 0,
+            createdAt: item.createdAt,
+            percentage: 50,
+            createdBy: item.user.twitterUsername || truncateAddress(item.user.address),
+            creatorTwitterImage: item.user.twitterImageUrl,
+            token: item.token,
+            triggerPrice: item.triggerPrice,
+            totalBetAmount: item.totalBetAmount,
+            winCondition: item.winCondition,
+            winner: item.winner,
+          }));
 
-              if (activeStatus === DUEL_STATUS.LIVE) {
-                // For FLASH_DUELS in LIVE section:
-                // Show if status is 0 (live) and end time hasn't been reached
-                if (item.duelType === 'FLASH_DUEL') {
-                  const endTime = (item.startAt || 0) + item.endsIn * 60 * 60;
-                  return item.status === 0 && endTime > currentTime;
-                }
-                // For other duels in LIVE section:
-                return item.status === 0;
-              } else if (activeStatus === DUEL_STATUS.BOOTSTRAPPING) {
-                return item.status === -1; // Only bootstrapping duels
-              } else if (activeStatus === DUEL_STATUS.COMPLETED) {
-                // console.log('Completed duels', item.status, item.createdAt);
-                return item.status === 1; // Only completed duels
-              } else if (activeStatus === DUEL_STATUS.YET_TO_BE_RESOLVED) {
-                // Only show FLASH_DUELS that have passed their end time but haven't been resolved
-                return item.duelType === 'FLASH_DUEL' && item.status === 0 && endTime < currentTime;
-              }
-              return true;
-            })
-            .map((item: NewDuelItem) => ({
-              title:
-                item.betString ||
-                `Will ${item.token} be ${item.winCondition === 0 ? 'ABOVE' : 'BELOW'} $${item.triggerPrice} ?`,
-              imageSrc: item.betIcon || 'empty-string',
-              volume: `$${item.totalBetAmount}`,
-              category: item.category,
-              status: item.status,
-              duelId: item.duelId,
-              duelType: item.duelType,
-              timeLeft: item.endsIn,
-              startAt: item.startAt || 0,
-              createdAt: item.createdAt,
-              percentage: 50,
-              createdBy: item.user.twitterUsername || truncateAddress(item.user.address),
-              creatorTwitterImage: item.user.twitterImageUrl,
-              token: item.token,
-              triggerPrice: item.triggerPrice,
-              totalBetAmount: item.totalBetAmount,
-              winCondition: item.winCondition,
-              winner: item.winner,
-            }));
+          // Store all duels for trending banner
+          setAllDuels(allDuelsData);
+
+          // Filter duels based on active status
+          const filteredDuels = allDuelsData.filter((duel: Duel) => {
+            if (activeStatus === DUEL_STATUS.LIVE) {
+              return duel.status === 0;
+            } else if (activeStatus === DUEL_STATUS.BOOTSTRAPPING) {
+              return duel.status === -1;
+            } else if (activeStatus === DUEL_STATUS.COMPLETED) {
+              return duel.status === 1;
+            } else if (activeStatus === DUEL_STATUS.YET_TO_BE_RESOLVED) {
+              const endTime = (duel.startAt || 0) + duel.timeLeft * 60 * 60;
+              return duel.duelType === 'FLASH_DUEL' && duel.status === 0 && endTime < currentTime;
+            }
+            return true;
+          });
 
           // Sort completed duels from latest to oldest based on completion time
           if (activeStatus === DUEL_STATUS.COMPLETED) {
@@ -167,7 +163,7 @@ const Markets: FC = () => {
       }
       wsRef.current = null;
     };
-  }, [activeStatus, chainId]);
+  }, [activeStatus as TDualStatus, chainId as number]);
 
   const filteredDuels = duels.filter((duel) => {
     const matchesSearch = duel.title.toLowerCase().includes(searchQuery.toLowerCase());
@@ -234,9 +230,13 @@ const Markets: FC = () => {
     router.push(`/bet?duelId=${duelId}`);
   };
 
+  // Filter trending duels from all duels, not just filtered ones
+  const trendingDuels = allDuels.filter((duel) => duel.category?.toLowerCase() === 'trending');
+
   return (
     <div className="px-4 min-h-screen flex flex-col">
       <Banner />
+      {trendingDuels.length > 0 && <TrendingBanner trendingDuels={trendingDuels} />}
       <Categories activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
       <div className="flex justify-between items-center">
         <DuelStatus activeStatus={activeStatus} setActiveStatus={setActiveStatus} />

@@ -213,7 +213,7 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
       const backendCategory = selectedCategory;
       const categoryEnumIndex = mapCategoryToEnumIndex(backendCategory);
       console.log('categoryEnumIndex', categoryEnumIndex);
-      const durationNumber = mapDurationToNumber(selectedDuration);
+      const durationNumber = mapDurationToNumber(selectedDuration, 'flash');
       if (selectedImage) {
         const fileName = `${Date.now()}-${selectedImage.name}`;
         const presignedUrlResponse = await apiClient.post(

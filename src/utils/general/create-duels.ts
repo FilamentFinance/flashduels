@@ -14,6 +14,8 @@ export const mapCategoryToEnumIndex = (category: string): number => {
       return 6;
     case 'formula_one':
       return 7;
+    case 'trending':
+      return 8;
     default:
       return 0;
   }
@@ -34,7 +36,9 @@ export const mapCategoryToEnumIndex = (category: string): number => {
 
 export const mapDurationToNumber = (duration: string, isDuelType: 'flash' | 'coin' = 'coin'): number => {
   // For Flash Duels, only allow 1H and above
+  console.log('isDuelType', isDuelType);
   if (isDuelType === 'flash') {
+    console.log('duration flash', duration);
     switch (duration.toUpperCase()) {
       case '1H':
         return 3;
@@ -44,12 +48,19 @@ export const mapDurationToNumber = (duration: string, isDuelType: 'flash' | 'coi
         return 5;
       case '12H':
         return 6;
+      case '1D':
+        return 7;
+      case '1W':
+        return 8;
+      case '1M':
+        return 9;
       default:
         throw new Error('Flash Duels only support durations of 1H and above');
     }
   }
 
   // For Coin Duels, allow all durations
+  console.log('duration coin', duration);
   switch (duration.toUpperCase()) {
     case '5M':
       return 0;
