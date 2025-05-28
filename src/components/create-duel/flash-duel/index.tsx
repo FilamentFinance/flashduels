@@ -289,6 +289,7 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
                   .filter(([, cat]) => cat.enabled)
                   .map(([key, cat]) => {
                     const categoryTitle = CATEGORIES[key]?.title;
+                    const categoryIcon = CATEGORIES[key]?.icon;
                     if (!categoryTitle) {
                       console.warn(`Missing category title for key: ${key}`);
                     }
@@ -298,12 +299,17 @@ const FlashDuelForm: FC<FlashDuelFormProps> = ({
                         value={cat.value}
                         className="text-white focus:bg-zinc-800 focus:text-white"
                       >
-                        {categoryTitle ||
-                          key
-                            .toLowerCase()
-                            .split('_')
-                            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                            .join(' ')}
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">{categoryIcon}</span>
+                          <span className="truncate">
+                            {categoryTitle ||
+                              key
+                                .toLowerCase()
+                                .split('_')
+                                .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                                .join(' ')}
+                          </span>
+                        </div>
                       </SelectItem>
                     );
                   })}

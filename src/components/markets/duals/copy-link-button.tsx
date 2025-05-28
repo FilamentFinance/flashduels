@@ -5,9 +5,14 @@ import { FC, useState } from 'react';
 interface CopyLinkButtonProps {
   duelId: string;
   onClick?: (e: React.MouseEvent) => void;
+  tooltipPosition?: 'top' | 'bottom';
 }
 
-const CopyLinkButton: FC<CopyLinkButtonProps> = ({ duelId, onClick }) => {
+const CopyLinkButton: FC<CopyLinkButtonProps> = ({
+  duelId,
+  onClick,
+  tooltipPosition = 'bottom',
+}) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = (e: React.MouseEvent) => {
@@ -37,7 +42,9 @@ const CopyLinkButton: FC<CopyLinkButtonProps> = ({ duelId, onClick }) => {
         <Link className="w-4 h-4 text-zinc-400" />
       )}
       {copied && (
-        <div className="absolute top-8 left-1/2 -translate-x-1/2 bg-zinc-800 text-zinc-200 text-xs px-2 py-1 rounded whitespace-nowrap">
+        <div
+          className={`absolute ${tooltipPosition === 'top' ? '-top-8' : 'top-8'} left-1/2 -translate-x-1/2 bg-zinc-800 text-zinc-200 text-xs px-2 py-1 rounded whitespace-nowrap`}
+        >
           Copied
         </div>
       )}

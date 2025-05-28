@@ -21,6 +21,7 @@ const DuelCard: FC<DuelCardProps> = ({ duel, index }) => {
   const { yesPercentage, noPercentage } = useTotalBetAmounts(duel.duelId);
   const { uniqueParticipants } = useTotalBets(duel.duelId);
   const [timeLeft, setTimeLeft] = useState<string>('');
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     const calculateTimeLeft = () => {
@@ -68,8 +69,15 @@ const DuelCard: FC<DuelCardProps> = ({ duel, index }) => {
     <Card
       key={`${duel.duelId}-${index}`}
       ref={rowRef}
-      className="flex-shrink-0 w-[calc(50%-12px)] bg-zinc-900 border-zinc-800 hover:bg-zinc-900/90 transition-colors cursor-pointer mx-1.5 relative z-20"
+      className={`flex-shrink-0 w-[calc(50%-12px)] border-zinc-800 cursor-pointer mx-1.5 relative z-20 transition-all duration-300 ${
+        isHovered ? 'bg-transparent border-pink-300/50' : 'bg-zinc-900 hover:bg-zinc-900/90'
+      }`}
       onClick={() => router.push(`/bet?duelId=${duel.duelId}`)}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      //   style={{
+      //     animationPlayState: isHovered ? 'paused' : 'running',
+      //   }}
     >
       <div className="flex items-center p-2">
         {/* Left: Icon, Title, Volume, Time */}
@@ -165,7 +173,7 @@ const DuelCard: FC<DuelCardProps> = ({ duel, index }) => {
                 </div>
               )}
               <div className="flex items-center gap-1">
-                <CopyLinkButton duelId={duel.duelId} />
+                <CopyLinkButton duelId={duel.duelId} tooltipPosition="top" />
                 <ShareButton
                   duel={duel}
                   yesPercentage={yesPercentage}
@@ -240,7 +248,7 @@ const TrendingBanner: FC<Props> = ({ trendingDuels }) => {
   if (!activeDuels.length) return null;
 
   // Use only 2 copies for better performance
-  const duplicatedDuels = [...activeDuels, ...activeDuels];
+  const duplicatedDuels = [...activeDuels, ...activeDuels, ...activeDuels];
 
   return (
     <div className="w-full overflow-hidden mb-4 relative -mt-5">
@@ -265,6 +273,9 @@ const TrendingBanner: FC<Props> = ({ trendingDuels }) => {
           transform: translateZ(0);
           backface-visibility: hidden;
           perspective: 1000px;
+        }
+        .animate-scroll:hover {
+          animation-play-state: paused;
         }
       `}</style>
     </div>
