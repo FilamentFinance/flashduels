@@ -3,6 +3,7 @@ import { base, baseSepolia, sei, seiTestnet } from 'viem/chains';
 
 interface ServerConfig {
   PRODUCTION: boolean;
+  TESTNET_ENVIRONMENT: boolean;
   WALLET_CONNECT_PROJECT_ID: string;
   DEFAULT_TOKEN_SYMBOL?: string;
   getRpcUrl: (chainId: number) => string;
@@ -230,6 +231,7 @@ const createConfig = (): ServerConfig => {
 
   return {
     PRODUCTION: production,
+    TESTNET_ENVIRONMENT: process.env.NEXT_PUBLIC_TESTNET_ENVIRONMENT === 'true',
     WALLET_CONNECT_PROJECT_ID: walletConnectProjectId,
     DEFAULT_TOKEN_SYMBOL: defaultTokenSymbol,
     getRpcUrl,

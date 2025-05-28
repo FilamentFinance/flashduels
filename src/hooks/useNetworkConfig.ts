@@ -6,6 +6,9 @@ import { useChainId, useAccount } from 'wagmi';
 import { base, baseSepolia, sei, seiTestnet } from 'viem/chains';
 import { getChainName, isChainSupported } from '@/config/contract-config';
 import { useToast } from '@/shadcn/components/ui/use-toast';
+import { SERVER_CONFIG } from '@/config/server-config';
+import { DEFAULT_NETWORK_ICON } from '@/constants/app/networks';
+import { NETWORK_ICONS } from '@/constants/app/networks';
 
 // declare global {
 //     interface Window {
@@ -188,12 +191,24 @@ export const useNetworkConfig = () => {
     }, []);
 
     const getSupportedNetworks = useCallback(() => {
-        return [
-            { id: sei.id, name: 'Sei Mainnet' },
-            { id: base.id, name: 'Base Mainnet' },
-            // { id: seiTestnet.id, name: 'Sei Testnet' },
-            // { id: baseSepolia.id, name: 'Base Sepolia' },
-        ];
+        let supportedChains: { id: number; name: string }[] = [];
+        if (!SERVER_CONFIG.TESTNET_ENVIRONMENT) {
+            supportedChains = [
+                { id: sei.id, name: 'Sei Mainnet' },
+                { id: base.id, name: 'Base Mainnet' },
+            ];
+        } else {
+            supportedChains = [
+                { id: seiTestnet.id, name: 'Sei Testnet' },
+                { id: baseSepolia.id, name: 'Base Sepolia' },
+            ];
+        }
+        return supportedChains
+            .filter(chain => isChainSupported(chain.id))
+            .map(chain => ({
+                ...chain,
+                icon: NETWORK_ICONS[chain.id] || DEFAULT_NETWORK_ICON
+            }));
     }, []);
 
     const getCurrentNetworkName = useCallback(() => {
