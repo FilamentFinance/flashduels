@@ -54,6 +54,10 @@ export const CATEGORIES: {
     title: 'Formula One (F1)',
     icon: '🏎️',
   },
+  TRENDING: {
+    title: 'Trending',
+    icon: '🔥',
+  },
 } as const;
 
 export const FLASH_DUEL_CATEGORIES = {
@@ -65,4 +69,5 @@ export const FLASH_DUEL_CATEGORIES = {
   NFTS: { value: 'nfts', enabled: false },
   NEWS: { value: 'news', enabled: false },
   FORMULA_ONE: { value: 'formula_one', enabled: true },
+  TRENDING: { value: 'trending', enabled: true },
 } as const;

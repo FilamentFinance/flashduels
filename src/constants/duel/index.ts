@@ -11,8 +11,9 @@ export const DUEL_DURATION = {
   THREE_HOURS: '3H',
   SIX_HOURS: '6H',
   TWELVE_HOURS: '12H',
-  // TWENTY_FOUR_HOURS: '24H',
-  // FORTY_EIGHT_HOURS: '48H',
+  ONE_DAY: '1D',
+  ONE_WEEK: '1W',
+  ONE_MONTH: '1M',
 } as const;
 
 // Add new constants for specific duel types
@@ -31,6 +32,9 @@ export const FLASH_DUEL_DURATION = {
   THREE_HOURS: '3H',
   SIX_HOURS: '6H',
   TWELVE_HOURS: '12H',
+  ONE_DAY: '1D',
+  ONE_WEEK: '1W',
+  ONE_MONTH: '1M',
 } as const;
 
 export const DUEL_STATUS = {
@@ -69,7 +73,7 @@ export const COIN_DUEL_ASSETS: {
   },
 };
 
-export const DURATIONS = [0.084, 0.25, 0.5, 1, 3, 6, 12];
+export const DURATIONS = [0.084, 0.25, 0.5, 1, 3, 6, 12, 24, 168, 720];
 
 export const assetImages = [
   {

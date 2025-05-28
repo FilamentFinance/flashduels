@@ -33,6 +33,8 @@ const getCategoryColor = (category: string) => {
       return 'bg-red-500/20 text-red-400 border border-red-500/30';
     case 'formula_one':
       return 'bg-red-500/20 text-rose-400 border border-red-500/30';
+    case 'trending':
+      return 'bg-orange-500/20 text-orange-400 border border-orange-500/30';
     default:
       return 'bg-zinc-800 text-zinc-300';
   }
@@ -40,6 +42,8 @@ const getCategoryColor = (category: string) => {
 
 const formatCategoryDisplay = (category: string) => {
   switch (category.toLowerCase()) {
+    case 'trending':
+      return 'Trending';
     case 'formula_one':
       return 'Formula One (F1)';
     case 'crypto':

@@ -27,6 +27,8 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
 
   const getCategoryColor = (category: string) => {
     switch (category.toLowerCase()) {
+      case 'trending':
+        return 'bg-orange-500/20 text-orange-400 border border-orange-500/30 relative overflow-hidden group';
       case 'crypto':
         return 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30';
       case 'politics':
@@ -48,6 +50,32 @@ const DuelRow: FC<Props> = ({ data, onClick, onPositionSelect }) => {
 
   const formatCategoryDisplay = (category: string) => {
     switch (category.toLowerCase()) {
+      case 'trending':
+        return (
+          <>
+            <span className="flex items-center gap-1 relative">
+              <span className="relative z-10 text-orange-500">🔥</span>
+              <span className="relative z-10">
+                <span className="relative inline-block">
+                  <span className="text-orange-400 drop-shadow-[0_0_8px_rgba(255,140,0,0.3)]">
+                    Trending
+                  </span>
+                </span>
+              </span>
+            </span>
+            <span className="absolute inset-0 animate-[lightning-move_4s_linear_infinite] bg-gradient-to-r from-transparent via-orange-400/30 to-transparent bg-[length:300%_100%] pointer-events-none"></span>
+            <style jsx>{`
+              @keyframes lightning-move {
+                0% {
+                  background-position: 0% 0;
+                }
+                100% {
+                  background-position: 300% 0;
+                }
+              }
+            `}</style>
+          </>
+        );
       case 'formula_one':
         return 'Formula One (F1)';
       case 'crypto':
