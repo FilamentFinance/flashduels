@@ -6,18 +6,18 @@ import { CATEGORIES } from '@/constants/markets';
 import { setSelectedPosition } from '@/store/slices/betSlice';
 import { Duel, NewDuelItem, Position, DuelStatus as TDualStatus } from '@/types/duel';
 import { truncateAddress } from '@/utils/general/getEllipsisTxt';
+import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { FC, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
+import { useChainId } from 'wagmi';
+import { CreatorVerify } from '../creator/verify';
 import Categories from './categories';
 import Duels from './duals';
+import NoDuels from './duals/no-duels';
 import DuelStatus from './duel-status';
 import SearchDuels from './search-duel';
-import { CreatorVerify } from '../creator/verify';
-import { useChainId } from 'wagmi';
-import { Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
-import NoDuels from './duals/no-duels';
-import Banner from './banner';
+// import Banner from './banner';
 import TrendingBanner from './trending-banner';
 
 const ITEMS_PER_PAGE = 10;
@@ -234,11 +234,11 @@ const Markets: FC = () => {
   const trendingDuels = allDuels.filter((duel) => duel.category?.toLowerCase() === 'trending');
 
   return (
-    <div className="px-4 min-h-screen flex flex-col">
-      <Banner />
+    <div className="px-4 min-h-screen flex flex-col mt-4">
+      {/* <Banner /> */}
       {trendingDuels.length > 0 && <TrendingBanner trendingDuels={trendingDuels} />}
       <Categories activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center mt-2">
         <DuelStatus activeStatus={activeStatus} setActiveStatus={setActiveStatus} />
         <SearchDuels placeholder="Search Duels" onSearch={setSearchQuery} />
       </div>
