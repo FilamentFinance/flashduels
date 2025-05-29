@@ -1,14 +1,14 @@
-import { FC, useEffect, useState, useRef } from 'react';
-import { Duel } from '@/types/duel';
-import { Card } from '@/shadcn/components/ui/card';
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import ChanceProgress from './duals/chance-progress';
-import YesNoButton from './duals/yes-no-button';
-import { ShareButton } from './duals/share-button';
-import CopyLinkButton from './duals/copy-link-button';
 import { useTotalBetAmounts } from '@/hooks/useTotalBetAmounts';
 import { useTotalBets } from '@/hooks/useTotalBets';
+import { Card } from '@/shadcn/components/ui/card';
+import { Duel } from '@/types/duel';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { FC, useEffect, useRef, useState } from 'react';
+import ChanceProgress from './duals/chance-progress';
+import CopyLinkButton from './duals/copy-link-button';
+import { ShareButton } from './duals/share-button';
+import YesNoButton from './duals/yes-no-button';
 
 interface DuelCardProps {
   duel: Duel;
@@ -251,7 +251,7 @@ const TrendingBanner: FC<Props> = ({ trendingDuels }) => {
   const duplicatedDuels = [...activeDuels, ...activeDuels, ...activeDuels];
 
   return (
-    <div className="w-full overflow-hidden mb-4 relative -mt-5">
+    <div className="w-full overflow-hidden mb-4 relative -mt-1">
       <div className="absolute inset-0 bg-gradient-to-r from-zinc-900/50 via-transparent to-zinc-900/50 z-10 pointer-events-none" />
       <div className="flex animate-scroll">
         {duplicatedDuels.map((duel, index) => (
