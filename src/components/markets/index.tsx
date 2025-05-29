@@ -18,7 +18,8 @@ import NoDuels from './duals/no-duels';
 import DuelStatus from './duel-status';
 import SearchDuels from './search-duel';
 // import Banner from './banner';
-import TrendingBanner from './trending-banner';
+// import TrendingBanner from './trending-banner';
+import FullWidthDuel from './full-width-duel';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -236,8 +237,16 @@ const Markets: FC = () => {
   return (
     <div className="px-4 min-h-screen flex flex-col mt-4">
       {/* <Banner /> */}
-      {trendingDuels.length > 0 && <TrendingBanner trendingDuels={trendingDuels} />}
-      <Categories activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
+      {/* {trendingDuels.length > 0 && <TrendingBanner trendingDuels={trendingDuels} />} */}
+      {trendingDuels.length > 0 && (
+        <>
+          <FullWidthDuel duel={trendingDuels[trendingDuels.length - 1]} />
+          {/* {trendingDuels.length > 1 && <TrendingBanner trendingDuels={trendingDuels.slice(1)} />} */}
+        </>
+      )}
+      <div className="flex flex-col mt-4">
+        <Categories activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
+      </div>
       <div className="flex justify-between items-center mt-2">
         <DuelStatus activeStatus={activeStatus} setActiveStatus={setActiveStatus} />
         <SearchDuels placeholder="Search Duels" onSearch={setSearchQuery} />
