@@ -30,7 +30,11 @@ import { formatUnits } from 'viem/utils';
 
 const MAX_PROTOCOL_LIQUIDITY = 200000;
 
-const CreateDuel: FC = () => {
+interface CreateDuelProps {
+  disabled?: boolean;
+}
+
+const CreateDuel: FC<CreateDuelProps> = ({ disabled }) => {
   const { address } = useAccount();
   const chainId = useChainId();
   const apiClient = useApiClient(chainId);
@@ -165,7 +169,7 @@ const CreateDuel: FC = () => {
             isLoading && 'cursor-not-allowed',
           )}
           onClick={handleCreateDuelClick}
-          disabled={isLoading}
+          disabled={isLoading || disabled}
         >
           <span className={cn('relative z-10 flex items-center gap-2', isLoading && 'opacity-0')}>
             {NAVBAR.CREATE_DUEL.BUTTON_TEXT}

@@ -27,7 +27,11 @@ import { useAppSelector } from '@/store/hooks';
 import { RootState } from '@/store';
 import { shallowEqual } from 'react-redux';
 
-const ClaimAirdropButton: FC = () => {
+interface ClaimAirdropButtonProps {
+  disabled?: boolean;
+}
+
+const ClaimAirdropButton: FC<ClaimAirdropButtonProps> = ({ disabled }) => {
   const [status, setStatus] = useState<TransactionStatusType>(TRANSACTION_STATUS.IDLE);
   const [creditsBalance, setCreditsBalance] = useState<string>('0');
   const [availableToClaim, setAvailableToClaim] = useState<string>('0');
@@ -238,7 +242,7 @@ const ClaimAirdropButton: FC = () => {
                 onClick={() => setIsModalOpen(true)}
                 className="text-pink-300 border border-pink-300 bg-transparent hover:shadow-lg hover:scale-[1.02] hover:bg-pink-300/10 text-pink-300 font-bold h-10 px-4"
                 size="default"
-                disabled={!isAuthenticated}
+                disabled={!isAuthenticated || disabled}
               >
                 {!isAuthenticated
                   ? `Claim ${symbol}`
