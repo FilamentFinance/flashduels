@@ -1,7 +1,7 @@
 'use client';
 
 import { SERVER_CONFIG } from '@/config/server-config';
-import axios from 'axios';
+import axios, { AxiosInstance } from 'axios';
 // import { useChainId } from 'wagmi';
 let requestInterceptor: number | null = null;
 let responseInterceptor: number | null = null;
@@ -117,7 +117,7 @@ export const setupInterceptors = async (
   );
 };
 
-export const checkCreatorStatus = async (address: string, chainId: number, apiClient: any): Promise<boolean> => {
+export const checkCreatorStatus = async (address: string, chainId: number, apiClient: AxiosInstance): Promise<boolean> => {
   try {
     const response = await apiClient.get(
       `${SERVER_CONFIG.getApiUrl(chainId)}/user/creator/status`,
