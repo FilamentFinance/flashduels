@@ -1,7 +1,7 @@
 'use client';
 
 import { SERVER_CONFIG } from '@/config/server-config';
-import axios from 'axios';
+import axios, { AxiosInstance } from 'axios';
 // import { useChainId } from 'wagmi';
 let requestInterceptor: number | null = null;
 let responseInterceptor: number | null = null;
@@ -66,21 +66,72 @@ export const setupInterceptors = async (
   responseInterceptor = apiClient(chainId).interceptors.response.use(
     (response) => response,
     async (error) => {
-      if (error.response?.status === 401) {
-        // Clear local storage
-        localStorage.removeItem(`Bearer_${address.toLowerCase()}`);
-        localStorage.removeItem(`signingKey_${address.toLowerCase()}`);
-        localStorage.removeItem(`signingKeyExpiry_${address.toLowerCase()}`);
+      // Handle both 401 (Unauthorized) and 403 (Forbidden) responses
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        // Show toast message
+        const { toast } = await import('@/shadcn/components/ui/use-toast');
+        toast({
+          title: 'Session Expired',
+          description: 'Your session has expired. Please reconnect your wallet and enable trading again.',
+          variant: 'destructive',
+        });
 
-        // Call onUnauthorized callback
+        // Clear all authentication data from localStorage
+        console.log('Clearing authentication data from localStorage');
+        const keysToRemove = Object.keys(localStorage).filter(key =>
+          key.startsWith('Bearer_') ||
+          key.startsWith('signingKey_') ||
+          key.startsWith('signingKeyExpiry_')
+        );
+        keysToRemove.forEach(key => {
+          localStorage.removeItem(key);
+        });
+
+        // Call onUnauthorized callback to clear Redux state
         onUnauthorized();
 
         // Disconnect wallet
         disconnect();
+
+        // Clear any cached data
+        console.log('Clearing browser cache');
+        if (window.caches) {
+          try {
+            const cacheNames = await window.caches.keys();
+            await Promise.all(cacheNames.map(name => window.caches.delete(name)));
+          } catch (err) {
+            console.error('Error clearing cache:', err);
+          }
+        }
+
+        // Clear session storage
+        console.log('Clearing session storage');
+        sessionStorage.clear();
+
+        // Force reload the page with cache busting
+        console.log('Reloading page with cache busting');
+        window.location.href = window.location.pathname + '?t=' + new Date().getTime();
       }
       return Promise.reject(error);
     },
   );
+};
+
+export const checkCreatorStatus = async (address: string, chainId: number, apiClient: AxiosInstance): Promise<boolean> => {
+  try {
+    const response = await apiClient.get(
+      `${SERVER_CONFIG.getApiUrl(chainId)}/user/creator/status`,
+      {
+        params: {
+          address: address.toLowerCase(),
+        },
+      },
+    );
+    return response.data.isCreator;
+  } catch (error) {
+    console.error('Error checking creator status:', error);
+    return false;
+  }
 };
 
 export { apiClient };

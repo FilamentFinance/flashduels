@@ -74,7 +74,7 @@ const Bet: FC = () => {
     } catch (error) {
       console.error('Error fetching duel:', error);
       // setError('Failed to fetch duel details.');
-      setError('Please connect your wallet and do enable trading to view the duel information');
+      setError('Please click on Enable Trading to view the duel information');
     } finally {
       setLoading(false);
     }

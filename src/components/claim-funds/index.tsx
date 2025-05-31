@@ -28,7 +28,11 @@ import { decodeEventLog } from 'viem';
 
 const MAX_AUTO_WITHDRAW = 5000;
 
-const ClaimFunds: FC = () => {
+interface ClaimFundsProps {
+  disabled?: boolean;
+}
+
+const ClaimFunds: FC<ClaimFundsProps> = ({ disabled }) => {
   const [amount, setAmount] = useState('');
   const [earnings, setEarnings] = useState('0');
   // const [status, setStatus] = useState<TransactionStatusType>(TRANSACTION_STATUS.IDLE);
@@ -319,7 +323,7 @@ const ClaimFunds: FC = () => {
       trigger={
         <Button
           type="button"
-          disabled={!canWithdraw}
+          disabled={!canWithdraw || disabled}
           className={`flex rounded-l px-0 py-1 min-w-[180px] transition-all duration-200 font-bold text-black ${
             canWithdraw ? 'bg-gradient-pink' : 'bg-gradient-to-b from-[#F19ED2]/80 to-[#B67BE9]/80'
           }`}
@@ -334,7 +338,7 @@ const ClaimFunds: FC = () => {
       open={undefined}
       onOpenChange={(open) => {
         // Only allow opening if user has earnings
-        if (!canWithdraw && open) return;
+        if ((!canWithdraw || disabled) && open) return;
       }}
     >
       <div className="flex flex-col space-y-6">

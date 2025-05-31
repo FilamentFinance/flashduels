@@ -52,6 +52,7 @@ const Navbar: FC = () => {
   const apiClient = useApiClient(chainId ?? 0);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const enableTradingVisible = isConnected && address && !isAuthenticated;
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -140,9 +141,18 @@ const Navbar: FC = () => {
             {chainId !== undefined && isChainSupported(chainId) && (
               <div className="fixed top-8.5 right-2 z-50">
                 <button
-                  onClick={() => setDropdownOpen((open) => !open)}
-                  className="flex items-center gap-2 bg-glass p-2 rounded-lg border border-zinc-800 shadow-lg focus:outline-none hover:border-pink-600 hover:bg-pink-500/20 transition-colors cursor-pointer"
+                  onClick={() => {
+                    if (enableTradingVisible) return;
+                    setDropdownOpen((open) => !open);
+                  }}
+                  className={cn(
+                    'flex items-center gap-2 p-2 rounded-lg border shadow-lg transition-colors cursor-pointer',
+                    enableTradingVisible
+                      ? 'bg-zinc-900 border-zinc-800 text-zinc-500'
+                      : 'bg-glass border-zinc-800 focus:outline-none hover:border-pink-600 hover:bg-pink-500/20',
+                  )}
                   aria-label="Switch Network"
+                  disabled={enableTradingVisible}
                 >
                   <img
                     src={NETWORK_ICONS[chainId] || DEFAULT_NETWORK_ICON}
@@ -157,7 +167,7 @@ const Navbar: FC = () => {
                     />
                   </svg>
                 </button>
-                {dropdownOpen && (
+                {dropdownOpen && !enableTradingVisible && (
                   <div
                     className="absolute right-0 mt-2 w-32 bg-black border border-pink-300 rounded shadow-lg text-xs"
                     onMouseLeave={() => setDropdownOpen(false)}
@@ -190,7 +200,7 @@ const Navbar: FC = () => {
                             setIsSwitchingNetwork(false);
                           }
                         }}
-                        disabled={isSwitchingNetwork}
+                        disabled={isSwitchingNetwork || enableTradingVisible}
                       >
                         <div className="flex items-center">
                           <img
@@ -224,13 +234,13 @@ const Navbar: FC = () => {
             <div className="flex gap-2">
               {chainId !== undefined && isChainSupported(chainId) ? (
                 <>
-                  <ClaimFunds />
-                  <ClaimAirdropButton />
+                  <ClaimFunds disabled={enableTradingVisible} />
+                  <ClaimAirdropButton disabled={enableTradingVisible} />
                   <EnableTrading />
                   <GetGas />
                   {isAuthenticated && (
                     <div className="flex items-center gap-2">
-                      <CreateDuel />
+                      <CreateDuel disabled={enableTradingVisible} />
                     </div>
                   )}
                   <WalletModal>
@@ -271,7 +281,7 @@ const Navbar: FC = () => {
                   <button
                     onClick={() => setDropdownOpen((open) => !open)}
                     className="rounded border px-1.5 py-0.5 bg-black text-xs text-white border-pink-300 flex items-center min-h-7"
-                    disabled={isSwitchingNetwork}
+                    disabled={isSwitchingNetwork || enableTradingVisible}
                     aria-haspopup="listbox"
                     aria-expanded={dropdownOpen}
                   >
@@ -314,7 +324,7 @@ const Navbar: FC = () => {
                               setIsSwitchingNetwork(false);
                             }
                           }}
-                          disabled={isSwitchingNetwork}
+                          disabled={isSwitchingNetwork || enableTradingVisible}
                         >
                           <div className="flex items-center">
                             <img

@@ -43,39 +43,37 @@ const EnableTrading: FC = () => {
   const { chainId, isChainSupported, switchToSupportedNetwork } = useNetworkConfig();
   const apiClient = useApiClient(chainId ?? 0); // Default to 0 if chainId is undefined
 
+  // On wallet connect, verify JWT with backend
   useEffect(() => {
-    if (address && chainId && apiClient !== null && apiClient !== undefined) {
-      const authenticated = isUserAuthenticated(address);
-      if (authenticated) {
-        // Get stored values
-        const token = localStorage.getItem(`Bearer_${address.toLowerCase()}`);
-        const signingKey = localStorage.getItem(`signingKey_${address.toLowerCase()}`);
-        const signingKeyExpiry = localStorage.getItem(`signingKeyExpiry_${address.toLowerCase()}`);
-
-        if (token && signingKey && signingKeyExpiry) {
-          dispatch(
-            setAuthData({
-              address: address.toLowerCase(),
-              token,
-              signingKey,
-              signingKeyExpiry,
-            }),
+    if (address && chainId && isUserAuthenticated(address)) {
+      apiClient
+        .get(`/user/creator/status`, { params: { address: address.toLowerCase() } })
+        .then((res) => {
+          // If successful, set Redux auth state from localStorage
+          const token = localStorage.getItem(`Bearer_${address.toLowerCase()}`);
+          const signingKey = localStorage.getItem(`signingKey_${address.toLowerCase()}`);
+          const signingKeyExpiry = localStorage.getItem(
+            `signingKeyExpiry_${address.toLowerCase()}`,
           );
-
-          // Setup interceptors if user is already authenticated
-          setupInterceptors(address, disconnect, () => dispatch(clearAuth()), chainId);
-        } else {
-          // If any of the required values are missing, clear auth state
-          dispatch(clearAuth());
-          // Force reload to ensure clean state
-          window.location.reload();
-        }
-      } else {
-        // If not authenticated, clear any existing auth state
-        dispatch(clearAuth());
-      }
+          if (token && signingKey && signingKeyExpiry) {
+            dispatch(
+              setAuthData({
+                address: address.toLowerCase(),
+                token,
+                signingKey,
+                signingKeyExpiry,
+                isCreator: res.data.isCreator || false,
+              }),
+            );
+            setupInterceptors(address, disconnect, () => dispatch(clearAuth()), chainId);
+          }
+        })
+        .catch((err) => {
+          // If 401/403, interceptor will clear auth and disconnect wallet
+          console.log('Error enabling trading:', err);
+        });
     }
-  }, [address, dispatch, disconnect, chainId, apiClient]);
+  }, [address, chainId, apiClient, dispatch, disconnect]);
 
   const handleEnableTrading = async () => {
     if (!address) {
