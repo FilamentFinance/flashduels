@@ -232,7 +232,8 @@ const Markets: FC = () => {
   };
 
   // Filter trending duels from all duels, not just filtered ones
-  const trendingDuels = allDuels.filter((duel) => duel.category?.toLowerCase() === 'trending');
+  // const trendingDuels = allDuels.filter((duel) => duel.category?.toLowerCase() === 'trending');
+  const trendingDuels = allDuels.filter((duel) => duel.category?.toLowerCase() === 'trending' && (duel.status === 0 || duel.status === -1),);
 
   return (
     <div className="px-4 min-h-screen flex flex-col mt-4">
